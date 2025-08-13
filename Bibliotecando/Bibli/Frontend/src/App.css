@@ -1,0 +1,475 @@
+:root {
+  /* Cores principais do tema */
+  --color-bg: #ffffff;
+  --color-page: #ececec;
+  --color-foreground: #222222;
+  --color-sidebar: #2C3E50;
+  --color-accent: #2980B9;
+  --color-white: #ffffff;
+  --color-muted: rgba(34, 34, 34, 0.6);
+  --color-card-border: rgba(0,0,0,0.1);
+  --color-card-shadow: rgba(0,0,0,0.05);
+  --color-card-shadow-hover: rgba(0,0,0,0.12);
+
+  /* Tipografia */
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-size-base: 16px;
+  --font-size-small: 0.79rem;
+  --font-size-smaller: 0.75rem;
+
+  /* Dimensões / espaçamentos */
+  --sidebar-width: 280px;
+  --gap-sm: 0.4rem;
+  --gap-base: 1rem;
+  --pad-wide: 2rem;
+  --pad-medium: 1.5rem;
+  --border-radius: 8px;
+  --round-big: 12px;
+  --avatar-size: 140px;
+
+  /* Sombras / transições */
+  --shadow-sidebar: 4px 0 20px rgba(44, 62, 80, 0.4);
+  --shadow-card: 0 4px 12px var(--color-card-shadow);
+  --shadow-card-hover: 0 8px 24px var(--color-card-shadow-hover);
+  --transition-fast: 0.3s ease;
+  --transition-slower: 0.5s ease;
+
+  /* Botões */
+  --btn-bg: var(--color-accent);
+  --btn-bg-hover: #1B6AA8;
+  --btn-color: var(--color-white);
+  --btn-color-hover: var(--color-white);
+
+  /* Outras medidas úteis */
+  --help-size: 48px;
+  --devs-grid-min: 280px;
+}
+
+/* Reset básico e corpo */
+body.tema-padrao {
+  background-color: var(--color-bg);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  font-size: var(--font-size-base);
+}
+
+/* Container geral (sidebar + conteúdo) */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-page);
+}
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--color-sidebar);
+  color: var(--color-white);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 10;
+  box-shadow: var(--shadow-sidebar);
+}
+
+.sidebar-header {
+  padding: 1.8rem 1.5rem 1.2rem;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.sidebar-header h4 {
+  margin: 10px 0 6px 0;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: #1DCD9F;
+}
+
+.sidebar-tagline {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 6px;
+  font-style: italic;
+  letter-spacing: 0.8px;
+  user-select: none;
+  line-height: 1.2;
+  max-width: 220px;
+}
+
+.sidebar-header p {
+  margin-top: -10px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.sidebar .nav {
+  flex: 1;
+  padding: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar .sidebar-section-title {
+  color: var(--color-accent) !important;
+  font-size: var(--font-size-smaller);
+  font-weight: 500;
+  padding: 1rem 1.5rem 0.5rem;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+}
+
+/* Links do menu */
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 1.5rem;
+  margin: 0.15rem 0.5rem;
+  color: var(--color-white);
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 400;
+  position: relative;
+  transition: color var(--transition-fast);
+  cursor: pointer;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 1.5rem;
+  bottom: 0.3rem;
+  width: 0;
+  height: 2px;
+  background-color: var(--color-accent);
+  transition: width var(--transition-slower);
+  border-radius: 1px;
+}
+
+.nav-link:hover::after {
+  width: calc(100% - 3rem);
+}
+
+.nav-link:hover {
+  color: var(--color-accent);
+}
+
+.nav-link.active {
+  font-weight: 500;
+  box-shadow: inset 0 0 0 1px rgba(41, 128, 185, 0.2);
+}
+
+.nav-link .me-2 {
+  margin-right: 1rem;
+  font-size: 1.1rem;
+  width: 24px;
+  text-align: center;
+  color: var(--color-white);
+}
+
+/* Conteúdo principal */
+.content {
+  flex: 1;
+  padding: var(--pad-wide);
+  overflow-y: auto;
+  background-color: var(--color-page);
+  color: var(--color-foreground);
+}
+
+/* Botões */
+.btn-primary {
+  background-color: #1DCD9F;
+  border: none !important;
+  color: var(--btn-color) !important;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.btn-primary:hover {
+  background-color: #169976;
+  color: var(--btn-color-hover) !important;
+}
+
+/* Cartões */
+.card {
+  border: none;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  background-color: var(--color-white);
+  color: var(--color-foreground);
+  box-shadow: var(--shadow-card);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.card-body {
+  padding: var(--pad-wide);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-card-border);
+}
+
+.card-header {
+  background-color: var(--color-sidebar);
+  color: var(--color-white);
+  padding: 1rem 1.5rem;
+  border-bottom: 2px solid var(--color-accent);
+}
+
+.card-title {
+  color: var(--color-sidebar);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+/* classes utilitárias de cor */
+.text-primary {
+  color: var(--color-sidebar) !important;
+  margin-bottom: -4px;
+}
+
+.bg-primary {
+  background-color: var(--color-sidebar) !important;
+  color: var(--color-white) !important;
+}
+
+.input-group-text {
+  background-color: var(--color-sidebar) !important;
+  color: var(--color-white) !important;
+  border: none !important;
+}
+
+/* botão de ajuda fixa no canto inferior direito */
+.help-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #169976;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: var(--help-size);
+  height: var(--help-size);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  z-index: 9999;
+}
+
+.help-button:hover {
+  background-color: #222222;
+  color: #ececec;
+}
+
+/* responsividade */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .content {
+    padding: var(--pad-medium);
+  }
+
+}/* ====== CONTAINER GERAL ====== */
+.about-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: "Poppins", sans-serif;
+  color: #222;
+}
+
+/* ====== SEÇÕES ====== */
+.about-section {
+  margin-bottom: 5rem;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+.about-section h2, 
+.about-section h3 {
+  font-weight: 700;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.about-section h2::after,
+.about-section h3::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 4px;
+  background-color: #1DCD9F;
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
+}
+
+/* ====== TEXTO SOBRE ====== */
+.about-text {
+  max-width: 700px;
+  margin: 0 auto;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: #555;
+}
+
+/* ====== MISSÃO / VISÃO / VALORES ====== */
+.mvv-card {
+  background: #fff;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+}
+
+.mvv-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+}
+
+.mvv-card h4 {
+  color: #1DCD9F;
+  margin-bottom: 1rem;
+}
+
+.mvv-card p {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* ====== TECNOLOGIAS ====== */
+.tech-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.tech-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff;
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: default;
+}
+
+.tech-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px rgba(0,0,0,0.12);
+}
+
+/* ====== EQUIPE ====== */
+.team-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 1.5rem 1rem;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+}
+
+.team-card img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #1DCD9F;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.team-card:hover img {
+  transform: scale(1.05);
+  border-color: #16a085;
+}
+
+.team-card h5 {
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+}
+
+.team-card h6 {
+  color: #1DCD9F;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.team-card p {
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
+}
+
+/* ====== CALL TO ACTION ====== */
+.about-cta {
+  background: linear-gradient(135deg, #1DCD9F, #169976);
+  color: #fff;
+  padding: 2rem;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.about-cta h4 {
+  margin-bottom: 1rem;
+}
+
+.about-cta p {
+  font-size: 1rem;
+}
+
+.about-cta a {
+  color: #fff;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.about-cta a:hover {
+  text-decoration: none;
+}
+
+/* ====== RESPONSIVIDADE ====== */
+@media (max-width: 768px) {
+  .mvv-card, .team-card, .tech-item {
+    padding: 1rem;
+  }
+
+  .about-text {
+    font-size: 1rem;
+  }
+}
+

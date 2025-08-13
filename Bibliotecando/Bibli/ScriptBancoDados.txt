@@ -1,0 +1,38 @@
+CREATE TABLE `alunos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(100) NOT NULL,
+  `matricula` varchar(20) NOT NULL,
+  `cpf` varchar(14) NOT NULL,
+  `data_nascimento` date NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `telefone` varchar(20) DEFAULT NULL,
+  `turma` enum('6º Ano','7º Ano','8º Ano','9º Ano','1º Colegial','2º Colegial','3º Colegial') NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `matricula` (`matricula`),
+  UNIQUE KEY `cpf` (`cpf`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `livros` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `titulo` varchar(255) NOT NULL,
+  `autor` varchar(255) NOT NULL,
+  `editora` varchar(255) NOT NULL,
+  `isbn` varchar(20) NOT NULL,
+  `genero` enum('Romance','Ficção','Drama','Suspense','Fantasia','Biografia','Terror','Educação','Outro') NOT NULL,
+  `ano_publicacao` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `professores` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(100) NOT NULL,
+  `matricula` varchar(20) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `telefone` varchar(20) DEFAULT NULL,
+  `departamento` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `matricula` (`matricula`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
