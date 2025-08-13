@@ -115,12 +115,11 @@ export default function About() {
         </Row>
       </section>
 
-      {/* Call to Action */}
       <section className="about-section">
         <div className="about-cta">
           <h4>Quer saber mais ou contribuir com o projeto?</h4>
           <p>
-            Entre em contato pelo e-mail{" "}
+            Entre em contato pelo e-mail{" "} testeeeeeeeeeeeeeee
             <a href="mailto:suportebibli@gmail.com">suportebibli@gmail.com</a>
           </p>
         </div>
