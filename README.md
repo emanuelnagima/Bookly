@@ -7,7 +7,6 @@ O **Bibliotecando** é um sistema completo para gerenciamento do acervo da bibli
 - **Cadastro completo:** alunos, professores, livros, autores e editoras, com informações detalhadas como título, editora, ano de publicação e autor.
 - **Gestão de empréstimos:** registro de saídas, devoluções e renovação de livros, com controle de disponibilidade de exemplares.
 - **Reservas de livros:** permite que alunos e professores reservem livros para períodos específicos.
-- **Código de rastreio:** cada empréstimo gera um código vinculado ao usuário e ao exemplar, agilizando a localização e devolução.
 - **Controle de acervo:** registro automático de novas entradas e baixa de livros descartados.
 - **Consultas e filtros:** acesso rápido a informações sobre reservas, empréstimos, devoluções e acervo disponível.
 - **Relatórios detalhados:** emissão de relatórios sobre estoque, reservas pendentes, empréstimos realizados e livros disponíveis.
