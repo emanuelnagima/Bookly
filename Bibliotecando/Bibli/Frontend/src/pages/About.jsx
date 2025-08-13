@@ -8,7 +8,11 @@ import {
   FaHtml5,
   FaCss3Alt,
   FaJsSquare,
-  FaGithub
+  FaGithub,
+  FaChartLine,
+  FaMobileAlt,
+  FaShieldAlt,
+  FaHandsHelping
 } from "react-icons/fa";
 
 const devs = [
@@ -48,6 +52,34 @@ const technologies = [
   { name: "Git", icon: <FaGithub size={55} color="#F1502F" /> },
 ];
 
+const features = [
+  {
+    icon: <FaBookOpen size={40} />,
+    title: "Gestão Completa de Acervo",
+    description: "Controle total sobre livros com categorização."
+  },
+  {
+    icon: <FaUsers size={40} />,
+    title: "Controle de Usuários",
+    description: "Cadastro para bibliotecários, professores e alunos."
+  },
+  {
+    icon: <FaChartLine size={40} />,
+    title: "Relatórios e Analytics",
+    description: "Dados sobre circulação de livros e tomada de decisão informada."
+  },
+  {
+    icon: <FaMobileAlt size={40} />,
+    title: "Responsividade Total",
+    description: "Interface adaptável a qualquer dispositivo, desde computadores até tablets e smartphones."
+  },
+  {
+    icon: <FaHandsHelping size={40} />,
+    title: "Suporte 24/7",
+    description: "Equipe especializada disponível para ajudar com qualquer dúvida ou necessidade técnica."
+  }
+];
+
 export default function About() {
   return (
     <Container className="about-container py-5">
@@ -60,6 +92,24 @@ export default function About() {
           simplificando o controle de acervo e usuários. Nosso foco é a eficiência,
           segurança e facilidade de uso para bibliotecários, professores e leitores.
         </p>
+      </section>
+
+      {/* Recursos */}
+      <section className="about-section mb-5">
+        <h3 className="text-center mb-4">Nossos Recursos</h3>
+        <Row className="g-4">
+          {features.map((feature, i) => (
+            <Col key={i} md={6} lg={4}>
+              <div className="feature-card p-4 h-100">
+                <div className="feature-icon mb-3">
+                  {feature.icon}
+                </div>
+                <h5>{feature.title}</h5>
+                <p>{feature.description}</p>
+              </div>
+            </Col>
+          ))}
+        </Row>
       </section>
 
       {/* Missão, Visão e Valores */}
@@ -116,12 +166,18 @@ export default function About() {
         </Row>
       </section>
 
-      <section className="about-section">
-        <div className="about-cta">
-          <h4>Quer saber mais ou contribuir com o projeto?</h4>
+      {/* CTA */}
+      <section className="about-section text-center">
+        <div className="about-cta p-4 rounded">
+          <h3 className="mb-3">Faça parte dessa jornada!</h3>
+          <p className="mb-3">
+            Quer implementar o Bibliotecando em sua instituição ou contribuir com o projeto?
+          </p>
           <p>
-            Entre em contato pelo e-mail{" "} testeeeeeeeeeeeeeee
-            <a href="mailto:suportebibli@gmail.com">suportebibli@gmail.com</a>
+            Entre em contato pelo e-mail <a href="mailto:suportebibli@gmail.com">suportebibli@gmail.com</a> 
+          </p>
+          <p className="mt-3 small">
+            Estamos abertos a parcerias com desenvolvedores e instituições de ensino.
           </p>
         </div>
       </section>
