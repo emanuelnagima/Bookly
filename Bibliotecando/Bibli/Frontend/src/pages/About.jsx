@@ -7,7 +7,8 @@ import {
   FaDatabase,
   FaHtml5,
   FaCss3Alt,
-  FaJsSquare
+  FaJsSquare,
+  FaGithub
 } from "react-icons/fa";
 
 const devs = [
@@ -38,12 +39,13 @@ const devs = [
 ];
 
 const technologies = [
-  { name: "HTML5", icon: <FaHtml5 size={28} color="#E44D26" /> },
-  { name: "CSS3", icon: <FaCss3Alt size={28} color="#264DE4" /> },
-  { name: "JavaScript", icon: <FaJsSquare size={28} color="#F0DB4F" /> },
-  { name: "React", icon: <FaReact size={28} color="#61DBFB" /> },
-  { name: "Node.js", icon: <FaNodeJs size={28} color="#68A063" /> },
-  { name: "Banco de Dados", icon: <FaDatabase size={28} color="#336791" /> },
+  { name: "HTML5", icon: <FaHtml5 size={55} color="#E44D26" /> },
+  { name: "CSS3", icon: <FaCss3Alt size={55} color="#264DE4" /> },
+  { name: "JavaScript", icon: <FaJsSquare size={55} color="#F0DB4F" /> },
+  { name: "React", icon: <FaReact size={55} color="#61DBFB" /> },
+  { name: "Node.js", icon: <FaNodeJs size={55} color="#68A063" /> },
+  { name: "Banco de Dados", icon: <FaDatabase size={55} color="#336791" /> },
+  { name: "Git", icon: <FaGithub size={55} color="#F1502F" /> },
 ];
 
 export default function About() {
@@ -52,7 +54,6 @@ export default function About() {
       
       {/* Sobre o sistema */}
       <section className="about-section text-center">
-        <FaBookOpen size={60} className="mb-3 text-primary" />
         <h2>Sobre o Bibliotecando</h2>
         <p className="about-text mt-3">
           O <strong>Bibliotecando</strong> é uma solução moderna para gestão de bibliotecas,

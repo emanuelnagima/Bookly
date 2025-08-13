@@ -338,22 +338,14 @@ body.tema-padrao {
 
 /* ====== MISSÃO / VISÃO / VALORES ====== */
 .mvv-card {
-  background: #fff;
   border-radius: 15px;
   padding: 2rem;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   height: 100%;
 }
 
-.mvv-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
-}
 
 .mvv-card h4 {
   color: #1DCD9F;
-  margin-bottom: 1rem;
 }
 
 .mvv-card p {
@@ -374,18 +366,12 @@ body.tema-padrao {
 .tech-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: #fff;
-  border-radius: 12px;
+  gap: 0.2rem;
   padding: 0.8rem 1rem;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: default;
 }
 
 .tech-item:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 20px rgba(0,0,0,0.12);
 }
 
 /* ====== EQUIPE ====== */
@@ -436,16 +422,14 @@ body.tema-padrao {
 
 /* ====== CALL TO ACTION ====== */
 .about-cta {
-  background: linear-gradient(135deg, #1DCD9F, #169976);
-  color: #fff;
+  color: #2C3E50;
   padding: 2rem;
   border-radius: 20px;
   text-align: center;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
 .about-cta h4 {
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .about-cta p {
@@ -453,7 +437,7 @@ body.tema-padrao {
 }
 
 .about-cta a {
-  color: #fff;
+  color: #17425e;
   font-weight: 600;
   text-decoration: underline;
 }

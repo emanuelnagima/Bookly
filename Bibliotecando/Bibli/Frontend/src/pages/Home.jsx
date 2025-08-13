@@ -94,7 +94,7 @@ const Home = () => {
       </Row>
 
       {/* ===== CARDS DE FUNCIONALIDADES ===== */}
-      <Row className="g-4">
+      <Row className="g-1">
         {/* Card: Livros */}
         <Col md={6} lg={4} xl={3}>
           <Card className="h-100 text-center">
