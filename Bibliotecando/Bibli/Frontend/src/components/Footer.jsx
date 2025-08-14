@@ -1,8 +1,16 @@
-import { Container, Row, Col } from 'react-bootstrap'
-import { FaFacebookF, FaInstagram, FaTwitter, FaLinkedinIn, FaChevronRight, FaMapMarkerAlt, FaEnvelope, FaPhoneAlt } from 'react-icons/fa'
+import { Container, Row, Col } from "react-bootstrap";
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaTwitter,
+  FaLinkedinIn,
+  FaChevronRight,
+  FaMapMarkerAlt,
+  FaEnvelope,
+  FaCommentDots,
+  FaArrowUp,
+} from "react-icons/fa";
 
-const Footer = () => {
-  return (
     <footer className="rodape-principal mt-5">
       <Container className="container-rodape">
         <Row className="linha-rodape">
