@@ -18,7 +18,7 @@
   --font-size-small: 0.79rem; /* Tamanho pequeno */
   --font-size-smaller: 0.75rem; /* Tamanho menor ainda */
 
-  /* Dimensões / espaçamentos */
+  /* Dimensões e espaçamentos */
   --sidebar-width: 280px; /* Largura do sidebar */
   --gap-sm: 0.4rem; /* Espaçamento pequeno */
   --gap-base: 1rem; /* Espaçamento base */
@@ -28,7 +28,7 @@
   --round-big: 12px; /* Raio de borda maior */
   --avatar-size: 140px; /* Tamanho do avatar */
 
-  /* Sombras / transições */
+  /* Sombras e transições */
   --shadow-sidebar: 4px 0 20px rgba(44, 62, 80, 0.4); /* Sombra do sidebar */
   --shadow-card: 0 4px 12px var(--color-card-shadow); /* Sombra padrão de card */
   --shadow-card-hover: 0 8px 24px var(--color-card-shadow-hover); /* Sombra de card no hover */
