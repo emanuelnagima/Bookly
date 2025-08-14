@@ -2,7 +2,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import {
   FaFacebookF,
   FaInstagram,
-  FaX,
+  FaTwitter,
   FaLinkedinIn,
   FaChevronRight,
   FaMapMarkerAlt,
@@ -47,7 +47,7 @@ const Footer = () => {
                   <FaInstagram />
                 </a>
                 <a href="#" className="text-dark fs-5">
-                  <FaX />
+                  <FaTwitter />
                 </a>
                 <a href="#" className="text-dark fs-5">
                   <FaLinkedinIn />
