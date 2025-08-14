@@ -1,52 +1,51 @@
-/* ====== VARIÁVEIS CSS (CUSTOM PROPERTIES) ====== */
 :root {
   /* Cores principais do tema */
-  --color-bg: #ffffff; /* Cor de fundo principal */
-  --color-page: #f7f7f7; /* Cor de fundo da página */
-  --color-foreground: #222222; /* Cor do texto principal */
-  --color-sidebar: #2C3E50; /* Cor do sidebar */
-  --color-accent: #2980B9; /* Cor de destaque/acento */
-  --color-white: #ffffff; /* Branco puro */
-  --color-muted: rgba(34, 34, 34, 0.6); /* Texto com opacidade reduzida */
-  --color-card-border: rgba(0, 0, 0, 0.1); /* Borda sutil para cards */
-  --color-card-shadow: rgba(0, 0, 0, 0.05); /* Sombra padrão para cards */
-  --color-card-shadow-hover: rgba(0, 0, 0, 0.12); /* Sombra para hover em cards */
+  --color-bg: #ffffff;
+  --color-page: #ececec;
+  --color-foreground: #222222;
+  --color-sidebar: #2C3E50;
+  --color-accent: #2980B9;
+  --color-white: #ffffff;
+  --color-muted: rgba(34, 34, 34, 0.6);
+  --color-card-border: rgba(0,0,0,0.1);
+  --color-card-shadow: rgba(0,0,0,0.05);
+  --color-card-shadow-hover: rgba(0,0,0,0.12);
 
   /* Tipografia */
-  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif; /* Fonte principal */
-  --font-size-base: 16px; /* Tamanho base da fonte */
-  --font-size-small: 0.79rem; /* Tamanho pequeno */
-  --font-size-smaller: 0.75rem; /* Tamanho menor ainda */
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-size-base: 16px;
+  --font-size-small: 0.79rem;
+  --font-size-smaller: 0.75rem;
 
   /* Dimensões / espaçamentos */
-  --sidebar-width: 280px; /* Largura do sidebar */
-  --gap-sm: 0.4rem; /* Espaçamento pequeno */
-  --gap-base: 1rem; /* Espaçamento base */
-  --pad-wide: 2rem; /* Padding largo */
-  --pad-medium: 1.5rem; /* Padding médio */
-  --border-radius: 8px; /* Raio de borda padrão */
-  --round-big: 12px; /* Raio de borda maior */
-  --avatar-size: 140px; /* Tamanho do avatar */
+  --sidebar-width: 280px;
+  --gap-sm: 0.4rem;
+  --gap-base: 1rem;
+  --pad-wide: 2rem;
+  --pad-medium: 1.5rem;
+  --border-radius: 8px;
+  --round-big: 12px;
+  --avatar-size: 140px;
 
   /* Sombras / transições */
-  --shadow-sidebar: 4px 0 20px rgba(44, 62, 80, 0.4); /* Sombra do sidebar */
-  --shadow-card: 0 4px 12px var(--color-card-shadow); /* Sombra padrão de card */
-  --shadow-card-hover: 0 8px 24px var(--color-card-shadow-hover); /* Sombra de card no hover */
-  --transition-fast: 0.3s ease; /* Transição rápida */
-  --transition-slower: 0.5s ease; /* Transição mais lenta */
+  --shadow-sidebar: 4px 0 20px rgba(44, 62, 80, 0.4);
+  --shadow-card: 0 4px 12px var(--color-card-shadow);
+  --shadow-card-hover: 0 8px 24px var(--color-card-shadow-hover);
+  --transition-fast: 0.3s ease;
+  --transition-slower: 0.5s ease;
 
   /* Botões */
-  --btn-bg: var(--color-accent); /* Cor de fundo do botão */
-  --btn-bg-hover: #1B6AA8; /* Cor de fundo no hover */
-  --btn-color: var(--color-white); /* Cor do texto do botão */
-  --btn-color-hover: var(--color-white); /* Cor do texto no hover */
+  --btn-bg: var(--color-accent);
+  --btn-bg-hover: #1B6AA8;
+  --btn-color: var(--color-white);
+  --btn-color-hover: var(--color-white);
 
   /* Outras medidas úteis */
-  --help-size: 48px; /* Tamanho do botão de ajuda */
-  --devs-grid-min: 280px; /* Largura mínima para grid de desenvolvedores */
+  --help-size: 48px;
+  --devs-grid-min: 280px;
 }
 
-/* ====== RESET BÁSICO E ESTILOS GERAIS ====== */
+/* Reset básico e corpo */
 body.tema-padrao {
   background-color: var(--color-bg);
   color: var(--color-foreground);
@@ -54,17 +53,16 @@ body.tema-padrao {
   margin: 0;
   padding: 0;
   font-size: var(--font-size-base);
-  background: linear-gradient(to bottom, #f0f4f8, #ffffff); /* Gradiente sutil de fundo */
 }
 
-/* ====== LAYOUT PRINCIPAL ====== */
+/* Container geral (sidebar + conteúdo) */
 .app-container {
   display: flex;
   min-height: 100vh;
   background-color: var(--color-page);
 }
 
-/* ====== SIDEBAR ====== */
+/* Sidebar */
 .sidebar {
   width: var(--sidebar-width);
   background-color: var(--color-sidebar);
@@ -76,53 +74,46 @@ body.tema-padrao {
   box-shadow: var(--shadow-sidebar);
 }
 
-/* Cabeçalho do sidebar */
 .sidebar-header {
   padding: 1.8rem 1.5rem 1.2rem;
 }
 
-/* Conteúdo do cabeçalho */
 .header-content {
   display: flex;
   flex-direction: column;
   gap: var(--gap-sm);
 }
 
-/* Container do título */
 .title-wrapper {
   display: flex;
   align-items: center;
   gap: 0.8rem;
 }
 
-/* Estilos do título principal */
 .sidebar-header h4 {
   margin: 10px 0 6px 0;
   font-weight: 600;
   font-size: 1.5rem;
-  color: #1DCD9F; /* Cor verde para destaque */
+  color: #1DCD9F;
 }
 
-/* Tagline abaixo do título */
 .sidebar-tagline {
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.6);
   margin-top: 6px;
   font-style: italic;
   letter-spacing: 0.8px;
-  user-select: none; /* Impede seleção de texto */
+  user-select: none;
   line-height: 1.2;
   max-width: 220px;
 }
 
-/* Texto de copyright/rodapé */
 .sidebar-header p {
   margin-top: -10px;
   font-size: 12px;
   color: rgba(255, 255, 255, 0.38);
 }
 
-/* Navegação principal */
 .sidebar .nav {
   flex: 1;
   padding: 0;
@@ -131,9 +122,8 @@ body.tema-padrao {
   flex-direction: column;
 }
 
-/* Títulos de seção no sidebar */
 .sidebar .sidebar-section-title {
-  color: #1DCD9F !important;
+  color: var(--color-accent) !important;
   font-size: var(--font-size-smaller);
   font-weight: 500;
   padding: 1rem 1.5rem 0.5rem;
@@ -141,7 +131,7 @@ body.tema-padrao {
   margin-top: 0.5rem;
 }
 
-/* Links de navegação */
+/* Links do menu */
 .nav-link {
   display: flex;
   align-items: center;
@@ -157,7 +147,6 @@ body.tema-padrao {
   cursor: pointer;
 }
 
-/* Efeito de sublinhado animado */
 .nav-link::after {
   content: "";
   position: absolute;
@@ -170,12 +159,10 @@ body.tema-padrao {
   border-radius: 1px;
 }
 
-/* Animação do sublinhado no hover */
 .nav-link:hover::after {
   width: calc(100% - 3rem);
 }
 
-/* Efeitos de hover e estado ativo */
 .nav-link:hover {
   color: var(--color-accent);
 }
@@ -185,7 +172,6 @@ body.tema-padrao {
   box-shadow: inset 0 0 0 1px rgba(41, 128, 185, 0.2);
 }
 
-/* Ícones nos links */
 .nav-link .me-2 {
   margin-right: 1rem;
   font-size: 1.1rem;
@@ -194,7 +180,7 @@ body.tema-padrao {
   color: var(--color-white);
 }
 
-/* ====== CONTEÚDO PRINCIPAL ====== */
+/* Conteúdo principal */
 .content {
   flex: 1;
   padding: var(--pad-wide);
@@ -203,7 +189,6 @@ body.tema-padrao {
   color: var(--color-foreground);
 }
 
-/* ====== COMPONENTES ====== */
 /* Botões */
 .btn-primary {
   background-color: #1DCD9F;
@@ -218,21 +203,7 @@ body.tema-padrao {
   color: var(--btn-color-hover) !important;
 }
 
-/* Botão "Voltar ao topo" */
-.btn-voltar-topo {
-  background-color: #ececec;
-  border: none;
-  color: #2C3E50 !important;
-  cursor: pointer;
-  transition: background-color 0.5s ease;
-}
-
-.btn-voltar-topo:hover {
-  background-color: #2C3E50;
-  color: #fff !important;
-}
-
-/* Cards */
+/* Cartões */
 .card {
   border: none;
   border-radius: var(--border-radius);
@@ -243,20 +214,17 @@ body.tema-padrao {
   box-shadow: var(--shadow-card);
 }
 
-/* Efeito de hover no card */
 .card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-card-hover);
 }
 
-/* Corpo do card */
 .card-body {
   padding: var(--pad-wide);
   border-radius: var(--border-radius);
   border: 1px solid var(--color-card-border);
 }
 
-/* Cabeçalho do card */
 .card-header {
   background-color: var(--color-sidebar);
   color: var(--color-white);
@@ -264,14 +232,13 @@ body.tema-padrao {
   border-bottom: 2px solid var(--color-accent);
 }
 
-/* Título do card */
 .card-title {
   color: var(--color-sidebar);
   font-weight: 600;
   margin-bottom: 1.5rem;
 }
 
-/* ====== CLASSES UTILITÁRIAS ====== */
+/* classes utilitárias de cor */
 .text-primary {
   color: var(--color-sidebar) !important;
   margin-bottom: -4px;
@@ -288,7 +255,7 @@ body.tema-padrao {
   border: none !important;
 }
 
-/* ====== BOTÃO DE AJUDA ====== */
+/* botão de ajuda fixa no canto inferior direito */
 .help-button {
   position: fixed;
   bottom: 20px;
@@ -300,7 +267,7 @@ body.tema-padrao {
   width: var(--help-size);
   height: var(--help-size);
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -313,23 +280,21 @@ body.tema-padrao {
   color: #ececec;
 }
 
-/* ====== RESPONSIVIDADE ====== */
+/* responsividade */
 @media (max-width: 768px) {
   .app-container {
-    flex-direction: column; /* Empilha sidebar e conteúdo em mobile */
+    flex-direction: column;
   }
 
   .sidebar {
-    width: 100%; /* Sidebar ocupa toda a largura */
+    width: 100%;
   }
 
   .content {
-    padding: var(--pad-medium); /* Reduz padding em mobile */
+    padding: var(--pad-medium);
   }
-}
 
-/* ====== PÁGINA "SOBRE" ====== */
-/* Container geral */
+}/* ====== CONTAINER GERAL ====== */
 .about-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -337,15 +302,14 @@ body.tema-padrao {
   color: #222;
 }
 
-/* Seções da página */
+/* ====== SEÇÕES ====== */
 .about-section {
   margin-bottom: 5rem;
   padding: 0 1rem;
   text-align: center;
 }
 
-/* Títulos com efeito de sublinhado */
-.about-section h2,
+.about-section h2, 
 .about-section h3 {
   font-weight: 700;
   margin-bottom: 1rem;
@@ -363,7 +327,7 @@ body.tema-padrao {
   border-radius: 2px;
 }
 
-/* Texto sobre */
+/* ====== TEXTO SOBRE ====== */
 .about-text {
   max-width: 700px;
   margin: 0 auto;
@@ -372,12 +336,13 @@ body.tema-padrao {
   color: #555;
 }
 
-/* Cards de Missão, Visão e Valores */
+/* ====== MISSÃO / VISÃO / VALORES ====== */
 .mvv-card {
   border-radius: 15px;
   padding: 2rem;
   height: 100%;
 }
+
 
 .mvv-card h4 {
   color: #1DCD9F;
@@ -389,7 +354,7 @@ body.tema-padrao {
   line-height: 1.5;
 }
 
-/* Lista de tecnologias */
+/* ====== TECNOLOGIAS ====== */
 .tech-list {
   display: flex;
   flex-wrap: wrap;
@@ -409,21 +374,20 @@ body.tema-padrao {
   transform: translateY(-4px);
 }
 
-/* Cards de equipe */
+/* ====== EQUIPE ====== */
 .team-card {
   background: #fff;
   border-radius: 20px;
   padding: 1.5rem 1rem;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .team-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
 }
 
-/* Avatar da equipe */
 .team-card img {
   width: 120px;
   height: 120px;
@@ -439,7 +403,6 @@ body.tema-padrao {
   border-color: #16a085;
 }
 
-/* Textos no card de equipe */
 .team-card h5 {
   margin-bottom: 0.3rem;
   font-weight: 600;
@@ -457,7 +420,7 @@ body.tema-padrao {
   text-align: center;
 }
 
-/* Seção de Call to Action */
+/* ====== CALL TO ACTION ====== */
 .about-cta {
   color: #2C3E50;
   padding: 2rem;
@@ -483,11 +446,9 @@ body.tema-padrao {
   text-decoration: none;
 }
 
-/* Responsividade para a página Sobre */
+/* ====== RESPONSIVIDADE ====== */
 @media (max-width: 768px) {
-  .mvv-card,
-  .team-card,
-  .tech-item {
+  .mvv-card, .team-card, .tech-item {
     padding: 1rem;
   }
 
@@ -495,3 +456,4 @@ body.tema-padrao {
     font-size: 1rem;
   }
 }
+
