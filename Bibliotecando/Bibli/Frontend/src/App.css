@@ -17,22 +17,22 @@
   --font-size-small: 0.79rem;
   --font-size-smaller: 0.75rem;
 
-  /* Dimensões / espaçamentos */
-  --sidebar-width: 280px;
-  --gap-sm: 0.4rem;
-  --gap-base: 1rem;
-  --pad-wide: 2rem;
-  --pad-medium: 1.5rem;
-  --border-radius: 8px;
-  --round-big: 12px;
-  --avatar-size: 140px;
+  /* Dimensões e espaçamentos */
+  --sidebar-width: 280px; /* Largura do sidebar */
+  --gap-sm: 0.4rem; /* Espaçamento pequeno */
+  --gap-base: 1rem; /* Espaçamento base */
+  --pad-wide: 2rem; /* Padding largo */
+  --pad-medium: 1.5rem; /* Padding médio */
+  --border-radius: 8px; /* Raio de borda padrão */
+  --round-big: 12px; /* Raio de borda maior */
+  --avatar-size: 140px; /* Tamanho do avatar */
 
-  /* Sombras / transições */
-  --shadow-sidebar: 4px 0 20px rgba(44, 62, 80, 0.4);
-  --shadow-card: 0 4px 12px var(--color-card-shadow);
-  --shadow-card-hover: 0 8px 24px var(--color-card-shadow-hover);
-  --transition-fast: 0.3s ease;
-  --transition-slower: 0.5s ease;
+  /* Sombras e transições */
+  --shadow-sidebar: 4px 0 20px rgba(44, 62, 80, 0.4); /* Sombra do sidebar */
+  --shadow-card: 0 4px 12px var(--color-card-shadow); /* Sombra padrão de card */
+  --shadow-card-hover: 0 8px 24px var(--color-card-shadow-hover); /* Sombra de card no hover */
+  --transition-fast: 0.3s ease; /* Transição rápida */
+  --transition-slower: 0.5s ease; /* Transição mais lenta */
 
   /* Botões */
   --btn-bg: var(--color-accent);
