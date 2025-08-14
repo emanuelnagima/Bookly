@@ -1,21 +1,22 @@
+/* ====== VARIÁVEIS CSS (CUSTOM PROPERTIES) ====== */
 :root {
   /* Cores principais do tema */
-  --color-bg: #ffffff;
-  --color-page: #ececec;
-  --color-foreground: #222222;
-  --color-sidebar: #2C3E50;
-  --color-accent: #2980B9;
-  --color-white: #ffffff;
-  --color-muted: rgba(34, 34, 34, 0.6);
-  --color-card-border: rgba(0,0,0,0.1);
-  --color-card-shadow: rgba(0,0,0,0.05);
-  --color-card-shadow-hover: rgba(0,0,0,0.12);
+  --color-bg: #ffffff; /* Cor de fundo principal */
+  --color-page: #f7f7f7; /* Cor de fundo da página */
+  --color-foreground: #222222; /* Cor do texto principal */
+  --color-sidebar: #2C3E50; /* Cor do sidebar */
+  --color-accent: #2980B9; /* Cor de destaque/acento */
+  --color-white: #ffffff; /* Branco puro */
+  --color-muted: rgba(34, 34, 34, 0.6); /* Texto com opacidade reduzida */
+  --color-card-border: rgba(0, 0, 0, 0.1); /* Borda sutil para cards */
+  --color-card-shadow: rgba(0, 0, 0, 0.05); /* Sombra padrão para cards */
+  --color-card-shadow-hover: rgba(0, 0, 0, 0.12); /* Sombra para hover em cards */
 
   /* Tipografia */
-  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
-  --font-size-base: 16px;
-  --font-size-small: 0.79rem;
-  --font-size-smaller: 0.75rem;
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif; /* Fonte principal */
+  --font-size-base: 16px; /* Tamanho base da fonte */
+  --font-size-small: 0.79rem; /* Tamanho pequeno */
+  --font-size-smaller: 0.75rem; /* Tamanho menor ainda */
 
   /* Dimensões e espaçamentos */
   --sidebar-width: 280px; /* Largura do sidebar */
@@ -35,17 +36,17 @@
   --transition-slower: 0.5s ease; /* Transição mais lenta */
 
   /* Botões */
-  --btn-bg: var(--color-accent);
-  --btn-bg-hover: #1B6AA8;
-  --btn-color: var(--color-white);
-  --btn-color-hover: var(--color-white);
+  --btn-bg: var(--color-accent); /* Cor de fundo do botão */
+  --btn-bg-hover: #1B6AA8; /* Cor de fundo no hover */
+  --btn-color: var(--color-white); /* Cor do texto do botão */
+  --btn-color-hover: var(--color-white); /* Cor do texto no hover */
 
   /* Outras medidas úteis */
-  --help-size: 48px;
-  --devs-grid-min: 280px;
+  --help-size: 48px; /* Tamanho do botão de ajuda */
+  --devs-grid-min: 280px; /* Largura mínima para grid de desenvolvedores */
 }
 
-/* Reset básico e corpo */
+/* ====== RESET BÁSICO E ESTILOS GERAIS ====== */
 body.tema-padrao {
   background-color: var(--color-bg);
   color: var(--color-foreground);
@@ -53,16 +54,17 @@ body.tema-padrao {
   margin: 0;
   padding: 0;
   font-size: var(--font-size-base);
+  background: linear-gradient(to bottom, #f0f4f8, #ffffff); /* Gradiente sutil de fundo */
 }
 
-/* Container geral (sidebar + conteúdo) */
+/* ====== LAYOUT PRINCIPAL ====== */
 .app-container {
   display: flex;
   min-height: 100vh;
   background-color: var(--color-page);
 }
 
-/* Sidebar */
+/* ====== SIDEBAR ====== */
 .sidebar {
   width: var(--sidebar-width);
   background-color: var(--color-sidebar);
@@ -74,46 +76,53 @@ body.tema-padrao {
   box-shadow: var(--shadow-sidebar);
 }
 
+/* Cabeçalho do sidebar */
 .sidebar-header {
   padding: 1.8rem 1.5rem 1.2rem;
 }
 
+/* Conteúdo do cabeçalho */
 .header-content {
   display: flex;
   flex-direction: column;
   gap: var(--gap-sm);
 }
 
+/* Container do título */
 .title-wrapper {
   display: flex;
   align-items: center;
   gap: 0.8rem;
 }
 
+/* Estilos do título principal */
 .sidebar-header h4 {
   margin: 10px 0 6px 0;
   font-weight: 600;
   font-size: 1.5rem;
-  color: #1DCD9F;
+  color: #1DCD9F; /* Cor verde para destaque */
 }
 
+/* Tagline abaixo do título */
 .sidebar-tagline {
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.6);
   margin-top: 6px;
   font-style: italic;
   letter-spacing: 0.8px;
-  user-select: none;
+  user-select: none; /* Impede seleção de texto */
   line-height: 1.2;
   max-width: 220px;
 }
 
+/* Texto de copyright/rodapé */
 .sidebar-header p {
   margin-top: -10px;
   font-size: 12px;
   color: rgba(255, 255, 255, 0.38);
 }
 
+/* Navegação principal */
 .sidebar .nav {
   flex: 1;
   padding: 0;
@@ -122,8 +131,9 @@ body.tema-padrao {
   flex-direction: column;
 }
 
+/* Títulos de seção no sidebar */
 .sidebar .sidebar-section-title {
-  color: var(--color-accent) !important;
+  color: #1DCD9F !important;
   font-size: var(--font-size-smaller);
   font-weight: 500;
   padding: 1rem 1.5rem 0.5rem;
@@ -131,7 +141,7 @@ body.tema-padrao {
   margin-top: 0.5rem;
 }
 
-/* Links do menu */
+/* Links de navegação */
 .nav-link {
   display: flex;
   align-items: center;
@@ -147,6 +157,7 @@ body.tema-padrao {
   cursor: pointer;
 }
 
+/* Efeito de sublinhado animado */
 .nav-link::after {
   content: "";
   position: absolute;
@@ -159,10 +170,12 @@ body.tema-padrao {
   border-radius: 1px;
 }
 
+/* Animação do sublinhado no hover */
 .nav-link:hover::after {
   width: calc(100% - 3rem);
 }
 
+/* Efeitos de hover e estado ativo */
 .nav-link:hover {
   color: var(--color-accent);
 }
@@ -172,6 +185,7 @@ body.tema-padrao {
   box-shadow: inset 0 0 0 1px rgba(41, 128, 185, 0.2);
 }
 
+/* Ícones nos links */
 .nav-link .me-2 {
   margin-right: 1rem;
   font-size: 1.1rem;
@@ -180,7 +194,7 @@ body.tema-padrao {
   color: var(--color-white);
 }
 
-/* Conteúdo principal */
+/* ====== CONTEÚDO PRINCIPAL ====== */
 .content {
   flex: 1;
   padding: var(--pad-wide);
@@ -189,6 +203,7 @@ body.tema-padrao {
   color: var(--color-foreground);
 }
 
+/* ====== COMPONENTES ====== */
 /* Botões */
 .btn-primary {
   background-color: #1DCD9F;
@@ -203,7 +218,21 @@ body.tema-padrao {
   color: var(--btn-color-hover) !important;
 }
 
-/* Cartões */
+/* Botão "Voltar ao topo" */
+.btn-voltar-topo {
+  background-color: #ececec;
+  border: none;
+  color: #2C3E50 !important;
+  cursor: pointer;
+  transition: background-color 0.5s ease;
+}
+
+.btn-voltar-topo:hover {
+  background-color: #2C3E50;
+  color: #fff !important;
+}
+
+/* Cards */
 .card {
   border: none;
   border-radius: var(--border-radius);
@@ -214,17 +243,20 @@ body.tema-padrao {
   box-shadow: var(--shadow-card);
 }
 
+/* Efeito de hover no card */
 .card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-card-hover);
 }
 
+/* Corpo do card */
 .card-body {
   padding: var(--pad-wide);
   border-radius: var(--border-radius);
   border: 1px solid var(--color-card-border);
 }
 
+/* Cabeçalho do card */
 .card-header {
   background-color: var(--color-sidebar);
   color: var(--color-white);
@@ -232,13 +264,14 @@ body.tema-padrao {
   border-bottom: 2px solid var(--color-accent);
 }
 
+/* Título do card */
 .card-title {
   color: var(--color-sidebar);
   font-weight: 600;
   margin-bottom: 1.5rem;
 }
 
-/* classes utilitárias de cor */
+/* ====== CLASSES UTILITÁRIAS ====== */
 .text-primary {
   color: var(--color-sidebar) !important;
   margin-bottom: -4px;
@@ -255,7 +288,7 @@ body.tema-padrao {
   border: none !important;
 }
 
-/* botão de ajuda fixa no canto inferior direito */
+/* ====== BOTÃO DE AJUDA ====== */
 .help-button {
   position: fixed;
   bottom: 20px;
@@ -267,7 +300,7 @@ body.tema-padrao {
   width: var(--help-size);
   height: var(--help-size);
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -280,21 +313,23 @@ body.tema-padrao {
   color: #ececec;
 }
 
-/* responsividade */
+/* ====== RESPONSIVIDADE ====== */
 @media (max-width: 768px) {
   .app-container {
-    flex-direction: column;
+    flex-direction: column; /* Empilha sidebar e conteúdo em mobile */
   }
 
   .sidebar {
-    width: 100%;
+    width: 100%; /* Sidebar ocupa toda a largura */
   }
 
   .content {
-    padding: var(--pad-medium);
+    padding: var(--pad-medium); /* Reduz padding em mobile */
   }
+}
 
-}/* ====== CONTAINER GERAL ====== */
+/* ====== PÁGINA "SOBRE" ====== */
+/* Container geral */
 .about-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -302,14 +337,15 @@ body.tema-padrao {
   color: #222;
 }
 
-/* ====== SEÇÕES ====== */
+/* Seções da página */
 .about-section {
   margin-bottom: 5rem;
   padding: 0 1rem;
   text-align: center;
 }
 
-.about-section h2, 
+/* Títulos com efeito de sublinhado */
+.about-section h2,
 .about-section h3 {
   font-weight: 700;
   margin-bottom: 1rem;
@@ -327,7 +363,7 @@ body.tema-padrao {
   border-radius: 2px;
 }
 
-/* ====== TEXTO SOBRE ====== */
+/* Texto sobre */
 .about-text {
   max-width: 700px;
   margin: 0 auto;
@@ -336,13 +372,12 @@ body.tema-padrao {
   color: #555;
 }
 
-/* ====== MISSÃO / VISÃO / VALORES ====== */
+/* Cards de Missão, Visão e Valores */
 .mvv-card {
   border-radius: 15px;
   padding: 2rem;
   height: 100%;
 }
-
 
 .mvv-card h4 {
   color: #1DCD9F;
@@ -354,7 +389,7 @@ body.tema-padrao {
   line-height: 1.5;
 }
 
-/* ====== TECNOLOGIAS ====== */
+/* Lista de tecnologias */
 .tech-list {
   display: flex;
   flex-wrap: wrap;
@@ -374,20 +409,21 @@ body.tema-padrao {
   transform: translateY(-4px);
 }
 
-/* ====== EQUIPE ====== */
+/* Cards de equipe */
 .team-card {
   background: #fff;
   border-radius: 20px;
   padding: 1.5rem 1rem;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .team-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
 }
 
+/* Avatar da equipe */
 .team-card img {
   width: 120px;
   height: 120px;
@@ -403,6 +439,7 @@ body.tema-padrao {
   border-color: #16a085;
 }
 
+/* Textos no card de equipe */
 .team-card h5 {
   margin-bottom: 0.3rem;
   font-weight: 600;
@@ -420,7 +457,7 @@ body.tema-padrao {
   text-align: center;
 }
 
-/* ====== CALL TO ACTION ====== */
+/* Seção de Call to Action */
 .about-cta {
   color: #2C3E50;
   padding: 2rem;
@@ -446,9 +483,11 @@ body.tema-padrao {
   text-decoration: none;
 }
 
-/* ====== RESPONSIVIDADE ====== */
+/* Responsividade para a página Sobre */
 @media (max-width: 768px) {
-  .mvv-card, .team-card, .tech-item {
+  .mvv-card,
+  .team-card,
+  .tech-item {
     padding: 1rem;
   }
 
@@ -456,4 +495,3 @@ body.tema-padrao {
     font-size: 1rem;
   }
 }
-
