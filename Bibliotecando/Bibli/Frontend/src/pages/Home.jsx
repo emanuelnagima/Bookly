@@ -73,7 +73,7 @@ const Home = () => {
             <h1 className="display-4 fw-bold text-primary">BiBli</h1>
           </div>
           <p className="lead text-muted mb-2">
-            Sua plataforma completa de gestão bibliotecária
+            Sua plataforma aaaaaaaaaaaaaaaaaa
           </p>
 
           {/* Barra de pesquisa centralizada */}
