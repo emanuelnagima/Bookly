@@ -14,6 +14,7 @@ import {
   FaUserTie,
   FaSearch,
   FaUserGraduate,
+  FaUserEdit
 } from "react-icons/fa";
 
 const Home = () => {
@@ -141,6 +142,22 @@ const Home = () => {
               </Card.Text>
               <Link to="/alunos" className="btn btn-primary mt-3">
                 Acessar Alunos
+              </Link>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col md={6} lg={4} xl={3}>
+          <Card className="h-100 text-center">
+            <Card.Body>
+              <FaUserEdit size={48} className="mb-3 text-primary" />
+              <Card.Title>Autores</Card.Title>
+              <Card.Text className="text-muted">
+                Gerencie o cadastro de autores dos livros
+                <hr />
+              </Card.Text>
+              <Link to="/autores" className="btn btn-primary mt-3">
+                Acessar Autores
               </Link>
             </Card.Body>
           </Card>

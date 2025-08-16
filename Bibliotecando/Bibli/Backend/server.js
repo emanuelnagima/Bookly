@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const livrosRoutes = require('./routes/livrosRoutes');
 const professoresRoutes = require('./routes/professoresRoutes');
-const alunosRoutes = require('./routes/alunosRoutes'); // Nova linha
+const alunosRoutes = require('./routes/alunosRoutes'); 
+const autoresRoutes = require('./routes/autoresRoutes');
 
 const app = express();
 const PORT = 3000;
@@ -12,7 +13,8 @@ app.use(express.json());
 
 app.use('/api/livros', livrosRoutes);
 app.use('/api/professores', professoresRoutes);
-app.use('/api/alunos', alunosRoutes); // Nova linha
+app.use('/api/alunos', alunosRoutes); 
+app.use('/api/autores', autoresRoutes); 
 
 app.get('/', (req, res) => {
     res.json({
@@ -20,7 +22,8 @@ app.get('/', (req, res) => {
         endpoints: {
             livros: '/api/livros',
             professores: '/api/professores',
-            alunos: '/api/alunos' // Nova linha
+            alunos: '/api/alunos' ,
+            autores: '/api/autores',
         }
     });
 });
