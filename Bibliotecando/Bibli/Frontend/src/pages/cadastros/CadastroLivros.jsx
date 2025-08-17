@@ -1,127 +1,150 @@
 import { useState, useEffect } from 'react'
-import { Container, Row, Col, Button, Modal } from 'react-bootstrap'
-import { useNavigate } from 'react-router-dom'
-import CadLivro from '../../components/CadLivro'
-import LivroList from '../../components/LivroList'
-import livroService from '../../services/livroService'
+import { useParams, useNavigate } from 'react-router-dom'
+import { Container, Form, Button, Card, Spinner } from 'react-bootstrap'
 
-const CadastroLivros = () => {
-  const [showForm, setShowForm] = useState(false)
-  const [livros, setLivros] = useState([])
-  const [livroToDelete, setLivroToDelete] = useState(null)
-  const [livroToEdit, setLivroToEdit] = useState(null)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
+const CadastroLivro = () => {
+  const { id } = useParams()     
   const navigate = useNavigate()
+  const [livro, setLivro] = useState({
+    titulo: '',
+    autor: '',
+    editora: '',
+    isbn: '',
+    genero: '',
+    ano_publicacao: ''
+  })
+  const [loading, setLoading] = useState(false)
+
+  // Função para buscar o livro pelo id
+  const fetchLivro = async (id) => {
+    setLoading(true)
+    try {
+      const res = await fetch(`http://localhost:3000/livros/${id}`)
+      if (!res.ok) throw new Error('Erro ao buscar livro')
+      const data = await res.json()
+      setLivro(data)
+    } catch (error) {
+      console.error(error)
+      alert('Não foi possível carregar os dados do livro.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    loadLivros()
-  }, [])
-
-  const loadLivros = () => {
-    setLivros(livroService.getAll())
-  }
-
-  const handleSave = (livro) => {
-    if (livroToEdit) {
-      const updated = livroService.update(livroToEdit.id, livro)
-      setLivros(livros.map(l => l.id === livroToEdit.id ? updated : l))
-      setLivroToEdit(null)
-    } else {
-      livroService.add(livro)
+    if (id) {
+      fetchLivro(id)
     }
-    loadLivros()
-    setShowForm(false)
+  }, [id])
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setLivro(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleEdit = (id) => {
-    const livro = livroService.getById(id)
-    setLivroToEdit(livro)
-    setShowForm(true)
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const method = id ? 'PUT' : 'POST'
+      const url = id ? `http://localhost:3000/livros/${id}` : 'http://localhost:3000/livros'
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(livro)
+      })
+      if (!res.ok) throw new Error('Erro ao salvar livro')
+      navigate('/') // volta para home depois de salvar
+    } catch (error) {
+      console.error(error)
+      alert('Não foi possível salvar o livro.')
+    }
   }
 
-  const handleDelete = () => {
-    livroService.remove(livroToDelete)
-    loadLivros()
-    setShowDeleteModal(false)
-  }
+  if (loading) return (
+    <Container className="py-5 text-center">
+      <Spinner animation="border" />
+      <p>Carregando dados do livro...</p>
+    </Container>
+  )
 
   return (
     <Container className="py-4">
-      <Row className="mb-4">
-        <Col className="d-flex justify-content-between align-items-center">
-          <h1>Cadastro de Livros</h1>
-          <div>
-            <Button variant="secondary" onClick={() => navigate('/cadastros')} className="me-2">
-              Voltar
+      <Card>
+        <Card.Header>
+          <h4>{id ? 'Editar Livro' : 'Cadastrar Novo Livro'}</h4>
+        </Card.Header>
+        <Card.Body>
+          <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3">
+              <Form.Label>Título</Form.Label>
+              <Form.Control
+                type="text"
+                name="titulo"
+                value={livro.titulo}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Autor</Form.Label>
+              <Form.Control
+                type="text"
+                name="autor"
+                value={livro.autor}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Editora</Form.Label>
+              <Form.Control
+                type="text"
+                name="editora"
+                value={livro.editora}
+                onChange={handleChange}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>ISBN</Form.Label>
+              <Form.Control
+                type="text"
+                name="isbn"
+                value={livro.isbn}
+                onChange={handleChange}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Gênero</Form.Label>
+              <Form.Control
+                type="text"
+                name="genero"
+                value={livro.genero}
+                onChange={handleChange}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Ano de Publicação</Form.Label>
+              <Form.Control
+                type="number"
+                name="ano_publicacao"
+                value={livro.ano_publicacao}
+                onChange={handleChange}
+              />
+            </Form.Group>
+
+            <Button variant="primary" type="submit">
+              {id ? 'Salvar Alterações' : 'Cadastrar'}
             </Button>
-            {livroToEdit && (
-              <Button 
-                variant="success" 
-                onClick={() => {
-                  setLivroToEdit(null)
-                  setShowForm(true)
-                }}
-                className="me-2"
-              >
-                Novo Livro
-              </Button>
-            )}
-            <Button 
-              variant={livroToEdit ? "warning" : "success"} 
-              onClick={() => setShowForm(true)}
-            >
-              {livroToEdit ? 'Editar' : 'Novo'} Livro
-            </Button>
-          </div>
-        </Col>
-      </Row>
-
-      {showForm && (
-        <Row className="mb-4">
-          <Col>
-            <CadLivro 
-              onSave={handleSave} 
-              onCancel={() => {
-                setShowForm(false)
-                setLivroToEdit(null)
-              }}
-              livroToEdit={livroToEdit}
-            />
-          </Col>
-        </Row>
-      )}
-
-      <Row>
-        <Col>
-          <LivroList 
-            livros={livros}
-            onDelete={(id) => {
-              setLivroToDelete(id)
-              setShowDeleteModal(true)
-            }}
-            onEdit={handleEdit}
-          />
-        </Col>
-      </Row>
-
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirmar Exclusão</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Tem certeza que deseja excluir este livro permanentemente?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-            Cancelar
-          </Button>
-          <Button variant="danger" onClick={handleDelete}>
-            Confirmar Exclusão
-          </Button>
-        </Modal.Footer>
-      </Modal>
+          </Form>
+        </Card.Body>
+      </Card>
     </Container>
   )
 }
 
-export default CadastroLivros;
+export default CadastroLivro

@@ -232,6 +232,30 @@ body.tema-padrao {
   color: #fff !important;
 }
 
+/* ====== PAGINAÇÃO HOME ====== */
+.btn-paginacao {
+  background-color: var(--color-sidebar) !important;
+  color: #fff;
+  border-radius: 0.375rem; 
+  padding: 0.375rem 0.75rem; 
+  display: inline-flex;
+  align-items: center;
+transition: background-color var(--transition-fast)
+}
+
+.btn-paginacao:disabled {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.btn-paginacao:not(:disabled):hover {
+  background-color: #1B6AA8 !important;
+  color: #fff !important;
+transition: background-color var(--transition-fast)
+}
+
+
+
 /* Cards */
 .card {
   border: none;
@@ -268,7 +292,6 @@ body.tema-padrao {
 .card-title {
   color: var(--color-sidebar);
   font-weight: 600;
-  margin-bottom: 1.5rem;
 }
 
 /* ====== CLASSES UTILITÁRIAS ====== */
@@ -311,6 +334,48 @@ body.tema-padrao {
 .help-button:hover {
   background-color: #222222;
   color: #ececec;
+}
+
+/* Botões pequenos de edição e exclusão personalizados */
+.btn-sm-custom {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: all 0.1s ease;
+  cursor: pointer;
+}
+
+/* Botão de edição */
+.btn-edit {
+  background-color: #2C3E50;
+  color: #ffffff;
+    border: 1px solid #ffffff;
+
+}
+
+.btn-edit:hover {
+  background-color: #aec94f;
+  color: #fff;
+  border: 1px solid #ffffff;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+/* Botão de exclusão */
+.btn-delete {
+  background-color: #2C3E50;
+  border: 1px solid #ffffff;
+  color: #ffffff;
+}
+
+.btn-delete:hover {
+  background-color: #e24a4a;
+  color: #fff;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 /* ====== RESPONSIVIDADE ====== */
@@ -412,7 +477,7 @@ body.tema-padrao {
 /* Cards de equipe */
 .team-card {
   background: #fff;
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 1.5rem 1rem;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -483,6 +548,16 @@ body.tema-padrao {
   text-decoration: none;
 }
 
+/* Adicione no seu arquivo CSS */
+.table-smaller {
+  font-size: 0.85rem;
+}
+
+.table-smaller th, 
+.table-smaller td {
+  padding: 0.5rem;
+}
+
 /* Responsividade para a página Sobre */
 @media (max-width: 768px) {
   .mvv-card,
@@ -495,3 +570,4 @@ body.tema-padrao {
     font-size: 1rem;
   }
 }
+

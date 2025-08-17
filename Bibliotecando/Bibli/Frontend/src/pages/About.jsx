@@ -11,35 +11,76 @@ import {
   FaGithub,
   FaChartLine,
   FaMobileAlt,
-  FaShieldAlt,
-  FaHandsHelping
+  FaHandsHelping,
+  FaBullseye,
+  FaEye,
+  FaHeart,
+  
 } from "react-icons/fa";
+
+import photoEmanuel from "../images/emanuel.jpg";
+import photoMaria from "../images/maria.jpg";
+import photoDaniel from "../images/daniel.jpg";
 
 const devs = [
   {
-    name: "Daniel Pereira Viana de Sena",
-    role: "Desenvolvedor Backend",
-    photo: "https://randomuser.me/api/portraits/men/32.jpg",
-    bio: "Especialista em APIs REST e arquitetura robusta para sistemas escaláveis.",
+    name: "Emanuel Nepomuceno Nagima",
+    role: "Estudante de ADS - UNOESTE | Desenvolvedor Júnior",
+    photo: photoEmanuel,
+    bio: [
+      "Experiência como Dev Júnior em projetos reais",
+      "Foco em Frontend e experiência do usuário",
+      "Estudante de Análise e Desenvolvimento de Sistemas"
+    ],
   },
   {
-    name: "Emanuel Nepomuceno Nagima",
-    role: "Desenvolvedor Frontend",
-    photo: "https://randomuser.me/api/portraits/men/45.jpg",
-    bio: "Focado em interfaces intuitivas, responsivas e experiências fluidas para o usuário.",
+    name: "Daniel Pereira Viana de Sena",
+    role: "Estudante de ADS - UNOESTE",
+    photo: photoDaniel,
+    bio: [
+      "Interesse em Backend e APIs REST",
+      "Explorando arquitetura de sistemas escaláveis",
+      "Estudante de Análise e Desenvolvimento de Sistemas "
+    ],
   },
   {
     name: "Rodrigo Brasil Rodrigues",
-    role: "DevOps / Infraestrutura",
+    role: "Estudante de ADS - UNOESTE",
     photo: "https://randomuser.me/api/portraits/men/68.jpg",
-    bio: "Cuida da infraestrutura e automatização para garantir estabilidade e deploys rápidos.",
+    bio: [
+      "Explorando DevOps e infraestrutura",
+      "Interesse em automação de processos",
+      "Estudante de Análise e Desenvolvimento de Sistemas"
+    ],
   },
   {
-    name: "Maria Clara Garcia",
-    role: "UX/UI Designer",
-    photo: "https://randomuser.me/api/portraits/women/65.jpg",
-    bio: "Design centrado no usuário, criando layouts modernos e acessíveis para todos.",
+    name: "Maria Clara Garcia de Oliveira",
+    role: "Estudante de ADS - UNOESTE",
+    photo: photoMaria,
+    bio: [
+      "Foco em UX/UI design",
+      "Criação de interfaces modernas e acessíveis",
+      "Estudante de Análise e Desenvolvimento de Sistemas "
+    ],
   },
+];
+
+const mvvItems = [
+  {
+    title: "Missão",
+    text: "Facilitar o acesso à informação através de uma plataforma simples e eficiente, promovendo o hábito da leitura.",
+    icon: <FaBullseye size={30} className="text-primary" />
+  },
+  {
+    title: "Visão",
+    text: "Ser referência em soluções digitais para bibliotecas, contribuindo para o desenvolvimento educacional e cultural.",
+    icon: <FaEye size={30} className="text-primary" />
+  },
+  {
+    title: "Valores",
+    text: "Inovação, transparência, acessibilidade e compromisso com a comunidade acadêmica e leitores.",
+    icon: <FaHeart size={30} className="text-primary" />
+  }
 ];
 
 const technologies = [
@@ -83,14 +124,17 @@ const features = [
 export default function About() {
   return (
     <Container className="about-container py-5">
-      
+
       {/* Sobre o sistema */}
       <section className="about-section text-center">
         <h2>Sobre o Bibliotecando</h2>
-        <p className="about-text mt-3">
-          O <strong>Bibliotecando</strong> é uma solução moderna para gestão de bibliotecas,
+        <p className="about-text mt-3">O <strong>Bibliotecando</strong> nasceu em 2025 como projeto acadêmico na UNOESTE,
+          evoluindo para uma solução real após identificar as necessidades
+          de bibliotecas locais em instituições.
+          O Bibliotecando é uma solução moderna para gestão de bibliotecas,
           simplificando o controle de acervo e usuários. Nosso foco é a eficiência,
-          segurança e facilidade de uso para bibliotecários, professores e leitores.
+          segurança e facilidade de uso para bibliotecários, reunindo as principais funcionalidades em uma única aplicação.
+
         </p>
       </section>
 
@@ -114,14 +158,14 @@ export default function About() {
 
       {/* Missão, Visão e Valores */}
       <section className="about-section text-center">
+          <h3 className="text-center mb-4">Futuro</h3>
         <Row className="g-4">
-          {[
-            { title: "Missão", text: "Facilitar o acesso à informação através de uma plataforma simples e eficiente, promovendo o hábito da leitura." },
-            { title: "Visão", text: "Ser referência em soluções digitais para bibliotecas, contribuindo para o desenvolvimento educacional e cultural." },
-            { title: "Valores", text: "Inovação, transparência, acessibilidade e compromisso com a comunidade acadêmica e leitores." },
-          ].map((item, i) => (
+          {mvvItems.map((item, i) => (
             <Col key={i} md={4}>
-              <div className="mvv-card">
+              <div className="mvv-card p-4 h-100">
+                <div className="mvv-icon mb-3">
+                  {item.icon}
+                </div>
                 <h4>{item.title}</h4>
                 <p>{item.text}</p>
               </div>
@@ -159,7 +203,11 @@ export default function About() {
                 />
                 <h5>{dev.name}</h5>
                 <h6>{dev.role}</h6>
-                <p className="text-muted small">{dev.bio}</p>
+                <ul className="text-muted small text-start" style={{ paddingLeft: "1rem" }}>
+                  {dev.bio.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
               </div>
             </Col>
           ))}
@@ -174,7 +222,7 @@ export default function About() {
             Quer implementar o Bibliotecando em sua instituição ou contribuir com o projeto?
           </p>
           <p>
-            Entre em contato pelo e-mail <a href="mailto:suportebibli@gmail.com">suportebibli@gmail.com</a> 
+            Entre em contato pelo e-mail <a href="#">bibliotecandosuporte@gmail.com</a>
           </p>
           <p className="mt-3 small">
             Estamos abertos a parcerias com desenvolvedores e instituições de ensino.

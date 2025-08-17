@@ -23,7 +23,7 @@ import AutorDetalhe from './pages/AutorDetalhe'
 
 // Cadastros
 import Cadastros from './pages/cadastros/Cadastro'
-import CadastroLivros from './pages/cadastros/CadastroLivros'
+import CadastroLivros from './pages/cadastros/CadastroLivros.jsx'
 import CadastroProfessores from './pages/cadastros/CadastroProfessores'
 import CadastroAlunos from './pages/cadastros/CadastroAlunos'
 
