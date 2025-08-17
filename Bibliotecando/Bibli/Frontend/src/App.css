@@ -264,19 +264,16 @@ transition: background-color var(--transition-fast)
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   background-color: var(--color-white);
   color: var(--color-foreground);
-  box-shadow: var(--shadow-card);
 }
 
 /* Efeito de hover no card */
 .card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-card-hover);
 }
 
 /* Corpo do card */
 .card-body {
   padding: var(--pad-wide);
-  border-radius: var(--border-radius);
   border: 1px solid var(--color-card-border);
 }
 
@@ -479,13 +476,11 @@ transition: background-color var(--transition-fast)
   background: #fff;
   border-radius: 8px;
   padding: 1.5rem 1rem;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .team-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
 }
 
 /* Avatar da equipe */
