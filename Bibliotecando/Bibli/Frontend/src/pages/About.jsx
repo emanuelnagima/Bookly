@@ -21,6 +21,7 @@ import {
 import photoEmanuel from "../images/emanuel.jpg";
 import photoMaria from "../images/maria.jpg";
 import photoDaniel from "../images/daniel.jpg";
+import photoRodrigo from "../images/rodrigo.jpg";
 
 const devs = [
   {
@@ -46,7 +47,7 @@ const devs = [
   {
     name: "Rodrigo Brasil Rodrigues",
     role: "Estudante de ADS - UNOESTE",
-    photo: "https://randomuser.me/api/portraits/men/68.jpg",
+    photo: photoRodrigo,
     bio: [
       "Explorando DevOps e infraestrutura",
       "Interesse em automação de processos",
