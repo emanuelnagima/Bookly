@@ -334,6 +334,21 @@ const Home = () => {
           </Card>
         </Col>
 
+        {/* Reservas */}
+        <Col md={6} lg={4} xl={3}>
+          <Card className="h-100 text-center">
+            <Card.Body>
+              <FaCalendarAlt size={48} className="mb-3 text-primary" />
+              <Card.Title>Reservas</Card.Title>
+              <div className="text-muted">
+                <p className="mb-2">Gerencie e acompanhe as reservas de livros</p>
+                <hr className="my-2" />
+              </div>
+              <Link to="/reservas" className="btn btn-primary mt-3">Acessar Reservas</Link>
+            </Card.Body>
+          </Card>
+        </Col>
+
         {/* Empréstimos */}
         <Col md={6} lg={4} xl={3}>
           <Card className="h-100 text-center">
