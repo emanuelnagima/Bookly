@@ -1,5 +1,15 @@
 import { useState, useEffect } from "react";
-import { Container, Row, Col, Card, Form, InputGroup, Table, Button } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Form,
+  InputGroup,
+  Table,
+  Button,
+  Modal
+} from "react-bootstrap";
 import { Link } from "react-router-dom";
 import {
   FaCalendarAlt,
@@ -18,7 +28,9 @@ import {
   FaSearch,
   FaIdBadge,
   FaChevronLeft,
-  FaChevronRight
+  FaChevronRight,
+  FaInfoCircle,
+  FaBriefcase
 } from "react-icons/fa";
 
 import livroService from "../services/livroService";
@@ -39,6 +51,8 @@ const Home = () => {
   const [termoBusca, setTermoBusca] = useState("");
   const [loading, setLoading] = useState(true);
   const [paginaAtual, setPaginaAtual] = useState(1);
+  const [showHelpModal, setShowHelpModal] = useState(false);
+  const [isButtonActive, setIsButtonActive] = useState(false);
 
   useEffect(() => {
     const options = { weekday: "long", day: "numeric", month: "long", year: "numeric" };
@@ -94,7 +108,13 @@ const Home = () => {
   };
 
   const handleHelpClick = () => {
-    alert("Precisa de ajuda? Fale com nosso suporte: bibliotecandosuporte@gmail.com");
+    setIsButtonActive(true);
+    setTimeout(() => setIsButtonActive(false), 200);
+    setShowHelpModal(true);
+  };
+
+  const handleCloseHelpModal = () => {
+    setShowHelpModal(false);
   };
 
   return (
@@ -212,6 +232,7 @@ const Home = () => {
           </Card>
         </Col>
       </Row>
+
       {/* CARDS DE FUNCIONALIDADES */}
       <Row className="g-3">
         {/* Livros */}
@@ -411,14 +432,69 @@ const Home = () => {
       </Row>
 
       {/* BOTÃO FLUTUANTE DE AJUDA */}
-      <button
-        className="help-button"
-        onClick={handleHelpClick}
-        aria-label="Botão de ajuda"
-        title="Ajuda"
+      <div className="help-button-container">
+        <button
+          className={`help-button ${isButtonActive ? 'active' : ''}`}
+          onClick={handleHelpClick}
+          aria-label="Botão de ajuda"
+          title="Ajuda"
+        >
+          <FaEnvelope size={24} className="icon" />
+          <span className="pulse-effect"></span>
+        </button>
+      </div>
+
+      {/* MODAL DE AJUDA */}
+      <Modal
+        show={showHelpModal}
+        onHide={handleCloseHelpModal}
+        centered
+        className="help-modal"
       >
-        <FaEnvelope size={24} />
-      </button>
+        <Modal.Header closeButton className="modal-header-help">
+          <Modal.Title className="text-white">
+            <FaInfoCircle className="me-2" />
+            Precisa de ajuda?
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="modal-body-help">
+          <div className="contact-options">
+            <div className="contact-method">
+              <div className="method-icon email-icon">
+                <FaEnvelope size={32} />
+              </div>
+              <div className="method-info">
+                <h5>E-mail de suporte</h5>
+                <a
+                  href="mailto:bibliotecandosuporte@gmail.com"
+                  className="contact-link"
+                >
+                  bibliotecandosuporte@gmail.com
+                </a>
+              </div>
+            </div>
+
+            <div className="contact-method">
+              <div className="method-icon hours-icon">
+                <FaBriefcase size={32} />
+              </div>
+              <div className="method-info">
+                <h5>Horário de atendimento</h5>
+                <p>Segunda a sexta, das 8h às 18h</p>
+              </div>
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer className="modal-footer-help">
+          <Button
+            variant="light"
+            onClick={handleCloseHelpModal}
+            className="btn-paginacao"
+          >
+            Fechar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

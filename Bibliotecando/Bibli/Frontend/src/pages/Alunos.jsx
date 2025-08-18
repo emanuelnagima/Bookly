@@ -156,7 +156,7 @@ const Alunos = () => {
             }}
             disabled={loading}
           >
-            {showForm ? 'Cancelar' : 'Adicionar Aluno'}
+          Adicionar Aluno
           </Button>
         </Col>
       </Row>
@@ -204,7 +204,7 @@ const Alunos = () => {
             Cancelar
           </Button>
           <Button 
-            variant="danger" 
+            variant="btn-paginacao" 
             onClick={handleDeleteAluno}
             disabled={isDeleting}
           >
