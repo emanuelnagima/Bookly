@@ -170,7 +170,7 @@ const Livros = () => {
             }}
             disabled={loading}
           >
-            {showForm ? 'Cancelar' : 'Adicionar Livro'}
+            Adicionar Livro
           </Button>
         </Col>
       </Row>

@@ -157,7 +157,7 @@ const Autores = () => {
             }}
             disabled={loading}
           >
-            {showForm ? 'Cancelar' : 'Adicionar Autor'}
+            Adicionar Autor
           </Button>
         </Col>
       </Row>

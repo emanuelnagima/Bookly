@@ -117,7 +117,7 @@ const features = [
   },
   {
     icon: <FaHandsHelping size={40} />,
-    title: "Suporte 24/7",
+    title: "Suporte e Ajuda",
     description: "Equipe especializada disponível para ajudar com qualquer dúvida ou necessidade técnica."
   }
 ];

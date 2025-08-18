@@ -159,7 +159,7 @@ const Professores = () => {
             }}
             disabled={loading}
           >
-            {showForm ? 'Cancelar' : 'Adicionar Professor'}
+            Adicionar Professor
           </Button>
         </Col>
       </Row>
@@ -207,7 +207,7 @@ const Professores = () => {
             Cancelar
           </Button>
           <Button 
-            variant="danger" 
+            variant="btn btn-primary" 
             onClick={handleDeleteProfessor}
             disabled={isDeleting}
           >

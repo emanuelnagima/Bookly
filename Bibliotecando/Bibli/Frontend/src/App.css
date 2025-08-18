@@ -93,6 +93,7 @@ body.tema-padrao {
   display: flex;
   align-items: center;
   gap: 0.8rem;
+  
 }
 
 /* Estilos do título principal */
@@ -150,12 +151,15 @@ body.tema-padrao {
   color: var(--color-white);
   border-radius: 6px;
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 400;
   position: relative;
   transition: color var(--transition-fast);
   cursor: pointer;
+
 }
+
+
 
 /* Efeito de sublinhado animado */
 .nav-link::after {
@@ -210,6 +214,8 @@ body.tema-padrao {
   border: none !important;
   color: var(--btn-color) !important;
   cursor: pointer;
+  font-weight: 500;
+
   transition: background-color var(--transition-fast);
 }
 
@@ -291,10 +297,20 @@ transition: background-color var(--transition-fast)
   font-weight: 600;
 }
 
+.hr-thin {
+  border: none;
+  height: 1px;
+  background-color: var(--color-muted);
+  margin: 1rem 0;
+}
+
+
+
 /* ====== CLASSES UTILITÁRIAS ====== */
 .text-primary {
   color: var(--color-sidebar) !important;
   margin-bottom: -4px;
+  
 }
 
 .bg-primary {
@@ -309,6 +325,131 @@ transition: background-color var(--transition-fast)
 }
 
 /* ====== BOTÃO DE AJUDA ====== */
+
+/* Estilos para o botão de ajuda */
+.help-button-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1050;
+}
+
+
+.help-button.active {
+  transform: scale(0.95);
+}
+
+.help-button .icon {
+  transition: transform 0.3s ease;
+}
+
+.help-button:hover .icon {
+  transform: scale(1.1);
+}
+
+.pulse-effect {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: rgba(34, 34, 34, 0.6);
+  animation: pulse 2s infinite;
+  opacity: 0;
+}
+
+/* Estilos para o modal de ajuda */
+.help-modal .modal-content {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.modal-header-help {
+  background-color: #1DCD9F;
+  border-bottom: none;
+  padding: 1.5rem;
+}
+
+.modal-body-help {
+  padding: 2rem;
+}
+
+.modal-footer-help {
+  border-top: none;
+  background-color: #f8f9fa;
+  padding: 1rem 1.5rem;
+}
+
+.contact-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.contact-method {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.method-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.email-icon {
+  background-color: rgba(13, 110, 253, 0.1);
+  color: var(--color-sidebar) !important;
+}
+
+.hours-icon {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: var(--color-sidebar) !important;
+}
+
+.method-info h5 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: #343a40;
+}
+
+.contact-link {
+  color: #1DCD9F;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.contact-link:hover {
+  color: #1DCD9F;
+  text-decoration: underline;
+}
+
+.close-button {
+  transition: all 0.3s ease;
+}
+
+.email-button {
+  transition: all 0.3s ease;
+}
+
+/* Animação de entrada do modal */
+.modal.fade .modal-dialog {
+  transition: transform 0.3s ease-out, opacity 0.3s ease;
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+.modal.show .modal-dialog {
+  transform: translateY(0);
+  opacity: 1;
+}
+
 .help-button {
   position: fixed;
   bottom: 20px;
@@ -473,8 +614,6 @@ transition: background-color var(--transition-fast)
 
 /* Cards de equipe */
 .team-card {
-  background: #fff;
-  border-radius: 8px;
   padding: 1.5rem 1rem;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
