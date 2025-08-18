@@ -103,7 +103,7 @@ const Cadastros = () => {
                 Cadastre e organize as editoras do acervo
               </Card.Text>
               <hr />
-              <Link to="/editoras" className="btn btn-primary mt-2">
+               <Link to="/editoras" className="btn btn-primary mt-2"> 
                 Gerenciar Editoras
               </Link>
             </Card.Body>
