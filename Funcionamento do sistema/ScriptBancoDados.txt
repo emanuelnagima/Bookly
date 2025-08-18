@@ -51,3 +51,16 @@ CREATE TABLE IF NOT EXISTS `alunos` (
     UNIQUE KEY `cpf` (`cpf`),
     UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- Tabela de Editoras
+CREATE TABLE IF NOT EXISTS `editoras` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `nome` varchar(100) NOT NULL,
+    `cnpj` varchar(18) DEFAULT NULL,
+    `endereco` varchar(200) DEFAULT NULL,
+    `telefone` varchar(20) DEFAULT NULL,
+    `email` varchar(100) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `nome` (`nome`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
