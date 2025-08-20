@@ -30,11 +30,13 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaInfoCircle,
-  FaBriefcase
+  FaBriefcase,
+  FaBookOpen
 } from "react-icons/fa";
 
 import livroService from "../services/livroService";
 
+// Função utilitária para formatar texto com capitalização de cada palavra
 const formatarTexto = texto =>
   (texto || '')
     .toLowerCase()
@@ -42,26 +44,31 @@ const formatarTexto = texto =>
     .map(p => p.charAt(0).toUpperCase() + p.slice(1))
     .join(' ');
 
-const ITENS_POR_PAGINA = 7;
+// Constante para controle de paginação
+const ITENS_POR_PAGINA = 8;
 
 const Home = () => {
-  const [currentDate, setCurrentDate] = useState("");
-  const [showWelcome, setShowWelcome] = useState(true);
-  const [livros, setLivros] = useState([]);
-  const [termoBusca, setTermoBusca] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [paginaAtual, setPaginaAtual] = useState(1);
-  const [showHelpModal, setShowHelpModal] = useState(false);
-  const [isButtonActive, setIsButtonActive] = useState(false);
+  // Estados do componente
+  const [currentDate, setCurrentDate] = useState(""); // Data atual formatada
+  const [showWelcome, setShowWelcome] = useState(true); // Controla exibição da mensagem de boas-vindas
+  const [livros, setLivros] = useState([]); // Lista completa de livros
+  const [termoBusca, setTermoBusca] = useState(""); // Termo de busca para filtrar livros
+  const [loading, setLoading] = useState(true); // Estado de carregamento
+  const [paginaAtual, setPaginaAtual] = useState(1); // Página atual na paginação
+  const [showHelpModal, setShowHelpModal] = useState(false); // Controla visibilidade do modal de ajuda
+  const [isButtonActive, setIsButtonActive] = useState(false); // Estado de animação do botão de ajuda
 
+  // Efeito para configurar data atual e temporizador de boas-vindas
   useEffect(() => {
     const options = { weekday: "long", day: "numeric", month: "long", year: "numeric" };
     setCurrentDate(new Date().toLocaleDateString("pt-BR", options));
 
+    // Temporizador para esconder mensagem de boas-vindas após 10 segundos
     const welcomeTimer = setTimeout(() => setShowWelcome(false), 10000);
-    return () => clearTimeout(welcomeTimer);
+    return () => clearTimeout(welcomeTimer); // Cleanup do temporizador
   }, []);
 
+  // Efeito para carregar livros do serviço ao montar o componente
   useEffect(() => {
     const fetchLivros = async () => {
       try {
@@ -70,17 +77,18 @@ const Home = () => {
       } catch (error) {
         console.error("Erro ao carregar livros:", error);
       } finally {
-        setLoading(false);
+        setLoading(false); // Finaliza estado de carregamento independente do resultado
       }
     };
     fetchLivros();
   }, []);
 
-  // Resetar página quando o termo de busca mudar
+  // Efeito para resetar página quando o termo de busca mudar
   useEffect(() => {
     setPaginaAtual(1);
   }, [termoBusca]);
 
+  // Filtra livros com base no termo de busca (case insensitive)
   const livrosFiltrados = livros.filter(l =>
     (l.titulo || "").toLowerCase().includes(termoBusca.toLowerCase()) ||
     (l.autor || "").toLowerCase().includes(termoBusca.toLowerCase()) ||
@@ -90,8 +98,10 @@ const Home = () => {
     (l.ano_publicacao || "").toString().includes(termoBusca)
   );
 
+  // Calcula total de páginas baseado nos itens filtrados
   const totalPaginas = Math.ceil(livrosFiltrados.length / ITENS_POR_PAGINA);
 
+  // Ordena e seleciona os livros para a página atual
   const livrosExibidos = livrosFiltrados
     .sort((a, b) => (a.titulo || "").localeCompare(b.titulo || ""))
     .slice(
@@ -99,6 +109,7 @@ const Home = () => {
       paginaAtual * ITENS_POR_PAGINA
     );
 
+  // Handlers para navegação de paginação
   const handlePaginaAnterior = () => {
     if (paginaAtual > 1) setPaginaAtual(paginaAtual - 1);
   };
@@ -107,9 +118,10 @@ const Home = () => {
     if (paginaAtual < totalPaginas) setPaginaAtual(paginaAtual + 1);
   };
 
+  // Handler para botão de ajuda com efeito visual
   const handleHelpClick = () => {
     setIsButtonActive(true);
-    setTimeout(() => setIsButtonActive(false), 200);
+    setTimeout(() => setIsButtonActive(false), 200); // Reset do estado ativo após 200ms
     setShowHelpModal(true);
   };
 
@@ -117,36 +129,79 @@ const Home = () => {
     setShowHelpModal(false);
   };
 
+  // Estrutura de dados para os cards de funcionalidades organizados por categoria
+  const categoriasCards = [
+    {
+      titulo: "Gestão de Pessoas",
+      cards: [
+        { icone: FaUserTie, titulo: "Professores", descricao: "Cadastre e atualize informações de professores", link: "/professores" },
+        { icone: FaUserGraduate, titulo: "Alunos", descricao: "Cadastre e acompanhe os alunos da turma", link: "/alunos" },
+        { icone: FaIdBadge, titulo: "Leitores", descricao: "Cadastre e gerencie outros tipos de usuários ", link: "/leitores" },
+      ]
+    },
+    {
+      titulo: "Gestão de Acervo",
+      cards: [
+        { icone: FaBook, titulo: "Livros", descricao: "Cadastre e gerencie todos os livros do acervo", link: "/livros" },
+        { icone: FaPenFancy, titulo: "Autores", descricao: "Cadastre e atualize informações sobre autores", link: "/autores" },
+        { icone: FaBuilding, titulo: "Editoras", descricao: "Cadastre e organize as editoras do acervo", link: "/editoras" },
+      ]
+    },
+    {
+      titulo: "Operações",
+      cards: [
+        { icone: FaDoorOpen, titulo: "Entrada", descricao: "Registre a entrada de novos livros no acervo", link: "/entrada" },
+        { icone: FaSignOutAlt, titulo: "Saída", descricao: "Registre a saída de livros do acervo do sistema", link: "/saida" },
+        { icone: FaCalendarAlt, titulo: "Reservas", descricao: "Gerencie e acompanhe as reservas de livros", link: "/reservas" },
+        { icone: FaHandshake, titulo: "Empréstimos", descricao: "Controle os empréstimos de livros do sistema", link: "/emprestimos" },
+        { icone: FaSyncAlt, titulo: "Renovações", descricao: "Registre e gerencie as renovações de empréstimos", link: "/renovacoes" },
+        { icone: FaReply, titulo: "Devoluções", descricao: "Registre e acompanhe as devoluções de livros", link: "/devolucoes" },
+      ]
+    },
+    {
+      titulo: "Relatórios",
+      cards: [
+        { icone: FaChartBar, titulo: "Relatórios", descricao: "Veja estatísticas e relatórios do acervo", link: "/relatorios" },
+      ]
+    }
+  ];
+
   return (
     <Container className="py-4">
-      {/* CABEÇALHO */}
-      <Row className="mb-3 animate__animated animate__fadeIn">
+      {/* CABEÇALHO COM NOME DO SISTEMA E DATA */}
+      <Row className="mb-4 animate__animated animate__fadeIn">
         <Col>
-          {showWelcome && <h5 className="mb-1 fw-bold">Seja bem-vindo!</h5>}
-          <p className="text-muted small mb-0">
-            <FaCalendarAlt className="me-2" />
-            {currentDate}
-          </p>
+          <div className="d-flex align-items-center justify-content-between p-4 rounded" style={{ borderBottom: '3px solid #169976' }}>
+            <div>
+              <h1 className="h4 fw-bold text-primary mb-1">
+                <FaBookOpen className="me-2" />
+                BiBli
+              </h1>
+              <p className="text-muted mb-0">Sua plataforma completa de gestão bibliotecária</p>
+            </div>
+            <div className="text-end">
+              {showWelcome && <h3 className="mb-1 fw-bold text-primary">Seja bem-vindo!</h3>}
+              <p className="text-muted mb-0">
+                <FaCalendarAlt className="me-1" />
+                {currentDate}
+              </p>
+            </div>
+          </div>
         </Col>
       </Row>
 
-      {/* TÍTULO + PESQUISA */}
-      <Row className="mb-4 text-center">
+      {/* BARRA DE PESQUISA DO ACERVO */}
+      <Row className="mb-0">
         <Col>
-          <div className="title-wrapper d-flex align-items-center justify-content-center mb-0">
-            <h1 className="display-4 fw-bold text-primary">BiBli</h1>
-          </div>
-          <p className="lead text-muted mb-2">Sua plataforma de gestão bibliotecária</p>
-
-          <div className="mt-1 mx-auto" style={{ maxWidth: "750px" }}>
-            <InputGroup className="shadow-sm">
+          <div className="p-3 rounded shadow-sm" style={{  maxWidth: '700px' }}>
+            <h5 className="mb-3 text-primary">Pesquisar Acervo</h5>
+            <InputGroup>
               <InputGroup.Text className="bg-primary text-white border-0">
-                <FaSearch size={18} className="header-icon me-0" />
+                <FaSearch />
               </InputGroup.Text>
               <Form.Control
                 type="search"
-                placeholder="Pesquise por livros, editoras, gêneros..."
-                className="py-2 border-0"
+                placeholder="Pesquise por livros, autores, editoras, gêneros, ISBN..."
                 value={termoBusca}
                 onChange={e => setTermoBusca(e.target.value)}
               />
@@ -155,19 +210,23 @@ const Home = () => {
         </Col>
       </Row>
 
-      {/* LISTA DE LIVROS */}
-      <Row className="mb-5">
+      {/* LISTA DE LIVROS COM PAGINAÇÃO */}
+      <Row className="mb-4">
         <Col>
           <Card>
-            <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">Acervo de Livros</h5>
+            <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center py-2">
+              <h5 className="mb-1">
+                <FaBook className="me-2" />
+                Acervo de Livros
+              </h5>
               <span className="badge bg-light text-primary">
                 {livrosFiltrados.length} {livrosFiltrados.length === 1 ? 'livro' : 'livros'} •
                 Página {paginaAtual} de {totalPaginas || 1}
               </span>
             </Card.Header>
-            <Card.Body>
+            <Card.Body className="p-3">
               {loading ? (
+                // Estado de carregamento
                 <div className="text-center py-4">
                   <div className="spinner-border text-primary" role="status">
                     <span className="visually-hidden">Carregando...</span>
@@ -175,12 +234,14 @@ const Home = () => {
                   <p className="mt-2 text-muted">Carregando livros...</p>
                 </div>
               ) : livrosExibidos.length === 0 ? (
+                // Estado vazio (com ou sem busca)
                 <p className="text-muted text-center py-4">
                   {termoBusca ? "Nenhum livro encontrado com esse termo de busca" : "Nenhum livro cadastrado no acervo"}
                 </p>
               ) : (
+                // Tabela com livros e controles de paginação
                 <>
-                  <Table striped hover responsive className="mb-0">
+                  <Table striped hover responsive className="mb-1">
                     <thead>
                       <tr>
                         <th>ID</th>
@@ -205,7 +266,7 @@ const Home = () => {
                     </tbody>
                   </Table>
 
-                  {/* PAGINAÇÃO DOS LIVROS */}
+                  {/* CONTROLES DE PAGINAÇÃO */}
                   {totalPaginas > 1 && (
                     <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
                       <Button
@@ -233,205 +294,34 @@ const Home = () => {
         </Col>
       </Row>
 
-      {/* CARDS DE FUNCIONALIDADES */}
-      <Row className="g-3">
-        {/* Livros */}
-        <Col md={6} lg={4} xl={3}>
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <FaBook size={48} className="mb-3 text-primary" />
-              <Card.Title>Livros</Card.Title>
-              <div className="text-muted">
-                <p className="mb-2">Cadastre e gerencie todos os livros do acervo</p>
-                <hr className="my-2" />
-              </div>
-              <Link to="/livros" className="btn btn-primary mt-3">Acessar Livros</Link>
-            </Card.Body>
-          </Card>
-        </Col>
+      {/* CARDS DE FUNCIONALIDADES ORGANIZADOS POR CATEGORIA */}
+      {categoriasCards.map((categoria, index) => (
+        <div key={index} className="mb-4">
+          <h5 className="mb-3 pb-2 text-primary border-bottom">{categoria.titulo}</h5>
+          <Row className="g-3">
+            {categoria.cards.map((card, cardIndex) => {
+              const Icone = card.icone;
+              return (
+                <Col md={6} lg={4} xl={3} key={cardIndex}>
+                  <Card className="h-100 text-center card-hover">
+                    <Card.Body className="d-flex flex-column p-3">
+                      <Icone size={30} className="mb-2 text-primary mx-auto" />
+                      <Card.Title className="h3 mb-1">{card.titulo}</Card.Title>
+                      <div className="text-muted flex-grow-1">
+                        <p className="mb-">{card.descricao}</p>
+                        <hr className="my-2" />
+                      </div>
+                      <Link to={card.link} className="btn btn-primary mt-2">Acessar</Link>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              );
+            })}
+          </Row>
+        </div>
+      ))}
 
-        {/* Professores */}
-        <Col md={6} lg={4} xl={3}>
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <FaUserTie size={48} className="mb-3 text-primary" />
-              <Card.Title>Professores</Card.Title>
-              <div className="text-muted">
-                <p className="mb-2">Cadastre e atualize informações de professores</p>
-                <hr className="my-2" />
-              </div>
-              <Link to="/professores" className="btn btn-primary mt-3">Acessar Professores</Link>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        {/* Alunos */}
-        <Col md={6} lg={4} xl={3}>
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <FaUserGraduate size={48} className="mb-3 text-primary" />
-              <Card.Title>Alunos</Card.Title>
-              <div className="text-muted">
-                <p className="mb-2">Cadastre e acompanhe os alunos da turma</p>
-                <hr className="my-2" />
-              </div>
-              <Link to="/alunos" className="btn btn-primary mt-3">Acessar Alunos</Link>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        {/* Leitores */}
-        <Col md={6} lg={4} xl={3}>
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <FaIdBadge size={48} className="mb-3 text-primary" />
-              <Card.Title>Leitores</Card.Title>
-              <div className="text-muted">
-                <p className="mb-2">Cadastre e gerencie usuários especiais</p>
-                <hr className="my-2" />
-              </div>
-              <Link to="/leitores" className="btn btn-primary mt-3">Acessar Leitores</Link>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        {/* Autores */}
-        <Col md={6} lg={4} xl={3}>
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <FaPenFancy size={48} className="mb-3 text-primary" />
-              <Card.Title>Autores</Card.Title>
-              <div className="text-muted">
-                <p className="mb-2">Cadastre e atualize informações sobre autores</p>
-                <hr className="my-2" />
-              </div>
-              <Link to="/autores" className="btn btn-primary mt-3">Acessar Autores</Link>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        {/* Editoras */}
-        <Col md={6} lg={4} xl={3}>
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <FaBuilding size={48} className="mb-3 text-primary" />
-              <Card.Title>Editoras</Card.Title>
-              <div className="text-muted">
-                <p className="mb-2">Cadastre e organize as editoras do acervo</p>
-                <hr className="my-2" />
-              </div>
-              <Link to="/editoras" className="btn btn-primary mt-3">Acessar Editoras</Link>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        {/* Entrada */}
-        <Col md={6} lg={4} xl={3}>
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <FaDoorOpen size={48} className="mb-3 text-primary" />
-              <Card.Title>Entrada</Card.Title>
-              <div className="text-muted">
-                <p className="mb-2">Registre a entrada de novos livros no acervo</p>
-                <hr className="my-2" />
-              </div>
-              <Link to="/entrada" className="btn btn-primary mt-3">Registrar Entrada</Link>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        {/* Saída */}
-        <Col md={6} lg={4} xl={3}>
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <FaSignOutAlt size={48} className="mb-3 text-primary" />
-              <Card.Title>Saída</Card.Title>
-              <div className="text-muted">
-                <p className="mb-2">Registre a saída de livros do acervo</p>
-                <hr className="my-2" />
-              </div>
-              <Link to="/saida" className="btn btn-primary mt-3">Registrar Saída</Link>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        {/* Reservas */}
-        <Col md={6} lg={4} xl={3}>
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <FaCalendarAlt size={48} className="mb-3 text-primary" />
-              <Card.Title>Reservas</Card.Title>
-              <div className="text-muted">
-                <p className="mb-2">Gerencie e acompanhe as reservas de livros</p>
-                <hr className="my-2" />
-              </div>
-              <Link to="/reservas" className="btn btn-primary mt-3">Acessar Reservas</Link>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        {/* Empréstimos */}
-        <Col md={6} lg={4} xl={3}>
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <FaHandshake size={48} className="mb-3 text-primary" />
-              <Card.Title>Empréstimos</Card.Title>
-              <div className="text-muted">
-                <p className="mb-2">Controle os empréstimos de livros do sistema</p>
-                <hr className="my-2" />
-              </div>
-              <Link to="/emprestimos" className="btn btn-primary mt-3">Acessar Empréstimos</Link>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        {/* Renovações */}
-        <Col md={6} lg={4} xl={3}>
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <FaSyncAlt size={48} className="mb-3 text-primary" />
-              <Card.Title>Renovações</Card.Title>
-              <div className="text-muted">
-                <p className="mb-2">Registre e gerencie as renovações de empréstimos</p>
-                <hr className="my-2" />
-              </div>
-              <Link to="/renovacoes" className="btn btn-primary mt-3">Acessar Renovações</Link>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        {/* Devoluções */}
-        <Col md={6} lg={4} xl={3}>
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <FaReply size={48} className="mb-3 text-primary" />
-              <Card.Title>Devoluções</Card.Title>
-              <div className="text-muted">
-                <p className="mb-2">Registre e acompanhe as devoluções de livros</p>
-                <hr className="my-2" />
-              </div>
-              <Link to="/devolucoes" className="btn btn-primary mt-3">Acessar Devoluções</Link>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        {/* Relatórios */}
-        <Col md={6} lg={4} xl={3}>
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <FaChartBar size={48} className="mb-3 text-primary" />
-              <Card.Title>Relatórios</Card.Title>
-              <div className="text-muted">
-                <p className="mb-2">Veja estatísticas e relatórios do acervo</p>
-                <hr className="my-2" />
-              </div>
-              <Link to="/relatorios" className="btn btn-primary mt-3">Acessar Relatórios</Link>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* BOTÃO FLUTUANTE DE AJUDA */}
+      {/* BOTÃO FLUTUANTE DE AJUDA COM EFEITO VISUAL */}
       <div className="help-button-container">
         <button
           className={`help-button ${isButtonActive ? 'active' : ''}`}
@@ -439,12 +329,12 @@ const Home = () => {
           aria-label="Botão de ajuda"
           title="Ajuda"
         >
-          <FaEnvelope size={24} className="icon" />
+          <FaEnvelope size={18} className="icon" />
           <span className="pulse-effect"></span>
         </button>
       </div>
 
-      {/* MODAL DE AJUDA */}
+      {/* MODAL DE AJUDA COM INFORMAÇÕES DE CONTATO */}
       <Modal
         show={showHelpModal}
         onHide={handleCloseHelpModal}

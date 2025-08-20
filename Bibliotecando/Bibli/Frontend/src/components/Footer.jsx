@@ -32,7 +32,7 @@ const Footer = () => {
           <Col md={4}>
             <div className="d-flex flex-column h-100">
               <span className="logo-rodape fw-bold fs-4 mb-3 text-primary">
-                Bibliotecando - Bibli
+                BiBliotecando - Bibli
               </span>
               <p className="texto-rodape text-muted mb-3">
                 Sistema de gerenciamento bibliotecário desenvolvido para
@@ -145,7 +145,7 @@ const Footer = () => {
         <div className="text-center my-4">
           <button
             onClick={scrollToTop}
-              className="btn btn-voltar-topo btn-sm d-flex align-items-center mx-auto px-3"
+              className="btn btn-paginacao btn-sm d-flex align-items-center mx-auto px-3"
             aria-label="Voltar ao topo"
           >
             <FaArrowUp className="me-2" />

@@ -197,14 +197,14 @@ const Alunos = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button 
-            variant="secondary" 
+            variant="paginacao" 
             onClick={() => setShowDeleteModal(false)}
             disabled={isDeleting}
           >
             Cancelar
           </Button>
           <Button 
-            variant="btn-paginacao" 
+            variant="danger" 
             onClick={handleDeleteAluno}
             disabled={isDeleting}
           >

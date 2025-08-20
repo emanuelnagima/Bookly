@@ -196,7 +196,7 @@ const Autores = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button 
-            variant="secondary" 
+            variant="paginacao" 
             onClick={() => setShowDeleteModal(false)}
             disabled={isDeleting}
           >

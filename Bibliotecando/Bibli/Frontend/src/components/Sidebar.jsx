@@ -26,7 +26,7 @@ const Sidebar = () => {
       <div className="sidebar-header">
         <div className="header-content">
           <div className="title-wrapper d-flex align-items-center">
-            <h4>Bibliotecando</h4>
+            <h4>BiBliotecando</h4>
           </div>
           <p className="system-description">
             Solução integrada para bibliotecas
