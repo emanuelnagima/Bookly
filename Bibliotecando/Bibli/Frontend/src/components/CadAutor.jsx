@@ -132,14 +132,14 @@ const CadAutor = ({ onSave, onCancel, autor, loading }) => {
 
           <div className='d-flex justify-content-end gap-2'>
             <Button 
-              variant='outline-secondary' 
+              variant='danger' 
               onClick={onCancel}
               disabled={loading}
             >
               Cancelar
             </Button>
             <Button 
-              variant='primary' 
+              variant='paginacao' 
               type='submit'
               disabled={loading}
             >

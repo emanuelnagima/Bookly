@@ -1,49 +1,82 @@
 /* ====== VARIÁVEIS CSS (CUSTOM PROPERTIES) ====== */
 :root {
   /* Cores principais do tema */
-  --color-bg: #ffffff; /* Cor de fundo principal */
-  --color-page: #f7f7f7; /* Cor de fundo da página */
-  --color-foreground: #222222; /* Cor do texto principal */
-  --color-sidebar: #2C3E50; /* Cor do sidebar */
-  --color-accent: #2980B9; /* Cor de destaque/acento */
-  --color-white: #ffffff; /* Branco puro */
-  --color-muted: rgba(34, 34, 34, 0.6); /* Texto com opacidade reduzida */
-  --color-card-border: rgba(0, 0, 0, 0.1); /* Borda sutil para cards */
-  --color-card-shadow: rgba(0, 0, 0, 0.05); /* Sombra padrão para cards */
-  --color-card-shadow-hover: rgba(0, 0, 0, 0.12); /* Sombra para hover em cards */
+  --color-bg: #ffffff;
+  /* Cor de fundo principal */
+  --color-page: #f7f7f7;
+  /* Cor de fundo da página */
+  --color-foreground: #222222;
+  /* Cor do texto principal */
+  --color-sidebar: #2C3E50;
+  /* Cor do sidebar */
+  --color-accent: #2980B9;
+  /* Cor de destaque/acento */
+  --color-white: #ffffff;
+  /* Branco puro */
+  --color-muted: rgba(34, 34, 34, 0.6);
+  /* Texto com opacidade reduzida */
+  --color-card-border: rgba(0, 0, 0, 0.1);
+  /* Borda sutil para cards */
+  --color-card-shadow: rgba(0, 0, 0, 0.05);
+  /* Sombra padrão para cards */
+  --color-card-shadow-hover: rgba(0, 0, 0, 0.12);
+  /* Sombra para hover em cards */
 
   /* Tipografia */
-  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif; /* Fonte principal */
-  --font-size-base: 16px; /* Tamanho base da fonte */
-  --font-size-small: 0.79rem; /* Tamanho pequeno */
-  --font-size-smaller: 0.75rem; /* Tamanho menor ainda */
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+  /* Fonte principal */
+  --font-size-base: 16px;
+  /* Tamanho base da fonte */
+  --font-size-small: 0.79rem;
+  /* Tamanho pequeno */
+  --font-size-smaller: 0.75rem;
+  /* Tamanho menor ainda */
 
   /* Dimensões e espaçamentos */
-  --sidebar-width: 280px; /* Largura do sidebar */
-  --gap-sm: 0.4rem; /* Espaçamento pequeno */
-  --gap-base: 1rem; /* Espaçamento base */
-  --pad-wide: 2rem; /* Padding largo */
-  --pad-medium: 1.5rem; /* Padding médio */
-  --border-radius: 8px; /* Raio de borda padrão */
-  --round-big: 12px; /* Raio de borda maior */
-  --avatar-size: 140px; /* Tamanho do avatar */
+  --sidebar-width: 280px;
+  /* Largura do sidebar */
+  --gap-sm: 0.4rem;
+  /* Espaçamento pequeno */
+  --gap-base: 1rem;
+  /* Espaçamento base */
+  --pad-wide: 2rem;
+  /* Padding largo */
+  --pad-medium: 1.5rem;
+  /* Padding médio */
+  --border-radius: 8px;
+  /* Raio de borda padrão */
+  --round-big: 12px;
+  /* Raio de borda maior */
+  --avatar-size: 140px;
+  /* Tamanho do avatar */
 
   /* Sombras e transições */
-  --shadow-sidebar: 4px 0 20px rgba(44, 62, 80, 0.4); /* Sombra do sidebar */
-  --shadow-card: 0 4px 12px var(--color-card-shadow); /* Sombra padrão de card */
-  --shadow-card-hover: 0 8px 24px var(--color-card-shadow-hover); /* Sombra de card no hover */
-  --transition-fast: 0.3s ease; /* Transição rápida */
-  --transition-slower: 0.5s ease; /* Transição mais lenta */
+  --shadow-sidebar: 4px 0 20px rgba(44, 62, 80, 0.4);
+  /* Sombra do sidebar */
+  --shadow-card: 0 4px 12px var(--color-card-shadow);
+  /* Sombra padrão de card */
+  --shadow-card-hover: 0 8px 24px var(--color-card-shadow-hover);
+  /* Sombra de card no hover */
+  --transition-fast: 0.3s ease;
+  /* Transição rápida */
+  --transition-slower: 0.5s ease;
+  /* Transição mais lenta */
 
   /* Botões */
-  --btn-bg: var(--color-accent); /* Cor de fundo do botão */
-  --btn-bg-hover: #1B6AA8; /* Cor de fundo no hover */
-  --btn-color: var(--color-white); /* Cor do texto do botão */
-  --btn-color-hover: var(--color-white); /* Cor do texto no hover */
+  --btn-bg: var(--color-accent);
+  /* Cor de fundo do botão */
+  --btn-bg-hover: #1B6AA8;
+  /* Cor de fundo no hover */
+  --btn-color: var(--color-white);
+  /* Cor do texto do botão */
+  --btn-color-hover: var(--color-white);
+  /* Cor do texto no hover */
 
   /* Outras medidas úteis */
-  --help-size: 48px; /* Tamanho do botão de ajuda */
-  --devs-grid-min: 280px; /* Largura mínima para grid de desenvolvedores */
+  --help-size: 48px;
+  /* Tamanho do botão de ajuda */
+  --devs-grid-min: 280px;
+  /* Largura mínima para grid de desenvolvedores */
 }
 
 /* ====== RESET BÁSICO E ESTILOS GERAIS ====== */
@@ -54,7 +87,8 @@ body.tema-padrao {
   margin: 0;
   padding: 0;
   font-size: var(--font-size-base);
-  background: linear-gradient(to bottom, #f0f4f8, #ffffff); /* Gradiente sutil de fundo */
+  background: linear-gradient(to bottom, #f0f4f8, #ffffff);
+  /* Gradiente sutil de fundo */
 }
 
 /* ====== LAYOUT PRINCIPAL ====== */
@@ -93,7 +127,7 @@ body.tema-padrao {
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  
+
 }
 
 /* Estilos do título principal */
@@ -101,7 +135,8 @@ body.tema-padrao {
   margin: 10px 0 6px 0;
   font-weight: 600;
   font-size: 1.5rem;
-  color: #1DCD9F; /* Cor verde para destaque */
+  color: #1DCD9F;
+  /* Cor verde para destaque */
 }
 
 /* Tagline abaixo do título */
@@ -111,7 +146,8 @@ body.tema-padrao {
   margin-top: 6px;
   font-style: italic;
   letter-spacing: 0.8px;
-  user-select: none; /* Impede seleção de texto */
+  user-select: none;
+  /* Impede seleção de texto */
   line-height: 1.2;
   max-width: 220px;
 }
@@ -209,6 +245,8 @@ body.tema-padrao {
 
 /* ====== COMPONENTES ====== */
 /* Botões */
+
+/* BOTÃO SALVAR */
 .btn-primary {
   background-color: #1DCD9F;
   border: none !important;
@@ -219,34 +257,71 @@ body.tema-padrao {
   transition: background-color var(--transition-fast);
 }
 
+.btn-sucess:hover {
+  background-color: #169976;
+  color: var(--btn-color-hover) !important;
+}
+
+
 .btn-primary:hover {
   background-color: #169976;
   color: var(--btn-color-hover) !important;
 }
 
-/* Botão "Voltar ao topo" */
-.btn-voltar-topo {
-  background-color: #ececec;
-  border: none;
-  color: #2C3E50 !important;
+/* BOTÃO CANCELAR E EXCLUIR*/
+.btn-danger {
+  background-color: #ca1313;
+  border: none !important;
+  color: var(--btn-color) !important;
   cursor: pointer;
-  transition: background-color 0.5s ease;
+  font-weight: 500;
+
+  transition: background-color var(--transition-fast);
 }
 
-.btn-voltar-topo:hover {
-  background-color: #2C3E50;
-  color: #fff !important;
+.btn-danger:hover {
+  background-color: #ca1313;
+  color: var(--btn-color-hover) !important;
+}
+
+.btn-danger:hover {
+  background-color: #f32525;
+  color: var(--btn-color-hover) !important;
+}
+
+/* BOTÃO ADICIONAR*/
+.btn-success {
+  background-color: #1DCD9F;
+  border: none !important;
+  color: var(--btn-color) !important;
+  cursor: pointer;
+  font-weight: 500;
+
+  transition: background-color var(--transition-fast);
+}
+
+.btn-success:hover {
+  background-color: #169976;
+  color: var(--btn-color-hover) !important;
+}
+
+.btn-success:hover {
+  background-color: #169976;
+  color: var(--btn-color-hover) !important;
 }
 
 /* ====== PAGINAÇÃO HOME ====== */
+/* ====== BOTÃO PROXIMA E CANCELAR  ====== */
+
 .btn-paginacao {
   background-color: var(--color-sidebar) !important;
   color: #fff;
-  border-radius: 0.375rem; 
-  padding: 0.375rem 0.75rem; 
+  font-weight: 500;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.75rem;
   display: inline-flex;
   align-items: center;
-transition: background-color var(--transition-fast)
+  transition: background-color var(--transition-fast)
 }
 
 .btn-paginacao:disabled {
@@ -257,7 +332,7 @@ transition: background-color var(--transition-fast)
 .btn-paginacao:not(:disabled):hover {
   background-color: #1B6AA8 !important;
   color: #fff !important;
-transition: background-color var(--transition-fast)
+  transition: background-color var(--transition-fast)
 }
 
 
@@ -310,7 +385,7 @@ transition: background-color var(--transition-fast)
 .text-primary {
   color: var(--color-sidebar) !important;
   margin-bottom: -4px;
-  
+
 }
 
 .bg-primary {
@@ -408,7 +483,7 @@ transition: background-color var(--transition-fast)
 }
 
 .hours-icon {
-  background-color: rgba(40, 167, 69, 0.1);
+  background-color: (40, 167, 69, 0.1);
   color: var(--color-sidebar) !important;
 }
 
@@ -492,7 +567,7 @@ transition: background-color var(--transition-fast)
 .btn-edit {
   background-color: #2C3E50;
   color: #ffffff;
-    border: 1px solid #ffffff;
+  border: 1px solid #ffffff;
 
 }
 
@@ -519,15 +594,18 @@ transition: background-color var(--transition-fast)
 /* ====== RESPONSIVIDADE ====== */
 @media (max-width: 768px) {
   .app-container {
-    flex-direction: column; /* Empilha sidebar e conteúdo em mobile */
+    flex-direction: column;
+    /* Empilha sidebar e conteúdo em mobile */
   }
 
   .sidebar {
-    width: 100%; /* Sidebar ocupa toda a largura */
+    width: 100%;
+    /* Sidebar ocupa toda a largura */
   }
 
   .content {
-    padding: var(--pad-medium); /* Reduz padding em mobile */
+    padding: var(--pad-medium);
+    /* Reduz padding em mobile */
   }
 }
 
@@ -687,13 +765,14 @@ transition: background-color var(--transition-fast)
   font-size: 0.85rem;
 }
 
-.table-smaller th, 
+.table-smaller th,
 .table-smaller td {
   padding: 0.5rem;
 }
 
 /* Responsividade para a página Sobre */
 @media (max-width: 768px) {
+
   .mvv-card,
   .team-card,
   .tech-item {
@@ -704,4 +783,3 @@ transition: background-color var(--transition-fast)
     font-size: 1rem;
   }
 }
-

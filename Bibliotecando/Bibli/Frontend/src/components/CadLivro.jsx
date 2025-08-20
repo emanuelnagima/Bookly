@@ -180,7 +180,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
 
           <div className='d-flex justify-content-end gap-2'>
             <Button 
-              variant='outline-secondary' 
+              variant='danger' 
               onClick={onCancel}
               disabled={loading}
             >
