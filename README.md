@@ -17,6 +17,7 @@ O **Bibliotecando** oferece uma solução completa e segura para o gerenciamento
 *Tabela Script Banco*
 
  Tabela de Autores
+ 
 CREATE TABLE IF NOT EXISTS autores (
     id int(11) NOT NULL AUTO_INCREMENT,
     nome varchar(100) NOT NULL,
@@ -35,6 +36,7 @@ CREATE TABLE IF NOT EXISTS autores (
 ) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Tabela de Professores
+
 CREATE TABLE IF NOT EXISTS professores (
     id int(11) NOT NULL AUTO_INCREMENT,
     nome varchar(100) NOT NULL,
@@ -48,6 +50,7 @@ CREATE TABLE IF NOT EXISTS professores (
 ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Tabela de Alunos
+
 CREATE TABLE IF NOT EXISTS alunos (
     id int(11) NOT NULL AUTO_INCREMENT,
     nome varchar(100) NOT NULL,
@@ -68,6 +71,7 @@ CREATE TABLE IF NOT EXISTS alunos (
 
 
 -- Tabela de Editoras
+
 CREATE TABLE IF NOT EXISTS editoras (
     id int(11) NOT NULL AUTO_INCREMENT,
     nome varchar(100) NOT NULL,
