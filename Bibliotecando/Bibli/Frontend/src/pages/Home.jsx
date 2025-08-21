@@ -193,7 +193,7 @@ const Home = () => {
       {/* BARRA DE PESQUISA DO ACERVO */}
       <Row className="mb-0">
         <Col>
-          <div className="p-3 rounded shadow-sm" style={{  maxWidth: '700px' }}>
+          <div className="p-3" style={{  maxWidth: '700px' }}>
             <h5 className="mb-3 text-primary">Pesquisar Acervo</h5>
             <InputGroup>
               <InputGroup.Text className="bg-primary text-white border-0">
