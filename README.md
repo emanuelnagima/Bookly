@@ -1,21 +1,67 @@
 # Bibliotecando (Bibli)
 
-O **Bibliotecando** é um sistema completo para gerenciamento do acervo da biblioteca da Escola Prof. Oswaldo Ranazzi, desenvolvido para uso interno. Ele permite o cadastro de alunos, professores, livros, autores e editoras, e gerencia todo o ciclo de empréstimos, incluindo reservas, saídas, devoluções e renovação de livros. O sistema garante que apenas exemplares disponíveis possam ser emprestados e registra automaticamente a entrada de novos livros e a baixa de exemplares descartados, mantendo o acervo sempre atualizado.
+O **Bibliotecando** é um sistema completo para gerenciamento do acervo da biblioteca da **Escola Prof. Oswaldo Ranazzi**, desenvolvido para uso interno. Ele foi criado para tornar o controle de empréstimos, reservas e consultas de livros mais **eficiente, seguro e organizado**, garantindo que o acervo da biblioteca esteja sempre atualizado.
+
+O sistema permite o cadastro de **alunos, professores, livros, autores e editoras**, além de gerenciar todo o ciclo de empréstimos, incluindo:
+
+- Saídas de livros  
+- Devoluções  
+- Renovação de empréstimos  
+- Reservas de livros  
+
+O **Bibliotecando** também garante que apenas **exemplares disponíveis possam ser emprestados**, registra automaticamente a entrada de novos livros e realiza a baixa de exemplares descartados.
+
+---
 
 ## Funcionalidades principais
 
-- **Cadastro completo:** alunos, professores, livros, autores e editoras, com informações detalhadas como título, editora, ano de publicação e autor.
-- **Gestão de empréstimos:** registro de saídas, devoluções e renovação de livros, com controle de disponibilidade de exemplares.
-- **Reservas de livros:** permite que alunos e professores reservem livros para períodos específicos.
-- **Controle de acervo:** registro automático de novas entradas e baixa de livros descartados.
-- **Consultas e filtros:** acesso rápido a informações sobre reservas, empréstimos, devoluções e acervo disponível.
-- **Relatórios detalhados:** emissão de relatórios sobre estoque, reservas pendentes, empréstimos realizados e livros disponíveis.
-- **Segurança e privacidade:** proteção de dados sensíveis dos usuários e do acervo, garantindo administração eficiente e organizada.
+- **Cadastro completo:**  
+  Permite registrar detalhes de alunos, professores, livros, autores e editoras, incluindo informações como título, autor, editora, ano de publicação, matrícula e CPF.  
 
-O **Bibliotecando** oferece uma solução completa e segura para o gerenciamento da biblioteca, facilitando o controle do acervo e tornando o processo de empréstimo mais eficiente.
-# Script de Criação de Tabelas e Inserts de Exemplo
+- **Gestão de empréstimos:**  
+  Controle rigoroso de saídas, devoluções e renovações, com verificação de disponibilidade de exemplares e histórico completo de cada usuário.  
 
-Este documento contém o **script completo para criação de tabelas** e inserts de exemplo para um banco de dados escolar/biblioteca.
+- **Reservas de livros:**  
+  Usuários podem reservar livros para datas específicas, evitando conflitos e melhorando a organização do acervo.  
+
+- **Controle de acervo:**  
+  Entrada automática de novos exemplares e baixa de livros descartados, mantendo o inventário atualizado.  
+
+- **Consultas e filtros avançados:**  
+  Permite localizar rapidamente livros por título, autor, gênero, disponibilidade ou categoria, além de acompanhar reservas, empréstimos e devoluções.  
+
+- **Relatórios detalhados:**  
+  Emissão de relatórios sobre estoque, reservas pendentes, empréstimos realizados, livros disponíveis e histórico de usuários, auxiliando na tomada de decisões.  
+
+- **Segurança e privacidade:**  
+  Proteção de dados sensíveis de usuários e informações do acervo, com controle de acesso interno e registro de operações.  
+
+- **Interface amigável e intuitiva:**  
+  Projeto pensado para facilitar o uso por funcionários da biblioteca, mesmo sem conhecimento técnico avançado.  
+
+- **Eficiência e organização:**  
+  Reduz erros manuais, agiliza o atendimento a alunos e professores, e fornece dados confiáveis sobre o acervo e uso da biblioteca.  
+
+---
+
+## Benefícios do sistema
+
+- Automatiza processos que antes eram manuais, economizando tempo da equipe da biblioteca.  
+- Melhora o controle sobre empréstimos e devoluções, evitando perdas e atrasos.  
+- Facilita o planejamento de aquisições de livros, identificando os mais utilizados e os menos procurados.  
+- Proporciona uma experiência organizada para alunos e professores, incentivando o uso do acervo.  
+
+O **Bibliotecando** é, portanto, uma **solução completa, confiável e moderna** para gerenciamento de bibliotecas escolares, que alia tecnologia, segurança e praticidade para melhorar a gestão do acervo e o atendimento aos usuários.
+
+---
+
+## Observações adicionais
+
+- O sistema foi desenvolvido pensando na **rotina de bibliotecas escolares**, mas pode ser adaptado para uso em bibliotecas comunitárias ou pequenas instituições.  
+- A documentação inclui scripts de criação de tabelas, inserts de exemplo e consultas, facilitando a instalação inicial e testes do sistema.  
+- É compatível com bancos de dados **MySQL/MariaDB**, mas pode ser adaptado para outros sistemas relacionais com pequenas alterações.  
+
+
 
 > **Observação:** Antes de executar, remova as tabelas antigas para evitar conflitos:
 >
