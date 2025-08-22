@@ -12,6 +12,28 @@ const formatarTexto = texto =>
     .map(p => p.charAt(0).toUpperCase() + p.slice(1))
     .join(' ')
 
+// Função para formatar números de telefone
+const formatarTelefone = (telefone) => {
+  if (!telefone) return '-'
+  
+  // Remove caracteres não numéricos
+  const numeros = telefone.toString().replace(/\D/g, '')
+  
+  // Formata de acordo com o tamanho
+  if (numeros.length === 11) {
+    return `(${numeros.substring(0, 2)}) ${numeros.substring(2, 7)}-${numeros.substring(7)}`
+  } else if (numeros.length === 10) {
+    return `(${numeros.substring(0, 2)}) ${numeros.substring(2, 6)}-${numeros.substring(6)}`
+  } else if (numeros.length === 8) {
+    return `${numeros.substring(0, 4)}-${numeros.substring(4)}`
+  } else if (numeros.length === 9) {
+    return `${numeros.substring(0, 5)}-${numeros.substring(5)}`
+  }
+  
+  // Retorna o original se não conseguir formatar
+  return telefone
+}
+
 const ProfessorList = ({ professores, onDelete, onEdit }) => {
   const [termoBusca, setTermoBusca] = useState('')
   const [paginaAtual, setPaginaAtual] = useState(1)
@@ -93,7 +115,7 @@ const ProfessorList = ({ professores, onDelete, onEdit }) => {
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Nome</th>
+                  <th>Nome Completo</th>
                   <th>Matrícula</th>
                   <th>Departamento</th>
                   <th>E-mail</th>
@@ -105,13 +127,11 @@ const ProfessorList = ({ professores, onDelete, onEdit }) => {
                 {professoresPaginaAtual.map(professor => (
                   <tr key={professor.id}>
                     <td>{professor.id}</td>
-                    <td>
-                      <td>{formatarTexto(professor.nome)}</td> 
-                    </td>
+                    <td>{formatarTexto(professor.nome)}</td>
                     <td>{professor.matricula}</td>
                     <td>{formatarTexto(professor.departamento)}</td>
                     <td>{professor.email}</td>
-                    <td>{professor.telefone || '-'}</td>
+                    <td>{formatarTelefone(professor.telefone)}</td>
                     <td>
                       <div className="d-flex gap-2">
                         <button

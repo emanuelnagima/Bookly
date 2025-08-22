@@ -12,6 +12,38 @@ const formatarTexto = texto =>
     .map(p => p.charAt(0).toUpperCase() + p.slice(1))
     .join(' ')
 
+// Função para formatar CNPJ
+const formatarCNPJ = (cnpj) => {
+  if (!cnpj) return '-'
+  
+  const cnpjLimpo = cnpj.toString().replace(/\D/g, '')
+  
+  if (cnpjLimpo.length === 14) {
+    return `${cnpjLimpo.substring(0, 2)}.${cnpjLimpo.substring(2, 5)}.${cnpjLimpo.substring(5, 8)}/${cnpjLimpo.substring(8, 12)}-${cnpjLimpo.substring(12)}`
+  }
+  
+  return cnpj
+}
+
+// Função para formatar telefone
+const formatarTelefone = (telefone) => {
+  if (!telefone) return '-'
+  
+  const numeros = telefone.toString().replace(/\D/g, '')
+  
+  if (numeros.length === 11) {
+    return `(${numeros.substring(0, 2)}) ${numeros.substring(2, 7)}-${numeros.substring(7)}`
+  } else if (numeros.length === 10) {
+    return `(${numeros.substring(0, 2)}) ${numeros.substring(2, 6)}-${numeros.substring(6)}`
+  } else if (numeros.length === 8) {
+    return `${numeros.substring(0, 4)}-${numeros.substring(4)}`
+  } else if (numeros.length === 9) {
+    return `${numeros.substring(0, 5)}-${numeros.substring(5)}`
+  }
+  
+  return telefone
+}
+
 const EditoraList = ({ editoras, onDelete, onEdit }) => {
   const [termoBusca, setTermoBusca] = useState('')
   const [paginaAtual, setPaginaAtual] = useState(1)
@@ -97,11 +129,9 @@ const EditoraList = ({ editoras, onDelete, onEdit }) => {
                 {editorasPaginaAtual.map(editora => (
                   <tr key={editora.id}>
                     <td>{editora.id}</td>
-                    <td>
-                        <td>{formatarTexto(editora.nome)}</td> 
-                    </td>
-                    <td>{editora.cnpj || '-'}</td>
-                    <td>{editora.telefone || '-'}</td>
+                    <td>{formatarTexto(editora.nome)}</td>
+                    <td>{formatarCNPJ(editora.cnpj)}</td>
+                    <td>{formatarTelefone(editora.telefone)}</td>
                     <td>{editora.email || '-'}</td>
                     <td>
                       <div className="d-flex gap-2">
