@@ -120,15 +120,7 @@ const Sidebar = () => {
               <FaBuilding className="me-2" />
               Editoras
             </NavLink>
-            <NavLink
-              to="/leitores"
-              className={({ isActive }) =>
-                `nav-link py-2 ${isActive ? "active" : ""}`
-              }
-            >
-              <FaIdBadge className="me-2" />
-              Leitores
-            </NavLink>
+    
           </div>
         )}
 

@@ -109,12 +109,8 @@ const AutorList = ({ autores, onDelete, onEdit }) => {
                   <tr key={autor.id}>
                     <td>{autor.id}</td>
                     <td>
-                      <Link
-                        to={`/autor/${autor.id}`}
-                        style={{ textDecoration: 'none', color: 'inherit' }}
-                      >
-                        {formatarNome(autor.nome)}
-                      </Link>
+                    <td>{formatarNome(autor.nome)}</td>
+
                     </td>
                     <td>{formatarNome(autor.nacionalidade)}</td>
                     <td>{formatarData(autor.data_nascimento)}</td>

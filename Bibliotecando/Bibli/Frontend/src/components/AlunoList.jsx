@@ -101,12 +101,8 @@ const AlunoList = ({ alunos, onDelete, onEdit }) => {
                   <tr key={aluno.id}>
                     <td>{aluno.id}</td>
                     <td>
-                      <Link
-                        to={`/aluno/${aluno.id}`}
-                        style={{ textDecoration: 'none', color: 'inherit' }}
-                      >
-                        {formatarNome(aluno.nome)}
-                      </Link>
+                     <td>{formatarNome(aluno.nome)}</td>
+
                     </td>
                     <td>{aluno.matricula}</td>
                     <td>{aluno.turma}</td>
