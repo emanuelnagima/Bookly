@@ -63,6 +63,11 @@ O **Bibliotecando** é, portanto, uma **solução completa, confiável e moderna
 
 
 
+---
+
+## SCRIPT TABELA BANCO DE DADOS
+
+
 > **Observação:** Antes de executar, remova as tabelas antigas para evitar conflitos:
 >
 > ```sql
@@ -73,9 +78,6 @@ O **Bibliotecando** é, portanto, uma **solução completa, confiável e moderna
 > DROP TABLE IF EXISTS autores;
 > ```
 
----
-
-## SCRIPT TABELA BANCO DE DADOS
 
 ```sql
 CREATE TABLE IF NOT EXISTS autores (
