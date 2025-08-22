@@ -52,9 +52,8 @@ CREATE TABLE IF NOT EXISTS `alunos` (
     UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
--- Tabela de Editoras
-CREATE TABLE IF NOT EXISTS `editoras` (
+--tabela de editoras
+CREATE TABLE `editoras` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `nome` varchar(100) NOT NULL,
     `cnpj` varchar(18) DEFAULT NULL,
@@ -62,5 +61,22 @@ CREATE TABLE IF NOT EXISTS `editoras` (
     `telefone` varchar(20) DEFAULT NULL,
     `email` varchar(100) DEFAULT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `nome` (`nome`)
+    UNIQUE KEY `idx_nome` (`nome`),
+    UNIQUE KEY `idx_email` (`email`),
+    UNIQUE KEY `idx_cnpj` (`cnpj`),
+    UNIQUE KEY `idx_telefone` (`telefone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- Tabela de livros
+CREATE TABLE `livros` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `titulo` varchar(255) NOT NULL,
+   `autor` varchar(255) NOT NULL,
+   `editora` varchar(255) NOT NULL,
+   `isbn` varchar(20) NOT NULL,
+   `genero` enum('Romance','Ficção','Drama','Suspense','Fantasia','Biografia','Terror','Educação','Outro') NOT NULL,
+   `ano_publicacao` int(11) NOT NULL,
+   PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+O que isso significa:

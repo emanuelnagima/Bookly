@@ -1,4 +1,4 @@
-import { Container, Card, Badge } from 'react-bootstrap'
+import { Container, Card, Badge, Spinner } from 'react-bootstrap'
 import { useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
@@ -6,6 +6,7 @@ const EditoraDetalhe = () => {
   const { id } = useParams()
   const [editora, setEditora] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     const carregarEditora = async () => {
@@ -13,21 +14,33 @@ const EditoraDetalhe = () => {
         const response = await fetch(`http://localhost:3000/api/editoras/${id}`)
         if (!response.ok) throw new Error('Erro ao carregar editora')
         const data = await response.json()
-        setEditora(data)
-      } catch (error) {
-        console.error(error)
+        if (!data || !data.data) throw new Error('Editora não encontrada')
+        setEditora(data.data)
+      } catch (err) {
+        console.error(err)
+        setError(err.message)
       } finally {
         setLoading(false)
       }
     }
-    
     carregarEditora()
   }, [id])
 
   if (loading) {
     return (
+      <Container className="py-4 text-center">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Carregando...</span>
+        </Spinner>
+        <p>Carregando dados da editora...</p>
+      </Container>
+    )
+  }
+
+  if (error) {
+    return (
       <Container className="py-4">
-        <p>Carregando...</p>
+        <div className="alert alert-danger">{error}</div>
       </Container>
     )
   }
@@ -35,7 +48,7 @@ const EditoraDetalhe = () => {
   if (!editora) {
     return (
       <Container className="py-4">
-        <p>Editora não encontrada</p>
+        <div className="alert alert-warning">Editora não encontrada</div>
       </Container>
     )
   }
@@ -44,7 +57,9 @@ const EditoraDetalhe = () => {
     <Container className="py-4">
       <Card>
         <Card.Header className="bg-primary text-white">
-          <h3>{editora.nome} <Badge bg="secondary">#{editora.id}</Badge></h3>
+          <h3 className="mb-0">
+            {editora.nome} <Badge bg="light" text="dark">#{editora.id}</Badge>
+          </h3>
         </Card.Header>
         <Card.Body>
           <p><strong>CNPJ:</strong> {editora.cnpj || 'Não informado'}</p>

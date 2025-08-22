@@ -106,12 +106,7 @@ const ProfessorList = ({ professores, onDelete, onEdit }) => {
                   <tr key={professor.id}>
                     <td>{professor.id}</td>
                     <td>
-                      <Link
-                        to={`/professor/${professor.id}`}
-                        style={{ textDecoration: 'none', color: 'inherit' }}
-                      >
-                        {formatarTexto(professor.nome)}
-                      </Link>
+                      <td>{formatarTexto(professor.nome)}</td> 
                     </td>
                     <td>{professor.matricula}</td>
                     <td>{formatarTexto(professor.departamento)}</td>

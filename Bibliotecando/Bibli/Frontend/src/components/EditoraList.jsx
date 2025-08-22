@@ -98,12 +98,7 @@ const EditoraList = ({ editoras, onDelete, onEdit }) => {
                   <tr key={editora.id}>
                     <td>{editora.id}</td>
                     <td>
-                      <Link
-                        to={`/editora/${editora.id}`}
-                        style={{ textDecoration: 'none', color: 'inherit' }}
-                      >
-                        {formatarTexto(editora.nome || '')}
-                      </Link>
+                        <td>{formatarTexto(editora.nome)}</td> 
                     </td>
                     <td>{editora.cnpj || '-'}</td>
                     <td>{editora.telefone || '-'}</td>

@@ -3,7 +3,6 @@ const editorasController = require('../controllers/editorasController');
 
 const router = express.Router();
 
-// Rotas CRUD
 router.get('/', editorasController.getAll);
 router.get('/:id', editorasController.getById);
 router.post('/', editorasController.create);

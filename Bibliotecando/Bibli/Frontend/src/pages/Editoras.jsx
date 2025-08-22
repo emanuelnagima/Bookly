@@ -11,18 +11,21 @@ const Editoras = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  
+
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const [operationType, setOperationType] = useState('')
 
+  //  Carregar editoras
   const loadEditoras = async () => {
     try {
       setLoading(true)
       const response = await fetch('http://localhost:3000/api/editoras')
       if (!response.ok) throw new Error('Erro ao carregar editoras')
       const data = await response.json()
-      setEditoras(data)
+
+      // Pega o array certo vindo da API
+      setEditoras(Array.isArray(data.data) ? data.data : [])
       setError(null)
     } catch (error) {
       console.error('Erro ao carregar editoras:', error)
@@ -36,43 +39,74 @@ const Editoras = () => {
     loadEditoras()
   }, [])
 
+  //  Salvar editora - MÉTODO MELHORADO
   const handleSaveEditora = async (editora) => {
     try {
       setLoading(true)
-      const method = editora.id ? 'PUT' : 'POST'
-      const url = editora.id ? `http://localhost:3000/api/editoras/${editora.id}` : 'http://localhost:3000/api/editoras'
       
+      // 1. VERIFICAÇÃO NO FRONTEND (rápida e instantânea)
+      const editoraExistente = editoras.find(e => 
+        e.nome.toLowerCase().trim() === editora.nome.toLowerCase().trim() && 
+        e.id !== editora.id
+      )
+      
+      if (editoraExistente) {
+        setError(`Já existe uma editora com o nome "${editora.nome}" cadastrada. Por favor, utilize um nome diferente.`)
+        setLoading(false)
+        return
+      }
+
+      // 2. ENVIO PARA O SERVIDOR
+      const method = editora.id ? 'PUT' : 'POST'
+      const url = editora.id
+        ? `http://localhost:3000/api/editoras/${editora.id}`
+        : 'http://localhost:3000/api/editoras'
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editora)
       })
-      
-      if (!response.ok) throw new Error('Erro ao salvar editora')
-      
+
+      const responseData = await response.json()
+
+      if (!response.ok) {
+        // 3. TRATAMENTO DE ERRO DO BACKEND (segurança)
+        if (responseData.message && responseData.message.includes('Duplicate entry')) {
+          throw new Error('Já existe uma editora com este nome cadastrada no sistema. Utilize um nome diferente.')
+        }
+        throw new Error(responseData.message || 'Erro ao salvar editora')
+      }
+
+      // 4. SUCESSO
+      await loadEditoras()
+
       setToastMessage(editora.id ? 'Editora atualizada com sucesso!' : 'Editora cadastrada com sucesso!')
       setOperationType(editora.id ? 'update' : 'create')
       setShowSuccessToast(true)
-      
-      await loadEditoras()
+
       setShowForm(false)
       setEditoraToEdit(null)
+      setError(null) // Limpa erros anteriores
+      
     } catch (error) {
       console.error('Erro ao salvar editora:', error)
-      setError(`Falha ao ${editora.id ? 'atualizar' : 'cadastrar'} editora. Tente novamente.`)
+      setError(error.message || `Falha ao ${editora.id ? 'atualizar' : 'cadastrar'} editora. Tente novamente.`)
     } finally {
       setLoading(false)
     }
   }
 
+  //  Editar
   const handleEditEditora = async (id) => {
     try {
       setLoading(true)
       const response = await fetch(`http://localhost:3000/api/editoras/${id}`)
       if (!response.ok) throw new Error('Erro ao buscar editora')
       const data = await response.json()
-      setEditoraToEdit(data)
+      setEditoraToEdit(data.data) // pega editora do campo data
       setShowForm(true)
+      setError(null) // Limpa erros ao abrir edição
     } catch (error) {
       console.error('Erro ao buscar editora:', error)
       setError('Erro ao carregar editora para edição.')
@@ -81,6 +115,7 @@ const Editoras = () => {
     }
   }
 
+  // Deletar
   const [isDeleting, setIsDeleting] = useState(false)
 
   const handleConfirmDelete = (id) => {
@@ -98,14 +133,14 @@ const Editoras = () => {
       const response = await fetch(`http://localhost:3000/api/editoras/${editoraToDelete}`, {
         method: 'DELETE',
       })
-      
+
       if (!response.ok) throw new Error('Erro ao excluir editora')
-      
+      await loadEditoras()
+
       setToastMessage('Editora excluída com sucesso!')
       setOperationType('delete')
       setShowSuccessToast(true)
-      
-      await loadEditoras()
+      setError(null) // Limpa erros
     } catch (error) {
       console.error("Falha na exclusão:", error)
       setError("Não foi possível excluir a editora. Tente novamente.")
@@ -119,11 +154,12 @@ const Editoras = () => {
 
   return (
     <Container className="py-4">
+      {/* Toast de sucesso */}
       <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
-        <Toast 
-          show={showSuccessToast} 
-          onClose={() => setShowSuccessToast(false)} 
-          delay={3000} 
+        <Toast
+          show={showSuccessToast}
+          onClose={() => setShowSuccessToast(false)}
+          delay={3000}
           autohide
           bg={operationType === 'delete' ? 'danger' : 'success'}
         >
@@ -134,12 +170,11 @@ const Editoras = () => {
               {operationType === 'delete' && 'Exclusão realizada'}
             </strong>
           </Toast.Header>
-          <Toast.Body className="text-white">
-            {toastMessage}
-          </Toast.Body>
+          <Toast.Body className="text-white">{toastMessage}</Toast.Body>
         </Toast>
       </div>
 
+      {/* Loading */}
       {loading && !isDeleting && (
         <div className="text-center my-4">
           <Spinner animation="border" role="status">
@@ -147,27 +182,30 @@ const Editoras = () => {
           </Spinner>
         </div>
       )}
-      
+
+      {/* Erros */}
       {error && (
         <div className="alert alert-danger" role="alert">
           {error}
-          <button 
-            type="button" 
-            className="btn-close float-end" 
+          <button
+            type="button"
+            className="btn-close float-end"
             onClick={() => setError(null)}
             aria-label="Close"
           ></button>
         </div>
       )}
 
+      {/* Cabeçalho + botão */}
       <Row className="mb-4">
         <Col className="d-flex justify-content-between align-items-center">
           <h1>Gerenciamento de Editoras</h1>
-          <Button 
-            variant="success" 
+          <Button
+            variant="success"
             onClick={() => {
               setEditoraToEdit(null)
               setShowForm(!showForm)
+              setError(null) // Limpa erros ao abrir formulário
             }}
             disabled={loading}
           >
@@ -176,6 +214,7 @@ const Editoras = () => {
         </Col>
       </Row>
 
+      {/* Formulário */}
       {showForm && (
         <Row className="mb-4">
           <Col>
@@ -185,6 +224,7 @@ const Editoras = () => {
               onCancel={() => {
                 setShowForm(false)
                 setEditoraToEdit(null)
+                setError(null) // Limpa erros ao cancelar
               }}
               loading={loading}
             />
@@ -192,6 +232,7 @@ const Editoras = () => {
         </Row>
       )}
 
+      {/* Lista */}
       <Row>
         <Col>
           <EditoraList
@@ -203,32 +244,25 @@ const Editoras = () => {
         </Col>
       </Row>
 
+      {/* Modal de confirmação */}
       <Modal show={showDeleteModal} onHide={() => !isDeleting && setShowDeleteModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirmar exclusão</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          Tem certeza que deseja excluir esta editora?
-        </Modal.Body>
+        <Modal.Body>Tem certeza que deseja excluir esta editora?</Modal.Body>
         <Modal.Footer>
-          <Button 
-            variant="paginacao" 
-            onClick={() => setShowDeleteModal(false)}
-            disabled={isDeleting}
-          >
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)} disabled={isDeleting}>
             Cancelar
           </Button>
-          <Button 
-            variant="danger" 
-            onClick={handleDeleteEditora}
-            disabled={isDeleting}
-          >
+          <Button variant="danger" onClick={handleDeleteEditora} disabled={isDeleting}>
             {isDeleting ? (
               <>
                 <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
                 <span className="ms-2">Excluindo...</span>
               </>
-            ) : 'Excluir'}
+            ) : (
+              'Excluir'
+            )}
           </Button>
         </Modal.Footer>
       </Modal>

@@ -1,70 +1,49 @@
 const db = require('../config/database');
-const Editora = require('../models/editoras');
+const Editora = require('../models/editora');
 
 class EditorasRepository {
     async findAll() {
-        try {
-            const [rows] = await db.execute('SELECT * FROM editoras');
-            return rows.map(row => new Editora(row));
-        } catch (error) {
-            throw new Error(`Erro ao buscar editoras: ${error.message}`);
-        }
+        const [rows] = await db.execute('SELECT * FROM editoras');
+        return rows.map(row => new Editora(row));
     }
 
     async findById(id) {
-        try {
-            const [rows] = await db.execute('SELECT * FROM editoras WHERE id = ?', [id]);
-            if (rows.length === 0) return null;
-            return new Editora(rows[0]);
-        } catch (error) {
-            throw new Error(`Erro ao buscar editora por ID: ${error.message}`);
-        }
+        const [rows] = await db.execute('SELECT * FROM editoras WHERE id = ?', [id]);
+        if (rows.length === 0) return null;
+        return new Editora(rows[0]);
     }
 
     async create(editoraData) {
         try {
-            const editora = new Editora(editoraData);
-            const editoraParaInserir = editora.toJSON();
-
+            const { nome, cnpj, endereco, telefone, email } = new Editora(editoraData).toJSON();
             const [result] = await db.execute(
                 'INSERT INTO editoras (nome, cnpj, endereco, telefone, email) VALUES (?, ?, ?, ?, ?)',
-                [
-                    editoraParaInserir.nome,
-                    editoraParaInserir.cnpj,
-                    editoraParaInserir.endereco,
-                    editoraParaInserir.telefone,
-                    editoraParaInserir.email
-                ]
+                [nome, cnpj, endereco, telefone, email]
             );
-
-            return await this.findById(result.insertId);
+            return this.findById(result.insertId);
         } catch (error) {
+            if (error.code === 'ER_DUP_ENTRY') throw error;
             throw new Error(`Erro ao criar editora: ${error.message}`);
         }
     }
 
     async update(id, editoraData) {
         try {
-            const { nome, cnpj, endereco, telefone, email } = editoraData;
-
+            const { nome, cnpj, endereco, telefone, email } = new Editora(editoraData).toJSON();
             await db.execute(
                 'UPDATE editoras SET nome = ?, cnpj = ?, endereco = ?, telefone = ?, email = ? WHERE id = ?',
                 [nome, cnpj, endereco, telefone, email, id]
             );
-
-            return await this.findById(id);
+            return this.findById(id);
         } catch (error) {
+            if (error.code === 'ER_DUP_ENTRY') throw error;
             throw new Error(`Erro ao atualizar editora: ${error.message}`);
         }
     }
 
     async delete(id) {
-        try {
-            const [result] = await db.execute('DELETE FROM editoras WHERE id = ?', [id]);
-            return result.affectedRows > 0;
-        } catch (error) {
-            throw new Error(`Erro ao deletar editora: ${error.message}`);
-        }
+        const [result] = await db.execute('DELETE FROM editoras WHERE id = ?', [id]);
+        return result.affectedRows > 0;
     }
 }
 

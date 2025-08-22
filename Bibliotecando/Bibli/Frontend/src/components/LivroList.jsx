@@ -107,12 +107,7 @@ const LivroList = ({ livros, onDelete, onEdit }) => {
                   <tr key={livro.id}>
                     <td>{livro.id}</td>
                     <td>
-                      <Link
-                        to={`/livro/${livro.id}`}
-                        style={{ textDecoration: 'none', color: 'inherit' }}
-                      >
-                        {formatarTexto(livro.titulo || livro.title || '')}
-                      </Link>
+                      <td>{formatarTexto(livro.nome)}</td> 
                     </td>
                     <td>{formatarTexto(livro.autor || livro.author || '')}</td>
                     <td>{formatarTexto(livro.editora || livro.publisher || '')}</td>
