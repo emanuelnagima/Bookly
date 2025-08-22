@@ -13,11 +13,25 @@ O **Bibliotecando** é um sistema completo para gerenciamento do acervo da bibli
 - **Segurança e privacidade:** proteção de dados sensíveis dos usuários e do acervo, garantindo administração eficiente e organizada.
 
 O **Bibliotecando** oferece uma solução completa e segura para o gerenciamento da biblioteca, facilitando o controle do acervo e tornando o processo de empréstimo mais eficiente.
+# Script de Criação de Tabelas e Inserts de Exemplo
 
-*Tabela Script Banco*
+Este documento contém o **script completo para criação de tabelas** e inserts de exemplo para um banco de dados escolar/biblioteca.
 
- Tabela de Autores
- 
+> **Observação:** Antes de executar, remova as tabelas antigas para evitar conflitos:
+>
+> ```sql
+> DROP TABLE IF EXISTS livros;
+> DROP TABLE IF EXISTS editoras;
+> DROP TABLE IF EXISTS alunos;
+> DROP TABLE IF EXISTS professores;
+> DROP TABLE IF EXISTS autores;
+> ```
+
+---
+
+## Tabela de Autores
+
+```sql
 CREATE TABLE IF NOT EXISTS autores (
     id int(11) NOT NULL AUTO_INCREMENT,
     nome varchar(100) NOT NULL,
@@ -35,7 +49,13 @@ CREATE TABLE IF NOT EXISTS autores (
     PRIMARY KEY (id)
 ) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Tabela de Professores
+-- INSERT de exemplo
+INSERT INTO autores (nome, nacionalidade, data_nascimento)
+VALUES ('Emanuel Nepomuceno', 'Brasil', '1990-01-01');
+
+-- SELECT de exemplo
+SELECT * FROM autores;
+
 
 CREATE TABLE IF NOT EXISTS professores (
     id int(11) NOT NULL AUTO_INCREMENT,
@@ -49,7 +69,12 @@ CREATE TABLE IF NOT EXISTS professores (
     UNIQUE KEY email (email)
 ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Tabela de Alunos
+-- INSERT de exemplo
+INSERT INTO professores (nome, matricula, email, telefone, departamento)
+VALUES ('Maria Silva', 'MAT123', 'maria@email.com', '19998887766', 'Matemática');
+
+-- SELECT de exemplo
+SELECT * FROM professores;
 
 CREATE TABLE IF NOT EXISTS alunos (
     id int(11) NOT NULL AUTO_INCREMENT,
@@ -69,8 +94,12 @@ CREATE TABLE IF NOT EXISTS alunos (
     UNIQUE KEY email (email)
 ) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- INSERT de exemplo
+INSERT INTO alunos (nome, matricula, cpf, data_nascimento, email, telefone, turma)
+VALUES ('João Pereira', 'ALU456', '123.456.789-00', '2008-05-10', 'joao@email.com', '19997776655', '9º Ano');
 
--- Tabela de Editoras
+-- SELECT de exemplo
+SELECT * FROM alunos;
 
 CREATE TABLE IF NOT EXISTS editoras (
     id int(11) NOT NULL AUTO_INCREMENT,
@@ -83,15 +112,22 @@ CREATE TABLE IF NOT EXISTS editoras (
     UNIQUE KEY nome (nome)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE IF NOT EXISTS `livros` (
-   `id` int(11) NOT NULL AUTO_INCREMENT,
-   `titulo` varchar(255) NOT NULL,
-   `autor` varchar(255) NOT NULL,
-   `editora` varchar(255) NOT NULL,
-   `isbn` varchar(20) NOT NULL,
-   `genero` enum('Romance','Ficção','Drama','Suspense','Fantasia','Biografia','Terror','Educação','Outro') NOT NULL,
-   `ano_publicacao` int(11) NOT NULL,
-   PRIMARY KEY (`id`)
+-- INSERT de exemplo
+INSERT INTO editoras (nome, cnpj, endereco, telefone, email)
+VALUES ('Editora Exemplo', '12.345.678/0001-99', 'Rua Central, 100', '19991112233', 'contato@editora.com');
+
+-- SELECT de exemplo
+SELECT * FROM editoras;
+
+CREATE TABLE IF NOT EXISTS livros (
+    id int(11) NOT NULL AUTO_INCREMENT,
+    titulo varchar(255) NOT NULL,
+    autor varchar(255) NOT NULL,
+    editora varchar(255) NOT NULL,
+    isbn varchar(20) NOT NULL,
+    genero enum('Romance','Ficção','Drama','Suspense','Fantasia','Biografia','Terror','Educação','Outro') NOT NULL,
+    ano_publicacao int(11) NOT NULL,
+    PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- INSERT de exemplo
