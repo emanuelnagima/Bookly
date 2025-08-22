@@ -90,7 +90,7 @@ const technologies = [
   { name: "JavaScript", icon: <FaJsSquare size={55} color="#F0DB4F" /> },
   { name: "React", icon: <FaReact size={55} color="#61DBFB" /> },
   { name: "Node.js", icon: <FaNodeJs size={55} color="#68A063" /> },
-  { name: "Banco de Dados", icon: <FaDatabase size={55} color="#336791" /> },
+  { name: "MySQL", icon: <FaDatabase size={55} color="#336791" /> },
   { name: "Git", icon: <FaGithub size={55} color="#F1502F" /> },
 ];
 
