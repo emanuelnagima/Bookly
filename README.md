@@ -75,7 +75,7 @@ O **Bibliotecando** é, portanto, uma **solução completa, confiável e moderna
 
 ---
 
-## Tabela de Autores
+## SCRIPT TABELA BANCO DE DADOS
 
 ```sql
 CREATE TABLE IF NOT EXISTS autores (
