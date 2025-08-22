@@ -12,6 +12,13 @@ const formatarTexto = texto =>
     .map(p => p.charAt(0).toUpperCase() + p.slice(1))
     .join(' ')
 
+// Estilos CSS inline para centralizar a coluna
+const styles = `
+  .ano-publicacao {
+    text-align: center !important;
+  }
+`
+
 const LivroList = ({ livros, onDelete, onEdit }) => {
   const [termoBusca, setTermoBusca] = useState('')
   const [paginaAtual, setPaginaAtual] = useState(1)
@@ -19,6 +26,17 @@ const LivroList = ({ livros, onDelete, onEdit }) => {
   useEffect(() => {
     setPaginaAtual(1)
   }, [termoBusca])
+
+  // Adicionar estilo ao documento
+  useEffect(() => {
+    const styleSheet = document.createElement('style')
+    styleSheet.innerText = styles
+    document.head.appendChild(styleSheet)
+    
+    return () => {
+      document.head.removeChild(styleSheet)
+    }
+  }, [])
 
   // Filtra TODOS os livros com base no termo de busca
   const livrosFiltrados = livros.filter(livro => {
@@ -98,7 +116,7 @@ const LivroList = ({ livros, onDelete, onEdit }) => {
                   <th>Editora</th>
                   <th>ISBN</th>
                   <th>Gênero</th>
-                  <th>Ano de Publicação</th>
+                  <th className="ano-publicacao">Ano de Publicação</th>
                   <th>Ações</th>
                 </tr>
               </thead>
@@ -106,14 +124,12 @@ const LivroList = ({ livros, onDelete, onEdit }) => {
                 {livrosPaginaAtual.map(livro => (
                   <tr key={livro.id}>
                     <td>{livro.id}</td>
-                    <td>
-                      <td>{formatarTexto(livro.nome)}</td> 
-                    </td>
+                    <td>{formatarTexto(livro.titulo || livro.title || livro.nome || '')}</td>
                     <td>{formatarTexto(livro.autor || livro.author || '')}</td>
                     <td>{formatarTexto(livro.editora || livro.publisher || '')}</td>
                     <td>{livro.isbn || ''}</td>
                     <td>{formatarTexto(livro.genero || livro.genre || '')}</td>
-                    <td>{livro.ano_publicacao || livro.year || ''}</td>
+                    <td className="ano-publicacao">{livro.ano_publicacao || livro.year || ''}</td>
                     <td>
                       <div className="d-flex gap-2">
                         <button

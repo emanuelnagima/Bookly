@@ -251,7 +251,7 @@ const Editoras = () => {
         </Modal.Header>
         <Modal.Body>Tem certeza que deseja excluir esta editora?</Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)} disabled={isDeleting}>
+          <Button variant="paginacao  " onClick={() => setShowDeleteModal(false)} disabled={isDeleting}>
             Cancelar
           </Button>
           <Button variant="danger" onClick={handleDeleteEditora} disabled={isDeleting}>
