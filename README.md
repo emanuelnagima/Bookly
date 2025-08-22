@@ -82,3 +82,21 @@ CREATE TABLE IF NOT EXISTS editoras (
     PRIMARY KEY (id),
     UNIQUE KEY nome (nome)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `livros` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `titulo` varchar(255) NOT NULL,
+   `autor` varchar(255) NOT NULL,
+   `editora` varchar(255) NOT NULL,
+   `isbn` varchar(20) NOT NULL,
+   `genero` enum('Romance','Ficção','Drama','Suspense','Fantasia','Biografia','Terror','Educação','Outro') NOT NULL,
+   `ano_publicacao` int(11) NOT NULL,
+   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- INSERT de exemplo
+INSERT INTO livros (titulo, autor, editora, isbn, genero, ano_publicacao)
+VALUES ('Aprendendo SQL', 'Emanuel Nepomuceno', 'Editora Exemplo', '1234567890123', 'Educação', 2024);
+
+-- SELECT de exemplo
+SELECT * FROM livros;
