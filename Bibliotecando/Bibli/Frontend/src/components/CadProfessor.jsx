@@ -153,6 +153,7 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
                   name='email'
                   value={professorData.email}
                   onChange={handleChange}
+                  placeholder='professor@exemplo.com'
                   required
                   disabled={loading}
                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
@@ -170,12 +171,10 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
                   name='telefone'
                   value={professorData.telefone}
                   onChange={handleChange}
+                  placeholder='(00) 00000-0000'
                   disabled={loading}
                   required
                 />
-                <Form.Text className="text-muted">
-                  Formato: (00) 00000-0000
-                </Form.Text>
               </Form.Group>
             </Col>
           </Row>

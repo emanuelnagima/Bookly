@@ -125,6 +125,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
                   type='text'
                   name='isbn'
                   value={livroData.isbn}
+                  placeholder='000-00-000-000-0'
                   onChange={handleChange}
                   required
                   disabled={loading}
@@ -169,6 +170,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
                   value={livroData.ano_publicacao}
                   onChange={handleChange}
                   required
+                  placeholder='0000'
                   disabled={loading}
                 />
                 <Form.Control.Feedback type='invalid'>
