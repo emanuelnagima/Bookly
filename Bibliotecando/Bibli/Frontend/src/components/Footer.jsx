@@ -148,8 +148,7 @@ const Footer = () => {
               className="btn btn-paginacao btn-sm d-flex align-items-center mx-auto px-3"
             aria-label="Voltar ao topo"
           >
-            <FaArrowUp className="me-2" />
-            Voltar ao topo
+            <FaArrowUp className="me-0" />
           </button>
         </div>
 

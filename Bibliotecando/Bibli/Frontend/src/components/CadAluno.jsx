@@ -150,6 +150,7 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
                   name='cpf'
                   value={alunoData.cpf}
                   onChange={handleChange}
+                  placeholder='000.000.000-00'
                   required
                   disabled={loading}
                 />
@@ -184,6 +185,7 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
                   type='email'
                   name='email'
                   value={alunoData.email}
+                  placeholder='aluno@exemplo.com'
                   onChange={handleChange}
                   required
                   disabled={loading}
@@ -202,15 +204,16 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
                   name='telefone'
                   value={alunoData.telefone}
                   onChange={handleChange}
+                  placeholder="(00) 00000-0000"
                   required
                   disabled={loading}
                 />
                 <Form.Text className='text-muted'>
-                  Formato: (00) 00000-0000
                 </Form.Text>
                 <Form.Control.Feedback type='invalid'>
                   Informe o telefone
                 </Form.Control.Feedback>
+                
               </Form.Group>
             </Col>
           </Row>
