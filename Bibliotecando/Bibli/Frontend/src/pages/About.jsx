@@ -26,43 +26,19 @@ import photoRodrigo from "../images/rodrigo.jpg";
 const devs = [
   {
     name: "Emanuel Nepomuceno Nagima",
-    role: "Estudante de ADS - UNOESTE | Desenvolvedor Júnior",
     photo: photoEmanuel,
-    bio: [
-      "Experiência como Dev Júnior em projetos reais",
-      "Foco em Frontend e experiência do usuário",
-      "Estudante de Análise e Desenvolvimento de Sistemas"
-    ],
   },
   {
     name: "Daniel Pereira Viana de Sena",
-    role: "Estudante de ADS - UNOESTE",
     photo: photoDaniel,
-    bio: [
-      "Interesse em Backend e APIs REST",
-      "Explorando arquitetura de sistemas escaláveis",
-      "Estudante de Análise e Desenvolvimento de Sistemas "
-    ],
   },
   {
     name: "Rodrigo Brasil Rodrigues",
-    role: "Estudante de ADS - UNOESTE",
     photo: photoRodrigo,
-    bio: [
-      "Explorando DevOps e infraestrutura",
-      "Interesse em automação de processos",
-      "Estudante de Análise e Desenvolvimento de Sistemas"
-    ],
   },
   {
     name: "Maria Clara Garcia de Oliveira",
-    role: "Estudante de ADS - UNOESTE",
     photo: photoMaria,
-    bio: [
-      "Foco em UX/UI design",
-      "Criação de interfaces modernas e acessíveis",
-      "Estudante de Análise e Desenvolvimento de Sistemas "
-    ],
   },
 ];
 
@@ -203,12 +179,6 @@ export default function About() {
                   style={{ width: 120, height: 120, objectFit: "cover" }}
                 />
                 <h5>{dev.name}</h5>
-                <h6>{dev.role}</h6>
-                <ul className="text-muted small text-start" style={{ paddingLeft: "1rem" }}>
-                  {dev.bio.map((item, idx) => (
-                    <li key={idx}>{item}</li>
-                  ))}
-                </ul>
               </div>
             </Col>
           ))}
