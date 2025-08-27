@@ -145,10 +145,10 @@ const Footer = () => {
         <div className="text-center my-4">
           <button
             onClick={scrollToTop}
-              className="btn btn-paginacao btn-sm d-flex align-items-center mx-auto px-3"
+              className="btn btn-paginacao btn-sm d-flex align-items-center mx-auto px-4"
             aria-label="Voltar ao topo"
-          >
-            <FaArrowUp className="me-0" />
+          > 
+         Voltar ao topo <FaArrowUp className="ms-2" />
           </button>
         </div>
 
