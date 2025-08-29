@@ -18,7 +18,7 @@ import {
   FaUserGraduate,
   FaPenFancy,
   FaBuilding,
-  FaIdBadge
+  FaUserAlt
 } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
@@ -71,6 +71,10 @@ const Sidebar = () => {
             <div className="sidebar-section-title mt-3 mb-2 ps-3 text-uppercase small text-muted">
               Pessoas
             </div>
+             <NavLink to="/usuarios-especiais" className="nav-link py-2">
+              <FaUserAlt className="me-2" />
+              Usuários
+            </NavLink>
             <NavLink to="/professores" className="nav-link py-2">
               <FaUserTie className="me-2" />
               Professores
@@ -79,11 +83,6 @@ const Sidebar = () => {
               <FaUserGraduate className="me-2" />
               Alunos
             </NavLink>
-            <NavLink to="/usuarios-especiais" className="nav-link py-2">
-              <FaIdBadge className="me-2" />
-              Usuários Especiais
-            </NavLink>
-
             {/* Acervo */}
             <div className="sidebar-section-title mt-3 mb-2 ps-3 text-uppercase small text-muted">
               Acervo

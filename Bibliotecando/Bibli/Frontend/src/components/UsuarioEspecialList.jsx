@@ -79,7 +79,7 @@ const UsuarioEspecialList = ({ usuarios, onDelete, onEdit }) => {
     <Card>
       <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
         <div className="d-flex align-items-center">
-          <h5 className="mb-0">Usuários Especiais Cadastrados</h5>
+          <h5 className="mb-0">Usuários Cadastrados</h5>
           <span className="badge bg-light text-primary ms-3">
             {usuariosFiltrados.length} {usuariosFiltrados.length === 1 ? 'usuário' : 'usuários'} •
             Página {paginaAtual} de {totalPaginas || 1}

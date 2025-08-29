@@ -24,7 +24,7 @@ const UsuariosEspeciais = () => {
       setUsuarios(dados)
       setError(null)
     } catch (error) {
-      console.error('Erro ao carregar usuários especiais:', error)
+      console.error('Erro ao carregar usuários:', error)
       setError('Falha ao carregar usuários. Tente recarregar a página.')
     } finally {
       setLoading(false)
@@ -186,7 +186,7 @@ const UsuariosEspeciais = () => {
       {/* Cabeçalho */}
       <Row className="mb-4">
         <Col className="d-flex justify-content-between align-items-center">
-          <h1>Gerenciamento de Usuários Especiais</h1>
+          <h1>Gerenciamento de Usuários</h1>
           <Button 
             variant="success" 
             onClick={() => {

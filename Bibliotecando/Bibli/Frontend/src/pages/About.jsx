@@ -133,17 +133,17 @@ export default function About() {
         <h5>Principais funcionalidades:</h5>
         <ul className="list-unstyled">
           <li>✓ Cadastro completo de livros, autores e editoras</li>
-          <li>✓ Sistema de reservas inteligente com notificações</li>
+          <li>✓ Sistema de reservas inteligente </li>
           <li>✓ Controle de empréstimos e renovações</li>
           <li>✓ Gestão de usuários (alunos, professores e outros tipos)</li>
           <li>✓ Relatórios e consultas em tempo real</li>
-          <li>✓ Controle de prazos e pendências automático</li>
+          <li>✓ Controle de prazos </li>
         </ul>
       </div>
       
       <p className="about-text">
         Desenvolvido para garantir <strong>segurança, praticidade e eficiência</strong>, 
-        o Bibliotecando assegura que toda a comunidade escolar tenha a melhor 
+        o Bibliotecando assegura que toda a comunidade escolar e instituições tenham a melhor 
         experiência com os serviços da biblioteca.
       </p>
           </Col>
@@ -226,7 +226,6 @@ export default function About() {
                 />
                 <h5>{dev.name}</h5>
 
-                <p className="text-muted">Desenvolvedor</p>
               </div>
             </Col>
           ))}

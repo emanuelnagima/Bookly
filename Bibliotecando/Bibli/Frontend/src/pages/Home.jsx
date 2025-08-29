@@ -26,7 +26,7 @@ import {
   FaReply,
   FaChartBar,
   FaSearch,
-  FaIdBadge,
+  FaUserCircle,
   FaChevronLeft,
   FaChevronRight,
   FaInfoCircle,
@@ -135,8 +135,8 @@ const Home = () => {
       titulo: "Gestão de Pessoas",
       cards: [
         { icone: FaUserTie, titulo: "Professores", descricao: "Cadastre e atualize informações de professores", link: "/professores" },
+        { icone: FaUserCircle, titulo: "Usuários", descricao: "Cadastre e gerencie outros tipos de usuários ", link: "/usuarios-especiais" },
         { icone: FaUserGraduate, titulo: "Alunos", descricao: "Cadastre e acompanhe os alunos da turma", link: "/alunos" },
-        { icone: FaIdBadge, titulo: "Usuário Especial", descricao: "Cadastre e gerencie outros tipos de usuários ", link: "/usuarios-especiais" },
       ]
     },
     {
