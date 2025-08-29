@@ -24,8 +24,8 @@ import { NavLink } from "react-router-dom";
 import { useState } from "react";
 
 const Sidebar = () => {
-  const [showMovimentacoes, setShowMovimentacoes] = useState(false);
   const [showCadastros, setShowCadastros] = useState(false);
+  const [showMovimentacoes, setShowMovimentacoes] = useState(false);
 
   return (
     <div className="sidebar">
@@ -43,19 +43,15 @@ const Sidebar = () => {
 
       {/* Menu */}
       <Nav className="flex-column mt-3">
-        <NavLink
-          to="/"
-          className={({ isActive }) =>
-            `nav-link py-3 ${isActive ? "active" : ""}`
-          }
-        >
+        {/* Home */}
+        <NavLink to="/" className={({ isActive }) => `nav-link py-3 ${isActive ? "active" : ""}`}>
           <FaHome className="me-2" />
           Home
         </NavLink>
 
-        {/* Seção Cadastros - expansível */}
+        {/* Cadastros */}
         <div className="sidebar-section-title mt-3 mb-2 ps-3 text-uppercase small text-muted">
-          Cadastros
+          Gestão
         </div>
         <div
           className="nav-link py-3 d-flex justify-content-between align-items-center"
@@ -66,67 +62,50 @@ const Sidebar = () => {
             <FaClipboardList className="me-2" />
             Cadastros
           </div>
-          {showCadastros ? (
-            <FaChevronUp size={12} />
-          ) : (
-            <FaChevronDown size={12} />
-          )}
+          {showCadastros ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
         </div>
 
         {showCadastros && (
           <div className="submenu ps-4">
-            <NavLink
-              to="/livros"
-              className={({ isActive }) =>
-                `nav-link py-2 ${isActive ? "active" : ""}`
-              }
-            >
-              <FaBook className="me-2" />
-              Livros
-            </NavLink>
-            <NavLink
-              to="/professores"
-              className={({ isActive }) =>
-                `nav-link py-2 ${isActive ? "active" : ""}`
-              }
-            >
+            {/* Pessoas */}
+            <div className="sidebar-section-title mt-3 mb-2 ps-3 text-uppercase small text-muted">
+              Pessoas
+            </div>
+            <NavLink to="/professores" className="nav-link py-2">
               <FaUserTie className="me-2" />
               Professores
             </NavLink>
-            <NavLink
-              to="/alunos"
-              className={({ isActive }) =>
-                `nav-link py-2 ${isActive ? "active" : ""}`
-              }
-            >
+            <NavLink to="/alunos" className="nav-link py-2">
               <FaUserGraduate className="me-2" />
               Alunos
             </NavLink>
-            <NavLink
-              to="/autores"
-              className={({ isActive }) =>
-                `nav-link py-2 ${isActive ? "active" : ""}`
-              }
-            >
+            <NavLink to="/usuarios-especiais" className="nav-link py-2">
+              <FaIdBadge className="me-2" />
+              Usuários Especiais
+            </NavLink>
+
+            {/* Acervo */}
+            <div className="sidebar-section-title mt-3 mb-2 ps-3 text-uppercase small text-muted">
+              Acervo
+            </div>
+            <NavLink to="/livros" className="nav-link py-2">
+              <FaBook className="me-2" />
+              Livros
+            </NavLink>
+            <NavLink to="/autores" className="nav-link py-2">
               <FaPenFancy className="me-2" />
               Autores
             </NavLink>
-            <NavLink
-              to="/editoras"
-              className={({ isActive }) =>
-                `nav-link py-2 ${isActive ? "active" : ""}`
-              }
-            >
+            <NavLink to="/editoras" className="nav-link py-2">
               <FaBuilding className="me-2" />
               Editoras
             </NavLink>
-    
           </div>
         )}
 
-        {/* Seção Acervo */}
+        {/* Movimentações */}
         <div className="sidebar-section-title mt-3 mb-2 ps-3 text-uppercase small text-muted">
-          Acervo
+          Movimentações
         </div>
         <div
           className="nav-link py-3 d-flex justify-content-between align-items-center"
@@ -137,96 +116,52 @@ const Sidebar = () => {
             <FaTasks className="me-2" />
             Movimentações
           </div>
-          {showMovimentacoes ? (
-            <FaChevronUp size={12} />
-          ) : (
-            <FaChevronDown size={12} />
-          )}
+          {showMovimentacoes ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
         </div>
 
         {showMovimentacoes && (
           <div className="submenu ps-4">
-            <NavLink
-              to="/entrada"
-              className={({ isActive }) =>
-                `nav-link py-2 ${isActive ? "active" : ""}`
-              }
-            >
+            <NavLink to="/entrada" className="nav-link py-2">
               <FaDoorOpen className="me-2" />
               Entrada
             </NavLink>
-            <NavLink
-              to="/saida"
-              className={({ isActive }) =>
-                `nav-link py-2 ${isActive ? "active" : ""}`
-              }
-            >
+            <NavLink to="/saida" className="nav-link py-2">
               <FaSignOutAlt className="me-2" />
               Saída
             </NavLink>
-            <NavLink
-              to="/reservas"
-              className={({ isActive }) =>
-                `nav-link py-2 ${isActive ? "active" : ""}`
-              }
-            >
+            <NavLink to="/reservas" className="nav-link py-2">
               <FaCalendarAlt className="me-2" />
               Reservas
             </NavLink>
-            <NavLink
-              to="/emprestimos"
-              className={({ isActive }) =>
-                `nav-link py-2 ${isActive ? "active" : ""}`
-              }
-            >
+            <NavLink to="/emprestimos" className="nav-link py-2">
               <FaHandshake className="me-2" />
               Empréstimos
             </NavLink>
-            <NavLink
-              to="/renovacoes"
-              className={({ isActive }) =>
-                `nav-link py-2 ${isActive ? "active" : ""}`
-              }
-            >
+            <NavLink to="/renovacoes" className="nav-link py-2">
               <FaSyncAlt className="me-2" />
               Renovações
             </NavLink>
-            <NavLink
-              to="/devolucoes"
-              className={({ isActive }) =>
-                `nav-link py-2 ${isActive ? "active" : ""}`
-              }
-            >
+            <NavLink to="/devolucoes" className="nav-link py-2">
               <FaReply className="me-2" />
               Devoluções
             </NavLink>
           </div>
         )}
 
-        {/* Seção Relatórios */}
+        {/* Relatórios */}
         <div className="sidebar-section-title mt-3 mb-2 ps-3 text-uppercase small text-muted">
           Relatórios
         </div>
-        <NavLink
-          to="/relatorios"
-          className={({ isActive }) =>
-            `nav-link py-3 ${isActive ? "active" : ""}`
-          }
-        >
+        <NavLink to="/relatorios" className="nav-link py-3">
           <FaChartBar className="me-2" />
           Relatórios
         </NavLink>
 
-        {/* Seção Sistema */}
+        {/* Sistema */}
         <div className="sidebar-section-title mt-3 mb-2 ps-3 text-uppercase small text-muted">
           Sistema
         </div>
-        <NavLink
-          to="/sobre"
-          className={({ isActive }) =>
-            `nav-link py-3 ${isActive ? "active" : ""}`
-          }
-        >
+        <NavLink to="/sobre" className="nav-link py-3">
           <FaQuestionCircle className="me-2" />
           Sobre
         </NavLink>

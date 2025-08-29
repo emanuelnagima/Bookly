@@ -136,7 +136,7 @@ const Home = () => {
       cards: [
         { icone: FaUserTie, titulo: "Professores", descricao: "Cadastre e atualize informações de professores", link: "/professores" },
         { icone: FaUserGraduate, titulo: "Alunos", descricao: "Cadastre e acompanhe os alunos da turma", link: "/alunos" },
-        { icone: FaIdBadge, titulo: "Leitores", descricao: "Cadastre e gerencie outros tipos de usuários ", link: "/leitores" },
+        { icone: FaIdBadge, titulo: "Usuário Especial", descricao: "Cadastre e gerencie outros tipos de usuários ", link: "/usuarios-especiais" },
       ]
     },
     {

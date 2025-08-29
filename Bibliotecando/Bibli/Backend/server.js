@@ -4,7 +4,8 @@ const livrosRoutes = require('./routes/livrosRoutes');
 const professoresRoutes = require('./routes/professoresRoutes');
 const alunosRoutes = require('./routes/alunosRoutes'); 
 const autoresRoutes = require('./routes/autoresRoutes');
-const editorasRoutes = require('./routes/editorasRoutes'); 
+const editorasRoutes = require('./routes/editorasRoutes');
+const usuariosEspeciaisRoutes = require('./routes/usuariosEspeciaisRoutes'); 
 
 const app = express();
 const PORT = 3000;
@@ -16,8 +17,8 @@ app.use('/api/livros', livrosRoutes);
 app.use('/api/professores', professoresRoutes);
 app.use('/api/alunos', alunosRoutes); 
 app.use('/api/autores', autoresRoutes);
-app.use('/api/editoras', editorasRoutes); 
-
+app.use('/api/editoras', editorasRoutes);
+app.use('/api/usuarios-especiais', usuariosEspeciaisRoutes); 
 app.get('/', (req, res) => {
     res.json({
         message: 'API funcionando!',
@@ -26,7 +27,8 @@ app.get('/', (req, res) => {
             professores: '/api/professores',
             alunos: '/api/alunos',
             autores: '/api/autores',
-            editoras: '/api/editoras' 
+            editoras: '/api/editoras',
+            usuariosEspeciais: '/api/usuarios-especiais' 
         }
     });
 });

@@ -30,18 +30,24 @@ const devs = [
   {
     name: "Emanuel Nepomuceno Nagima",
     photo: photoEmanuel,
+   
+
   },
   {
     name: "Daniel Pereira Viana de Sena",
     photo: photoDaniel,
+    
+
   },
   {
     name: "Rodrigo Brasil Rodrigues",
     photo: photoRodrigo,
+    
   },
   {
     name: "Maria Clara Garcia de Oliveira",
     photo: photoMaria,
+    
   },
 ];
 
@@ -219,6 +225,7 @@ export default function About() {
                   style={{ width: 120, height: 120, objectFit: "cover" }}
                 />
                 <h5>{dev.name}</h5>
+
                 <p className="text-muted">Desenvolvedor</p>
               </div>
             </Col>

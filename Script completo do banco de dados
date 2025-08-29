@@ -60,6 +60,7 @@ VALUES ('Maria Silva', 'MAT123', 'maria@email.com', '19998887766', 'Matemática'
 
 -- SELECT de exemplo
 SELECT * FROM professores;
+
 CREATE TABLE IF NOT EXISTS `editoras` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `nome` varchar(100) NOT NULL,
@@ -80,6 +81,7 @@ VALUES ('Editora Exemplo', '12.345.678/0001-99', 'Rua Central, 100', '1999111223
 
 -- SELECT de exemplo
 SELECT * FROM editoras;
+
 CREATE TABLE IF NOT EXISTS `livros` (
    `id` int(11) NOT NULL AUTO_INCREMENT,
    `titulo` varchar(255) NOT NULL,
