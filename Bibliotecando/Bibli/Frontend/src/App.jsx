@@ -14,16 +14,16 @@ import Livros from './pages/Livros'
 import Professores from './pages/Professores'
 import Alunos from './pages/Alunos'
 import Autores from './pages/Autores'
-import Editoras from './pages/Editoras';
-
-
+import Editoras from './pages/Editoras'
+import UsuariosEspeciais from './pages/UsuariosEspeciais'
 
 // Cadastros (páginas de formulário)
 import CadastroLivros from './pages/cadastros/CadastroLivros.jsx'
 import CadastroProfessores from './pages/cadastros/CadastroProfessores'
 import CadastroAlunos from './pages/cadastros/CadastroAlunos'
-import CadastroEditoras from './pages/cadastros/CadastroEditoras';
-import CadastroAutores from './pages/cadastros/CadastroAutores'; 
+import CadastroEditoras from './pages/cadastros/CadastroEditoras'
+import CadastroAutores from './pages/cadastros/CadastroAutores'
+import CadastroUsuariosEspeciais from './pages/cadastros/CadastroUsuariosEspeciais'
 
 function App() {
   return (
@@ -42,8 +42,8 @@ function App() {
             <Route path="/alunos" element={<Alunos />} />
             <Route path="/autores" element={<Autores />} />
             <Route path="/editoras" element={<Editoras />} />
+            <Route path="/usuarios-especiais" element={<UsuariosEspeciais />} />
 
-        
             {/* Formulários de cadastro - para criar/editar */}
             <Route path="/cadastros/livros" element={<CadastroLivros />} />
             <Route path="/cadastros/livros/:id" element={<CadastroLivros />} />
@@ -53,8 +53,10 @@ function App() {
             <Route path="/cadastros/alunos/:id" element={<CadastroAlunos />} />
             <Route path="/cadastros/editoras" element={<CadastroEditoras />} />
             <Route path="/cadastros/editoras/:id" element={<CadastroEditoras />} />
-            <Route path="/cadastros/autores" element={<CadastroAutores />} /> 
-            <Route path="/cadastros/autores/:id" element={<CadastroAutores />} /> 
+            <Route path="/cadastros/autores" element={<CadastroAutores />} />
+            <Route path="/cadastros/autores/:id" element={<CadastroAutores />} />
+            <Route path="/cadastros/usuarios-especiais" element={<CadastroUsuariosEspeciais />} />
+            <Route path="/cadastros/usuarios-especiais/:id" element={<CadastroUsuariosEspeciais />} />
           </Routes>
 
           <Footer />
