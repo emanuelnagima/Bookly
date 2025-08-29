@@ -20,7 +20,7 @@ const CadastroUsuariosEspeciais = () => {
   const loadUsuarios = () => {
     usuarioEspecialService.getAll()
       .then(data => setUsuarios(data))
-      .catch(error => console.error('Erro ao carregar usuários especiais:', error))
+      .catch(error => console.error('Erro ao carregar usuários:', error))
   }
 
   const handleSave = (usuario) => {
@@ -34,7 +34,7 @@ const CadastroUsuariosEspeciais = () => {
         setShowForm(false)
         setUsuarioToEdit(null)
       })
-      .catch(error => console.error('Erro ao salvar usuário especial:', error))
+      .catch(error => console.error('Erro ao salvar usuário:', error))
   }
 
   const handleEdit = (id) => {
@@ -43,7 +43,7 @@ const CadastroUsuariosEspeciais = () => {
         setUsuarioToEdit(usuario)
         setShowForm(true)
       })
-      .catch(error => console.error('Erro ao buscar usuário especial:', error))
+      .catch(error => console.error('Erro ao buscar usuário:', error))
   }
 
   const handleDelete = () => {
@@ -52,14 +52,14 @@ const CadastroUsuariosEspeciais = () => {
         loadUsuarios()
         setShowDeleteModal(false)
       })
-      .catch(error => console.error('Erro ao excluir usuário especial:', error))
+      .catch(error => console.error('Erro ao excluir usuário:', error))
   }
 
   return (
     <Container className="py-4">
       <Row className="mb-4">
         <Col className="d-flex justify-content-between align-items-center">
-          <h1>Cadastro de Usuários Especiais</h1>
+          <h1>Cadastro de Usuários</h1>
           <div>
             <Button variant="secondary" onClick={() => navigate('/cadastros')} className="me-2">
               Voltar

@@ -88,7 +88,7 @@ const CadUsuarioEspecial = ({ onSave, onCancel, usuario, loading }) => {
   return (
     <Card>
       <Card.Header className='bg-primary text-white'>
-        <h5 className='mb-0'>{usuarioData.id ? 'Editar Usuário Especial' : 'Cadastrar Usuário Especial'}</h5>
+        <h5 className='mb-0'>{usuarioData.id ? 'Editar Usuário ' : 'Cadastrar Usuário'}</h5>
       </Card.Header>
       <Card.Body>
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
@@ -116,6 +116,7 @@ const CadUsuarioEspecial = ({ onSave, onCancel, usuario, loading }) => {
                   type='email'
                   name='email'
                   value={usuarioData.email}
+                  placeholder='usuário@exemplo.com'
                   onChange={handleChange}
                   required
                   disabled={loading}
