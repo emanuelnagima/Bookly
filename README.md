@@ -16,7 +16,7 @@ O **Bibliotecando** também garante que apenas **exemplares disponíveis possam 
 ## Funcionalidades principais
 
 - **Cadastro completo:**  
-  Permite registrar detalhes de alunos, professores, livros, autores e editoras, incluindo informações como título, autor, editora, ano de publicação, matrícula e CPF.  
+  Permite registrar detalhes de alunos, professores, usuarios diversos, livros, autores e editoras, incluindo informações como título, autor, editora, ano de publicação, matrícula, e-mail, CPF etc.  
 
 - **Gestão de empréstimos:**  
   Controle rigoroso de saídas, devoluções e renovações, com verificação de disponibilidade de exemplares e histórico completo de cada usuário.  
