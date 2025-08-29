@@ -27,7 +27,7 @@ O **Bibliotecando** também garante que apenas **exemplares disponíveis possam 
 - **Controle de acervo:**  
   Entrada automática de novos exemplares e baixa de livros descartados, mantendo o inventário atualizado.  
 
-- **Consultas e filtros avançados:**  
+- **Consultas e filtros:**  
   Permite localizar rapidamente livros por título, autor, gênero, disponibilidade ou categoria, além de acompanhar reservas, empréstimos e devoluções.  
 
 - **Relatórios detalhados:**  
@@ -68,7 +68,7 @@ O **Bibliotecando** é, portanto, uma **solução completa, confiável e moderna
 ## SCRIPT TABELA BANCO DE DADOS
 
 
-> **Observação:** Antes de executar, remova as tabelas antigas para evitar conflitos:
+> **Observação:** Antes de executar, remova as tabelas antigas para evitar conflitos se ja existir:
 >
 > ```sql
 > DROP TABLE IF EXISTS livros;
