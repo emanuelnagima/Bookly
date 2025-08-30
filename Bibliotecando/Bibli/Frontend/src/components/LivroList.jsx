@@ -1,47 +1,24 @@
 import { useState, useEffect } from 'react'
-import { Card, Table, Form, InputGroup, Button } from 'react-bootstrap'
-import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
-import { Link } from 'react-router-dom'
+import { Card, Form, InputGroup, Button, Image, Row, Col } from 'react-bootstrap'
+import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaImage } from 'react-icons/fa'
 
 const ITENS_POR_PAGINA = 12
 
-const formatarTexto = texto =>
-  (texto || '')
+const formatarTexto = (texto = '') =>
+  texto
     .toLowerCase()
     .split(' ')
     .map(p => p.charAt(0).toUpperCase() + p.slice(1))
     .join(' ')
 
-// Estilos CSS inline para centralizar a coluna
-const styles = `
-  .ano-publicacao {
-    text-align: center !important;
-  }
-`
-
 const LivroList = ({ livros, onDelete, onEdit }) => {
   const [termoBusca, setTermoBusca] = useState('')
   const [paginaAtual, setPaginaAtual] = useState(1)
 
-  useEffect(() => {
-    setPaginaAtual(1)
-  }, [termoBusca])
+  useEffect(() => setPaginaAtual(1), [termoBusca])
 
-  // Adicionar estilo ao documento
-  useEffect(() => {
-    const styleSheet = document.createElement('style')
-    styleSheet.innerText = styles
-    document.head.appendChild(styleSheet)
-    
-    return () => {
-      document.head.removeChild(styleSheet)
-    }
-  }, [])
-
-  // Filtra TODOS os livros com base no termo de busca
+  // Filtra livros com base no termo de busca
   const livrosFiltrados = livros.filter(livro => {
-    if (!termoBusca) return true
-
     const termo = termoBusca.toLowerCase()
     return (
       (livro.titulo || livro.title || '').toLowerCase().includes(termo) ||
@@ -55,38 +32,28 @@ const LivroList = ({ livros, onDelete, onEdit }) => {
 
   const totalPaginas = Math.ceil(livrosFiltrados.length / ITENS_POR_PAGINA)
 
-  // Ordenar os livros filtrados alfabeticamente 
+  // Ordena alfabeticamente pelo título
   const livrosOrdenados = [...livrosFiltrados].sort((a, b) =>
-    formatarTexto(a.titulo || a.title || '').localeCompare(
-      formatarTexto(b.titulo || b.title || '')
-    )
+    formatarTexto(a.titulo || a.title || '').localeCompare(formatarTexto(b.titulo || b.title || ''))
   )
 
-  // Pegar apenas os itens da página atual
+  // Pega apenas os livros da página atual
   const livrosPaginaAtual = livrosOrdenados.slice(
     (paginaAtual - 1) * ITENS_POR_PAGINA,
     paginaAtual * ITENS_POR_PAGINA
   )
 
-  const handlePaginaAnterior = () => {
-    if (paginaAtual > 1) setPaginaAtual(paginaAtual - 1)
-  }
-
-  const handleProximaPagina = () => {
-    if (paginaAtual < totalPaginas) setPaginaAtual(paginaAtual + 1)
-  }
-
   return (
     <Card>
-      <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-        <div className="d-flex align-items-center">
+      <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center flex-wrap">
+        <div className="d-flex align-items-center mb-2 mb-md-0">
           <h5 className="mb-0">Livros Cadastrados</h5>
           <span className="badge bg-light text-primary ms-3">
             {livrosFiltrados.length} {livrosFiltrados.length === 1 ? 'livro' : 'livros'} •
             Página {paginaAtual} de {totalPaginas || 1}
           </span>
         </div>
-        <div style={{ width: '300px' }}>
+        <div style={{ minWidth: '250px', width: '100%', maxWidth: '300px' }}>
           <InputGroup>
             <InputGroup.Text className="bg-light text-primary">
               <FaSearch />
@@ -100,6 +67,7 @@ const LivroList = ({ livros, onDelete, onEdit }) => {
           </InputGroup>
         </div>
       </Card.Header>
+
       <Card.Body>
         {livrosPaginaAtual.length === 0 ? (
           <p className="text-muted text-center py-4">
@@ -107,69 +75,101 @@ const LivroList = ({ livros, onDelete, onEdit }) => {
           </p>
         ) : (
           <>
-            <Table striped hover responsive>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Título</th>
-                  <th>Autor</th>
-                  <th>Editora</th>
-                  <th>ISBN</th>
-                  <th>Gênero</th>
-                  <th className="ano-publicacao">Ano de Publicação</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {livrosPaginaAtual.map(livro => (
-                  <tr key={livro.id}>
-                    <td>{livro.id}</td>
-                    <td>{formatarTexto(livro.titulo || livro.title || livro.nome || '')}</td>
-                    <td>{formatarTexto(livro.autor || livro.author || '')}</td>
-                    <td>{formatarTexto(livro.editora || livro.publisher || '')}</td>
-                    <td>{livro.isbn || ''}</td>
-                    <td>{formatarTexto(livro.genero || livro.genre || '')}</td>
-                    <td className="ano-publicacao">{livro.ano_publicacao || livro.year || ''}</td>
-                    <td>
-                      <div className="d-flex gap-2">
-                        <button
-                          className="btn-sm-custom btn-edit"
-                          onClick={() => onEdit(livro.id)}
-                        >
-                          <FaEdit />
-                        </button>
+            <Row>
+              {livrosPaginaAtual.map((livro) => (
+                <Col key={livro.id} md={6} lg={4} xl={3} className="mb-4">
+                  <Card className="livro-card h-100">
+                    <div className="p-3 text-center">
+                      {livro.imagem ? (
+                        <Image
+                          src={`http://localhost:3000${livro.imagem}`}
+                          alt={livro.titulo || livro.title || ''}
+                          className="livro-imagem"
+                          onError={(e) => { e.target.style.display = 'none' }}
+                        />
+                      ) : (
+                        <div className="sem-imagem">
+                          <FaImage size={24} />
+                        </div>
+                      )}
+                    </div>
 
-                        <button
-                          className="btn-sm-custom btn-delete"
-                          onClick={() => onDelete(livro.id)}
-                        >
-                          <FaTrash />
-                        </button>
+                    <Card.Body className="livro-info">
+                      <h6 className="livro-titulo" title={livro.titulo || livro.title || livro.nome || ''}>
+                        {formatarTexto(livro.titulo || livro.title || livro.nome || '')}
+                      </h6>
+
+                      <div className="livro-detalhes">
+                        <div className="detalhes-linha">
+                          <div>Autor:</div>
+                          <div title={livro.autor || livro.author || ''}>
+                            {formatarTexto(livro.autor || livro.author || '')}
+                          </div>
+                        </div>
+                        <div className="detalhes-linha">
+                          <div>Editora:</div>
+                          <div title={livro.editora || livro.publisher || ''}>
+                            {formatarTexto(livro.editora || livro.publisher || '')}
+                          </div>
+                        </div>
+                        <div className="detalhes-linha">
+                          <div>Gênero:</div>
+                          <div title={livro.genero || livro.genre || ''}>
+                            {formatarTexto(livro.genero || livro.genre || '')}
+                          </div>
+                        </div>
+                        {livro.isbn && (
+                          <div className="detalhes-linha">
+                            <div>ISBN:</div>
+                            <div title={livro.isbn}>{livro.isbn}</div>
+                          </div>
+                        )}
+                        <div className="detalhes-linha">
+                          <div>Ano:</div>
+                          <div>{livro.ano_publicacao || livro.year || ''}</div>
+                        </div>
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
 
-            {/* PAGINAÇÃO COM CLASSES btn-paginacao */}
+                      <div className="livro-actions">
+                        <div className="d-flex gap-2">
+                          <button
+                            className="btn-sm-custom btn-edit d-flex align-items-center justify-content-center"
+                            onClick={() => onEdit(livro.id)}
+                            title="Editar livro"
+                          >
+                            <FaEdit />
+                          </button>
+
+                          <button
+                            className="btn-sm-custom btn-delete d-flex align-items-center justify-content-center"
+                            onClick={() => onDelete(livro.id)}
+                            title="Excluir livro"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </div>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+
             {totalPaginas > 1 && (
-              <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
+              <div className="d-flex justify-content-center justify-content-md-end align-items-center mt-3 gap-2 flex-wrap">
                 <Button
                   className="btn-paginacao"
-                  onClick={handlePaginaAnterior}
+                  onClick={() => setPaginaAtual((p) => Math.max(p - 1, 1))}
                   disabled={paginaAtual === 1}
                 >
-                  <FaChevronLeft className="me-1" />
-                  Anterior
+                  <FaChevronLeft className="me-1" /> Anterior
                 </Button>
                 <Button
                   className="btn-paginacao"
-                  onClick={handleProximaPagina}
+                  onClick={() => setPaginaAtual((p) => Math.min(p + 1, totalPaginas))}
                   disabled={paginaAtual === totalPaginas}
                 >
-                  Próxima
-                  <FaChevronRight className="ms-1" />
+                  Próxima <FaChevronRight className="ms-1" />
                 </Button>
               </div>
             )}

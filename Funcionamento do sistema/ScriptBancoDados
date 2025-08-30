@@ -1,74 +1,64 @@
 -- =====================================
 -- Script completo de criação de tabelas e inserts de exemplo
+-- OBS: Antes de executar, remova as tabelas antigas para evitar conflitos
 -- =====================================
-
--- OBSERVAÇÃO: antes de executar, remova as tabelas antigas para evitar conflitos:
 -- DROP TABLE IF EXISTS livros;
 -- DROP TABLE IF EXISTS editoras;
 -- DROP TABLE IF EXISTS alunos;
 -- DROP TABLE IF EXISTS professores;
 -- DROP TABLE IF EXISTS autores;
+-- =====================================
+
 
 -- =====================================
--- Tabela Alunos
+-- TABELA: Alunos
 -- =====================================
 CREATE TABLE IF NOT EXISTS `alunos` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `nome` varchar(100) NOT NULL,
-    `matricula` varchar(20) NOT NULL,
-    `cpf` varchar(14) NOT NULL,
-    `data_nascimento` date NOT NULL,
-    `email` varchar(100) NOT NULL,
-    `telefone` varchar(20) DEFAULT NULL,
+    `id` int(11) NOT NULL AUTO_INCREMENT,             
+    `nome` varchar(100) NOT NULL,                    
+    `matricula` varchar(20) NOT NULL,                
+    `cpf` varchar(14) NOT NULL,                       
+    `data_nascimento` date NOT NULL,                  
+    `email` varchar(100) NOT NULL,                    
+    `telefone` varchar(20) DEFAULT NULL,             
     `turma` enum(
         '6º Ano','7º Ano','8º Ano','9º Ano',
         '1º Colegial','2º Colegial','3º Colegial'
-    ) NOT NULL,
+    ) NOT NULL,                                      
     PRIMARY KEY (`id`),
     UNIQUE KEY `matricula` (`matricula`),
     UNIQUE KEY `cpf` (`cpf`),
     UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- INSERT de exemplo
-INSERT INTO alunos (nome, matricula, cpf, data_nascimento, email, telefone, turma)
-VALUES ('João Pereira', 'ALU456', '123.456.789-00', '2008-05-10', 'joao@email.com', '19997776655', '9º Ano');
 
--- SELECT de exemplo
-SELECT * FROM alunos;
 
 -- =====================================
--- Tabela Professores
+-- TABELA: Professores
 -- =====================================
 CREATE TABLE IF NOT EXISTS `professores` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `nome` varchar(100) NOT NULL,
-    `matricula` varchar(20) NOT NULL,
-    `email` varchar(100) NOT NULL,
-    `telefone` varchar(20) DEFAULT NULL,
-    `departamento` varchar(50) NOT NULL,
+    `id` int(11) NOT NULL AUTO_INCREMENT,             
+    `nome` varchar(100) NOT NULL,                      
+    `matricula` varchar(20) NOT NULL,                 
+    `email` varchar(100) NOT NULL,                    
+    `telefone` varchar(20) DEFAULT NULL,           
+    `departamento` varchar(50) NOT NULL,             
     PRIMARY KEY (`id`),
     UNIQUE KEY `matricula` (`matricula`),
     UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- INSERT de exemplo
-INSERT INTO professores (nome, matricula, email, telefone, departamento)
-VALUES ('Maria Silva', 'MAT123', 'maria@email.com', '19998887766', 'Matemática');
-
--- SELECT de exemplo
-SELECT * FROM professores;
 
 -- =====================================
--- Tabela Editoras
+-- TABELA: Editoras
 -- =====================================
 CREATE TABLE IF NOT EXISTS `editoras` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `nome` varchar(100) NOT NULL,
-    `cnpj` varchar(18) DEFAULT NULL,
-    `endereco` varchar(200) DEFAULT NULL,
-    `telefone` varchar(20) DEFAULT NULL,
-    `email` varchar(100) DEFAULT NULL,
+    `id` int(11) NOT NULL AUTO_INCREMENT,              
+    `nome` varchar(100) NOT NULL,                      
+    `cnpj` varchar(18) DEFAULT NULL,                  
+    `endereco` varchar(200) DEFAULT NULL,             
+    `telefone` varchar(20) DEFAULT NULL,              
+    `email` varchar(100) DEFAULT NULL,                
     PRIMARY KEY (`id`),
     UNIQUE KEY `idx_nome` (`nome`),
     UNIQUE KEY `idx_email` (`email`),
@@ -76,40 +66,33 @@ CREATE TABLE IF NOT EXISTS `editoras` (
     UNIQUE KEY `idx_telefone` (`telefone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- INSERT de exemplo
-INSERT INTO editoras (nome, cnpj, endereco, telefone, email)
-VALUES ('Editora Exemplo', '12.345.678/0001-99', 'Rua Central, 100', '19991112233', 'contato@editora.com');
-
--- SELECT de exemplo
-SELECT * FROM editoras;
 
 -- =====================================
--- Tabela Livros
+-- TABELA: Livros
 -- =====================================
 CREATE TABLE IF NOT EXISTS `livros` (
-   `id` int(11) NOT NULL AUTO_INCREMENT,
-   `titulo` varchar(255) NOT NULL,
-   `autor` varchar(255) NOT NULL,
-   `editora` varchar(255) NOT NULL,
-   `isbn` varchar(20) NOT NULL,
-   `genero` enum('Romance','Ficção','Drama','Suspense','Fantasia','Biografia','Terror','Educação','Outro') NOT NULL,
-   `ano_publicacao` int(11) NOT NULL,
-   PRIMARY KEY (`id`)
+    `id` INT(11) NOT NULL AUTO_INCREMENT,          
+    `titulo` VARCHAR(255) NOT NULL,                   
+    `autor` VARCHAR(255) NOT NULL,                    
+    `editora` VARCHAR(255) NOT NULL,                  
+    `isbn` VARCHAR(20) NOT NULL,                  
+    `genero` ENUM(
+        'Romance','Ficção','Drama','Suspense','Fantasia',
+        'Biografia','Terror','Educação','Outro'
+    ) NOT NULL,                                    
+    `ano_publicacao` INT(11) NOT NULL,              
+    `imagem` VARCHAR(255) DEFAULT NULL,          
+    PRIMARY KEY (`id`),
+    UNIQUE KEY (`isbn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- INSERT de exemplo
-INSERT INTO livros (titulo, autor, editora, isbn, genero, ano_publicacao)
-VALUES ('Aprendendo SQL', 'Emanuel Nepomuceno', 'Editora Exemplo', '1234567890123', 'Educação', 2024);
-
--- SELECT de exemplo
-SELECT * FROM livros;
 
 -- =====================================
--- Tabela Autores
+-- TABELA: Autores
 -- =====================================
 CREATE TABLE IF NOT EXISTS `autores` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `nome` varchar(100) NOT NULL,
+    `id` int(11) NOT NULL AUTO_INCREMENT,            
+    `nome` varchar(100) NOT NULL,                    
     `nacionalidade` enum(
         'Estados Unidos','China','Japão','Alemanha','Reino Unido','França','Índia',
         'Brasil','Itália','Canadá','Rússia','Austrália','Coreia do Sul','México','Espanha',
@@ -119,17 +102,26 @@ CREATE TABLE IF NOT EXISTS `autores` (
         'Dinamarca','Nova Zelândia','Filipinas','Chile','Colômbia','Peru','Hungria',
         'República Tcheca','Qatar','Emirados Árabes Unidos','Kuwait','Bangladesh',
         'Paquistão','Outra'
-    ) NOT NULL,
-    `data_nascimento` date NOT NULL,
+    ) NOT NULL,                                     
+    `data_nascimento` date NOT NULL,                 
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- INSERT de exemplo
-INSERT INTO autores (nome, nacionalidade, data_nascimento)
-VALUES ('Emanuel Nepomuceno', 'Brasil', '1990-01-01');
 
+-- =====================================
+-- TABELA: Usuários Especiais (com CPF)
+-- =====================================
+CREATE TABLE IF NOT EXISTS `usuarios_especiais` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,           
+    `nome_completo` varchar(100) NOT NULL,           
+    `email` varchar(150) NOT NULL UNIQUE,           
+    `telefone` varchar(20) DEFAULT NULL,            
+    `cpf` varchar(14) NOT NULL UNIQUE,              
+    `tipo_usuario` enum(
+        'Diretor','Coordenador','Secretário','Bibliotecário','Orientador',
+        'Funcionário','Assistente Administrativo','Ex-aluno','Pais ou Responsável','Outro'
+    ) NOT NULL,                                     -- Tipo de usuário
+    `data_cadastro` datetime NOT NULL DEFAULT current_timestamp(),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
-
--- SELECT de exemplo
-SELECT * FROM autores;

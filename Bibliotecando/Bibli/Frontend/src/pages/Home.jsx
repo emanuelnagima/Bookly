@@ -1,22 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react'
+import { Container, Row, Col, Card, InputGroup, Form, Button, Image, Modal } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
 import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Form,
-  InputGroup,
-  Table,
-  Button,
-  Modal
-} from "react-bootstrap";
-import { Link } from "react-router-dom";
-import {
+  FaBookOpen,
   FaCalendarAlt,
-  FaEnvelope,
-  FaBook,
+  FaSearch,
+  FaImage,
+  FaChevronLeft,
+  FaChevronRight,
   FaUserTie,
+  FaUserCircle,
   FaUserGraduate,
+  FaBook,
   FaPenFancy,
   FaBuilding,
   FaDoorOpen,
@@ -25,111 +20,85 @@ import {
   FaSyncAlt,
   FaReply,
   FaChartBar,
-  FaSearch,
-  FaUserCircle,
-  FaChevronLeft,
-  FaChevronRight,
   FaInfoCircle,
-  FaBriefcase,
-  FaBookOpen
-} from "react-icons/fa";
+  FaEnvelope,
+  FaBriefcase
+} from 'react-icons/fa'
+import livroService from '../services/livroService'
 
-import livroService from "../services/livroService";
-
-// Função utilitária para formatar texto com capitalização de cada palavra
-const formatarTexto = texto =>
-  (texto || '')
+// Função utilitária para formatar texto
+const formatarTexto = (texto = '') =>
+  texto
     .toLowerCase()
     .split(' ')
     .map(p => p.charAt(0).toUpperCase() + p.slice(1))
-    .join(' ');
+    .join(' ')
 
-// Constante para controle de paginação
-const ITENS_POR_PAGINA = 8;
+const ITENS_POR_PAGINA = 8
 
 const Home = () => {
-  // Estados do componente
-  const [currentDate, setCurrentDate] = useState(""); // Data atual formatada
-  const [showWelcome, setShowWelcome] = useState(true); // Controla exibição da mensagem de boas-vindas
-  const [livros, setLivros] = useState([]); // Lista completa de livros
-  const [termoBusca, setTermoBusca] = useState(""); // Termo de busca para filtrar livros
-  const [loading, setLoading] = useState(true); // Estado de carregamento
-  const [paginaAtual, setPaginaAtual] = useState(1); // Página atual na paginação
-  const [showHelpModal, setShowHelpModal] = useState(false); // Controla visibilidade do modal de ajuda
-  const [isButtonActive, setIsButtonActive] = useState(false); // Estado de animação do botão de ajuda
+  const [currentDate, setCurrentDate] = useState('')
+  const [showWelcome, setShowWelcome] = useState(true)
+  const [livros, setLivros] = useState([])
+  const [termoBusca, setTermoBusca] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [paginaAtual, setPaginaAtual] = useState(1)
+  const [showHelpModal, setShowHelpModal] = useState(false)
+  const [isButtonActive, setIsButtonActive] = useState(false)
 
-  // Efeito para configurar data atual e temporizador de boas-vindas
   useEffect(() => {
-    const options = { weekday: "long", day: "numeric", month: "long", year: "numeric" };
-    setCurrentDate(new Date().toLocaleDateString("pt-BR", options));
+    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }
+    setCurrentDate(new Date().toLocaleDateString('pt-BR', options))
+    const timer = setTimeout(() => setShowWelcome(false), 10000)
+    return () => clearTimeout(timer)
+  }, [])
 
-    // Temporizador para esconder mensagem de boas-vindas após 10 segundos
-    const welcomeTimer = setTimeout(() => setShowWelcome(false), 10000);
-    return () => clearTimeout(welcomeTimer); // Cleanup do temporizador
-  }, []);
-
-  // Efeito para carregar livros do serviço ao montar o componente
   useEffect(() => {
     const fetchLivros = async () => {
       try {
-        const data = await livroService.getAll();
-        setLivros(data);
+        const data = await livroService.getAll()
+        setLivros(data)
       } catch (error) {
-        console.error("Erro ao carregar livros:", error);
+        console.error('Erro ao carregar livros:', error)
       } finally {
-        setLoading(false); // Finaliza estado de carregamento independente do resultado
+        setLoading(false)
       }
-    };
-    fetchLivros();
-  }, []);
+    }
+    fetchLivros()
+  }, [])
 
-  // Efeito para resetar página quando o termo de busca mudar
-  useEffect(() => {
-    setPaginaAtual(1);
-  }, [termoBusca]);
+  useEffect(() => setPaginaAtual(1), [termoBusca])
 
-  // Filtra livros com base no termo de busca (case insensitive)
-  const livrosFiltrados = livros.filter(l =>
-    (l.titulo || "").toLowerCase().includes(termoBusca.toLowerCase()) ||
-    (l.autor || "").toLowerCase().includes(termoBusca.toLowerCase()) ||
-    (l.editora || "").toLowerCase().includes(termoBusca.toLowerCase()) ||
-    (l.isbn || "").toLowerCase().includes(termoBusca.toLowerCase()) ||
-    (l.genero || "").toLowerCase().includes(termoBusca.toLowerCase()) ||
-    (l.ano_publicacao || "").toString().includes(termoBusca)
-  );
+  const livrosFiltrados = livros.filter(livro => {
+    const termo = termoBusca.toLowerCase()
+    return (
+      (livro.titulo || livro.title || '').toLowerCase().includes(termo) ||
+      (livro.autor || livro.author || '').toLowerCase().includes(termo) ||
+      (livro.editora || livro.publisher || '').toLowerCase().includes(termo) ||
+      (livro.isbn || '').toString().toLowerCase().includes(termo) ||
+      (livro.genero || livro.genre || '').toLowerCase().includes(termo) ||
+      (livro.ano_publicacao || livro.year || '').toString().includes(termo)
+    )
+  })
 
-  // Calcula total de páginas baseado nos itens filtrados
-  const totalPaginas = Math.ceil(livrosFiltrados.length / ITENS_POR_PAGINA);
+  const totalPaginas = Math.ceil(livrosFiltrados.length / ITENS_POR_PAGINA)
 
-  // Ordena e seleciona os livros para a página atual
-  const livrosExibidos = livrosFiltrados
-    .sort((a, b) => (a.titulo || "").localeCompare(b.titulo || ""))
-    .slice(
-      (paginaAtual - 1) * ITENS_POR_PAGINA,
-      paginaAtual * ITENS_POR_PAGINA
-    );
+  const livrosPaginaAtual = [...livrosFiltrados]
+    .sort((a, b) =>
+      formatarTexto(a.titulo || a.title || '').localeCompare(formatarTexto(b.titulo || b.title || ''))
+    )
+    .slice((paginaAtual - 1) * ITENS_POR_PAGINA, paginaAtual * ITENS_POR_PAGINA)
 
-  // Handlers para navegação de paginação
-  const handlePaginaAnterior = () => {
-    if (paginaAtual > 1) setPaginaAtual(paginaAtual - 1);
-  };
+  const handlePaginaAnterior = () => setPaginaAtual(p => Math.max(p - 1, 1))
+  const handleProximaPagina = () => setPaginaAtual(p => Math.min(p + 1, totalPaginas))
 
-  const handleProximaPagina = () => {
-    if (paginaAtual < totalPaginas) setPaginaAtual(paginaAtual + 1);
-  };
-
-  // Handler para botão de ajuda com efeito visual
   const handleHelpClick = () => {
-    setIsButtonActive(true);
-    setTimeout(() => setIsButtonActive(false), 200); // Reset do estado ativo após 200ms
-    setShowHelpModal(true);
-  };
+    setIsButtonActive(true)
+    setTimeout(() => setIsButtonActive(false), 200)
+    setShowHelpModal(true)
+  }
+  const handleCloseHelpModal = () => setShowHelpModal(false)
 
-  const handleCloseHelpModal = () => {
-    setShowHelpModal(false);
-  };
-
-  // Estrutura de dados para os cards de funcionalidades organizados por categoria
   const categoriasCards = [
     {
       titulo: "Gestão de Pessoas",
@@ -164,210 +133,172 @@ const Home = () => {
         { icone: FaChartBar, titulo: "Relatórios", descricao: "Veja estatísticas e relatórios do acervo", link: "/relatorios" },
       ]
     }
-  ];
+  ]
 
   return (
     <Container className="py-4">
-      {/* CABEÇALHO COM NOME DO SISTEMA E DATA */}
-      <Row className="mb-4 animate__animated animate__fadeIn">
+      {/* CABEÇALHO */}
+      <Row className="mb-4">
         <Col>
-          <div className="d-flex align-items-center justify-content-between p-4 rounded" style={{ borderBottom: '3px solid #169976' }}>
+          <div className="d-flex align-items-center justify-content-between p-4 rounded" style={{ borderBottom: '3px solid #1120f5ff' }}>
             <div>
               <h1 className="h4 fw-bold text-primary mb-1">
-                <FaBookOpen className="me-2" />
-                BiBli
+                <FaBookOpen className="me-2" /> BiBli
               </h1>
               <p className="text-muted mb-0">Sua plataforma completa de gestão bibliotecária</p>
             </div>
             <div className="text-end">
               {showWelcome && <h3 className="mb-1 fw-bold text-primary">Seja bem-vindo!</h3>}
               <p className="text-muted mb-0">
-                <FaCalendarAlt className="me-1" />
-                {currentDate}
+                <FaCalendarAlt className="me-1" /> {currentDate}
               </p>
             </div>
           </div>
         </Col>
       </Row>
 
-      {/* BARRA DE PESQUISA DO ACERVO */}
-      <Row className="mb-0">
-        <Col>
-          <div className="p-3" style={{  maxWidth: '700px' }}>
-            <h5 className="mb-3 text-primary">Pesquisar Acervo</h5>
-            <InputGroup>
-              <InputGroup.Text className="bg-primary text-white border-0">
-                <FaSearch />
-              </InputGroup.Text>
-              <Form.Control
-                type="search"
-                placeholder="Pesquise por livros, autores, editoras, gêneros, ISBN..."
-                value={termoBusca}
-                onChange={e => setTermoBusca(e.target.value)}
-              />
-            </InputGroup>
-          </div>
-        </Col>
-      </Row>
-
-      {/* LISTA DE LIVROS COM PAGINAÇÃO */}
+      {/* LISTA DE LIVROS COM BARRA DE PESQUISA */}
       <Row className="mb-4">
         <Col>
           <Card>
-            <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center py-2">
-              <h5 className="mb-1">
-                <FaBook className="me-2" />
-                Acervo de Livros
-              </h5>
-              <span className="badge bg-light text-primary">
-                {livrosFiltrados.length} {livrosFiltrados.length === 1 ? 'livro' : 'livros'} •
-                Página {paginaAtual} de {totalPaginas || 1}
-              </span>
-            </Card.Header>
-            <Card.Body className="p-3">
-              {loading ? (
-                // Estado de carregamento
-                <div className="text-center py-4">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Carregando...</span>
-                  </div>
-                  <p className="mt-2 text-muted">Carregando livros...</p>
-                </div>
-              ) : livrosExibidos.length === 0 ? (
-                // Estado vazio (com ou sem busca)
-                <p className="text-muted text-center py-4">
-                  {termoBusca ? "Nenhum livro encontrado com esse termo de busca" : "Nenhum livro cadastrado no acervo"}
-                </p>
-              ) : (
-                // Tabela com livros e controles de paginação
-                <>
-                  <Table striped hover responsive className="mb-1">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Título</th>
-                        <th>Autor</th>
-                        <th>Editora</th>
-                        <th>ISBN</th>
-                        <th>Gênero</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {livrosExibidos.map(livro => (
-                        <tr key={livro.id}>
-                          <td>{livro.id}</td>
-                          <td>{formatarTexto(livro.titulo)}</td>
-                          <td>{formatarTexto(livro.autor)}</td>
-                          <td>{formatarTexto(livro.editora)}</td>
-                          <td>{livro.isbn}</td>
-                          <td>{formatarTexto(livro.genero)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </Table>
+           <Card.Header className="bg-primary text-white d-flex flex-column flex-md-row justify-content-between align-items-center">
+  <div className="d-flex align-items-center gap-2 mb-2 mb-md-0">
+    <h5 className="mb-0">Acervo de Livros</h5>
+    <span className="badge bg-light text-primary">
+      {livrosFiltrados.length} {livrosFiltrados.length === 1 ? 'livro' : 'livros'} / Página {paginaAtual} de {totalPaginas || 1}
+    </span>
+  </div>
 
-                  {/* CONTROLES DE PAGINAÇÃO */}
-                  {totalPaginas > 1 && (
-                    <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
-                      <Button
-                        className="btn-paginacao"
-                        onClick={handlePaginaAnterior}
-                        disabled={paginaAtual === 1}
-                      >
-                        <FaChevronLeft className="me-1" />
-                        Anterior
-                      </Button>
-                      <Button
-                        className="btn-paginacao"
-                        onClick={handleProximaPagina}
-                        disabled={paginaAtual === totalPaginas}
-                      >
-                        Próxima
-                        <FaChevronRight className="ms-1" />
-                      </Button>
-                    </div>
-                  )}
-                </>
+  <div className="mt-2 mt-md-0 flex-grow-1" style={{ minWidth: '300px', maxWidth: '600px' }}>
+    <InputGroup>
+      <InputGroup.Text className="bg-light text-primary">
+        <FaSearch />
+      </InputGroup.Text>
+      <Form.Control
+        type="text"
+        placeholder="Buscar livros, gêneros, autores, editoras, ISBN..."
+        value={termoBusca}
+        onChange={e => setTermoBusca(e.target.value)}
+      />
+    </InputGroup>
+  </div>
+</Card.Header>
+            <Card.Body>
+              {loading ? (
+                <p className="text-center text-muted">Carregando livros...</p>
+              ) : livrosPaginaAtual.length === 0 ? (
+                <p className="text-center text-muted">{termoBusca ? 'Nenhum livro encontrado' : 'Nenhum livro cadastrado'}</p>
+              ) : (
+                <Row>
+                  {livrosPaginaAtual.map(livro => (
+                    <Col key={livro.id} md={6} lg={4} xl={3} className="mb-4">
+                      <Card className="h-100 livro-card">
+                        <div className="p-3 text-center">
+                          {livro.imagem ? (
+                            <Image
+                              src={`http://localhost:3000${livro.imagem}`}
+                              alt={livro.titulo || livro.title || ''}
+                              className="livro-imagem"
+                              onError={e => { e.target.style.display = 'none' }}
+                            />
+                          ) : (
+                            <div className="sem-imagem">
+                              <FaImage size={24} />
+                            </div>
+                          )}
+                        </div>
+                        <Card.Body>
+                          <h6 title={livro.titulo || livro.title || ''}>
+                            {formatarTexto(livro.titulo || livro.title || '')}
+                          </h6>
+                          <div className="livro-detalhes">
+                            <div><strong>Autor:</strong> {formatarTexto(livro.autor || livro.author || '')}</div>
+                            <div><strong>Editora:</strong> {formatarTexto(livro.editora || livro.publisher || '')}</div>
+                            <div><strong>Gênero:</strong> {formatarTexto(livro.genero || livro.genre || '')}</div>
+                            {livro.isbn && <div><strong>ISBN:</strong> {livro.isbn}</div>}
+                            <div><strong>Ano:</strong> {livro.ano_publicacao || livro.year || ''}</div>
+                          </div>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+              )}
+
+              {/* PAGINAÇÃO IGUAL AO LivroList */}
+              {totalPaginas > 1 && (
+                <div className="d-flex justify-content-center justify-content-md-end align-items-center mt-3 gap-2 flex-wrap">
+                  <Button
+                    className="btn-paginacao"
+                    onClick={handlePaginaAnterior}
+                    disabled={paginaAtual === 1}
+                  >
+                    <FaChevronLeft className="me-1" /> Anterior
+                  </Button>
+                  <Button
+                    className="btn-paginacao"
+                    onClick={handleProximaPagina}
+                    disabled={paginaAtual === totalPaginas}
+                  >
+                    Próxima <FaChevronRight className="ms-1" />
+                  </Button>
+                </div>
               )}
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
-      {/* CARDS DE FUNCIONALIDADES ORGANIZADOS POR CATEGORIA */}
+      {/* CARDS DE FUNCIONALIDADES */}
       {categoriasCards.map((categoria, index) => (
         <div key={index} className="mb-4">
-          <h5 className="mb-3 pb-2 text-primary border-bottom">{categoria.titulo}</h5>
+          <h5 className="mb-3 text-primary">{categoria.titulo}</h5>
           <Row className="g-3">
-            {categoria.cards.map((card, cardIndex) => {
-              const Icone = card.icone;
+            {categoria.cards.map((card, i) => {
+              const Icone = card.icone
               return (
-                <Col md={6} lg={4} xl={3} key={cardIndex}>
+                <Col md={6} lg={4} xl={3} key={i}>
                   <Card className="h-100 text-center card-hover">
                     <Card.Body className="d-flex flex-column p-3">
                       <Icone size={30} className="mb-2 text-primary mx-auto" />
                       <Card.Title className="h3 mb-1">{card.titulo}</Card.Title>
                       <div className="text-muted flex-grow-1">
-                        <p className="mb-">{card.descricao}</p>
+                        <p>{card.descricao}</p>
                         <hr className="my-2" />
                       </div>
                       <Link to={card.link} className="btn btn-primary mt-2">Acessar</Link>
                     </Card.Body>
                   </Card>
                 </Col>
-              );
+              )
             })}
           </Row>
         </div>
       ))}
 
-      {/* BOTÃO FLUTUANTE DE AJUDA COM EFEITO VISUAL */}
+      {/* BOTÃO DE AJUDA */}
       <div className="help-button-container">
-        <button
-          className={`help-button ${isButtonActive ? 'active' : ''}`}
-          onClick={handleHelpClick}
-          aria-label="Botão de ajuda"
-          title="Ajuda"
-        >
+        <button className={`help-button ${isButtonActive ? 'active' : ''}`} onClick={handleHelpClick} aria-label="Botão de ajuda" title="Ajuda">
           <FaEnvelope size={18} className="icon" />
           <span className="pulse-effect"></span>
         </button>
       </div>
 
-      {/* MODAL DE AJUDA COM INFORMAÇÕES DE CONTATO */}
-      <Modal
-        show={showHelpModal}
-        onHide={handleCloseHelpModal}
-        centered
-        className="help-modal"
-      >
+      <Modal show={showHelpModal} onHide={handleCloseHelpModal} centered className="help-modal">
         <Modal.Header closeButton className="modal-header-help">
-          <Modal.Title className="text-white">
-            <FaInfoCircle className="me-2" />
-            Precisa de ajuda?
-          </Modal.Title>
+          <Modal.Title className="text-white"><FaInfoCircle className="me-2" />Precisa de ajuda?</Modal.Title>
         </Modal.Header>
         <Modal.Body className="modal-body-help">
           <div className="contact-options">
             <div className="contact-method">
-              <div className="method-icon email-icon">
-                <FaEnvelope size={32} />
-              </div>
+              <div className="method-icon email-icon"><FaEnvelope size={32} /></div>
               <div className="method-info">
                 <h5>E-mail de suporte</h5>
-                <a
-                  href="mailto:bibliotecandosuporte@gmail.com"
-                  className="contact-link"
-                >
-                  bibliotecandosuporte@gmail.com
-                </a>
+                <a href="mailto:bibliotecandosuporte@gmail.com" className="contact-link">bibliotecandosuporte@gmail.com</a>
               </div>
             </div>
-
             <div className="contact-method">
-              <div className="method-icon hours-icon">
-                <FaBriefcase size={32} />
-              </div>
+              <div className="method-icon hours-icon"><FaBriefcase size={32} /></div>
               <div className="method-info">
                 <h5>Horário de atendimento</h5>
                 <p>Segunda a sexta, das 8h às 18h</p>
@@ -376,17 +307,11 @@ const Home = () => {
           </div>
         </Modal.Body>
         <Modal.Footer className="modal-footer-help">
-          <Button
-            variant="light"
-            onClick={handleCloseHelpModal}
-            className="btn-paginacao"
-          >
-            Fechar
-          </Button>
+          <Button variant="light" onClick={handleCloseHelpModal} className="btn-paginacao">Fechar</Button>
         </Modal.Footer>
       </Modal>
     </Container>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home

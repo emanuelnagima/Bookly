@@ -13,10 +13,9 @@ const Livros = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   
-
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
-  const [operationType, setOperationType] = useState('') // 'create', 'update', 'delete'
+  const [operationType, setOperationType] = useState('')
 
   const loadLivros = async () => {
     try {
@@ -39,16 +38,23 @@ const Livros = () => {
   const handleSaveLivro = async (livro) => {
     try {
       setLoading(true)
-      if (livro.id > 0) {
+      let savedLivro
+      
+      if (livro.id) {
         // Edição
-        await livroService.update(livro)
+        savedLivro = await livroService.update(livro)
         setToastMessage('Livro atualizado com sucesso!')
         setOperationType('update')
       } else {
         // Cadastro
-        await livroService.add(livro)
+        savedLivro = await livroService.add(livro)
         setToastMessage('Livro cadastrado com sucesso!')
         setOperationType('create')
+      }
+      
+      // Verifica se o livro foi salvo corretamente
+      if (!savedLivro || !savedLivro.id) {
+        throw new Error('Erro ao salvar livro: resposta inválida')
       }
       
       await loadLivros()
@@ -57,7 +63,7 @@ const Livros = () => {
       setLivroToEdit(null)
     } catch (error) {
       console.error('Erro ao salvar livro:', error)
-      setError(`Falha ao ${livro.id > 0 ? 'atualizar' : 'cadastrar'} livro. Tente novamente.`)
+      setError(`Falha ao ${livro.id ? 'atualizar' : 'cadastrar'} livro: ${error.message}`)
     } finally {
       setLoading(false)
     }
@@ -67,6 +73,11 @@ const Livros = () => {
     try {
       setLoading(true)
       const livro = await livroService.getById(id)
+      
+      if (!livro || !livro.id) {
+        throw new Error('Livro não encontrado')
+      }
+      
       setLivroToEdit({
         id: livro.id,
         titulo: livro.titulo || livro.title || '',
@@ -74,7 +85,8 @@ const Livros = () => {
         editora: livro.editora || livro.publisher || '',
         isbn: livro.isbn || '',
         genero: livro.genero || livro.genre || '',
-        ano_publicacao: livro.ano_publicacao || livro.year || ''
+        ano_publicacao: livro.ano_publicacao || livro.year || '',
+        imagem: livro.imagem || null
       })
       setShowForm(true)
     } catch (error) {
