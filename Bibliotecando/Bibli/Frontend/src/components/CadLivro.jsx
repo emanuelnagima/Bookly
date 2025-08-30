@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Card, Form, Col, Row, Button, Spinner } from 'react-bootstrap'
+import { Card, Form, Col, Row, Button, Spinner, Image } from 'react-bootstrap'
 
 const CadLivro = ({ onSave, onCancel, livro, loading }) => {
   const [livroData, setLivroData] = useState({
@@ -9,9 +9,11 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
     editora: '',
     isbn: '',
     genero: '',
-    ano_publicacao: ''
+    ano_publicacao: '',
+    imagem: null
   })
 
+  const [imagemPreview, setImagemPreview] = useState('')
   const [validated, setValidated] = useState(false)
 
   useEffect(() => {
@@ -23,8 +25,14 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
         editora: livro.editora,
         isbn: livro.isbn,
         genero: livro.genero,
-        ano_publicacao: livro.ano_publicacao
+        ano_publicacao: livro.ano_publicacao,
+        imagem: null
       })
+      
+      // Se já existe uma imagem, mostrar preview
+      if (livro.imagem) {
+        setImagemPreview(`http://localhost:3000${livro.imagem}`)
+      }
     } else {
       setLivroData({
         id: null,
@@ -33,8 +41,10 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
         editora: '',
         isbn: '',
         genero: '',
-        ano_publicacao: ''
+        ano_publicacao: '',
+        imagem: null
       })
+      setImagemPreview('')
     }
   }, [livro])
 
@@ -44,6 +54,23 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
       ...prev,
       [name]: name === 'ano_publicacao' ? parseInt(value) || '' : value
     }))
+  }
+
+  const handleImagemChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setLivroData(prev => ({
+        ...prev,
+        imagem: file
+      }))
+
+      // Criar preview da imagem
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setImagemPreview(e.target.result)
+      }
+      reader.readAsDataURL(file)
+    }
   }
 
   const handleSubmit = (e) => {
@@ -177,6 +204,33 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
                   Informe o ano de publicação
                 </Form.Control.Feedback>
               </Form.Group>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col md={6}>
+              <Form.Group className='mb-3' controlId='imagem'>
+                <Form.Label>Imagem do Livro</Form.Label>
+                <Form.Control
+                  type='file'
+                  accept='image/*'
+                  onChange={handleImagemChange}
+                  disabled={loading}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              {imagemPreview && (
+                <div className='mt-3'>
+                  <p>Preview:</p>
+                  <Image 
+                    src={imagemPreview} 
+                    alt='Preview' 
+                    fluid 
+                    style={{ maxHeight: '200px' }}
+                  />
+                </div>
+              )}
             </Col>
           </Row>
 

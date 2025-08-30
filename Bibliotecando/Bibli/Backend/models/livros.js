@@ -6,9 +6,9 @@ class Livros {
         this.editora = data.editora || '';
         this.isbn = data.isbn || '';
         this.genero = data.genero || '';
-        this.ano_publicacao = data.ano_publicacao || data.ano_publicacao || null;
+        this.ano_publicacao = data.ano_publicacao || null;
+        this.imagem = data.imagem || null; // 👈 campo novo
 
-        
         this.generosValidos = [
             'Romance',
             'Ficção',
@@ -24,25 +24,25 @@ class Livros {
 
     validar() {
         const erros = [];
-        
+
         if (!this.titulo || this.titulo.trim() === '') erros.push('Título é obrigatório');
         if (!this.autor || this.autor.trim() === '') erros.push('Autor é obrigatório');
         if (!this.editora || this.editora.trim() === '') erros.push('Editora é obrigatória');
         if (!this.isbn || this.isbn.trim() === '') erros.push('ISBN é obrigatório');
-        
-        // Validação     específica p ara gênero
+
+        // Validação específica para gênero
         if (!this.genero) {
             erros.push('Gênero é obrigatório');
         } else if (!this.generosValidos.includes(this.genero)) {
             erros.push(`Gênero inválido. Use: ${this.generosValidos.join(', ')}`);
         }
-        
+
         if (!this.ano_publicacao || isNaN(this.ano_publicacao)) {
             erros.push('Ano de publicação inválido');
         } else if (this.ano_publicacao < 0 || this.ano_publicacao > new Date().getFullYear()) {
             erros.push('Ano de publicação deve ser um valor válido');
         }
-        
+
         return erros.length === 0 ? true : erros;
     }
 
@@ -54,7 +54,8 @@ class Livros {
             editora: this.editora,
             isbn: this.isbn,
             genero: this.generosValidos.includes(this.genero) ? this.genero : 'Outro',
-            ano_publicacao: this.ano_publicacao
+            ano_publicacao: this.ano_publicacao,
+            imagem: this.imagem 
         };
     }
 }

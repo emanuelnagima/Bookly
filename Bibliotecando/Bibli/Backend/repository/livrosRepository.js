@@ -36,42 +36,44 @@ class LivrosRepository {
     }
 
     async create(livroData) {
-        try {
-            const livro = new Livro(livroData);
-            const livroParaInserir = livro.toJSON();
+    try {
+        const livro = new Livro(livroData);
+        const livroParaInserir = livro.toJSON();
 
-            const [result] = await db.execute(
-                'INSERT INTO livros (titulo, autor, editora, isbn, genero, ano_publicacao) VALUES (?, ?, ?, ?, ?, ?)',
-                [
-                    livroParaInserir.titulo,
-                    livroParaInserir.autor,
-                    livroParaInserir.editora,
-                    livroParaInserir.isbn,
-                    livroParaInserir.genero,
-                    livroParaInserir.ano_publicacao
-                ]
-            );
+        const [result] = await db.execute(
+            'INSERT INTO livros (titulo, autor, editora, isbn, genero, ano_publicacao, imagem) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [
+                livroParaInserir.titulo,
+                livroParaInserir.autor,
+                livroParaInserir.editora,
+                livroParaInserir.isbn,
+                livroParaInserir.genero,
+                livroParaInserir.ano_publicacao,
+                livroParaInserir.imagem
+            ]
+        );
 
-            return await this.findById(result.insertId);
-        } catch (error) {
-            throw new Error(`Erro ao criar livro: ${error.message}`);
-        }
+        return await this.findById(result.insertId);
+    } catch (error) {
+        throw new Error(`Erro ao criar livro: ${error.message}`);
     }
+}
 
-    async update(id, livroData) {
-        try {
-            const { titulo, autor, editora, isbn, genero, ano_publicacao } = livroData;
+async update(id, livroData) {
+    try {
+        const { titulo, autor, editora, isbn, genero, ano_publicacao, imagem } = livroData;
 
-            await db.execute(
-                'UPDATE livros SET titulo = ?, autor = ?, editora = ?, isbn = ?, genero = ?, ano_publicacao = ? WHERE id = ?',
-                [titulo, autor, editora, isbn, genero, ano_publicacao, id]
-            );
+        await db.execute(
+            'UPDATE livros SET titulo = ?, autor = ?, editora = ?, isbn = ?, genero = ?, ano_publicacao = ?, imagem = ? WHERE id = ?',
+            [titulo, autor, editora, isbn, genero, ano_publicacao, imagem, id]
+        );
 
-            return await this.findById(id);
-        } catch (error) {
-            throw new Error(`Erro ao atualizar livro: ${error.message}`);
-        }
+        return await this.findById(id);
+    } catch (error) {
+        throw new Error(`Erro ao atualizar livro: ${error.message}`);
     }
+}
+
 
     async updateStatus(id, status) {
         try {

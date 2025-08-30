@@ -148,10 +148,9 @@ const Footer = () => {
               className="btn btn-paginacao btn-sm d-flex align-items-center mx-auto px-4"
             aria-label="Voltar ao topo"
           > 
-         Voltar ao topo <FaArrowUp className="ms-2" />
+         Voltar ao topo 
           </button>
         </div>
-
         {/* Créditos */}
         <div className="creditos-rodape py-3 border-top text-center">
           <p className="mb-0 small text-muted">
