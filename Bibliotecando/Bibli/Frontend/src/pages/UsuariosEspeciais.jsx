@@ -1,3 +1,4 @@
+// UsuariosEspeciais.jsx
 import { useState, useEffect } from 'react'
 import { Container, Row, Col, Button, Modal, Spinner, Toast } from 'react-bootstrap'
 
@@ -16,6 +17,7 @@ const UsuariosEspeciais = () => {
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const [operationType, setOperationType] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const loadUsuarios = async () => {
     try {
@@ -39,56 +41,48 @@ const UsuariosEspeciais = () => {
     try {
       setLoading(true)
 
-      // VERIFICAÇÃO DE DUPLICIDADE NO FRONTEND
+      // Validação do telefone obrigatório
+      if (!usuario.telefone || usuario.telefone.trim() === '') {
+        setError('O telefone é obrigatório.')
+        setLoading(false)
+        return
+      }
+
+      // Verificação de duplicidade: e-mail, CPF e telefone
       const usuarioExistente = usuarios.find(u =>
-        (u.nome_completo.toLowerCase().trim() === usuario.nome_completo.toLowerCase().trim() ||
-         u.email.toLowerCase().trim() === usuario.email.toLowerCase().trim() ||
-         u.cpf === usuario.cpf) &&
+        (u.email.toLowerCase().trim() === usuario.email.toLowerCase().trim() ||
+         u.cpf === usuario.cpf ||
+         u.telefone === usuario.telefone) &&
         u.id !== usuario.id
       )
 
       if (usuarioExistente) {
         setError(
-          `O usuário "${usuarioExistente.nome_completo}" já está cadastrado no sistema. Verifique os dados e tente novamente.`
+          `O usuário "${usuarioExistente.nome_completo}" já está cadastrado com este e-mail, CPF ou telefone.`
         )
         setLoading(false)
         return
       }
 
-      // ENVIO PARA O SERVIDOR
-      const method = usuario.id ? 'PUT' : 'POST'
-      const url = usuario.id
-        ? `http://localhost:3000/api/usuarios-especiais/${usuario.id}`
-        : 'http://localhost:3000/api/usuarios-especiais'
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(usuario)
-      })
-
-      const responseData = await response.json()
-
-      if (!response.ok) {
-        if (responseData.message && responseData.message.includes('Duplicate entry')) {
-          throw new Error(`O usuário "${usuario.nome_completo}" já está cadastrado no sistema. Verifique os dados e tente novamente.`)
-        }
-        throw new Error(responseData.message || 'Erro ao salvar usuário')
+      // Envio para o servidor
+      if (usuario.id) {
+        await usuarioEspecialService.update(usuario.id, usuario)
+        setToastMessage('Usuário atualizado com sucesso!')
+        setOperationType('update')
+      } else {
+        await usuarioEspecialService.add(usuario)
+        setToastMessage('Usuário cadastrado com sucesso!')
+        setOperationType('create')
       }
 
       await loadUsuarios()
-
-      setToastMessage(usuario.id ? 'Usuário atualizado com sucesso!' : 'Usuário cadastrado com sucesso!')
-      setOperationType(usuario.id ? 'update' : 'create')
       setShowSuccessToast(true)
-
       setShowForm(false)
       setUsuarioToEdit(null)
       setError(null)
-
     } catch (error) {
       console.error('Erro ao salvar usuário:', error)
-      setError(error.message || `Falha ao ${usuario.id ? 'atualizar' : 'cadastrar'} usuário. Tente novamente.`)
+      setError(error.message || `Falha ao ${usuario.id ? 'atualizar' : 'cadastrar'} usuário.`)
     } finally {
       setLoading(false)
     }
@@ -108,8 +102,6 @@ const UsuariosEspeciais = () => {
       setLoading(false)
     }
   }
-
-  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleConfirmDelete = (id) => {
     setUsuarioToDelete(id)

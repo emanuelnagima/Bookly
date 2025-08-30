@@ -26,7 +26,9 @@ class UsuariosEspeciaisController {
         try {
             const usuario = new UsuarioEspecial(req.body);
             const erros = usuario.validar();
-            if (erros !== true) return res.status(400).json({ success: false, message: 'Dados inválidos', errors: erros });
+            if (erros !== true) {
+                return res.status(400).json({ success: false, message: 'Dados inválidos', errors: erros });
+            }
 
             const novoUsuario = await usuariosRepo.create(usuario);
             res.status(201).json({ success: true, data: novoUsuario, message: 'Usuário criado!' });
@@ -38,11 +40,15 @@ class UsuariosEspeciaisController {
     async update(req, res) {
         try {
             const usuarioExistente = await usuariosRepo.findById(req.params.id);
-            if (!usuarioExistente) return res.status(404).json({ success: false, message: 'Usuário não encontrado' });
+            if (!usuarioExistente) {
+                return res.status(404).json({ success: false, message: 'Usuário não encontrado' });
+            }
 
             const usuario = new UsuarioEspecial({ ...req.body, id: req.params.id });
             const erros = usuario.validar();
-            if (erros !== true) return res.status(400).json({ success: false, message: 'Dados inválidos', errors: erros });
+            if (erros !== true) {
+                return res.status(400).json({ success: false, message: 'Dados inválidos', errors: erros });
+            }
 
             const atualizado = await usuariosRepo.update(req.params.id, usuario);
             res.json({ success: true, data: atualizado, message: 'Usuário atualizado!' });

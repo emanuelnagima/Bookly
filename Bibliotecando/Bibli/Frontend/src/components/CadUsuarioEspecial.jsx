@@ -149,18 +149,22 @@ const CadUsuarioEspecial = ({ onSave, onCancel, usuario, loading }) => {
               </Form.Group>
             </Col>
             <Col md={6}>
-              <Form.Group className='mb-3' controlId='telefone'>
-                <Form.Label>Telefone</Form.Label>
-                <Form.Control
-                  type='text'
-                  name='telefone'
-                  value={usuarioData.telefone}
-                  onChange={handleChange}
-                  placeholder=' (00) 00000-0000'
-                  disabled={loading}
-                />
-                
-              </Form.Group>
+             <Form.Group className='mb-3' controlId='telefone'>
+  <Form.Label>Telefone</Form.Label>
+  <Form.Control
+    type='text'
+    name='telefone'
+    value={usuarioData.telefone}
+    onChange={handleChange}
+    placeholder='(00) 00000-0000'
+    required
+    disabled={loading}
+  />
+  <Form.Control.Feedback type='invalid'>
+    Informe o telefone
+  </Form.Control.Feedback>
+</Form.Group>
+
             </Col>
           </Row>
 

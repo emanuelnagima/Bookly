@@ -284,10 +284,11 @@ export default function About() {
           
           <Col md={6} className="journey-image text-center">
             <img 
-              src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=700&q=80" 
-              alt="Pessoas colaborando em projeto" 
-              className="img-fluid rounded shadow"
-            />
+  src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=700&q=80" 
+  alt="Pessoas colaborando em projeto" 
+  className="img-fluid rounded shadow"
+style={{ width: '100%', height: 'auto', marginTop: '10px' }}
+/>
           </Col>
         </Row>
       </section>

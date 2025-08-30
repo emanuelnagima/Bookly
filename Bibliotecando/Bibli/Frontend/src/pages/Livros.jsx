@@ -38,6 +38,25 @@ const Livros = () => {
   const handleSaveLivro = async (livro) => {
     try {
       setLoading(true)
+
+      // VERIFICAÇÃO DE DUPLICIDADE NO FRONTEND
+      // Verifica por ISBN ou título/autor (caso queira uma verificação mais abrangente)
+      const livroExistente = livros.find(l =>
+        (l.isbn === livro.isbn || 
+         (l.titulo.toLowerCase().trim() === livro.titulo.toLowerCase().trim() && 
+          l.autor.toLowerCase().trim() === livro.autor.toLowerCase().trim())) &&
+        l.id !== livro.id
+      )
+
+      if (livroExistente) {
+        setError(
+          `O livro "${livroExistente.titulo}" já está cadastrado no sistema. Verifique os dados e tente novamente.`
+        )
+        setLoading(false)
+        return
+      }
+
+      // ENVIO PARA O SERVIDOR
       let savedLivro
       
       if (livro.id) {
@@ -61,9 +80,17 @@ const Livros = () => {
       setShowSuccessToast(true)
       setShowForm(false)
       setLivroToEdit(null)
+      setError(null)
     } catch (error) {
       console.error('Erro ao salvar livro:', error)
-      setError(`Falha ao ${livro.id ? 'atualizar' : 'cadastrar'} livro: ${error.message}`)
+      
+      // Verifica se é um erro de duplicidade do backend
+      if (error.message && error.message.includes('Duplicate entry') || 
+          error.message && error.message.includes('duplicidade')) {
+        setError('Este livro já está cadastrado no sistema. Verifique os dados e tente novamente.')
+      } else {
+        setError(`Falha ao ${livro.id ? 'atualizar' : 'cadastrar'} livro: ${error.message}`)
+      }
     } finally {
       setLoading(false)
     }
@@ -89,6 +116,7 @@ const Livros = () => {
         imagem: livro.imagem || null
       })
       setShowForm(true)
+      setError(null)
     } catch (error) {
       console.error('Erro ao buscar livro:', error)
       setError('Erro ao carregar livro para edição.')
@@ -179,6 +207,7 @@ const Livros = () => {
             onClick={() => {
               setLivroToEdit(null)
               setShowForm(!showForm)
+              setError(null)
             }}
             disabled={loading}
           >
@@ -196,6 +225,7 @@ const Livros = () => {
               onCancel={() => {
                 setShowForm(false)
                 setLivroToEdit(null)
+                setError(null)
               }}
               loading={loading}
             />
