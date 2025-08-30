@@ -18,6 +18,7 @@ class UsuarioEspecial {
         const erros = [];
         if (!this.nome_completo || this.nome_completo.trim() === '') erros.push('Nome completo é obrigatório');
         if (!this.email || this.email.trim() === '') erros.push('Email é obrigatório');
+        if (!this.telefone || this.telefone.trim() === '') erros.push('Telefone é obrigatório');
         if (!this.cpf || this.cpf.trim() === '') erros.push('CPF é obrigatório');
         if (!this.tipo_usuario || this.tipo_usuario.trim() === '') erros.push('Tipo de usuário é obrigatório');
 

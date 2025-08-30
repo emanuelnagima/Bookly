@@ -3,6 +3,7 @@ import { Container, Row, Col, Button, Modal, Spinner, Toast } from 'react-bootst
 import AlunoList from '../components/AlunoList'
 import CadAluno from '../components/CadAluno'
 import alunoService from '../services/alunoService';
+
 const Alunos = () => {
   const [showForm, setShowForm] = useState(false)
   const [alunos, setAlunos] = useState([])
@@ -36,23 +37,58 @@ const Alunos = () => {
   const handleSaveAluno = async (aluno) => {
     try {
       setLoading(true)
-      if (aluno.id) {
-        await alunoService.update(aluno)
-        setToastMessage('Aluno atualizado com sucesso!')
-        setOperationType('update')
-      } else {
-        await alunoService.add(aluno)
-        setToastMessage('Aluno cadastrado com sucesso!')
-        setOperationType('create')
+
+      // VERIFICAÇÃO DE DUPLICIDADE NO FRONTEND
+      // Verifica por CPF, email ou outro campo único que identifique um aluno
+      const alunoExistente = alunos.find(a =>
+        (a.cpf === aluno.cpf ||
+         a.email.toLowerCase().trim() === aluno.email.toLowerCase().trim() ||
+         a.matricula === aluno.matricula) &&
+        a.id !== aluno.id
+      )
+
+      if (alunoExistente) {
+        setError(
+          `O aluno "${alunoExistente.nome}" já está cadastrado no sistema. Verifique os dados e tente novamente.`
+        )
+        setLoading(false)
+        return
       }
-      
+
+      // ENVIO PARA O SERVIDOR
+      const method = aluno.id ? 'PUT' : 'POST'
+      const url = aluno.id
+        ? `http://localhost:3000/api/alunos/${aluno.id}`
+        : 'http://localhost:3000/api/alunos'
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(aluno)
+      })
+
+      const responseData = await response.json()
+
+      if (!response.ok) {
+        if (responseData.message && responseData.message.includes('Duplicate entry')) {
+          throw new Error(`O aluno "${aluno.nome}" já está cadastrado no sistema. Verifique os dados e tente novamente.`)
+        }
+        throw new Error(responseData.message || 'Erro ao salvar aluno')
+      }
+
       await loadAlunos()
+
+      setToastMessage(aluno.id ? 'Aluno atualizado com sucesso!' : 'Aluno cadastrado com sucesso!')
+      setOperationType(aluno.id ? 'update' : 'create')
       setShowSuccessToast(true)
+
       setShowForm(false)
       setAlunoToEdit(null)
+      setError(null)
+
     } catch (error) {
       console.error('Erro ao salvar aluno:', error)
-      setError(`Falha ao ${aluno.id ? 'atualizar' : 'cadastrar'} aluno. Tente novamente.`)
+      setError(error.message || `Falha ao ${aluno.id ? 'atualizar' : 'cadastrar'} aluno. Tente novamente.`)
     } finally {
       setLoading(false)
     }
@@ -64,6 +100,7 @@ const Alunos = () => {
       const aluno = await alunoService.getById(id)
       setAlunoToEdit(aluno)
       setShowForm(true)
+      setError(null)
     } catch (error) {
       console.error('Erro ao buscar aluno:', error)
       setError('Erro ao carregar aluno para edição.')
@@ -153,6 +190,7 @@ const Alunos = () => {
             onClick={() => {
               setAlunoToEdit(null)
               setShowForm(!showForm)
+              setError(null)
             }}
             disabled={loading}
           >
@@ -170,6 +208,7 @@ const Alunos = () => {
               onCancel={() => {
                 setShowForm(false)
                 setAlunoToEdit(null)
+                setError(null)
               }}
               loading={loading}
             />

@@ -34,7 +34,7 @@ const formatarTexto = (texto = '') =>
     .map(p => p.charAt(0).toUpperCase() + p.slice(1))
     .join(' ')
 
-const ITENS_POR_PAGINA = 8
+const ITENS_POR_PAGINA = 4
 
 const Home = () => {
   const [currentDate, setCurrentDate] = useState('')
@@ -140,7 +140,7 @@ const Home = () => {
       {/* CABEÇALHO */}
       <Row className="mb-4">
         <Col>
-          <div className="d-flex align-items-center justify-content-between p-4 rounded" style={{ borderBottom: '3px solid #1120f5ff' }}>
+          <div className="d-flex align-items-center justify-content-between p-4 rounded" style={{ borderBottom: '3px solid #0B192C' }}>
             <div>
               <h1 className="h4 fw-bold text-primary mb-1">
                 <FaBookOpen className="me-2" /> BiBli
@@ -176,7 +176,7 @@ const Home = () => {
       </InputGroup.Text>
       <Form.Control
         type="text"
-        placeholder="Buscar livros, gêneros, autores, editoras, ISBN..."
+        placeholder="Digite título, autor, editora ou ISBN..."
         value={termoBusca}
         onChange={e => setTermoBusca(e.target.value)}
       />

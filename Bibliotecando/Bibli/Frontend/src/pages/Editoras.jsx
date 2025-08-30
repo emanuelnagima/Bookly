@@ -39,12 +39,12 @@ const Editoras = () => {
     loadEditoras()
   }, [])
 
-  //  Salvar editora - MÉTODO MELHORADO
+  //  Salvar editora
   const handleSaveEditora = async (editora) => {
     try {
       setLoading(true)
       
-      // 1. VERIFICAÇÃO NO FRONTEND (rápida e instantânea)
+      // VERIFICAÇÃO NO FRONTEND 
       const editoraExistente = editoras.find(e => 
         e.nome.toLowerCase().trim() === editora.nome.toLowerCase().trim() && 
         e.id !== editora.id
@@ -56,7 +56,7 @@ const Editoras = () => {
         return
       }
 
-      // 2. ENVIO PARA O SERVIDOR
+      // ENVIO PARA O SERVIDOR
       const method = editora.id ? 'PUT' : 'POST'
       const url = editora.id
         ? `http://localhost:3000/api/editoras/${editora.id}`
@@ -71,14 +71,14 @@ const Editoras = () => {
       const responseData = await response.json()
 
       if (!response.ok) {
-        // 3. TRATAMENTO DE ERRO DO BACKEND (segurança)
+        //  TRATAMENTO DE ERRO DO BACKEND (segurança)
         if (responseData.message && responseData.message.includes('Duplicate entry')) {
           throw new Error('Já existe uma editora com este nome cadastrada no sistema. Utilize um nome diferente.')
         }
         throw new Error(responseData.message || 'Erro ao salvar editora')
       }
 
-      // 4. SUCESSO
+      //  SUCESSO
       await loadEditoras()
 
       setToastMessage(editora.id ? 'Editora atualizada com sucesso!' : 'Editora cadastrada com sucesso!')

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Container, Row, Col, Button, Modal, Spinner, Toast } from 'react-bootstrap'
 import ProfessorList from '../components/ProfessorList'
 import CadProfessor from '../components/CadProfessor'
-import professorService from '../services/professorService';
+import professorService from '../services/professorService'
 
 const Professores = () => {
   const [showForm, setShowForm] = useState(false)
@@ -15,6 +15,7 @@ const Professores = () => {
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const [operationType, setOperationType] = useState('') // 'create', 'update', 'delete'
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const loadProfessores = async () => {
     try {
@@ -37,6 +38,35 @@ const Professores = () => {
   const handleSaveProfessor = async (professor) => {
     try {
       setLoading(true)
+
+      // 🔹 Verificação de duplicidade por e-mail, matrícula e telefone
+      const emailExistente = professores.find(p =>
+        p.email.toLowerCase().trim() === professor.email.toLowerCase().trim() && p.id !== professor.id
+      )
+      if (emailExistente) {
+        setError(`Já existe um professor com o e-mail "${professor.email}" cadastrado.`)
+        setLoading(false)
+        return
+      }
+
+      const matriculaExistente = professores.find(p =>
+        p.matricula === professor.matricula && p.id !== professor.id
+      )
+      if (matriculaExistente) {
+        setError(`Já existe um professor com a matrícula "${professor.matricula}" cadastrado.`)
+        setLoading(false)
+        return
+      }
+
+      const telefoneExistente = professores.find(p =>
+        p.telefone === professor.telefone && p.id !== professor.id
+      )
+      if (telefoneExistente) {
+        setError(`Já existe um professor com o telefone "${professor.telefone}" cadastrado.`)
+        setLoading(false)
+        return
+      }
+
       if (professor.id) {
         // Edição
         await professorService.update(professor)
@@ -48,10 +78,12 @@ const Professores = () => {
         setToastMessage('Professor cadastrado com sucesso!')
         setOperationType('create')
       }
+
       await loadProfessores()
       setShowSuccessToast(true)
       setShowForm(false)
       setProfessorToEdit(null)
+      setError(null)
     } catch (error) {
       console.error('Erro ao salvar professor:', error)
       setError(`Falha ao ${professor.id ? 'atualizar' : 'cadastrar'} professor. Tente novamente.`)
@@ -64,9 +96,9 @@ const Professores = () => {
     try {
       setLoading(true)
       const professor = await professorService.getById(id)
-      // Aqui você pode mapear campos, se necessário, igual ao livro
       setProfessorToEdit(professor)
       setShowForm(true)
+      setError(null)
     } catch (error) {
       console.error('Erro ao buscar professor:', error)
       setError('Erro ao carregar professor para edição.')
@@ -74,8 +106,6 @@ const Professores = () => {
       setLoading(false)
     }
   }
-
-  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleConfirmDelete = (id) => {
     setProfessorToDelete(id)
@@ -94,6 +124,7 @@ const Professores = () => {
       setOperationType('delete')
       setShowSuccessToast(true)
       await loadProfessores()
+      setError(null)
     } catch (error) {
       console.error("Falha na exclusão:", error)
       setError("Não foi possível excluir o professor. Tente novamente.")
@@ -107,6 +138,7 @@ const Professores = () => {
 
   return (
     <Container className="py-4">
+      {/* Toast de sucesso */}
       <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
         <Toast 
           show={showSuccessToast} 
@@ -128,6 +160,7 @@ const Professores = () => {
         </Toast>
       </div>
 
+      {/* Loading */}
       {loading && !isDeleting && (
         <div className="text-center my-4">
           <Spinner animation="border" role="status">
@@ -136,6 +169,7 @@ const Professores = () => {
         </div>
       )}
 
+      {/* Erros */}
       {error && (
         <div className="alert alert-danger" role="alert">
           {error}
@@ -148,6 +182,7 @@ const Professores = () => {
         </div>
       )}
 
+      {/* Cabeçalho + botão */}
       <Row className="mb-4">
         <Col className="d-flex justify-content-between align-items-center">
           <h1>Gerenciamento de Professores</h1>
@@ -156,6 +191,7 @@ const Professores = () => {
             onClick={() => {
               setProfessorToEdit(null)
               setShowForm(!showForm)
+              setError(null)
             }}
             disabled={loading}
           >
@@ -164,6 +200,7 @@ const Professores = () => {
         </Col>
       </Row>
 
+      {/* Formulário */}
       {showForm && (
         <Row className="mb-4">
           <Col>
@@ -173,6 +210,7 @@ const Professores = () => {
               onCancel={() => {
                 setShowForm(false)
                 setProfessorToEdit(null)
+                setError(null)
               }}
               loading={loading}
             />
@@ -180,6 +218,7 @@ const Professores = () => {
         </Row>
       )}
 
+      {/* Lista */}
       <Row>
         <Col>
           <ProfessorList
@@ -191,6 +230,7 @@ const Professores = () => {
         </Col>
       </Row>
 
+      {/* Modal de confirmação */}
       <Modal show={showDeleteModal} onHide={() => !isDeleting && setShowDeleteModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirmar exclusão</Modal.Title>
