@@ -38,7 +38,7 @@ Antes de começar, certifique-se de ter instalado:
 - [Node.js](https://nodejs.org/) (versão LTS recomendada)  
 - [npm](https://www.npmjs.com/)  
 - Banco de dados (MySQL ou outro compatível, conforme scripts do projeto)  
-
+- Ligue o MySQL no Xamp
 
 ## 🚀 Primeira instalação e execução
 
