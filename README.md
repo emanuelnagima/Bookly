@@ -75,8 +75,11 @@ Siga os passos abaixo para configurar e rodar em sua máquina.
    ```bash
    cd Bibliotecando/Bibli/Frontend
 npm install
+
 npm install react-bootstrap bootstrap
+
 npm install react-router-dom
+
 npm install react-icons
 chmod +x node_modules/.bin/vite
 npm run dev
