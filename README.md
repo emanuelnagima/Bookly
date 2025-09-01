@@ -31,8 +31,6 @@ O **Bibliotecando** é, portanto, uma **solução completa, confiável e moderna
 Projeto desenvolvido para gestão de uma biblioteca, dividido em **Frontend** e **Backend**.  
 Este guia explica como instalar, configurar e executar o sistema localmente.  
 
----
-
 ## 📦 Pré-requisitos
 
 Antes de começar, certifique-se de ter instalado:
@@ -77,6 +75,8 @@ Antes de começar, certifique-se de ter instalado:
    npm install
 
    npm start (rodar)
+
+ ---
    
 ## 🚀 Execução normal 
 1. Acesse a pasta do frontend:
