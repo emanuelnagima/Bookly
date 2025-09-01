@@ -60,9 +60,22 @@ Antes de começar, certifique-se de ter instalado:
    
    npm install react-icons
    
-   chmod +x node_modules/.bin/vite
+   chmod +x node_modules/.bin/vite (execute somente se precisar)
 
-npm run dev
+   npm run dev (rodar)
 
+### 🔹 Banco de dados
+ Crie um database com o nome de "biblioteca"
 
+### 🔹 Backend
+
+1. Acesse a pasta do backend:
+   ```bash
+   
+   cd Bibliotecando/Bibli/Backend
+   
+   npm install
+
+   npm start (rodar)
+   
 
