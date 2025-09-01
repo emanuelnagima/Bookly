@@ -61,6 +61,29 @@ O **Bibliotecando** é, portanto, uma **solução completa, confiável e moderna
 - A documentação inclui scripts de criação de tabelas, inserts de exemplo e consultas, facilitando a instalação inicial e testes do sistema.  
 - É compatível com bancos de dados **MySQL/MariaDB**, mas pode ser adaptado para outros sistemas relacionais com pequenas alterações.  
 
+# 📚 Sistema Biblioteca
+
+Este projeto é dividido em **Frontend** e **Backend**.  
+Siga os passos abaixo para configurar e rodar em sua máquina.  
+
+---
+
+## 🚀 Primeira Instalação
+
+### Frontend
+1. Acesse a pasta:
+   ```bash
+   cd Bibliotecando/Bibli/Frontend
+npm install
+npm install react-bootstrap bootstrap
+npm install react-router-dom
+npm install react-icons
+chmod +x node_modules/.bin/vite
+npm run dev
+
+cd Bibliotecando/Bibli/Backend
+npm install
+npm start
 
 
 ---
