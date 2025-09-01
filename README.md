@@ -62,7 +62,7 @@ O **Bibliotecando** é, portanto, uma **solução completa, confiável e moderna
 - É compatível com bancos de dados **MySQL/MariaDB**, mas pode ser adaptado para outros sistemas relacionais com pequenas alterações.  
 
 
-# 📚 Sistema Biblioteca
+# 📚 Instalção
 
 Projeto desenvolvido para gestão de uma biblioteca, dividido em **Frontend** e **Backend**.  
 Este guia explica como instalar, configurar e executar o sistema localmente.  
