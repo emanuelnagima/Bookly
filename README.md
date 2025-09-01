@@ -43,7 +43,7 @@ Antes de começar, certifique-se de ter instalado:
 
 ---
 
-## 🚀 Instalação e Execução
+## 🚀 Primeira instalação e execução
 
 ### 🔹 Frontend
 
@@ -69,7 +69,7 @@ Antes de começar, certifique-se de ter instalado:
 
 ### 🔹 Backend
 
-1. Acesse a pasta do backend:
+2. Acesse a pasta do backend:
    ```bash
    
    cd Bibliotecando/Bibli/Backend
@@ -78,4 +78,18 @@ Antes de começar, certifique-se de ter instalado:
 
    npm start (rodar)
    
+## 🚀 Execução normal 
+1. Acesse a pasta do frontend:
+   ```bash
+   
+   cd Bibliotecando/Bibli/Frontend
+   
+   npm install
+   
 
+2. Acesse a pasta do backend:
+   ```bash
+   
+   cd Bibliotecando/Bibli/Backend
+   
+   npm start (rodar)
