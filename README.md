@@ -52,15 +52,15 @@ Antes de começar, certifique-se de ter instalado:
    
    cd Bibliotecando/Bibli/Frontend
    
-npm install
-
-npm install react-bootstrap bootstrap
-
-npm install react-router-dom
-
-npm install react-icons
-
-chmod +x node_modules/.bin/vite
+   npm install
+   
+   npm install react-bootstrap bootstrap
+   
+   npm install react-router-dom
+   
+   npm install react-icons
+   
+   chmod +x node_modules/.bin/vite
 
 npm run dev
 
