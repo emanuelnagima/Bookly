@@ -85,12 +85,19 @@ Antes de começar, certifique-se de ter instalado:
 
 1. Acesse a pasta do frontend:
    ```bash
+   
    cd Bibliotecando/Bibli/Frontend
+   
 npm install
+
 npm install react-bootstrap bootstrap
+
 npm install react-router-dom
+
 npm install react-icons
+
 chmod +x node_modules/.bin/vite
+
 npm run dev
 
 
