@@ -39,7 +39,6 @@ Antes de começar, certifique-se de ter instalado:
 - [npm](https://www.npmjs.com/)  
 - Banco de dados (MySQL ou outro compatível, conforme scripts do projeto)  
 
----
 
 ## 🚀 Primeira instalação e execução
 
