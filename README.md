@@ -63,6 +63,7 @@ Antes de começar, certifique-se de ter instalado:
 
 ### 🔹 Banco de dados
  2. Crie um database com o nome de "biblioteca"
+    
    2.1 Crie todas as tabelas e insira os dados (criação de tabelas na pasta de funcionamento do sistema)
 
 ### 🔹 Backend
