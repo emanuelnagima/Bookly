@@ -13,36 +13,6 @@ O **Bibliotecando** também garante que apenas **exemplares disponíveis possam 
 
 ---
 
-## Funcionalidades principais
-
-- **Cadastro completo:**  
-  Permite registrar detalhes de alunos, professores, usuarios diversos, livros, autores e editoras, incluindo informações como título, autor, editora, ano de publicação, matrícula, e-mail, CPF etc.  
-
-- **Gestão de empréstimos:**  
-  Controle rigoroso de saídas, devoluções e renovações, com verificação de disponibilidade de exemplares e histórico completo de cada usuário.  
-
-- **Reservas de livros:**  
-  Usuários podem reservar livros para datas específicas, evitando conflitos e melhorando a organização do acervo.  
-
-- **Controle de acervo:**  
-  Entrada automática de novos exemplares e baixa de livros descartados, mantendo o inventário atualizado.  
-
-- **Consultas e filtros:**  
-  Permite localizar rapidamente livros por título, autor, gênero, disponibilidade ou categoria, além de acompanhar reservas, empréstimos e devoluções.  
-
-- **Relatórios detalhados:**  
-  Emissão de relatórios sobre estoque, reservas pendentes, empréstimos realizados, livros disponíveis e histórico de usuários, auxiliando na tomada de decisões.  
-
-- **Segurança e privacidade:**  
-  Proteção de dados sensíveis de usuários e informações do acervo, com controle de acesso interno e registro de operações.  
-
-- **Interface amigável e intuitiva:**  
-  Projeto pensado para facilitar o uso por funcionários da biblioteca, mesmo sem conhecimento técnico avançado.  
-
-- **Eficiência e organização:**  
-  Reduz erros manuais, agiliza o atendimento a alunos e professores, e fornece dados confiáveis sobre o acervo e uso da biblioteca.  
-
----
 
 ## Benefícios do sistema
 
