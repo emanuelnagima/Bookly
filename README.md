@@ -55,12 +55,6 @@ O **Bibliotecando** é, portanto, uma **solução completa, confiável e moderna
 
 ---
 
-## Observações adicionais
-
-- O sistema foi desenvolvido pensando na **rotina de bibliotecas escolares**, mas pode ser adaptado para uso em bibliotecas comunitárias ou pequenas instituições.  
-- A documentação inclui scripts de criação de tabelas, inserts de exemplo e consultas, facilitando a instalação inicial e testes do sistema.  
-- É compatível com bancos de dados **MySQL/MariaDB**, mas pode ser adaptado para outros sistemas relacionais com pequenas alterações.  
-
 
 # 📚 Instalção
 
