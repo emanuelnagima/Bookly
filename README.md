@@ -62,11 +62,11 @@ Antes de começar, certifique-se de ter instalado:
    npm run dev (rodar)
 
 ### 🔹 Banco de dados
- Crie um database com o nome de "biblioteca"
+ 2. Crie um database com o nome de "biblioteca"
 
 ### 🔹 Backend
 
-2. Acesse a pasta do backend:
+3. Acesse a pasta do backend:
    ```bash
    
    cd Bibliotecando/Bibli/Backend
