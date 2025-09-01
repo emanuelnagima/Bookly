@@ -84,7 +84,7 @@ Antes de começar, certifique-se de ter instalado:
    
    cd Bibliotecando/Bibli/Frontend
    
-   npm install
+   npm run dev (rodar)
    
 
 2. Acesse a pasta do backend:
