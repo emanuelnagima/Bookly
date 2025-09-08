@@ -3,97 +3,105 @@ import { useNavigate } from 'react-router-dom';
 import { FaBookOpen, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
-    const canvasRef = useRef(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const canvasRef = useRef(null);
 
-    const ADMIN_CREDENTIALS = {
-        username: 'adm@gmail.com',
-        password: 'adm123'
+  const ADMIN_CREDENTIALS = {
+    email: 'adm@gmail.com',
+    password: 'L!vr0$V00@2025'
+  };
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setError('Digite um e-mail válido');
+      return;
+    }
+
+    if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
+      const expirationTime = new Date().getTime() + 60 * 60 * 1000; // 1 hora
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('loginExpires', expirationTime.toString());
+      navigate('/');
+    } else {
+      setError('Credenciais inválidas');
+    }
+  };
+
+  // Fundo animado de partículas
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particlesArray = [];
+    const numParticles = 80;
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 3 + 1;
+        this.speedX = Math.random() * 1 - 0.5;
+        this.speedY = Math.random() * 1 - 0.5;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x > canvas.width) this.x = 0;
+        if (this.x < 0) this.x = canvas.width;
+        if (this.y > canvas.height) this.y = 0;
+        if (this.y < 0) this.y = canvas.height;
+      }
+      draw() {
+        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function init() {
+      particlesArray = [];
+      for (let i = 0; i < numParticles; i++) {
+        particlesArray.push(new Particle());
+      }
+    }
+
+    function animate() {
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-sidebar') || '#0B192C';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      particlesArray.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    init();
+    animate();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      init();
     };
+    window.addEventListener('resize', handleResize);
 
-    const handleLogin = (e) => {
-        e.preventDefault();
-        if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-            localStorage.setItem('isLoggedIn', 'true');
-            navigate('/');
-        } else {
-            setError('Credenciais inválidas');
-        }
-    };
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-    // Fundo animado de partículas
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+  return (
+    <div className="login-container">
+      <canvas ref={canvasRef} className="bg-canvas"></canvas>
 
-        let particlesArray = [];
-        const numParticles = 80;
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 3 + 1;
-                this.speedX = Math.random() * 1 - 0.5;
-                this.speedY = Math.random() * 1 - 0.5;
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                if (this.x > canvas.width) this.x = 0;
-                if (this.x < 0) this.x = canvas.width;
-                if (this.y > canvas.height) this.y = 0;
-                if (this.y < 0) this.y = canvas.height;
-            }
-            draw() {
-                ctx.fillStyle = 'rgba(255,255,255,0.2)';
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function init() {
-            particlesArray = [];
-            for (let i = 0; i < numParticles; i++) {
-                particlesArray.push(new Particle());
-            }
-        }
-
-        function animate() {
-            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-sidebar') || '#0B192C';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            particlesArray.forEach(p => {
-                p.update();
-                p.draw();
-            });
-            requestAnimationFrame(animate);
-        }
-
-        init();
-        animate();
-
-        const handleResize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            init();
-        };
-        window.addEventListener('resize', handleResize);
-
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    return (
-        <div className="login-container">
-            <canvas ref={canvasRef} className="bg-canvas"></canvas>
-
-            <style>{`
+      <style>{`
         .login-container {
           display: flex;
           justify-content: center;
@@ -224,16 +232,6 @@ const Login = () => {
           font-size: 1.1rem;
         }
 
-        .login-info {
-          margin-top: 2rem;
-          background-color: var(--color-page);
-          padding: 1rem 1.25rem;
-          border-radius: var(--border-radius);
-          font-size: 0.9rem;
-          color: var(--color-foreground);
-          box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-        }
-
         small {
           margin-top: 0.25rem;
           color: var(--color-muted);
@@ -246,55 +244,53 @@ const Login = () => {
         }
       `}</style>
 
-            <div className="login-form">
-                <h2><FaBookOpen /> Bibliotecando</h2>
-                <p>Faça login para acessar a plataforma</p>
+      <div className="login-form">
+        <h2><FaBookOpen /> Bibliotecando</h2>
+        <p>Faça login para acessar a plataforma</p>
 
-                <form onSubmit={handleLogin}>
-                    <div className="form-group">
-                        <label>E-mail:</label>
-                        <input
-                            type="email"  // <-- aqui
-                            placeholder="Digite seu e-mail"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            required
-                        />
-                        <small>Utilize: <strong>{ADMIN_CREDENTIALS.username}</strong></small>
-                    </div>
+        <form onSubmit={handleLogin}>
+          <div className="form-group">
+            <label>E-mail:</label>
+            <input
+              type="email"
+              placeholder="Digite seu e-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <small>Utilize: <strong>{ADMIN_CREDENTIALS.email}</strong></small>
+          </div>
 
-
-                    <div className="form-group">
-                        <label>Senha:</label>
-                        <div className="password-wrapper">
-                            <input
-                                type={showPassword ? 'text' : 'password'}
-                                placeholder="Digite sua senha "
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                            <button
-                                type="button"
-                                className="password-toggle"
-                                onClick={() => setShowPassword(!showPassword)}
-                            >
-                                {showPassword ? <FaEyeSlash /> : <FaEye />}
-                            </button>
-                        </div>
-                        <small>Utilize: <strong>{ADMIN_CREDENTIALS.password}</strong></small>
-                    </div>
-
-                    {error && <div className="error-message">{error}</div>}
-
-                    <button type="submit" className="login-button">
-                        Entrar
-                    </button>
-                </form>
-
+          <div className="form-group">
+            <label>Senha:</label>
+            <div className="password-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Digite sua senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
             </div>
-        </div>
-    );
+            <small>Utilize: <strong>{ADMIN_CREDENTIALS.password}</strong></small>
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+
+          <button type="submit" className="login-button">
+            Entrar
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default Login;
