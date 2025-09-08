@@ -18,21 +18,28 @@ import {
   FaUserGraduate,
   FaPenFancy,
   FaBuilding,
-  FaUserAlt
+  FaUserAlt,
+  FaCodeBranch
 } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 const Sidebar = () => {
   const [showCadastros, setShowCadastros] = useState(false);
   const [showMovimentacoes, setShowMovimentacoes] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    navigate("/login");
+  };
 
   return (
     <div className="sidebar">
       {/* Cabeçalho */}
       <div className="sidebar-header">
         <div className="header-content">
-          <div className="title-wrapper d-flex align-items-center">
+          <div className="title-wrapper">
             <h4>BiBliotecando</h4>
           </div>
           <p className="system-description">
@@ -43,7 +50,6 @@ const Sidebar = () => {
 
       {/* Menu */}
       <Nav className="flex-column mt-3">
-        {/* Home */}
         <NavLink to="/" className={({ isActive }) => `nav-link py-3 ${isActive ? "active" : ""}`}>
           <FaHome className="me-2" />
           Home
@@ -67,11 +73,10 @@ const Sidebar = () => {
 
         {showCadastros && (
           <div className="submenu ps-4">
-            {/* Pessoas */}
             <div className="sidebar-section-title mt-3 mb-2 ps-3 text-uppercase small text-muted">
               Pessoas
             </div>
-             <NavLink to="/usuarios-especiais" className="nav-link py-2">
+            <NavLink to="/usuarios-especiais" className="nav-link py-2">
               <FaUserAlt className="me-2" />
               Usuários
             </NavLink>
@@ -83,7 +88,7 @@ const Sidebar = () => {
               <FaUserGraduate className="me-2" />
               Alunos
             </NavLink>
-            {/* Acervo */}
+
             <div className="sidebar-section-title mt-3 mb-2 ps-3 text-uppercase small text-muted">
               Acervo
             </div>
@@ -164,9 +169,18 @@ const Sidebar = () => {
           <FaQuestionCircle className="me-2" />
           Sobre
         </NavLink>
+
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          className="nav-link py-3 text-start"
+          style={{ border: "none", background: "none", cursor: "pointer", color: "red" }}
+        >
+          <FaSignOutAlt className="me-2" />
+          Sair
+        </button>
       </Nav>
     </div>
-    
   );
 };
 
