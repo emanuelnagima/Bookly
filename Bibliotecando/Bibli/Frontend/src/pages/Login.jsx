@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaBookOpen, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaBookOpen, FaEye, FaEyeSlash, FaSpinner } from 'react-icons/fa';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const canvasRef = useRef(null);
 
@@ -24,10 +25,16 @@ const Login = () => {
     }
 
     if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
-      const expirationTime = new Date().getTime() + 60 * 60 * 1000; // 1 hora
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('loginExpires', expirationTime.toString());
-      navigate('/');
+      setIsLoading(true);
+      
+      // Simula um carregamento de 4 segundos
+      setTimeout(() => {
+        const expirationTime = new Date().getTime() + 60 * 60 * 1000; // 1 hora
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('loginExpires', expirationTime.toString());
+        setIsLoading(false);
+        navigate('/');
+      }, 4000);
     } else {
       setError('Credenciais inválidas');
     }
@@ -100,6 +107,15 @@ const Login = () => {
   return (
     <div className="login-container">
       <canvas ref={canvasRef} className="bg-canvas"></canvas>
+
+      {isLoading && (
+        <div className="loading-overlay">
+          <div className="loading-spinner">
+            <FaSpinner className="spinner-icon" />
+            <p>Carregando, aguarde...</p>
+          </div>
+        </div>
+      )}
 
       <style>{`
         .login-container {
@@ -237,6 +253,44 @@ const Login = () => {
           color: var(--color-muted);
         }
 
+        /* Loading Overlay */
+        .loading-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(11, 25, 44, 0.9);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+        }
+
+        .loading-spinner {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+          color: white;
+        }
+
+        .spinner-icon {
+          font-size: 3rem;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        .loading-spinner p {
+          color: white;
+          font-size: 1.2rem;
+          margin: 0;
+        }
+
         @media (max-width: 480px) {
           .login-form {
             padding: 2rem 1.5rem;
@@ -284,8 +338,8 @@ const Login = () => {
 
           {error && <div className="error-message">{error}</div>}
 
-          <button type="submit" className="login-button">
-            Entrar
+          <button type="submit" className="login-button" disabled={isLoading}>
+            {isLoading ? 'Carregando...' : 'Entrar'}
           </button>
         </form>
       </div>
