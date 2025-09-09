@@ -23,15 +23,26 @@ import {
 } from "react-icons/fa";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import axios from 'axios';
+
+const API_URL = 'http://localhost:3000';
 
 const Sidebar = () => {
   const [showCadastros, setShowCadastros] = useState(false);
   const [showMovimentacoes, setShowMovimentacoes] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${API_URL}/api/logout`, {}, { 
+        withCredentials: true 
+      });
+      navigate("/login");
+    } catch (erro) {
+      console.error('Erro no logout:', erro);
+      // Força o redirecionamento mesmo com erro
+      navigate("/login");
+    }
   };
 
   return (

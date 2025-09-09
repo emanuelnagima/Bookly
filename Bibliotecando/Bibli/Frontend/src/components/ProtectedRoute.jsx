@@ -1,17 +1,38 @@
+import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
+import axios from 'axios';
+
+const API_URL = 'http://localhost:3000';
 
 const ProtectedRoute = ({ children }) => {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  const loginExpires = parseInt(localStorage.getItem('loginExpires'), 10) || 0;
+  const [autenticado, setAutenticado] = useState(null);
+  const [carregando, setCarregando] = useState(true);
 
-  // Se não estiver logado ou se a sessão expirou
-  if (!isLoggedIn || new Date().getTime() > loginExpires) {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('loginExpires');
+  useEffect(() => {
+    verificarSessao();
+  }, []);
+
+  const verificarSessao = async () => {
+    try {
+      const resposta = await axios.get(`${API_URL}/api/verificar-sessao`, {
+        withCredentials: true
+      });
+      setAutenticado(resposta.data.autenticado);
+    } catch (erro) {
+      setAutenticado(false);
+    } finally {
+      setCarregando(false);
+    }
+  };
+
+  if (carregando) {
+    return <div>Carregando...</div>;
+  }
+
+  if (!autenticado) {
     return <Navigate to="/login" replace />;
   }
 
-  // Permite acessar as rotas internas
   return children;
 };
 

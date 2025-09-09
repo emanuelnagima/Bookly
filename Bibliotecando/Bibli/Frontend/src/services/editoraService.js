@@ -2,7 +2,8 @@ const API_BASE_URL = 'http://localhost:3000/api/editoras';
 
 const handleResponse = async (response) => {
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
   }
   const data = await response.json();
   return data;
@@ -10,7 +11,9 @@ const handleResponse = async (response) => {
 
 const getAll = async () => {
   try {
-    const response = await fetch(API_BASE_URL);
+    const response = await fetch(API_BASE_URL, {
+      credentials: 'include'
+    });
     const result = await handleResponse(response);
     return result.data || result;
   } catch (error) {
@@ -21,7 +24,9 @@ const getAll = async () => {
 
 const getById = async (id) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${id}`);
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
+      credentials: 'include'
+    });
     const result = await handleResponse(response);
     return result.data || result;
   } catch (error) {
@@ -38,6 +43,7 @@ const add = async (editora) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(editora),
+      credentials: 'include'
     });
     
     const result = await handleResponse(response);
@@ -55,21 +61,23 @@ const update = async (editora) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(editora)
-    })
+      body: JSON.stringify(editora),
+      credentials: 'include'
+    });
 
-    const result = await handleResponse(response)
-    return result.data || result
+    const result = await handleResponse(response);
+    return result.data || result;
   } catch (error) {
-    console.error(`Erro ao atualizar editora ${editora.id}:`, error)
+    console.error(`Erro ao atualizar editora ${editora.id}:`, error);
     throw error; 
   }
-}
+};
 
 const remove = async (id) => { 
   try {
     const response = await fetch(`${API_BASE_URL}/${id}`, {
       method: 'DELETE',
+      credentials: 'include'
     });
     const result = await handleResponse(response); 
     return result.message || 'Editora excluída com sucesso';

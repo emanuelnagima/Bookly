@@ -1,22 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaBookOpen, FaEye, FaEyeSlash, FaSpinner } from 'react-icons/fa';
+import axios from 'axios';
+
+const API_URL = 'http://localhost:3000';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('adm@gmail.com');
+  const [password, setPassword] = useState('L!vr0$V00@2025');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const canvasRef = useRef(null);
 
-  const ADMIN_CREDENTIALS = {
-    email: 'adm@gmail.com',
-    password: 'L!vr0$V00@2025'
-  };
-
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     if (!/^\S+@\S+\.\S+$/.test(email)) {
@@ -24,25 +22,69 @@ const Login = () => {
       return;
     }
 
-    if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
-      setIsLoading(true);
+    setIsLoading(true);
+    setError('');
+
+    try {
+      console.log('Fazendo login com:', { email, password });
       
-      // Simula um carregamento de 4 segundos
-      setTimeout(() => {
-        const expirationTime = new Date().getTime() + 60 * 60 * 1000; // 1 hora
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('loginExpires', expirationTime.toString());
-        setIsLoading(false);
-        navigate('/');
-      }, 4000);
-    } else {
-      setError('Credenciais inválidas');
+      const resposta = await axios.post(`${API_URL}/api/login`, 
+        { email, password },
+        { 
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      console.log('Resposta do login:', resposta.data);
+      
+      if (resposta.data.sucesso) {
+        setTimeout(() => {
+          setIsLoading(false);
+          navigate('/');
+        }, 1000);
+      }
+    } catch (erro) {
+      setIsLoading(false);
+      console.error('Erro completo:', erro);
+      console.error('Resposta do erro:', erro.response?.data);
+      console.error('Status do erro:', erro.response?.status);
+      
+      if (erro.response?.status === 401) {
+        setError('Credenciais inválidas. Verifique e-mail e senha.');
+      } else if (erro.response?.status === 500) {
+        setError('Erro no servidor. Tente novamente.');
+      } else if (erro.code === 'NETWORK_ERROR') {
+        setError('Não foi possível conectar ao servidor. Verifique se o backend está rodando.');
+      } else {
+        setError(erro.response?.data?.mensagem || 'Erro ao fazer login. Verifique o console.');
+      }
     }
   };
+
+  // Teste automático ao carregar a página (para debug)
+  useEffect(() => {
+    const testarConexao = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/verificar-sessao`, {
+          credentials: 'include'
+        });
+        console.log('Teste de conexão:', response.status);
+      } catch (error) {
+        console.log('Servidor pode não estar respondendo');
+      }
+    };
+    
+    testarConexao();
+  }, []);
 
   // Fundo animado de partículas
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
+    
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -126,6 +168,7 @@ const Login = () => {
           font-family: var(--font-sans);
           position: relative;
           overflow: hidden;
+          background: linear-gradient(135deg, #0B192C 0%, #1a365d 100%);
         }
 
         .bg-canvas {
@@ -136,21 +179,22 @@ const Login = () => {
         }
 
         .login-form {
-          background-color: var(--color-bg);
+          background-color: var(--color-bg, #ffffff);
           padding: 2.5rem 3rem;
-          border-radius: var(--round-big);
-          box-shadow: var(--shadow-card-hover);
+          border-radius: 16px;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.1);
           width: 100%;
           max-width: 400px;
           text-align: center;
           position: relative;
           z-index: 1;
           transition: transform 0.3s ease, box-shadow 0.3s ease;
+          border: 1px solid var(--color-card-border, #e2e8f0);
         }
 
         .login-form:hover {
           transform: translateY(-4px);
-          box-shadow: var(--shadow-card-hover);
+          box-shadow: 0 25px 50px rgba(0,0,0,0.15);
         }
 
         .login-form h2 {
@@ -159,14 +203,14 @@ const Login = () => {
           align-items: center;
           gap: 0.5rem;
           margin-bottom: 0.5rem;
-          color: var(--color-accent);
+          color: var(--color-accent, #3182ce);
           font-size: 1.8rem;
           font-weight: 600;
         }
 
         .login-form p {
           margin-bottom: 2rem;
-          color: var(--color-muted);
+          color: var(--color-muted, #718096);
           font-size: 0.95rem;
         }
 
@@ -181,54 +225,65 @@ const Login = () => {
         .form-group label {
           margin-bottom: 0.5rem;
           font-weight: 500;
-          color: var(--color-foreground);
+          color: var(--color-foreground, #2d3748);
         }
 
         .form-group input {
           width: 100%;
-          padding: 0.65rem 0.75rem;
-          border: 1px solid var(--color-card-border);
-          border-radius: var(--border-radius);
+          padding: 0.75rem;
+          border: 1px solid var(--color-card-border, #e2e8f0);
+          border-radius: 8px;
           font-size: 1rem;
           transition: border-color 0.3s ease, box-shadow 0.3s ease;
-          color: var(--color-foreground);
+          color: var(--color-foreground, #2d3748);
+          background: var(--color-input-bg, #ffffff);
         }
 
         .form-group input::placeholder {
-          color: var(--color-muted);
+          color: var(--color-muted, #a0aec0);
         }
 
         .form-group input:focus {
           outline: none;
-          border-color: var(--color-accent);
-          box-shadow: 0 0 0 3px rgba(33,25,180,0.15);
+          border-color: var(--color-accent, #3182ce);
+          box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15);
         }
 
         .error-message {
-          color: #ca1313;
+          color: #e53e3e;
           font-size: 0.875rem;
           margin-bottom: 1rem;
           text-align: left;
+          background: rgba(229, 62, 62, 0.1);
+          padding: 0.75rem;
+          border-radius: 8px;
+          border-left: 4px solid #e53e3e;
         }
 
         .login-button {
           width: 100%;
-          background-color: var(--color-accent);
-          color: var(--color-white);
-          padding: 0.75rem;
+          background-color: var(--color-accent, #3182ce);
+          color: white;
+          padding: 0.875rem;
           border: none;
-          border-radius: var(--border-radius);
+          border-radius: 8px;
           font-size: 1rem;
           font-weight: 500;
           cursor: pointer;
-          transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-          box-shadow: var(--shadow-card);
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 6px rgba(49, 130, 206, 0.2);
         }
 
-        .login-button:hover {
-          background-color: #372ee0;
+        .login-button:hover:not(:disabled) {
+          background-color: #2c5282;
           transform: translateY(-2px);
-          box-shadow: var(--shadow-card-hover);
+          box-shadow: 0 6px 12px rgba(49, 130, 206, 0.3);
+        }
+
+        .login-button:disabled {
+          background-color: #a0aec0;
+          cursor: not-allowed;
+          transform: none;
         }
 
         .password-wrapper {
@@ -244,13 +299,21 @@ const Login = () => {
           background: none;
           border: none;
           cursor: pointer;
-          color: var(--color-muted);
+          color: var(--color-muted, #a0aec0);
           font-size: 1.1rem;
+          padding: 0.25rem;
+          border-radius: 4px;
+          transition: color 0.3s ease;
+        }
+
+        .password-toggle:hover {
+          color: var(--color-foreground, #2d3748);
         }
 
         small {
           margin-top: 0.25rem;
-          color: var(--color-muted);
+          color: var(--color-muted, #718096);
+          font-size: 0.8rem;
         }
 
         /* Loading Overlay */
@@ -260,7 +323,7 @@ const Login = () => {
           left: 0;
           width: 100%;
           height: 100%;
-          background-color: rgba(11, 25, 44, 0.9);
+          background-color: rgba(11, 25, 44, 0.95);
           display: flex;
           justify-content: center;
           align-items: center;
@@ -291,9 +354,19 @@ const Login = () => {
           margin: 0;
         }
 
+        .debug-info {
+          margin-top: 1rem;
+          padding: 1rem;
+          background: rgba(0, 0, 0, 0.05);
+          border-radius: 8px;
+          font-size: 0.8rem;
+          color: #718096;
+        }
+
         @media (max-width: 480px) {
           .login-form {
             padding: 2rem 1.5rem;
+            margin: 1rem;
           }
         }
       `}</style>
@@ -311,8 +384,9 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isLoading}
             />
-            <small>Utilize: <strong>{ADMIN_CREDENTIALS.email}</strong></small>
+            <small>Utilize: <strong>adm@gmail.com</strong></small>
           </div>
 
           <div className="form-group">
@@ -324,24 +398,34 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={isLoading}
               />
               <button
                 type="button"
                 className="password-toggle"
                 onClick={() => setShowPassword(!showPassword)}
+                disabled={isLoading}
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
-            <small>Utilize: <strong>{ADMIN_CREDENTIALS.password}</strong></small>
+            <small>Utilize: <strong>L!vr0$V00@2025</strong></small>
           </div>
 
           {error && <div className="error-message">{error}</div>}
 
-          <button type="submit" className="login-button" disabled={isLoading}>
-            {isLoading ? 'Carregando...' : 'Entrar'}
+          <button 
+            type="submit" 
+            className="login-button" 
+            disabled={isLoading}
+          >
+            {isLoading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
+
+        <div className="debug-info">
+          <strong>Debug:</strong> Conectando em {API_URL}/api/login
+        </div>
       </div>
     </div>
   );

@@ -2,20 +2,20 @@ const API_BASE_URL = 'http://localhost:3000/api/professores';
 
 const handleResponse = async (response) => {
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
   }
   const data = await response.json();
-  if (!data.success) {
-    throw new Error(data.message || 'Erro na requisição');
-  }
   return data;
 };
 
 const getAll = async () => {
   try {
-    const response = await fetch(API_BASE_URL);
+    const response = await fetch(API_BASE_URL, {
+      credentials: 'include'
+    });
     const result = await handleResponse(response);
-    return result.data; 
+    return result.data || result;
   } catch (error) {
     console.error('Erro ao buscar professores:', error);
     throw error;
@@ -24,9 +24,11 @@ const getAll = async () => {
 
 const getById = async (id) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${id}`);
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
+      credentials: 'include'
+    });
     const result = await handleResponse(response);
-    return result.data;
+    return result.data || result;
   } catch (error) {
     console.error(`Erro ao buscar professor ${id}:`, error);
     throw error;
@@ -41,10 +43,10 @@ const add = async (professor) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(professor),
+      credentials: 'include'
     });
-
     const result = await handleResponse(response);
-    return result.data;
+    return result.data || result;
   } catch (error) {
     console.error('Erro ao adicionar professor:', error);
     throw error;
@@ -59,10 +61,10 @@ const update = async (professor) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(professor),
+      credentials: 'include'
     });
-
     const result = await handleResponse(response);
-    return result.data;
+    return result.data || result;
   } catch (error) {
     console.error(`Erro ao atualizar professor ${professor.id}:`, error);
     throw error;
@@ -73,9 +75,10 @@ const remove = async (id) => {
   try {
     const response = await fetch(`${API_BASE_URL}/${id}`, {
       method: 'DELETE',
+      credentials: 'include'
     });
     const result = await handleResponse(response);
-    return result.message;
+    return result.message || 'Professor excluído com sucesso';
   } catch (error) {
     console.error(`Erro ao remover professor ${id}:`, error);
     throw error;
