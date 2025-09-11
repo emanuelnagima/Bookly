@@ -1,256 +1,133 @@
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { Container, Form, Button, Card, Spinner, Image } from 'react-bootstrap'
+import { useState, useEffect } from "react";
+import { Form, Button, Container } from "react-bootstrap";
 
 const CadastroLivro = () => {
-  const { id } = useParams()     
-  const navigate = useNavigate()
   const [livro, setLivro] = useState({
-    titulo: '',
-    autor: '',
-    editora: '',
-    isbn: '',
-    genero: '',
-    ano_publicacao: '',
-    imagem: null
-  })
-  const [imagemPreview, setImagemPreview] = useState('')
-  const [loading, setLoading] = useState(false)
+    titulo: "",
+    autorId: "",
+    editoraId: "",
+    ano: "",
+  });
 
-  // Função para buscar o livro pelo id
-  const fetchLivro = async (id) => {
-    setLoading(true)
-    try {
-      const res = await fetch(`http://localhost:3000/api/livros/${id}`)
-      if (!res.ok) throw new Error('Erro ao buscar livro')
-      const data = await res.json()
-      
-      if (data.success) {
-        setLivro({
-          titulo: data.data.titulo || '',
-          autor: data.data.autor || '',
-          editora: data.data.editora || '',
-          isbn: data.data.isbn || '',
-          genero: data.data.genero || '',
-          ano_publicacao: data.data.ano_publicacao || '',
-          imagem: null
-        })
-        
-        // Se já existe uma imagem, mostrar preview
-        if (data.data.imagem) {
-          setImagemPreview(`http://localhost:3000${data.data.imagem}`)
-        }
-      }
-    } catch (error) {
-      console.error(error)
-      alert('Não foi possível carregar os dados do livro.')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const [autores, setAutores] = useState([]);
+  const [editoras, setEditoras] = useState([]);
 
+  // Buscar autores e editoras na API
   useEffect(() => {
-    if (id) {
-      fetchLivro(id)
-    }
-  }, [id])
+    const fetchData = async () => {
+      try {
+        const [resAutores, resEditoras] = await Promise.all([
+          fetch("http://localhost:3000/api/autores"),
+          fetch("http://localhost:3000/api/editoras"),
+        ]);
 
+        const dataAutores = await resAutores.json();
+        const dataEditoras = await resEditoras.json();
+
+        if (dataAutores.success) setAutores(dataAutores.data);
+        if (dataEditoras.success) setEditoras(dataEditoras.data);
+      } catch (err) {
+        console.error("Erro ao carregar autores/editoras", err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Manipular inputs
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setLivro(prev => ({ ...prev, [name]: value }))
-  }
+    setLivro({ ...livro, [e.target.name]: e.target.value });
+  };
 
-  const handleImagemChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      setLivro(prev => ({
-        ...prev,
-        imagem: file
-      }))
-
-      // Criar preview da imagem
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setImagemPreview(e.target.result)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
+  // Enviar form
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     try {
-      const formData = new FormData()
-      
-      // Adicionar campos ao formData
-      formData.append('titulo', livro.titulo)
-      formData.append('autor', livro.autor)
-      formData.append('editora', livro.editora)
-      formData.append('isbn', livro.isbn)
-      formData.append('genero', livro.genero)
-      formData.append('ano_publicacao', livro.ano_publicacao)
-      
-      // Adicionar imagem se existir
-      if (livro.imagem) {
-        formData.append('imagem', livro.imagem)
-      }
+      const response = await fetch("http://localhost:3000/api/livros", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(livro),
+      });
 
-      const method = id ? 'PUT' : 'POST'
-      const url = id ? `http://localhost:3000/api/livros/${id}` : 'http://localhost:3000/api/livros'
-      
-      const res = await fetch(url, {
-        method,
-        body: formData
-      })
-      
-      if (!res.ok) throw new Error('Erro ao salvar livro')
-      
-      const result = await res.json()
+      const result = await response.json();
       if (result.success) {
-        alert(id ? 'Livro atualizado com sucesso!' : 'Livro cadastrado com sucesso!')
-        navigate('/livros') // volta para a lista de livros depois de salvar
+        alert("Livro cadastrado com sucesso!");
+        setLivro({ titulo: "", autorId: "", editoraId: "", ano: "" });
       } else {
-        throw new Error(result.message || 'Erro ao salvar livro')
+        alert("Erro ao cadastrar livro!");
       }
-    } catch (error) {
-      console.error(error)
-      alert('Não foi possível salvar o livro.')
+    } catch (err) {
+      console.error("Erro ao salvar livro", err);
     }
-  }
-
-  if (loading) return (
-    <Container className="py-5 text-center">
-      <Spinner animation="border" />
-      <p>Carregando dados do livro...</p>
-    </Container>
-  )
+  };
 
   return (
-    <Container className="py-4">
-      <Card>
-        <Card.Header>
-          <h4>{id ? 'Editar Livro' : 'Cadastrar Novo Livro'}</h4>
-        </Card.Header>
-        <Card.Body>
-          <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3">
-              <Form.Label>Título </Form.Label>
-              <Form.Control
-                type="text"
-                name="titulo"
-                value={livro.titulo}
-                onChange={handleChange}
-                required
-              />
-            </Form.Group>
+    <Container className="mt-4">
+      <h2>Cadastro de Livro</h2>
+      <Form onSubmit={handleSubmit}>
+        <Form.Group className="mb-3">
+          <Form.Label>Título</Form.Label>
+          <Form.Control
+            type="text"
+            name="titulo"
+            value={livro.titulo}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Autor </Form.Label>
-              <Form.Control
-                type="text"
-                name="autor"
-                value={livro.autor}
-                onChange={handleChange}
-                required
-              />
-            </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Autor</Form.Label>
+          <Form.Select
+            name="autorId"
+            value={livro.autorId}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Selecione o autor...</option>
+            {autores.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.nome}
+              </option>
+            ))}
+          </Form.Select>
+        </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Editora </Form.Label>
-              <Form.Control
-                type="text"
-                name="editora"
-                value={livro.editora}
-                onChange={handleChange}
-                required
-              />
-            </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Editora</Form.Label>
+          <Form.Select
+            name="editoraId"
+            value={livro.editoraId}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Selecione a editora...</option>
+            {editoras.map((e) => (
+              <option key={e.id} value={e.id}>
+                {e.nome}
+              </option>
+            ))}
+          </Form.Select>
+        </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>ISBN</Form.Label>
-              <Form.Control
-                type="text"
-                name="isbn"
-                value={livro.isbn}
-                onChange={handleChange}
-                required
-              />
-            </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Ano</Form.Label>
+          <Form.Control
+            type="number"
+            name="ano"
+            value={livro.ano}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Gênero </Form.Label>
-              <Form.Select
-                name="genero"
-                value={livro.genero}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Selecione...</option>
-                <option value="Romance">Romance</option>
-                <option value="Ficção">Ficção</option>
-                <option value="Drama">Drama</option>
-                <option value="Suspense">Suspense</option>
-                <option value="Fantasia">Fantasia</option>
-                <option value="Biografia">Biografia</option>
-                <option value="Terror">Terror</option>
-                <option value="Educação">Educação</option>
-                <option value="Outro">Outro</option>
-              </Form.Select>
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Ano de Publicação </Form.Label>
-              <Form.Control
-                type="number"
-                name="ano_publicacao"
-                value={livro.ano_publicacao}
-                onChange={handleChange}
-                required
-                min="0"
-                max={new Date().getFullYear()}
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Imagem do Livro</Form.Label>
-              <Form.Control
-                type="file"
-                accept="image/*"
-                onChange={handleImagemChange}
-              />
-            </Form.Group>
-
-            {imagemPreview && (
-              <Form.Group className="mb-3">
-                <Form.Label>Preview da Imagem:</Form.Label>
-                <div>
-                  <Image 
-                    src={imagemPreview} 
-                    alt="Preview" 
-                    fluid 
-                    style={{ maxHeight: '200px' }}
-                  />
-                </div>
-              </Form.Group>
-            )}
-
-            <Button variant="primary" type="submit">
-              {id ? 'Salvar Alterações' : 'Cadastrar'}
-            </Button>
-            
-            <Button 
-              variant="secondary" 
-              className="ms-2"
-              onClick={() => navigate('/livros')}
-            >
-              Cancelar
-            </Button>
-          </Form>
-        </Card.Body>
-      </Card>
+        <Button type="submit" variant="primary">
+          Cadastrar
+        </Button>
+      </Form>
     </Container>
-  )
-}
+  );
+};
 
-export default CadastroLivro
+export default CadastroLivro;
