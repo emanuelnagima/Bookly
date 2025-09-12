@@ -107,7 +107,6 @@ body.tema-padrao {
   flex-direction: column;
   position: relative;
   z-index: 10;
-  box-shadow: var(--shadow-sidebar);
 }
 
 /* Cabeçalho do sidebar */
