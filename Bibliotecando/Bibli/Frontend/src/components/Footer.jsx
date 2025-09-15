@@ -1,8 +1,8 @@
-import { Row, Col } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import {
   FaFacebookF,
   FaInstagram,
-  FaTwitter,
+  FaTwitter ,
   FaLinkedinIn,
   FaChevronRight,
   FaMapMarkerAlt,
@@ -12,150 +12,152 @@ import {
 } from "react-icons/fa";
 
 const Footer = () => {
+  //  link específico formulário do Google Forms
+  const GOOGLE_FORM_FEEDBACK =
+    "https://docs.google.com/forms/d/e/1FAIpQLSdile2sE5o6hre6OHWinb7Vi8WS_ZsXP0FseoYQ85MVEhaJDA/viewform?usp=pp_url";
+
+  // Função para voltar ao topo
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
-  const quickLinks = [
-    { label: "Home", path: "/" },
-    { label: "Sobre", path: "/sobre" },
-    { label: "Livros", path: "/livros" },
-    { label: "Professores", path: "/professores" },
-    { label: "Alunos", path: "/alunos" },
-    { label: "Autores", path: "/autores" },
-    { label: "Editoras", path: "/editoras" },
-    { label: "Usuários Especiais", path: "/usuarios-especiais" },
-    { 
-      label: "Formulário de Feedback", 
-      url: "https://docs.google.com/forms/d/e/1FAIpQLSdile2sE5o6hre6OHWinb7Vi8WS_ZsXP0FseoYQ85MVEhaJDA/viewform?usp=pp_url" 
-    },
-  ];
-
   return (
-    <footer className="rodape-principal">
-      <div className="footer-inner">
-        <Row className="gy-4">
-          {/* Coluna 1 - Sobre + redes sociais */}
-          <Col md={3}>
+    <footer className="rodape-principal mt-5 bg-light pt-4">
+      <Container>
+        <Row className="g-4">
+          {/* Coluna 1 - Sobre */}
+          <Col md={4}>
             <div className="d-flex flex-column h-100">
-              <span className="logo-rodape mb-3">BiBliotecando</span>
-              <p className="texto-rodape mb-3">
-                Sistema de gerenciamento bibliotecário para facilitar o controle de acervos, empréstimos e cadastros.
+              <span className="logo-rodape fw-bold fs-4 mb-3 text-primary">
+                BiBliotecando - Bibli
+              </span>
+              <p className="texto-rodape text-muted mb-3">
+                Sistema de gerenciamento bibliotecário desenvolvido para
+                facilitar o controle de acervos, empréstimos e cadastros.
               </p>
-              <div className="redes-sociais d-flex gap-3">
-                <a href="#"><FaFacebookF /></a>
-                <a href="#"><FaInstagram /></a>
-                <a href="#"><FaTwitter /></a>
-                <a href="#"><FaLinkedinIn /></a>
+
+              <div className="redes-sociais d-flex gap-3 mb-3">
+                <a href="#" className="text-dark fs-5">
+                  <FaFacebookF />
+                </a>
+                <a href="#" className="text-dark fs-5">
+                  <FaInstagram />
+                </a>
+                <a href="#" className="text-dark fs-5">
+                  <FaTwitter  />
+                </a>
+                <a href="#" className="text-dark fs-5">
+                  <FaLinkedinIn />
+                </a>
               </div>
             </div>
           </Col>
 
           {/* Coluna 2 - Links Úteis */}
-          <Col md={3}>
-            <h5 className="mb-3">Links Úteis</h5>
+          <Col md={4}>
+            <h3 className="h5 mb-3 fw-bold">Links Úteis</h3>
             <ul className="lista-rodape list-unstyled">
-              <li><a href="#"><FaChevronRight size={12}/> Política de Privacidade</a></li>
-              <li><a href="#"><FaChevronRight size={12}/> Termos de Uso</a></li>
-              <li><a href="#"><FaChevronRight size={12}/> Documentação</a></li>
-              <li><a href="#"><FaChevronRight size={12}/> FAQs</a></li>
+              <li className="mb-2">
+                <a
+                  href="#"
+                  className="text-decoration-none text-muted d-flex align-items-center"
+                >
+                  <FaChevronRight className="me-2 text-primary" size={10} />
+                  Política de Privacidade
+                </a>
+              </li>
+              <li className="mb-2">
+                <a
+                  href="#"
+                  className="text-decoration-none text-muted d-flex align-items-center"
+                >
+                  <FaChevronRight className="me-2 text-primary" size={10} />
+                  Termos de Uso
+                </a>
+              </li>
+              <li className="mb-2">
+                <a
+                  href="#"
+                  className="text-decoration-none text-muted d-flex align-items-center"
+                >
+                  <FaChevronRight className="me-2 text-primary" size={10} />
+                  Documentação
+                </a>
+              </li>
+              <li className="mb-2">
+                <a
+                  href="#"
+                  className="text-decoration-none text-muted d-flex align-items-center"
+                >
+                  <FaChevronRight className="me-2 text-primary" size={10} />
+                  FAQs
+                </a>
+              </li>
             </ul>
           </Col>
 
-          {/* Coluna 3 - Acesso Rápido */}
-          <Col md={3}>
-            <h5 className="mb-3">Acesso Rápido</h5>
-            <ul className="lista-rodape list-unstyled">
-              {quickLinks.map((link, i) => (
-                <li key={i}>
-                  <a
-                    href={link.url || link.path}
-                    target={link.url ? "_blank" : "_self"}
-                    rel={link.url ? "noopener noreferrer" : ""}
-                  >
-                    <FaChevronRight size={12}/> {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </Col>
+          {/* Coluna 3 - Contato + Feedback */}
+          <Col md={4}>
+            <h3 className="h5 mb-3 fw-bold">Contato</h3>
 
-          {/* Coluna 4 - Contato */}
-          <Col md={3}>
-            <h5 className="mb-3">Contato</h5>
-            <div className="mb-3 d-flex align-items-start">
-              <FaMapMarkerAlt className="me-2 mt-1" />
+            <div className="mb-3 d-flex">
+              <FaMapMarkerAlt className="me-3 mt-1 text-primary" />
               <div>
-                <p className="mb-0">Universidade do Oeste Paulista - UNOESTE</p>
-                <p className="mb-0">Presidente Prudente - SP</p>
+                <p className="mb-0 text-muted">
+                  Universidade do Oeste Paulista - UNOESTE
+                </p>
+                <p className="mb-0 text-muted">Presidente Prudente - SP</p>
               </div>
             </div>
-            <div className="mb-3 d-flex align-items-center">
-              <FaEnvelope className="me-2" />
-              <a href="mailto:bibliotecandosuporte@gmail.com">bibliotecandosuporte@gmail.com</a>
+
+            <div className="mb-3 d-flex">
+              <FaEnvelope className="me-3 text-primary" />
+              <a
+                href="mailto:bibliotecando@unoeste.br"
+                className="text-muted text-decoration-none"
+              >
+                bibliotecandosuporte@gmail.com
+              </a>
             </div>
-            <a
-              href="https://docs.google.com/forms/d/e/1FAIpQLSdile2sE5o6hre6OHWinb7Vi8WS_ZsXP0FseoYQ85MVEhaJDA/viewform?usp=pp_url"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-feedback w-100 d-flex align-items-center justify-content-center gap-2"
-            >
-              <FaCommentDots /> Ajude-nos a melhorar
-            </a>
-            <p className="small mt-2">Sua opinião é valiosa para nós!</p>
+
+            {/* Botão de Feedback com seu Google Forms */}
+            <div className="feedback-section">
+              <a
+                href={GOOGLE_FORM_FEEDBACK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
+              >
+                <FaCommentDots />
+                Ajude-nos a melhorar
+              </a>
+              <p className="small text-muted mt-2 mb-0">
+                Sua opinião é valiosa para nós!
+              </p>
+            </div>
           </Col>
         </Row>
 
         {/* Botão Voltar ao Topo */}
         <div className="text-center my-4">
-          <button onClick={scrollToTop} className="btn btn-voltar-topo">
-            <FaArrowUp className="me-2" /> Voltar ao topo
+          <button
+            onClick={scrollToTop}
+              className="btn btn-paginacao btn-sm d-flex align-items-center mx-auto px-4"
+            aria-label="Voltar ao topo"
+          > 
+         Voltar ao topo 
           </button>
         </div>
-
         {/* Créditos */}
-        <div className="creditos-rodape text-center py-3">
-          <p className="mb-0 small">&copy; Bibliotecando. Todos os direitos reservados.</p>
+        <div className="creditos-rodape py-3 border-top text-center">
+          <p className="mb-0 small text-muted">
+            &copy; Bibliotecando. Todos os direitos reservados.
+          </p>
         </div>
-      </div>
-
-      {/* === ESTILO === */}
-      <style jsx>{`
-        .rodape-principal {
-          background-color: #0B192C;
-          color: #f5f5f5;
-          padding: 60px 15px 30px;
-          font-family: 'Segoe UI', sans-serif;
-        }
-        .footer-inner { max-width: 1140px; margin: 0 auto; }
-        .rodape-principal a { color: #f5f5f5; text-decoration: none; transition: color 0.3s; }
-        .rodape-principal a:hover { color: #1E90FF; }
-        .logo-rodape { font-size: 1.5rem; font-weight: bold; color: #fff; }
-        .texto-rodape { font-size: 0.95rem; color: #d1d1d1; line-height: 1.5; }
-        .redes-sociais a { color: #fff; transition: transform 0.3s; font-size: 1.1rem; }
-        .redes-sociais a:hover { color: #1E90FF; transform: scale(1.2); }
-        .lista-rodape li { margin-bottom: 0.6rem; }
-        .lista-rodape li a { display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
-        .btn-feedback {
-          background-color: #1E90FF;
-          border: none;
-          font-weight: 500;
-          transition: background-color 0.3s;
-          margin-top: 0.5rem;
-        }
-        .btn-feedback:hover { background-color: #63B3ED; }
-        .btn-voltar-topo {
-          background-color: #1E90FF;
-          color: #fff;
-          border: none;
-          font-weight: 500;
-          padding: 0.5rem 1.2rem;
-          transition: background-color 0.3s;
-        }
-        .btn-voltar-topo:hover { background-color: #63B3ED; }
-        .creditos-rodape { border-top: 1px solid #1a2a44; color: #d1d1d1; font-size: 0.85rem; margin-top: 2rem; }
-        @media (max-width: 768px) { .rodape-principal { padding: 40px 15px; } }
-      `}</style>
+      </Container>
     </footer>
   );
 };
