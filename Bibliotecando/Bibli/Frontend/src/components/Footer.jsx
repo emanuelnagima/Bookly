@@ -2,17 +2,24 @@ import { Container, Row, Col } from "react-bootstrap";
 import {
   FaFacebookF,
   FaInstagram,
-  FaTwitter ,
+  FaTwitter,
   FaLinkedinIn,
   FaChevronRight,
   FaMapMarkerAlt,
   FaEnvelope,
   FaCommentDots,
   FaArrowUp,
+  FaHome,
+  FaBook,
+  FaUserTie,
+  FaUserGraduate,
+  FaPenAlt,
+  FaBuilding,
+  FaUserCog
 } from "react-icons/fa";
 
 const Footer = () => {
-  //  link específico formulário do Google Forms
+  // link específico formulário do Google Forms
   const GOOGLE_FORM_FEEDBACK =
     "https://docs.google.com/forms/d/e/1FAIpQLSdile2sE5o6hre6OHWinb7Vi8WS_ZsXP0FseoYQ85MVEhaJDA/viewform?usp=pp_url";
 
@@ -29,7 +36,7 @@ const Footer = () => {
       <Container>
         <Row className="g-4">
           {/* Coluna 1 - Sobre */}
-          <Col md={4}>
+          <Col md={3}>
             <div className="d-flex flex-column h-100">
               <span className="logo-rodape fw-bold fs-4 mb-3 text-primary">
                 BiBliotecando - Bibli
@@ -47,7 +54,7 @@ const Footer = () => {
                   <FaInstagram />
                 </a>
                 <a href="#" className="text-dark fs-5">
-                  <FaTwitter  />
+                  <FaTwitter />
                 </a>
                 <a href="#" className="text-dark fs-5">
                   <FaLinkedinIn />
@@ -56,8 +63,71 @@ const Footer = () => {
             </div>
           </Col>
 
-          {/* Coluna 2 - Links Úteis */}
-          <Col md={4}>
+          {/* Coluna 2 - Acesso Rápido */}
+          <Col md={3}>
+            <h3 className="h5 mb-3 fw-bold">Acesso Rápido</h3>
+            <ul className="lista-rodape list-unstyled">
+              <li className="mb-2">
+                <a
+                  href="/"
+                  className="text-decoration-none text-muted d-flex align-items-center"
+                >
+                  Início
+                </a>
+              </li>
+              <li className="mb-2">
+                <a
+                  href="/livros"
+                  className="text-decoration-none text-muted d-flex align-items-center"
+                >
+                  Livros
+                </a>
+              </li>
+              <li className="mb-2">
+                <a
+                  href="/professores"
+                  className="text-decoration-none text-muted d-flex align-items-center"
+                >
+                  Professores
+                </a>
+              </li>
+              <li className="mb-2">
+                <a
+                  href="/alunos"
+                  className="text-decoration-none text-muted d-flex align-items-center"
+                >
+                  Alunos
+                </a>
+              </li>
+              <li className="mb-2">
+                <a
+                  href="/autores"
+                  className="text-decoration-none text-muted d-flex align-items-center"
+                >
+                  Autores
+                </a>
+              </li>
+              <li className="mb-2">
+                <a
+                  href="/editoras"
+                  className="text-decoration-none text-muted d-flex align-items-center"
+                >
+                  Editoras
+                </a>
+              </li>
+              <li className="mb-2">
+                <a
+                  href="/usuarios-especiais"
+                  className="text-decoration-none text-muted d-flex align-items-center"
+                >
+                  Usuários Especiais
+                </a>
+              </li>
+            </ul>
+          </Col>
+
+          {/* Coluna 3 - Links Úteis */}
+          <Col md={3}>
             <h3 className="h5 mb-3 fw-bold">Links Úteis</h3>
             <ul className="lista-rodape list-unstyled">
               <li className="mb-2">
@@ -99,8 +169,8 @@ const Footer = () => {
             </ul>
           </Col>
 
-          {/* Coluna 3 - Contato + Feedback */}
-          <Col md={4}>
+          {/* Coluna 4 - Contato + Feedback */}
+          <Col md={3}>
             <h3 className="h5 mb-3 fw-bold">Contato</h3>
 
             <div className="mb-3 d-flex">
@@ -145,10 +215,10 @@ const Footer = () => {
         <div className="text-center my-4">
           <button
             onClick={scrollToTop}
-              className="btn btn-paginacao btn-sm d-flex align-items-center mx-auto px-4"
+            className="btn btn-paginacao btn-sm d-flex align-items-center mx-auto px-4"
             aria-label="Voltar ao topo"
-          > 
-         Voltar ao topo 
+          >
+            Voltar ao topo
           </button>
         </div>
         {/* Créditos */}
