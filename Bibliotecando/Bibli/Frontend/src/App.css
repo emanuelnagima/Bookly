@@ -738,12 +738,7 @@ body.tema-padrao {
   color: #222;
 }
 
-/* Seções da página */
-.about-section {
-  margin-bottom: 5rem;
-  padding: 0 1rem;
-  text-align: center;
-}
+
 
 /* Títulos com efeito de sublinhado */
 .about-section h2,
@@ -813,7 +808,7 @@ body.tema-padrao {
 /* Cards de equipe */
 .team-card {
   padding: 1.5rem 1rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.5s ease, box-shadow 0.2s ease;
 }
 
 .team-card:hover {
@@ -828,7 +823,7 @@ body.tema-padrao {
   border-radius: 50%;
   border: 3px solid #0d6efd;
   margin-bottom: 1rem;
-  transition: transform 0.3s ease, border-color 0.3s ease;
+  transition: transform 0.1s ease, border-color 0.6s ease;
 }
 
 .team-card:hover img {
@@ -852,41 +847,6 @@ body.tema-padrao {
   font-size: 0.9rem;
   color: #666;
   text-align: center;
-}
-
-/* Seção de Call to Action */
-.about-cta {
-  color: #2C3E50;
-  padding: 2rem;
-  border-radius: 20px;
-  text-align: center;
-}
-
-.about-cta h4 {
-  margin-bottom: 0.5rem;
-}
-
-.about-cta p {
-  font-size: 1rem;
-}
-
-.about-cta a {
-  color: #17425e;
-  font-weight: 600;
-  text-decoration: underline;
-}
-
-.about-cta a:hover {
-  text-decoration: none;
-}
-
-.table-smaller {
-  font-size: 0.85rem;
-}
-
-.table-smaller th,
-.table-smaller td {
-  padding: 0.5rem;
 }
 
 /* Responsividade para a página Sobre */
