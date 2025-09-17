@@ -131,7 +131,7 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
               >
-                <FaCommentDots />
+                <FaCommentDots size={12} />
                 Ajude-nos a melhorar
               </a>
               <p className="small text-muted mt-2 mb-0">
