@@ -3,7 +3,7 @@
   /* Cores principais do tema */
   --color-bg: #ffffff;
   /* Cor de fundo principal */
-  --color-page: #f7f7f7;
+  --color-page: #fdfdfd;
   /* Cor de fundo da página */
   --color-foreground: #222222;
   /* Cor do texto principal */
@@ -107,7 +107,6 @@ body.tema-padrao {
   flex-direction: column;
   position: relative;
   z-index: 10;
-  box-shadow: var(--shadow-sidebar);
 }
 
 /* Cabeçalho do sidebar */
@@ -254,20 +253,20 @@ body.tema-padrao {
 
 /* BOTÕES PRINCIPAIS E SALVAR */
 .btn-primary {
-  background-color: #2119b4; /* cor principal agradável */
+  background-color: #2119b4; 
   color: var(--btn-color) !important;
   border: none !important;
-  border-radius: 0.5rem; /* cantos arredondados */
+  border-radius: 0.5rem; 
   font-weight: 500;
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* leve profundidade */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
   transition: background-color var(--transition-fast), transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 .btn-primary:hover {
-  background-color: #372ee0; /* hover mais escuro */
+  background-color: #372ee0; 
   color: var(--btn-color-hover) !important;
-    transform: translateY(-2px); /* leve elevação */
+    transform: translateY(-2px); 
 
   box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
@@ -343,12 +342,7 @@ body.tema-padrao {
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   background-color: var(--color-white);
   color: var(--color-foreground);
-}
-
-/* Efeito de hover no card */
-.card:hover {
-  transform: translateY(-4px);
-}
+  }
 
 /* Corpo do card */
 .card-body {
@@ -362,12 +356,14 @@ body.tema-padrao {
   color: var(--color-white);
   padding: 1rem 1.5rem;
   border-bottom: 2px solid var(---accent);
+  
 }
 
 /* Título do card */
 .card-title {
   color: var(--color-sidebar);
   font-weight: 600;
+  font-size: 1rem;
 }
 
 .hr-thin {
@@ -377,6 +373,40 @@ body.tema-padrao {
   margin: 1rem 0;
 }
 
+
+/* ====== COMPONENTES TABELA LIVROS ====== */
+.ano-publicacao {
+  text-align: center !important;
+}
+
+.livro-imagem {
+  width: 40%;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.sem-imagem {
+  width: 100%;
+  height: 180px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+}
+
+.livro-card-body {
+  border: none; /* remove a borda */
+}
+
+.btn-sm-custom {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 0.25rem;
+  min-width: 50px;
+}
 
 
 /* ====== CLASSES UTILITÁRIAS ====== */
@@ -607,37 +637,6 @@ body.tema-padrao {
   }
 }
 
-/* ====== COMPONENTES TABELA LIVROS ====== */
-.ano-publicacao {
-  text-align: center !important;
-}
-
-.livro-imagem {
-  width: 40%;
-  height: 136px;
-  object-fit: cover;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-
-.sem-imagem {
-  width: 100%;
-  height: 180px;
-  background-color: #f8f9fa;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #6c757d;
-}
-
-.btn-sm-custom {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
-  border-radius: 0.25rem;
-  min-width: 50px;
-}
-
 .btn-edit {
   background-color: #2C3E50;
   color: #ffffff;
@@ -677,15 +676,10 @@ body.tema-padrao {
 }
 
 .livro-card:hover {
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0.5rem 1rem rgba(7, 1, 47, 0.15);
 }
 
-.livro-info {
-  padding: 1rem;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
+
 
 .livro-titulo {
   font-weight: 600;
@@ -908,3 +902,4 @@ body.tema-padrao {
     font-size: 1rem;
   }
 }
+

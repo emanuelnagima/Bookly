@@ -1,13 +1,16 @@
-class Livros {
+class Livro {
     constructor(data) {
         this.id = data.id || null;
         this.titulo = data.titulo || '';
-        this.autor = data.autor || '';
-        this.editora = data.editora || '';
+        this.autor_id = data.autor_id || '';
+        this.editora_id = data.editora_id || '';
+        this.autor_nome = data.autor_nome || ''; // para exibição
+        this.editora_nome = data.editora_nome || ''; // para exibição
         this.isbn = data.isbn || '';
         this.genero = data.genero || '';
         this.ano_publicacao = data.ano_publicacao || null;
-        this.imagem = data.imagem || null; // 👈 campo novo
+        this.imagem = data.imagem || null;
+        this.status = data.status || 'Disponivel';
 
         this.generosValidos = [
             'Romance',
@@ -20,14 +23,16 @@ class Livros {
             'Educação',
             'Outro'
         ];
+        
+        this.statusValidos = ['Disponivel', 'Reservado', 'Emprestado', 'Em manutenção', 'Indisponível'];
     }
 
     validar() {
         const erros = [];
 
         if (!this.titulo || this.titulo.trim() === '') erros.push('Título é obrigatório');
-        if (!this.autor || this.autor.trim() === '') erros.push('Autor é obrigatório');
-        if (!this.editora || this.editora.trim() === '') erros.push('Editora é obrigatória');
+        if (!this.autor_id) erros.push('Autor é obrigatório');
+        if (!this.editora_id) erros.push('Editora é obrigatória');
         if (!this.isbn || this.isbn.trim() === '') erros.push('ISBN é obrigatório');
 
         // Validação específica para gênero
@@ -50,14 +55,17 @@ class Livros {
         return {
             id: this.id,
             titulo: this.titulo,
-            autor: this.autor,
-            editora: this.editora,
+            autor_id: this.autor_id,
+            editora_id: this.editora_id,
+            autor_nome: this.autor_nome,
+            editora_nome: this.editora_nome,
             isbn: this.isbn,
-            genero: this.generosValidos.includes(this.genero) ? this.genero : 'Outro',
+            genero: this.genero,
             ano_publicacao: this.ano_publicacao,
-            imagem: this.imagem 
+            imagem: this.imagem,
+            status: this.status
         };
     }
 }
 
-module.exports = Livros;
+module.exports = Livro;

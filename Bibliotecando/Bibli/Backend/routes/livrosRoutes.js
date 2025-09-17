@@ -51,11 +51,11 @@ const handleMulterError = (error, req, res, next) => {
 };
 
 router.get('/', livrosController.getAll);
+router.get('/options', livrosController.getOptions);
 router.get('/:id', livrosController.getById);
 router.get('/generos', livrosController.getGeneros);
 router.post('/', upload.single('imagem'), handleMulterError, livrosController.create);
 router.put('/:id', upload.single('imagem'), handleMulterError, livrosController.update);
 router.delete('/:id', livrosController.delete);
-router.patch('/:id/status', livrosController.updateStatus);
 
 module.exports = router;

@@ -246,17 +246,17 @@ export default function About() {
               
               <div className="journey-options mt-4">
                 <div className="option-item mb-3 p-3 rounded">
-                  <h5>📚 Para Instituições</h5>
+                  <h5> Para Instituições</h5>
                   <p className="mb-0">Implemente o Bibliotecando em sua biblioteca e modernize sua gestão</p>
                 </div>
                 
                 <div className="option-item mb-3 p-3 rounded">
-                  <h5>👨‍💻 Para Desenvolvedores</h5>
+                  <h5> Para Desenvolvedores</h5>
                   <p className="mb-0">Contribua com nosso projeto open source e faça parte da comunidade</p>
                 </div>
                 
                 <div className="option-item p-3 rounded">
-                  <h5>🤝 Parcerias</h5>
+                  <h5> Parcerias</h5>
                   <p className="mb-0">Vamos colaborar para expandir o acesso à leitura e tecnologia</p>
                 </div>
               </div>

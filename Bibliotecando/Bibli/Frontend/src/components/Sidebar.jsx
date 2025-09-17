@@ -174,7 +174,7 @@ const Sidebar = () => {
         <button
           onClick={handleLogout}
           className="nav-link py-3 text-start"
-          style={{ border: "none", background: "none", cursor: "pointer", color: "red" }}
+          style={{ cursor: "pointer", color: "red" }}
         >
           <FaSignOutAlt className="me-2" />
           Sair

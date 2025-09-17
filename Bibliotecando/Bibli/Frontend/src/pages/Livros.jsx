@@ -21,6 +21,7 @@ const Livros = () => {
     try {
       setLoading(true)
       const dados = await livroService.getAll()
+
       setLivros(dados)
       setError(null)
     } catch (error) {
@@ -106,15 +107,15 @@ const Livros = () => {
       }
       
       setLivroToEdit({
-        id: livro.id,
-        titulo: livro.titulo || livro.title || '',
-        autor: livro.autor || livro.author || '',
-        editora: livro.editora || livro.publisher || '',
-        isbn: livro.isbn || '',
-        genero: livro.genero || livro.genre || '',
-        ano_publicacao: livro.ano_publicacao || livro.year || '',
-        imagem: livro.imagem || null
-      })
+  id: livro.id,
+  titulo: livro.titulo || livro.title || '',
+  autor_id: livro.autor_id,       // ⬅️ ID do autor
+  editora_id: livro.editora_id,   // ⬅️ ID da editora
+  isbn: livro.isbn || '',
+  genero: livro.genero || livro.genre || '',
+  ano_publicacao: livro.ano_publicacao || livro.year || '',
+  imagem: livro.imagem || null
+})
       setShowForm(true)
       setError(null)
     } catch (error) {

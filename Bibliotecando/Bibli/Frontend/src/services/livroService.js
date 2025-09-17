@@ -34,19 +34,19 @@ const add = async (livro) => {
   try {
     const formData = new FormData();
     
-    // 
+    
     formData.append('titulo', livro.titulo);
-    formData.append('autor', livro.autor);
-    formData.append('editora', livro.editora);
+    formData.append('autor_id', livro.autor_id);
+    formData.append('editora_id', livro.editora_id);
     formData.append('isbn', livro.isbn);
     formData.append('genero', livro.genero);
     formData.append('ano_publicacao', livro.ano_publicacao);
     
-    // 
+    
     if (livro.imagem && livro.imagem instanceof File) {
       formData.append('imagem', livro.imagem);
     } else if (livro.imagem) {
-      console.log('⚠️  Imagem não é um arquivo válido:', livro.imagem);
+      console.log(' Imagem não é um arquivo válido:', livro.imagem);
     }
     
     for (let [key, value] of formData.entries()) {
@@ -71,8 +71,8 @@ const update = async (livro) => {
     const formData = new FormData();
     
     formData.append('titulo', livro.titulo);
-    formData.append('autor', livro.autor);
-    formData.append('editora', livro.editora);
+    formData.append('autor_id', livro.autor_id);
+    formData.append('editora_id', livro.editora_id);
     formData.append('isbn', livro.isbn);
     formData.append('genero', livro.genero);
     formData.append('ano_publicacao', livro.ano_publicacao);
