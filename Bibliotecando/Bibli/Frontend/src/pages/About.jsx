@@ -27,6 +27,18 @@ import photoMaria from "../images/maria.jpg";
 import photoDaniel from "../images/daniel.jpg";
 import photoRodrigo from "../images/rodrigo.jpg";
 
+// Importando as imagens do carrossel
+import img2 from "../images/img2.jpg";
+import img3 from "../images/img3.jpg";
+import img5 from "../images/img5.jpg";
+import img10 from "../images/img10.jpg";
+import img11 from "../images/img11.jpg";
+import img16 from "../images/img16.jpg";
+import img18 from "../images/img18.jpg";
+import img21 from "../images/img21.jpg";
+import img27 from "../images/img27.jpg";
+import img25 from "../images/img25.jpg";
+
 // Equipe
 const devs = [
   { name: "Emanuel Nepomuceno Nagima", photo: photoEmanuel },
@@ -49,7 +61,7 @@ const mvvItems = [
   },
   {
     title: "Valores",
-    text: "Inovação, transparência, acessibilidade e compromisso com a comunidade acadêmica e leitores.",
+    text: "Inovação, transparência, acessibilidade e compromisso com la comunidad acadêmica e leitores.",
     icon: <FaHeart size={30} className="text-primary" />
   }
 ];
@@ -96,25 +108,49 @@ const features = [
   }
 ];
 
-// Mural de imagens
+// Mural de imagens usando imagens locais
 const galleryImages = [
-  { src: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&h=400&q=80", alt: "Interior de biblioteca" },
-  { src: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=600&h=400&q=80", alt: "Estudantes estudando" },
-  { src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&h=400&q=80", alt: "Bibliotecária auxiliando" },
-  { src: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=600&h=400&q=80", alt: "Estantes coloridas" },
-  { src: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=600&h=400&q=80", alt: "Equipe de desenvolvimento" },
+  { src: img2,},
+  { src: img3,},
+  { src: img16,},
+  {src: img10,},
+  {src: img11,},
+  {src: img18,}
+
+
+
+
 ];
 
-// Imagens para o carrossel criativo
+
+// Imagens para o carrossel criativo - AGORA COM IMAGENS LOCAIS
 const creativeCarouselImages = [
+
   {
-    src: "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?auto=format&fit=crop&w=600&h=400&q=80",
-    alt: "Leitura colaborativa",
+    src: img21,
   },
   {
-    src: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&h=400&q=80",
-    alt: "Equipe colaborando"
-  }
+    src: img2,
+  },
+  {
+    src: img25,
+  },
+  {
+    src: img5,
+  },
+  {
+    src: img27,
+  },
+  {
+    src: img10,
+  },
+  {
+    src: img11,
+  },
+  
+    {
+    src: img18,
+  },
 ];
 
 // Componente About
@@ -332,6 +368,10 @@ export default function About() {
           width: 100%;
           height: 100%;
           object-fit: cover;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          border-radius: 8px;
+
+
         }
 
         /* ====== EQUIPE ====== */
@@ -356,7 +396,7 @@ export default function About() {
           padding: 1rem;
         }
 
-        /* Mantém animação apenas nos ícones */
+        /* animação ícones */
         .feature-item .feature-icon,
         .mvv-item .mvv-icon {
           transition: transform 0.3s ease, color 0.3s ease;
@@ -379,15 +419,14 @@ export default function About() {
         /* ====== TECNOLOGIAS ====== */
         .tech-item {
           text-align: center;
-          transition: transform 0.2s ease;
-        }
+          }
 
         .tech-item div {
           margin-top: 0.5rem;
         }
 
         .tech-item:hover {
-          transform: scale(1.05);
+          transform: scale(1.10);
         }
 
         /* ====== CARROSSEL CRIATIVO ====== */
@@ -412,7 +451,9 @@ export default function About() {
           object-fit: cover;
           height: 100%;
           width: 100%;
-          filter: brightness(0.9);
+          filter: brightness(0.7);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          border-radius: 8px;
         }
 
         .carousel-control-icon {
