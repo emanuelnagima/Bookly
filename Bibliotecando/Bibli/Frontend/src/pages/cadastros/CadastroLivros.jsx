@@ -4,9 +4,12 @@ import { Form, Button, Container } from "react-bootstrap";
 const CadastroLivro = () => {
   const [livro, setLivro] = useState({
     titulo: "",
-    autorId: "",
-    editoraId: "",
-    ano: "",
+    autor_id: "",
+    editora_id: "",
+    ano_publicacao: "",
+    isbn: "",
+    genero: "",
+    imagem: ""
   });
 
   const [autores, setAutores] = useState([]);
@@ -53,7 +56,15 @@ const CadastroLivro = () => {
       const result = await response.json();
       if (result.success) {
         alert("Livro cadastrado com sucesso!");
-        setLivro({ titulo: "", autorId: "", editoraId: "", ano: "" });
+        setLivro({
+          titulo: "",
+          autor_id: "",
+          editora_id: "",
+          ano_publicacao: "",
+          isbn: "",
+          genero: "",
+          imagem: ""
+        });
       } else {
         alert("Erro ao cadastrar livro!");
       }
@@ -80,16 +91,14 @@ const CadastroLivro = () => {
         <Form.Group className="mb-3">
           <Form.Label>Autor</Form.Label>
           <Form.Select
-            name="autorId"
-            value={livro.autorId}
+            name="autor_id"
+            value={livro.autor_id}
             onChange={handleChange}
             required
           >
             <option value="">Selecione o autor...</option>
             {autores.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.nome}
-              </option>
+              <option key={a.id} value={a.id}>{a.nome}</option>
             ))}
           </Form.Select>
         </Form.Group>
@@ -97,28 +106,68 @@ const CadastroLivro = () => {
         <Form.Group className="mb-3">
           <Form.Label>Editora</Form.Label>
           <Form.Select
-            name="editoraId"
-            value={livro.editoraId}
+            name="editora_id"
+            value={livro.editora_id}
             onChange={handleChange}
             required
           >
             <option value="">Selecione a editora...</option>
             {editoras.map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.nome}
-              </option>
+              <option key={e.id} value={e.id}>{e.nome}</option>
             ))}
           </Form.Select>
         </Form.Group>
 
         <Form.Group className="mb-3">
-          <Form.Label>Ano</Form.Label>
+          <Form.Label>Ano de Publicação</Form.Label>
           <Form.Control
             type="number"
-            name="ano"
-            value={livro.ano}
+            name="ano_publicacao"
+            value={livro.ano_publicacao}
             onChange={handleChange}
             required
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>ISBN</Form.Label>
+          <Form.Control
+            type="text"
+            name="isbn"
+            value={livro.isbn}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Gênero</Form.Label>
+          <Form.Select
+            name="genero"
+            value={livro.genero}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Selecione o gênero...</option>
+            <option value="Romance">Romance</option>
+            <option value="Ficção">Ficção</option>
+            <option value="Drama">Drama</option>
+            <option value="Suspense">Suspense</option>
+            <option value="Fantasia">Fantasia</option>
+            <option value="Biografia">Biografia</option>
+            <option value="Terror">Terror</option>
+            <option value="Educação">Educação</option>
+            <option value="Outro">Outro</option>
+          </Form.Select>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Imagem (URL)</Form.Label>
+          <Form.Control
+            type="text"
+            name="imagem"
+            value={livro.imagem}
+            onChange={handleChange}
           />
         </Form.Group>
 

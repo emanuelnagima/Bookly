@@ -71,21 +71,21 @@ CREATE TABLE IF NOT EXISTS `editoras` (
 -- TABELA: Livros
 -- =====================================
 CREATE TABLE IF NOT EXISTS `livros` (
-    `id` INT(11) NOT NULL AUTO_INCREMENT,          
-    `titulo` VARCHAR(255) NOT NULL,                   
-    `autor` VARCHAR(255) NOT NULL,                    
-    `editora` VARCHAR(255) NOT NULL,                  
-    `isbn` VARCHAR(20) NOT NULL,                  
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `titulo` VARCHAR(255) NOT NULL,
+    `autor_id` INT(11) NOT NULL,
+    `editora_id` INT(11) NOT NULL,
+    `isbn` VARCHAR(20) NOT NULL UNIQUE,
     `genero` ENUM(
         'Romance','Ficção','Drama','Suspense','Fantasia',
         'Biografia','Terror','Educação','Outro'
-    ) NOT NULL,                                    
-    `ano_publicacao` INT(11) NOT NULL,              
-    `imagem` VARCHAR(255) DEFAULT NULL,          
+    ) NOT NULL,
+    `ano_publicacao` INT(11) NOT NULL,
+    `imagem` VARCHAR(255) DEFAULT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY (`isbn`)
+    CONSTRAINT `fk_autor` FOREIGN KEY (`autor_id`) REFERENCES `autor`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `fk_editora` FOREIGN KEY (`editora_id`) REFERENCES `editora`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 
 -- =====================================
 -- TABELA: Autores

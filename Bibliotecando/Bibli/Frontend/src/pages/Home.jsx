@@ -70,16 +70,17 @@ const Home = () => {
   useEffect(() => setPaginaAtual(1), [termoBusca])
 
   const livrosFiltrados = livros.filter(livro => {
-    const termo = termoBusca.toLowerCase()
-    return (
-      (livro.titulo || livro.title || '').toLowerCase().includes(termo) ||
-      (livro.autor || livro.author || '').toLowerCase().includes(termo) ||
-      (livro.editora || livro.publisher || '').toLowerCase().includes(termo) ||
-      (livro.isbn || '').toString().toLowerCase().includes(termo) ||
-      (livro.genero || livro.genre || '').toLowerCase().includes(termo) ||
-      (livro.ano_publicacao || livro.year || '').toString().includes(termo)
-    )
-  })
+  const termo = termoBusca.toLowerCase()
+  return (
+    (livro.titulo || livro.title || '').toLowerCase().includes(termo) ||
+    (livro.autor_nome || livro.author || '').toLowerCase().includes(termo) ||
+    (livro.editora_nome || livro.publisher || '').toLowerCase().includes(termo) ||
+    (livro.isbn || '').toString().toLowerCase().includes(termo) ||
+    (livro.genero || livro.genre || '').toLowerCase().includes(termo) ||
+    (livro.ano_publicacao || livro.year || '').toString().includes(termo)
+  )
+})
+
 
   const totalPaginas = Math.ceil(livrosFiltrados.length / ITENS_POR_PAGINA)
 
@@ -140,10 +141,10 @@ const Home = () => {
       {/* CABEÇALHO */}
       <Row className="mb-4">
         <Col>
-          <div className="d-flex align-items-center justify-content-between p-4 rounded" style={{ borderBottom: '3px solid #0B192C' }}>
+          <div className="d-flex align-items-center justify-content-between p-4 rounded">
             <div>
               <h1 className="h4 fw-bold text-primary mb-1">
-                <FaBookOpen className="me-2" /> BiBli
+                <FaBookOpen className="me-2" /> BiBliotecando
               </h1>
               <p className="text-muted mb-0">Sua plataforma completa de gestão bibliotecária</p>
             </div>
@@ -162,27 +163,26 @@ const Home = () => {
         <Col>
           <Card>
            <Card.Header className="bg-primary text-white d-flex flex-column flex-md-row justify-content-between align-items-center">
-  <div className="d-flex align-items-center gap-2 mb-2 mb-md-0">
-    <h5 className="mb-0">Acervo de Livros</h5>
-    <span className="badge bg-light text-primary">
-      {livrosFiltrados.length} {livrosFiltrados.length === 1 ? 'livro' : 'livros'} / Página {paginaAtual} de {totalPaginas || 1}
-    </span>
-  </div>
-
-  <div className="mt-2 mt-md-0 flex-grow-1" style={{ minWidth: '300px', maxWidth: '600px' }}>
-    <InputGroup>
-      <InputGroup.Text className="bg-light text-primary">
-        <FaSearch />
-      </InputGroup.Text>
-      <Form.Control
-        type="text"
-        placeholder="Digite título, autor, editora ou ISBN..."
-        value={termoBusca}
-        onChange={e => setTermoBusca(e.target.value)}
-      />
-    </InputGroup>
-  </div>
-</Card.Header>
+              <div className="d-flex align-items-center gap-2 mb-2 mb-md-0">
+                <h5 className="mb-0">Acervo de Livros</h5>
+                <span className="badge bg-light text-primary">
+                  {livrosFiltrados.length} {livrosFiltrados.length === 1 ? 'livro' : 'livros'} / Página {paginaAtual} de {totalPaginas || 1}
+                </span>
+              </div>
+              <div className="mt-2 mt-md-0 flex-grow-1" style={{ minWidth: '300px', maxWidth: '600px' }}>
+                <InputGroup>
+                  <InputGroup.Text className="bg-light text-primary">
+                    <FaSearch />
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="text"
+                    placeholder="Pesquise por título, autor, editora ou ISBN..."
+                    value={termoBusca}
+                    onChange={e => setTermoBusca(e.target.value)}
+                  />
+                </InputGroup>
+              </div>
+            </Card.Header>
             <Card.Body>
               {loading ? (
                 <p className="text-center text-muted">Carregando livros...</p>
@@ -201,19 +201,20 @@ const Home = () => {
                               className="livro-imagem"
                               onError={e => { e.target.style.display = 'none' }}
                             />
-                          ) : (
+                          ) : ( 
                             <div className="sem-imagem">
                               <FaImage size={24} />
                             </div>
                           )}
                         </div>
-                        <Card.Body>
+                        <Card.Body className="livro-card-body">
                           <h6 title={livro.titulo || livro.title || ''}>
                             {formatarTexto(livro.titulo || livro.title || '')}
                           </h6>
                           <div className="livro-detalhes">
-                            <div><strong>Autor:</strong> {formatarTexto(livro.autor || livro.author || '')}</div>
-                            <div><strong>Editora:</strong> {formatarTexto(livro.editora || livro.publisher || '')}</div>
+                            <div><strong>Autor:</strong> {formatarTexto(livro.autor_nome || livro.author || '')}</div>
+                            <div><strong>Editora:</strong> {formatarTexto(livro.editora_nome || livro.publisher || '')}</div>
+
                             <div><strong>Gênero:</strong> {formatarTexto(livro.genero || livro.genre || '')}</div>
                             {livro.isbn && <div><strong>ISBN:</strong> {livro.isbn}</div>}
                             <div><strong>Ano:</strong> {livro.ano_publicacao || livro.year || ''}</div>
@@ -225,7 +226,7 @@ const Home = () => {
                 </Row>
               )}
 
-              {/* PAGINAÇÃO IGUAL AO LivroList */}
+              {/* PAGINAÇÃO */}
               {totalPaginas > 1 && (
                 <div className="d-flex justify-content-center justify-content-md-end align-items-center mt-3 gap-2 flex-wrap">
                   <Button
@@ -249,32 +250,38 @@ const Home = () => {
         </Col>
       </Row>
 
-      {/* CARDS DE FUNCIONALIDADES */}
-      {categoriasCards.map((categoria, index) => (
-        <div key={index} className="mb-4">
-          <h5 className="mb-3 text-primary">{categoria.titulo}</h5>
-          <Row className="g-3">
-            {categoria.cards.map((card, i) => {
-              const Icone = card.icone
-              return (
-                <Col md={6} lg={4} xl={3} key={i}>
-                  <Card className="h-100 text-center card-hover">
-                    <Card.Body className="d-flex flex-column p-3">
-                      <Icone size={30} className="mb-2 text-primary mx-auto" />
-                      <Card.Title className="h3 mb-1">{card.titulo}</Card.Title>
-                      <div className="text-muted flex-grow-1">
-                        <p>{card.descricao}</p>
-                        <hr className="my-2" />
-                      </div>
-                      <Link to={card.link} className="btn btn-primary mt-2">Acessar</Link>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              )
-            })}
-          </Row>
-        </div>
-      ))}
+                  {/* CARDS DE FUNCIONALIDADES */}
+              {categoriasCards.map((categoria, index) => (
+                <div key={index} className="mb-4">
+                  <h5 className="mb-3 text-primary">{categoria.titulo}</h5>
+                  <Row className="g-3">
+                    {categoria.cards.map((card, i) => {
+                      const Icone = card.icone
+                      return (
+                        <Col md={6} lg={4} xl={3} key={i}>
+                            <Card 
+                              className="h-100 text-center card-funcionalidade" 
+                              style={{ border: '1px solid #dee2e6', borderRadius: '16px' }}
+                            >
+                           <div className="d-flex flex-column p-3 h-100">
+                              <Icone size={43} className="mb-2 text-primary mx-auto" />
+                              <Card.Title className="h4 mb-1">{card.titulo}</Card.Title>
+                              <div className="text-muted flex-grow-1">
+                                  <p style={{ fontSize: "12px" }}>{card.descricao}</p>
+                                <hr className="my-2" />
+                              </div>
+                              <Link to={card.link} className="btn btn-primary mt-2">
+                                Acessar
+                              </Link>
+                            </div>
+                          </Card>
+                        </Col>
+                      )
+                    })}
+                  </Row>
+                </div>
+              ))}
+
 
       {/* BOTÃO DE AJUDA */}
       <div className="help-button-container">
