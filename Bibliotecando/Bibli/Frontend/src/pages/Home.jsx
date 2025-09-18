@@ -375,7 +375,7 @@ const Home = () => {
                             {/* Ícone clicável com tooltip */}
                             <OverlayTrigger
                               placement="top"
-                              overlay={<Tooltip id={`tooltip-${i}`}>{card.titulo}</Tooltip>}
+                              overlay={<Tooltip id={`tooltip-${i}`}>Gerenciar {card.titulo}</Tooltip>}
                             >
                               <Link 
                                 to={card.link} 
