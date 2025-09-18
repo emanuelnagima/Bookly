@@ -26,7 +26,7 @@ O **Bibliotecando** é, portanto, uma **solução completa, confiável e moderna
 ---
 
 
-# 📚 Instalção
+# 📚 Instalação
 
 Projeto desenvolvido para gestão de uma biblioteca, dividido em **Frontend** e **Backend**.  
 Este guia explica como instalar, configurar e executar o sistema localmente.  
