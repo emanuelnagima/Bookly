@@ -154,7 +154,7 @@ const Login = () => {
       )}
 
       <div className="login-form">
-        <h2><FaBookOpen /> Bibliotecando</h2>
+        <h2><FaBookOpen /> Bookly</h2>
         <p>Faça login para acessar a plataforma</p>
 
         <form onSubmit={handleLogin}>

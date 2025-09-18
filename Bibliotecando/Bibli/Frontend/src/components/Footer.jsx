@@ -37,7 +37,7 @@ const Footer = () => {
           <Col md={3}>
             <div className="d-flex flex-column h-100">
               <span className="logo-rodape fw-bold fs-5 mb-2 text-primary">
-                BiBliotecando
+                Bookly
               </span>
               <p className="texto-rodape small text-muted mb-3">
                 Sistema de gerenciamento bibliotecário para controle de acervos,
@@ -286,7 +286,7 @@ const Footer = () => {
             </div>
 
             <div className="small text-muted text-decoration-none">
-                bibliotecandosuporte@gmail.com
+                booklysuporte@gmail.com
             </div>
 
             <div className="feedback-section mt-3">
@@ -325,7 +325,7 @@ const Footer = () => {
         {/* Créditos */}
         <div className="creditos-rodape py-3 text-center">
           <p className="mb-0 small text-muted">
-            &copy; {new Date().getFullYear()} Bibliotecando. Todos os direitos
+            &copy; {new Date().getFullYear()} Bookly. Todos os direitos
             reservados. <br />
             Versão 1.0.0
           </p>
@@ -355,7 +355,7 @@ const Footer = () => {
                     href="mailto:bibliotecandosuporte@gmail.com"
                     className="contact-link"
                   >
-                    bibliotecandosuporte@gmail.com
+                    Booklysuporte@gmail.com
                   </a>
                 </div>
               </div>
