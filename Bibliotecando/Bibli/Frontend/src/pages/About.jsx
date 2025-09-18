@@ -329,7 +329,130 @@ export default function About() {
 
       {/* CSS local */}
       <style>{`
-        /* ====== CONTAINER GERAL ====== */
+
+        /* Títulos com efeito de sublinhado */
+        .about-section h2,
+        .about-section h3 {
+          font-weight: 700;
+          margin-bottom: 1rem;
+          position: relative;
+        }
+
+        .about-section h2::after,
+        .about-section h3::after {
+          content: "";
+          display: block;
+          width: 60px;
+          height: 4px;
+          background-color: #0d6efd;
+          margin: 0.5rem auto 0;
+          border-radius: 2px;
+        }
+
+        /* Texto sobre */
+        .about-text {
+          max-width: 700px;
+          margin: 0 auto;
+          font-size: 1.05rem;
+          line-height: 1.6;
+          color: #555;
+        }
+
+        /* Cards de Missão, Visão e Valores */
+        .mvv-card {
+          border-radius: 15px;
+          padding: 2rem;
+          height: 100%;
+        }
+
+        .mvv-card h4 {
+          color: #ff4894;
+        }
+
+        .mvv-card p {
+          color: #666;
+          font-size: 0.95rem;
+          line-height: 1.5;
+        }
+
+        /* Lista de tecnologias */
+        .tech-list {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 1rem;
+          margin-top: 2rem;
+        }
+
+        .tech-item {
+          display: flex;
+          align-items: center;
+          gap: 0.2rem;
+          padding: 0.8rem 1rem;
+        }
+
+        .tech-item:hover {
+          transform: translateY(-4px);
+        }
+
+        /* Cards de equipe */
+        .team-card {
+          padding: 1.5rem 1rem;
+          transition: transform 0.3s ease, box-shadow 0.5s ease;
+        }
+
+        .team-card:hover {
+          transform: translateY(-20px) scale(1.1); 
+        }
+
+        /* Avatar da equipe */
+        .team-card img {
+          width: 120px;
+          height: 120px;
+          object-fit: cover;
+          border-radius: 50%;
+          border: 3px solid #0d6efd;
+          margin-bottom: 1rem;
+          transition: transform 0.1s ease, border-color 0.6s ease;
+        }
+
+        .team-card:hover img {
+          transform: scale(1.05);
+          border-color: #7bff00;
+        }
+
+        /* Textos no card de equipe */
+        .team-card h5 {
+          margin-bottom: 0.3rem;
+          font-weight: 600;
+        }
+
+        .team-card h6 {
+          color: #1DCD9F;
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+        }
+
+        .team-card p {
+          font-size: 0.9rem;
+          color: #666;
+          text-align: center;
+        }
+
+        /* Responsividade para a página Sobre */
+        @media (max-width: 768px) {
+
+          .mvv-card,
+          .team-card,
+          .tech-item {
+            padding: 1rem;
+          }
+
+          .about-text {
+            font-size: 1rem;
+          }
+        }
+
         .about-container {
           font-family: 'Poppins', sans-serif;
           color: #222;
@@ -383,7 +506,7 @@ export default function About() {
           width: 120px;
           height: 120px;
           border-radius: 50%;
-          padding: 4px;
+          padding: 5px;
           box-shadow: 0 4px 12px rgba(0,0,0,0.15);
           transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
         }
