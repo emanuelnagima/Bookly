@@ -36,13 +36,48 @@ const Sidebar = () => {
 
   return (
     <div className="sidebar">
-      {/* Cabeçalho */}
+  {/* Cabeçalho com logo */}
       <div className="sidebar-header">
         <div className="header-content">
-          <div className="title-wrapper">
-            <h4>Bookly</h4>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
+            {/* Logo SVG adaptada para sidebar */}
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 64 64"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              {/* Livros com cores diferentes */}
+              <rect x="12" y="10" width="10" height="42" rx="2" fill="#ffffff"/> {/* azul */}
+              <rect x="26" y="6" width="12" height="46" rx="2" fill="#ffffff"/>  {/* verde */}
+              <rect x="40" y="14" width="10" height="38" rx="2" fill="#ffffff"/> {/* preto */}
+
+              {/* Linhas decorativas */}
+              <path d="M18 18L22 18" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M32 14L36 14" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M44 22L48 22" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+
+            {/* Texto estilo logo */}
+            <h4 style={{
+              fontFamily: '"Montserrat", sans-serif',
+              fontWeight: '800',
+              fontSize: '1.5rem',
+              color: '#ffffff', 
+              margin: '0',
+              letterSpacing: '-0.5px'
+            }}>
+              Bookly
+            </h4>
           </div>
-          <p className="system-description">
+          <p className="system-description" style={{ 
+            fontSize: '0.8rem', 
+            color: '#6c757d',
+            margin: '0',
+            paddingLeft: '48px', 
+            marginTop: '-18px'
+          }}>
             Solução integrada para bibliotecas
           </p>
         </div>
