@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Container, Row, Col, Card, InputGroup, Form, Button, Image, Modal } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
+import { Tooltip, OverlayTrigger } from 'react-bootstrap'
+
 import {
   FaBookOpen,
   FaCalendarAlt,
@@ -40,6 +42,11 @@ const Home = () => {
   const [currentDate, setCurrentDate] = useState('')
   const [showWelcome, setShowWelcome] = useState(true)
   const [livros, setLivros] = useState([])
+/*const [professores, setProfessores] = useState([])
+  const [alunos, setAlunos] = useState([])
+  const [autores, setAutores] = useState([])
+  const [usuarios, setUsuarios] = useState([]) // se quiser contar usuários gerais  
+  const [editoras, setEditoras] = useState([]) */
   const [termoBusca, setTermoBusca] = useState('')
   const [loading, setLoading] = useState(true)
   const [paginaAtual, setPaginaAtual] = useState(1)
@@ -52,20 +59,36 @@ const Home = () => {
     const timer = setTimeout(() => setShowWelcome(false), 10000)
     return () => clearTimeout(timer)
   }, [])
-
+    
   useEffect(() => {
-    const fetchLivros = async () => {
+    const fetchTodosDados = async () => {
       try {
-        const data = await livroService.getAll()
-        setLivros(data)
+        const livrosData = await livroService.getAll()
+        setLivros(livrosData)
+  /* 
+        const professoresData = await professorService.getAll()
+        setProfessores(professoresData)
+
+        const alunosData = await alunoService.getAll()
+        setAlunos(alunosData)
+
+        const autoresData = await autorService.getAll()
+        setAutores(autoresData)
+
+        const usuariosData = await usuarioService.getAll()
+        setUsuarios(usuariosData)
+
+        const editorasData = await editoraService.getAll()
+        setEditoras(editorasData) */
       } catch (error) {
-        console.error('Erro ao carregar livros:', error)
+        console.error('Erro ao carregar dados:', error)
       } finally {
         setLoading(false)
       }
     }
-    fetchLivros()
-  }, [])
+
+  fetchTodosDados()
+}, [])
 
   useEffect(() => setPaginaAtual(1), [termoBusca])
 
@@ -158,6 +181,46 @@ const Home = () => {
         </Col>
       </Row>
 
+      {/* ESTATÍSTICAS RÁPIDAS */}
+      <Row className="mb-4">
+        <Col md={2}>
+            <Card className="text-muted text-center p-3">
+{/*             <h4>{livros.length}</h4>
+ */}            <p>Livros</p>
+          </Card>
+        </Col>
+        <Col md={2}>
+            <Card className="text-muted text-center p-3">
+{/*             <h4>{professores.length}</h4>
+ */}            <p>Usuários</p>
+          </Card>
+        </Col>
+        <Col md={2}>
+            <Card className="text-muted text-center p-3">
+{/*             <h4>{professores.length}</h4>
+ */}            <p>Professores</p>
+          </Card>
+        </Col>
+        <Col md={2}>
+            <Card className="text-muted text-center p-3">
+{/*             <h4>{alunos.length}</h4>
+ */}            <p>Alunos</p>
+          </Card>
+        </Col>
+        <Col md={2}>
+              <Card className="text-muted text-center p-3">
+{/*             <h4>{autores.length}</h4>
+ */}            <p>Autores</p>
+          </Card>
+        </Col>
+        <Col md={2}>
+            <Card className="text-muted text-center p-3">
+{/*             <h4>{autores.length}</h4>
+ */}            <p>Editoras</p>
+          </Card>
+        </Col>
+      </Row>
+
       {/* LISTA DE LIVROS COM BARRA DE PESQUISA */}
       <Row className="mb-4">
         <Col>
@@ -227,61 +290,74 @@ const Home = () => {
               )}
 
               {/* PAGINAÇÃO */}
-              {totalPaginas > 1 && (
-                <div className="d-flex justify-content-center justify-content-md-end align-items-center mt-3 gap-2 flex-wrap">
-                  <Button
-                    className="btn-paginacao"
-                    onClick={handlePaginaAnterior}
-                    disabled={paginaAtual === 1}
-                  >
-                    <FaChevronLeft className="me-1" /> Anterior
-                  </Button>
-                  <Button
-                    className="btn-paginacao"
-                    onClick={handleProximaPagina}
-                    disabled={paginaAtual === totalPaginas}
-                  >
-                    Próxima <FaChevronRight className="ms-1" />
-                  </Button>
-                </div>
-              )}
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+                  {totalPaginas > 1 && (
+                    <div className="d-flex justify-content-center justify-content-md-end align-items-center mt-3 gap-2 flex-wrap">
+                      <Button
+                        className="btn-paginacao"
+                        onClick={handlePaginaAnterior}
+                        disabled={paginaAtual === 1}
+                      >
+                        <FaChevronLeft className="me-1" /> Anterior
+                      </Button>
+                      <Button
+                        className="btn-paginacao"
+                        onClick={handleProximaPagina}
+                        disabled={paginaAtual === totalPaginas}
+                      >
+                        Próxima <FaChevronRight className="ms-1" />
+                      </Button>
+                    </div>
+                  )}
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
 
-                  {/* CARDS DE FUNCIONALIDADES */}
-              {categoriasCards.map((categoria, index) => (
-                <div key={index} className="mb-4">
-                  <h5 className="mb-3 text-primary">{categoria.titulo}</h5>
-                  <Row className="g-3">
-                    {categoria.cards.map((card, i) => {
-                      const Icone = card.icone
-                      return (
-                        <Col md={6} lg={4} xl={3} key={i}>
-                            <Card 
-                              className="h-100 text-center card-funcionalidade" 
-                              style={{ border: '1px solid #dee2e6', borderRadius: '16px' }}
+             {/* CARDS DE FUNCIONALIDADES */}
+            {categoriasCards.map((categoria, index) => (
+              <div key={index} className="mb-4">
+                <h5 className="mb-3 text-primary">{categoria.titulo}</h5>
+                <Row className="g-3">
+                  {categoria.cards.map((card, i) => {
+                    const Icone = card.icone
+                    return (
+                      <Col md={6} lg={4} xl={3} key={i}>
+                        <Card 
+                          className="h-100 text-center card-funcionalidade" 
+                          style={{ border: '1px solid #dee2e6', borderRadius: '16px', overflow: 'visible' }} // overflow visível para tooltip
+                        >
+                          <div className="d-flex flex-column p-3 h-100">
+                            {/* Ícone clicável com tooltip */}
+                            <OverlayTrigger
+                              placement="top"
+                              overlay={<Tooltip id={`tooltip-${i}`}>{card.titulo}</Tooltip>}
                             >
-                           <div className="d-flex flex-column p-3 h-100">
-                              <Icone size={43} className="mb-2 text-primary mx-auto" />
-                              <Card.Title className="h4 mb-1">{card.titulo}</Card.Title>
-                              <div className="text-muted flex-grow-1">
-                                  <p style={{ fontSize: "12px" }}>{card.descricao}</p>
-                                <hr className="my-2" />
-                              </div>
-                              <Link to={card.link} className="btn btn-primary mt-2">
-                                Acessar
+                              <Link 
+                                to={card.link} 
+                                className="mb-2 mx-auto icone-dinamico" 
+                                style={{ display: 'inline-flex', justifyContent: 'center', alignItems: 'center' }}
+                              > {/* tamanhos dos icones */}
+                                <Icone size={26} />
                               </Link>
+                            </OverlayTrigger>
+                            {/* titulo e descrição  */}
+                            <Card.Title className="h4 mb-1">{card.titulo}</Card.Title>
+                            <div className="text-muted flex-grow-1">
+                              <p style={{ fontSize: "12px", color:'#454545' }}>{card.descricao}</p>
+                              <hr className="my-2" />
                             </div>
-                          </Card>
-                        </Col>
-                      )
-                    })}
-                  </Row>
-                </div>
-              ))}
 
+                            <Link to={card.link} className="btn btn-primary mt-2">
+                              Acessar
+                            </Link>
+                          </div>
+                        </Card>
+                      </Col>
+                    )
+                  })}
+                </Row>
+              </div>
+            ))}
 
       {/* BOTÃO DE AJUDA */}
       <div className="help-button-container">

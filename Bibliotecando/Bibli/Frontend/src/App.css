@@ -332,7 +332,32 @@ body.tema-padrao {
   transition: background-color var(--transition-fast)
 }
 
+.icone-dinamico {
+  color: #ffffff;             
+  border: 2px solid #ffffff;  
+  border-radius: 50%;     
+  padding: 8px;           
+  display: inline-flex;   
+  justify-content: center;
+  align-items: center;
 
+  background-color: #0B192C;  
+  transform: scale(1);      
+  transition: all 0.3s ease;
+
+  position: relative; /* ajuda tooltip */
+  z-index: 1;
+}
+
+.icone-dinamico:hover {
+  color: #ffffff;             
+  border-color: #ffffff;     
+  background-color: #7bff00; 
+  transform: scale(1.2);    
+}
+.card-funcionalidade {
+  overflow: visible; /* permite tooltip flutuar */
+}
 
 /* Cards */
 .card {
