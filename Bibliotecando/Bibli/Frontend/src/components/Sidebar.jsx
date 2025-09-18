@@ -40,7 +40,7 @@ const Sidebar = () => {
       <div className="sidebar-header">
         <div className="header-content">
           <div className="title-wrapper">
-            <h4>BiBliotecando</h4>
+            <h4>Bookly</h4>
           </div>
           <p className="system-description">
             Solução integrada para bibliotecas

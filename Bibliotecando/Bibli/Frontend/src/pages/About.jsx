@@ -162,9 +162,9 @@ export default function About() {
       <section className="about-section mb-5">
         <Row className="align-items-center g-4">
           <Col md={6}>
-            <h2>Sobre o Bibliotecando</h2>
+            <h2>Sobre o Bookly</h2>
             <p className="about-text mt-3">
-              <strong>O Bibliotecando</strong> nasceu em 2025, na Unoeste, como um projeto integrador com o objetivo de administrar bibliotecas e tornar a leitura mais acessível.
+              <strong>O Bookly</strong> nasceu em 2025, na Unoeste, como um projeto integrador com o objetivo de administrar bibliotecas e tornar a leitura mais acessível.
             </p>
             <p className="about-text">
               Nossa plataforma oferece <strong>controle completo</strong> do acervo: empréstimos, reservas, devoluções e renovações com facilidade e segurança.
@@ -247,7 +247,7 @@ export default function About() {
       <section id="equipe" className="about-section text-center mb-5">
         <FaUsers size={60} className="mb-3 text-primary" />
         <h2>Nossa Equipe</h2>
-        <p className="mb-4">Conheça os desenvolvedores por trás do Bibliotecando</p>
+        <p className="mb-4">Conheça os desenvolvedores por trás do Bookly</p>
         <Row className="g-4 mt-4">
           {devs.map((dev, i) => (
             <Col key={i} xs={12} sm={6} md={3}>
@@ -273,7 +273,7 @@ export default function About() {
               <Col xs={12} sm={6}>
                 <div>
                   <h5> Instituições</h5>
-                  <p>Modernize sua biblioteca com o Bibliotecando</p>
+                  <p>Modernize sua biblioteca com o Bookly</p>
                 </div>
               </Col>
               <Col xs={12} sm={6}>

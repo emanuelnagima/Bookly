@@ -162,17 +162,62 @@ const Home = () => {
   return (
     <Container className="py-4">
       {/* CABEÇALHO */}
-      <Row className="mb-4">
+     <Row className="mb-4">
         <Col>
-          <div className="d-flex align-items-center justify-content-between p-4 rounded">
-            <div>
-              <h1 className="h4 fw-bold text-primary mb-1">
-                <FaBookOpen className="me-2" /> BiBliotecando
-              </h1>
-              <p className="text-muted mb-0">Sua plataforma completa de gestão bibliotecária</p>
+          <div
+            className="d-flex align-items-center justify-content-between p-4 rounded"
+            style={{ border: '1px solid #dde1ff' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              {/* Logo SVG */}
+              <svg
+                width="60"
+                height="60"
+                viewBox="0 0 64 64"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Livros com cores diferentes */}
+                <rect x="12" y="10" width="10" height="42" rx="2" fill="#2119b4"/> {/* azul */}
+                <rect x="26" y="6" width="12" height="46" rx="2" fill="#28a745"/>  {/* verde */}
+                <rect x="40" y="14" width="10" height="38" rx="2" fill="#000000"/> {/* preto */}
+
+                {/* Linhas decorativas */}
+                <path d="M18 18L26 18" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M32 14L40 14" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M44 22L52 22" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+
+              {/* Texto estilo logo */}
+              <div>
+                <h1
+                  style={{
+                    fontFamily: '"Montserrat", sans-serif',
+                    fontWeight: '800',
+                    fontSize: '2rem',
+                    background: 'linear-gradient(135deg, #2119b4 0%, #3a31e8 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    marginBottom: '0.2rem',
+                    letterSpacing: '-0.5px'
+                  }}
+                >
+                  Bookly
+                </h1>
+                <p
+                  className="text-muted mb-0"
+                  style={{ fontSize: '0.95rem', marginTop: '-5px', marginLeft: '2px' }}
+                >
+                  Sua plataforma completa de gestão bibliotecária
+                </p>
+              </div>
             </div>
+
+            {/* Lado direito: boas-vindas e data */}
             <div className="text-end">
-              {showWelcome && <h3 className="mb-1 fw-bold text-primary">Seja bem-vindo!</h3>}
+              {showWelcome && (
+                <h3 className="mb-1 fw-bold text-primary">Seja bem-vindo!</h3>
+              )}
               <p className="text-muted mb-0">
                 <FaCalendarAlt className="me-1" /> {currentDate}
               </p>
@@ -180,6 +225,7 @@ const Home = () => {
           </div>
         </Col>
       </Row>
+
 
       {/* ESTATÍSTICAS RÁPIDAS */}
       <Row className="mb-4">
