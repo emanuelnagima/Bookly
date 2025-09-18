@@ -111,8 +111,14 @@ const Login = () => {
     }
 
     function animate() {
-      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-sidebar') || '#0B192C';
+      // Criando um gradiente suave para o fundo
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, '#6F00FF');
+      gradient.addColorStop(1, '#19183B');
+      
+      ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
       particlesArray.forEach(p => {
         p.update();
         p.draw();
