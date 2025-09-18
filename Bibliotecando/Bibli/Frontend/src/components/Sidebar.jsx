@@ -1,4 +1,6 @@
 import { Nav } from "react-bootstrap";
+import { ADMIN_CREDENTIALS } from '../pages/Login';
+import avatarImg from '../images/avatar.png';
 import {
   FaHome,
   FaReply,
@@ -19,7 +21,6 @@ import {
   FaPenFancy,
   FaBuilding,
   FaUserAlt,
-  FaCodeBranch
 } from "react-icons/fa";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -36,27 +37,26 @@ const Sidebar = () => {
 
   return (
     <div className="sidebar">
-  {/* Cabeçalho com logo */}
+      {/* Cabeçalho com logo */}
       <div className="sidebar-header">
         <div className="header-content">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
-            {/* Logo SVG adaptada para sidebar */}
+            {/* Logo SVG dos livros  */}
             <svg
               width="40"
               height="40"
               viewBox="0 0 64 64"
               fill="none"
-              xmlns="http://www.w3.org/2000/svg"
             >
-              {/* Livros com cores diferentes */}
+              {/* Livros com cores  */}
               <rect x="12" y="10" width="10" height="42" rx="2" fill="#ffffff"/> {/* azul */}
               <rect x="26" y="6" width="12" height="46" rx="2" fill="#ffffff"/>  {/* verde */}
               <rect x="40" y="14" width="10" height="38" rx="2" fill="#ffffff"/> {/* preto */}
 
-              {/* Linhas decorativas */}
-              <path d="M18 18L22 18" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M32 14L36 14" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M44 22L48 22" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+              {/* Linhas  */}
+              <path d="M18 18L22 18" stroke="#2119b4" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M32 14L36 14" stroke="#28a745" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M44 22L48 22" stroke="#000000" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
 
             {/* Texto estilo logo */}
@@ -73,7 +73,7 @@ const Sidebar = () => {
           </div>
           <p className="system-description" style={{ 
             fontSize: '0.8rem', 
-            color: '#6c757d',
+            color: '#b0b0b0',
             margin: '0',
             paddingLeft: '48px', 
             marginTop: '-18px'
@@ -209,13 +209,49 @@ const Sidebar = () => {
         <button
           onClick={handleLogout}
           className="nav-link py-3 text-start"
-          style={{ cursor: "pointer", color: "red" }}
+          style={{ cursor: "pointer", color: "#ff6b6b", border: 'none', background: 'transparent', width: '100%' }}
         >
           <FaSignOutAlt className="me-2" />
           Sair
         </button>
+        
+      {/* Área do perfil do usuário */}
+      <div className="user-profile-section p-3 mb-3">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          {/* Imagem ícone */}
+          <img 
+            src={avatarImg} 
+            alt="Foto do Bibliotecário" 
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: '2px solid #ffffff'
+            }}
+          />
+          <div style={{ textAlign: 'left' }}>
+            <h6 style={{ color: '#ffffff', margin: '0 0 3px 0', fontWeight: '600', fontSize: '0.95rem' }}>
+              Bibliotecário
+            </h6>
+            <p style={{ 
+              color: '#b0b0b0', 
+              fontSize: '0.75rem', 
+              margin: '0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px'
+            }}>
+              <FaUserAlt size={10} />
+              {ADMIN_CREDENTIALS.email} {/* Email puxado das credenciais */}
+            </p>
+          </div>
+        </div>
+      </div>
+
       </Nav>
     </div>
+    
   );
 };
 

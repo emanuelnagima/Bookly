@@ -178,9 +178,12 @@ const Home = () => {
                 xmlns="http://www.w3.org/2000/svg"
               >
                 {/* Livros com cores diferentes */}
-                <rect x="12" y="10" width="10" height="42" rx="2" fill="#2119b4"/> {/* azul */}
-                <rect x="26" y="6" width="12" height="46" rx="2" fill="#28a745"/>  {/* verde */}
-                <rect x="40" y="14" width="10" height="38" rx="2" fill="#000000"/> {/* preto */}
+                <rect x="12" y="10" width="10" height="42" rx="2"  stroke="#000000" // cor da borda
+                strokeWidth="1" fill="#2119b4"/> {/* azul */}
+                <rect x="26" y="6" width="12" height="46" rx="2"  stroke="#000000" // cor da borda
+                strokeWidth="1" fill="#28a745"/>  {/* verde */}
+                <rect x="40" y="14" width="10" height="38" rx="2" stroke="#000000" // cor da borda
+                strokeWidth="1"  fill="#000000"/> {/* preto */}
 
                 {/* Linhas decorativas */}
                 <path d="M18 18L26 18" stroke="white" strokeWidth="2" strokeLinecap="round"/>

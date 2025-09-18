@@ -376,3 +376,7 @@ small {
 };
 
 export default Login;
+export const ADMIN_CREDENTIALS = {
+  email: 'adm@gmail.com',
+  password: 'L!vr0$V00@2025'
+};
