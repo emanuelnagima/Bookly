@@ -190,19 +190,15 @@ const Home = () => {
 
               {/* Texto estilo logo */}
               <div>
-                <h1
-                  style={{
-                    fontFamily: '"Montserrat", sans-serif',
-                    fontWeight: '800',
-                    fontSize: '2rem',
-                    background: 'linear-gradient(135deg, #2119b4 0%, #3a31e8 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    marginBottom: '0.2rem',
-                    letterSpacing: '-0.5px'
-                  }}
-                >
-                  Bookly
+                <h1 style={{
+              fontFamily: '"Montserrat", sans-serif',
+              fontWeight: '800',
+              fontSize: '2.8rem',
+              color: '#2119b4', 
+              marginBottom: '0.2rem',
+              letterSpacing: '-0.5px'
+            }}> {/* nome */}
+              Bookly
                 </h1>
                 <p
                   className="text-muted mb-0"
