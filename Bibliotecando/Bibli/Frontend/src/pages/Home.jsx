@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Container, Row, Col, Card, InputGroup, Form, Button, Image, Modal } from 'react-bootstrap'
+import { Container, Row, Col, Card, InputGroup, Form, Button, Image, Modal, Badge } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { Tooltip, OverlayTrigger } from 'react-bootstrap'
+import entradaSaidaService from '../services/entradaSaidaService'
 
 import {
   FaBookOpen,
@@ -21,13 +22,23 @@ import {
   FaHandshake,
   FaSyncAlt,
   FaReply,
+  FaBox,
   FaChartBar,
   FaInfoCircle,
   FaEnvelope,
-  FaBriefcase
+  FaBriefcase,
+  FaUsers,
+  FaChalkboardTeacher,
+  FaGraduationCap,
+  FaFeatherAlt,
+  FaUniversity
 } from 'react-icons/fa'
 import livroService from '../services/livroService'
-
+import professorService from '../services/professorService'
+import alunoService from '../services/alunoService'
+import autorService from '../services/autorService'
+import editoraService from '../services/editoraService'
+import usuarioEspecialService from "../services/usuarioEspecialService";
 // Função utilitária para formatar texto
 const formatarTexto = (texto = '') =>
   texto
@@ -42,11 +53,12 @@ const Home = () => {
   const [currentDate, setCurrentDate] = useState('')
   const [showWelcome, setShowWelcome] = useState(true)
   const [livros, setLivros] = useState([])
-/*const [professores, setProfessores] = useState([])
+  const [professores, setProfessores] = useState([])
   const [alunos, setAlunos] = useState([])
   const [autores, setAutores] = useState([])
-  const [usuarios, setUsuarios] = useState([]) // se quiser contar usuários gerais  
-  const [editoras, setEditoras] = useState([]) */
+  const [estoqueTotal, setEstoqueTotal] = useState(0)
+  const [editoras, setEditoras] = useState([])
+  const [usuarios, setUsuarios] = useState([])
   const [termoBusca, setTermoBusca] = useState('')
   const [loading, setLoading] = useState(true)
   const [paginaAtual, setPaginaAtual] = useState(1)
@@ -60,32 +72,54 @@ const Home = () => {
     return () => clearTimeout(timer)
   }, [])
     
-  useEffect(() => {
-    const fetchTodosDados = async () => {
-      try {
-        const livrosData = await livroService.getAll()
-        setLivros(livrosData)
-  /* 
-        const professoresData = await professorService.getAll()
-        setProfessores(professoresData)
+useEffect(() => {
+  const fetchTodosDados = async () => {
+    try {
+      const [
+        livrosData, 
+        professoresData, 
+        alunosData, 
+        autoresData, 
+        editorasData,
+        usuariosData
+      ] = await Promise.all([
+        livroService.getAll(),
+        professorService.getAll(),
+        alunoService.getAll(),
+        autorService.getAll(),
+        editoraService.getAll(),
+        usuarioEspecialService.getAll()
+      ])
 
-        const alunosData = await alunoService.getAll()
-        setAlunos(alunosData)
+      // calcula estoque total
+      const livrosComEstoque = await Promise.all(
+        livrosData.map(async livro => {
+          try {
+            const estoque = await entradaSaidaService.verificarEstoque(livro.id)
+            return { ...livro, estoque: estoque ?? 0 }
+          } catch {
+            return { ...livro, estoque: 0 }
+          }
+        })
+      )
 
-        const autoresData = await autorService.getAll()
-        setAutores(autoresData)
+      setLivros(livrosComEstoque)
+      setProfessores(professoresData)
+      setAlunos(alunosData)
+      setAutores(autoresData)
+      setEditoras(editorasData)
+      setUsuarios(usuariosData.data || usuariosData)
 
-        const usuariosData = await usuarioService.getAll()
-        setUsuarios(usuariosData)
+      // soma de todos os estoques
+      const total = livrosComEstoque.reduce((acc, l) => acc + (l.estoque || 0), 0)
+      setEstoqueTotal(total)
 
-        const editorasData = await editoraService.getAll()
-        setEditoras(editorasData) */
-      } catch (error) {
-        console.error('Erro ao carregar dados:', error)
-      } finally {
-        setLoading(false)
-      }
+    } catch (error) {
+      console.error('Erro ao carregar dados:', error)
+    } finally {
+      setLoading(false)
     }
+  }
 
   fetchTodosDados()
 }, [])
@@ -122,7 +156,59 @@ const Home = () => {
     setShowHelpModal(true)
   }
   const handleCloseHelpModal = () => setShowHelpModal(false)
+const estatisticas = [
+    { 
+      
+      titulo: "Livros", 
+      valor: livros.length, 
+      icone: FaBookOpen, 
+      cor: "primary",
+      descricao: "Acervo Cadastrado"
+    },
 
+    { 
+    titulo: "Estoque Total", 
+    valor: estoqueTotal, 
+    icone: FaBox,   // pode usar um ícone de caixa
+    cor: "secondary",
+    descricao: "Livros disponíveis em estoque"
+  },
+    { 
+      titulo: "Usuários", 
+      valor: usuarios.length, 
+      icone: FaUsers, 
+      cor: "success",
+      descricao: "Usuários cadastrados"
+    },
+    { 
+      titulo: "Professores", 
+      valor: professores.length, 
+      icone: FaChalkboardTeacher, 
+      cor: "info",
+      descricao: "Professores cadastrados"
+    },
+    { 
+      titulo: "Alunos", 
+      valor: alunos.length, 
+      icone: FaGraduationCap, 
+      cor: "warning",
+      descricao: "Alunos cadastrados"
+    },
+    { 
+      titulo: "Autores", 
+      valor: autores.length, 
+      icone: FaFeatherAlt, 
+      cor: "secondary",
+      descricao: "Autores cadastrados"
+    },
+    { 
+      titulo: "Editoras", 
+      valor: editoras.length, 
+      icone: FaUniversity, 
+      cor: "dark",
+      descricao: "Editoras cadastradas"
+    }
+  ]
   const categoriasCards = [
     {
       titulo: "Gestão de Pessoas",
@@ -166,7 +252,6 @@ const Home = () => {
         <Col>
           <div
             className="d-flex align-items-center justify-content-between p-4 rounded"
-            style={{ border: '1px solid #dde1ff' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               {/* Logo SVG */}
@@ -179,11 +264,11 @@ const Home = () => {
               >
                 {/* Livros com cores diferentes */}
                 <rect x="12" y="10" width="10" height="42" rx="2"  stroke="#000000" // cor da borda
-                strokeWidth="1" fill="#2119b4"/> {/* azul */}
+                strokeWidth="1" fill="#000000"/> {/* azul */}
                 <rect x="26" y="6" width="12" height="46" rx="2"  stroke="#000000" // cor da borda
-                strokeWidth="1" fill="#28a745"/>  {/* verde */}
+                strokeWidth="1" fill="#000000"/>  {/* verde */}
                 <rect x="40" y="14" width="10" height="38" rx="2" stroke="#000000" // cor da borda
-                strokeWidth="1"  fill="#000000"/> {/* preto */}
+                strokeWidth="1"  fill="#fff"/> {/* preto */}
 
                 {/* Linhas decorativas */}
                 <path d="M18 18L26 18" stroke="white" strokeWidth="2" strokeLinecap="round"/>
@@ -195,9 +280,9 @@ const Home = () => {
               <div>
                 <h1 style={{
               fontFamily: '"Montserrat", sans-serif',
-              fontWeight: '800',
+              fontWeight: '600',
               fontSize: '2.8rem',
-              color: '#2119b4', 
+              color: '#000000ff', 
               marginBottom: '0.2rem',
               letterSpacing: '-0.5px'
             }}> {/* nome */}
@@ -222,47 +307,6 @@ const Home = () => {
               </p>
             </div>
           </div>
-        </Col>
-      </Row>
-
-
-      {/* ESTATÍSTICAS RÁPIDAS */}
-      <Row className="mb-4">
-        <Col md={2}>
-            <Card className="text-muted text-center p-3">
-{/*             <h4>{livros.length}</h4>
- */}            <p>Livros</p>
-          </Card>
-        </Col>
-        <Col md={2}>
-            <Card className="text-muted text-center p-3">
-{/*             <h4>{professores.length}</h4>
- */}            <p>Usuários</p>
-          </Card>
-        </Col>
-        <Col md={2}>
-            <Card className="text-muted text-center p-3">
-{/*             <h4>{professores.length}</h4>
- */}            <p>Professores</p>
-          </Card>
-        </Col>
-        <Col md={2}>
-            <Card className="text-muted text-center p-3">
-{/*             <h4>{alunos.length}</h4>
- */}            <p>Alunos</p>
-          </Card>
-        </Col>
-        <Col md={2}>
-              <Card className="text-muted text-center p-3">
-{/*             <h4>{autores.length}</h4>
- */}            <p>Autores</p>
-          </Card>
-        </Col>
-        <Col md={2}>
-            <Card className="text-muted text-center p-3">
-{/*             <h4>{autores.length}</h4>
- */}            <p>Editoras</p>
-          </Card>
         </Col>
       </Row>
 
@@ -357,6 +401,37 @@ const Home = () => {
               </Card>
             </Col>
           </Row>
+
+
+            <Row className="mb-4">
+              <Col>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h4 className="mb-0">Estatísticas do Sistema</h4>
+                  <Badge bg="light" text="dark" className="fs-6 p-2">
+                    Atualizado em tempo real
+                  </Badge>
+                </div>
+                
+                <Row>
+                  {estatisticas.map((estatistica, index) => {
+                    const Icone = estatistica.icone;
+                    return (
+                      <Col md={2} lg={6} xl={4} className="mb-0 " key={index}>
+                        <Card className={`text-center border-${estatistica.cor} h-100`}>
+                          <Card.Body className="p-3">
+                            <div className={`text-${estatistica.cor} mb-2`}>
+                            </div>
+                            <h3 className={`fw-bold text-${estatistica.cor}`}>{estatistica.valor}</h3>
+                            <h6 className="card-title mb-1">{estatistica.titulo}</h6>
+                            <small className="text-muted">{estatistica.descricao}</small>
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                    );
+                  })}
+                </Row>
+              </Col>
+            </Row>
 
              {/* CARDS DE FUNCIONALIDADES */}
             {categoriasCards.map((categoria, index) => (

@@ -62,7 +62,7 @@ const Sidebar = () => {
             {/* Texto estilo logo */}
             <h4 style={{
               fontFamily: '"Montserrat", sans-serif',
-              fontWeight: '800',
+              fontWeight: '600',
               fontSize: '1.5rem',
               color: '#ffffff', 
               margin: '0',
