@@ -17,7 +17,8 @@ import Alunos from './pages/Alunos';
 import Autores from './pages/Autores';
 import Editoras from './pages/Editoras';
 import UsuariosEspeciais from './pages/UsuariosEspeciais';
-
+import Entrada from './pages/Entrada';
+import Saida from './pages/Saida';
 // Cadastros
 import CadastroLivros from './pages/cadastros/CadastroLivros.jsx';
 import CadastroProfessores from './pages/cadastros/CadastroProfessores';
@@ -70,7 +71,9 @@ function App() {
                     <Route path="/cadastros/autores/:id" element={<CadastroAutores />} />
                     <Route path="/cadastros/usuarios-especiais" element={<CadastroUsuariosEspeciais />} />
                     <Route path="/cadastros/usuarios-especiais/:id" element={<CadastroUsuariosEspeciais />} />
-
+                  {/* MOVIMENTAÇÕES */}
+                    <Route path="/entrada" element={<Entrada />} />
+                    <Route path="/saida" element={<Saida />} />
                     {/* Redireciona rotas desconhecidas para home */}
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>

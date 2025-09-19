@@ -182,22 +182,27 @@ const Alunos = () => {
         </div>
       )}
 
-      <Row className="mb-4">
-        <Col className="d-flex justify-content-between align-items-center">
-          <h1>Gerenciamento de Alunos</h1>
-          <Button 
-            variant="success" 
-            onClick={() => {
-              setAlunoToEdit(null)
-              setShowForm(!showForm)
-              setError(null)
-            }}
-            disabled={loading}
-          >
-          Adicionar Aluno
-          </Button>
-        </Col>
-      </Row>
+      <Row className="mb-4 align-items-center">
+          <Col md={8}>
+            <h4 className="display-30 fw-bold text">Alunos</h4>
+            <p className="text-muted fs-10">
+              Cadastre e gerencie os alunos que têm acesso ao sistema.
+            </p>
+          </Col>
+          <Col md={4} className="text-md-end mt-3 mt-md-0">
+            <Button
+              variant="success"
+              onClick={() => {
+                setAlunoToEdit(null)
+                setShowForm(!showForm)
+                setError(null)
+              }}
+              disabled={loading}
+            >
+              Adicionar Aluno
+            </Button>
+          </Col>
+        </Row>
 
       {showForm && (
         <Row className="mb-4">

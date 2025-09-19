@@ -197,22 +197,27 @@ const Editoras = () => {
       )}
 
       {/* Cabeçalho + botão */}
-      <Row className="mb-4">
-        <Col className="d-flex justify-content-between align-items-center">
-          <h1>Gerenciamento de Editoras</h1>
-          <Button
-            variant="success"
-            onClick={() => {
-              setEditoraToEdit(null)
-              setShowForm(!showForm)
-              setError(null) // Limpa erros ao abrir formulário
-            }}
-            disabled={loading}
-          >
-            Adicionar Editora
-          </Button>
-        </Col>
-      </Row>
+      <Row className="mb-4 align-items-center">
+          <Col md={8}>
+            <h4 className="display-30 fw-bold text">Editoras</h4>
+            <p className="text-muted fs-10">
+              Cadastre e gerencie as editoras disponíveis no sistema.
+            </p>
+          </Col>
+          <Col md={4} className="text-md-end mt-3 mt-md-0">
+            <Button
+              variant="success"
+              onClick={() => {
+                setEditoraToEdit(null)
+                setShowForm(!showForm)
+                setError(null)
+              }}
+              disabled={loading}
+            >
+              Adicionar Editora
+            </Button>
+          </Col>
+    </Row>
 
       {/* Formulário */}
       {showForm && (

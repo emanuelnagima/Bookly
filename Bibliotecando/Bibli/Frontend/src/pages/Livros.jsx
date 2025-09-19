@@ -41,7 +41,7 @@ const Livros = () => {
       setLoading(true)
 
       // VERIFICAÇÃO DE DUPLICIDADE NO FRONTEND
-      // Verifica por ISBN ou título/autor (caso queira uma verificação mais abrangente)
+      // Verifica por ISBN ou título/autor 
       const livroExistente = livros.find(l =>
         (l.isbn === livro.isbn || 
          (l.titulo.toLowerCase().trim() === livro.titulo.toLowerCase().trim() && 
@@ -109,8 +109,8 @@ const Livros = () => {
       setLivroToEdit({
   id: livro.id,
   titulo: livro.titulo || livro.title || '',
-  autor_id: livro.autor_id,       // ⬅️ ID do autor
-  editora_id: livro.editora_id,   // ⬅️ ID da editora
+  autor_id: livro.autor_id,       
+  editora_id: livro.editora_id,   
   isbn: livro.isbn || '',
   genero: livro.genero || livro.genre || '',
   ano_publicacao: livro.ano_publicacao || livro.year || '',
@@ -200,11 +200,16 @@ const Livros = () => {
         </div>
       )}
 
-      <Row className="mb-4">
-        <Col className="d-flex justify-content-between align-items-center">
-          <h1>Gerenciamento de Livros</h1>
+      <Row className="mb-4 align-items-center">
+        <Col md={8}>
+          <h4 className="display-30 fw-bold text">Acervo de Livros</h4>
+          <p className="text-muted fs-10">
+            Cadastre e gerencie todos os livros do acervo bibliográfico e acompanhe o estoque em tempo real.
+          </p>
+        </Col>
+        <Col md={4} className="text-md-end mt-3 mt-md-0">
           <Button 
-            variant="success" 
+            variant="success"
             onClick={() => {
               setLivroToEdit(null)
               setShowForm(!showForm)
@@ -215,7 +220,7 @@ const Livros = () => {
             Adicionar Livro
           </Button>
         </Col>
-      </Row>
+      </Row>    
 
       {showForm && (
         <Row className="mb-4">

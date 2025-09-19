@@ -279,7 +279,7 @@ body.tema-padrao {
 
 /* BOTÃO CANCELAR E EXCLUIR*/
 .btn-danger {
-  background-color: #ca1313;
+  background-color: #ff2424;
   color: var(--btn-color) !important;
   cursor: pointer;
   font-weight: 500;
@@ -287,7 +287,7 @@ body.tema-padrao {
 }
 
 .btn-danger:hover {
-  background-color: #ff0000ff;
+  background-color: rgb(253, 0, 0);
   color: var(--btn-color-hover) !important;
 }
 
@@ -380,15 +380,29 @@ body.tema-padrao {
 }
 
 .livro-imagem {
-  width: 40%;
+  width: 120px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px; 
+  border: 2px solid #c9c9c9; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); 
+}
+.lista-livro-imagem {
+  width: 80px;      
+  height: 120px;  
   object-fit: cover;
   border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+}
+
+.lista-livro-imagem.selecionada {
+  border: 3px solid #28a745; 
 }
 
 .sem-imagem {
-  width: 100%;
-  height: 180px;
+  width: 150px;      
+  height: 220px;
   background-color: #f8f9fa;
   border-radius: 6px;
   display: flex;
