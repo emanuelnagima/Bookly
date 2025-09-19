@@ -183,22 +183,28 @@ const Professores = () => {
       )}
 
       {/* Cabeçalho + botão */}
-      <Row className="mb-4">
-        <Col className="d-flex justify-content-between align-items-center">
-          <h1>Gerenciamento de Professores</h1>
-          <Button 
-            variant="success" 
-            onClick={() => {
-              setProfessorToEdit(null)
-              setShowForm(!showForm)
-              setError(null)
-            }}
-            disabled={loading}
-          >
-            Adicionar Professor
-          </Button>
-        </Col>
-      </Row>
+      <Row className="mb-4 align-items-center">
+          <Col md={8}>
+            <h4 className="display-30 fw-bold text">Professores</h4>
+            <p className="text-muted fs-10">
+              Cadastre e gerencie os professores que fazem parte do sistema.
+            </p>
+          </Col>
+          <Col md={4} className="text-md-end mt-3 mt-md-0">
+            <Button
+              variant="success"
+              onClick={() => {
+                setProfessorToEdit(null)
+                setShowForm(!showForm)
+                setError(null)
+              }}
+              disabled={loading}
+            >
+              Adicionar Professor
+            </Button>
+          </Col>
+        </Row>
+
 
       {/* Formulário */}
       {showForm && (

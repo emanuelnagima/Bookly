@@ -146,20 +146,26 @@ const Autores = () => {
         </div>
       )}
 
-      <Row className="mb-4">
-        <Col className="d-flex justify-content-between align-items-center">
-          <h1>Gerenciamento de Autores</h1>
-          <Button 
-            variant="success" 
-            onClick={() => {
-              setAutorToEdit(null)
-              setShowForm(!showForm)
-            }}
-            disabled={loading}
-          >
-            Adicionar Autor
-          </Button>
-        </Col>
+      <Row className="mb-4 align-items-center">
+          <Col md={8}>
+            <h4 className="display-30 fw-bold text">Autores</h4>
+            <p className="text-muted fs-10">
+              Cadastre e gerencie os autores do acervo bibliográfico.
+            </p>
+          </Col>
+          <Col md={4} className="text-md-end mt-3 mt-md-0">
+            <Button
+              variant="success"
+              onClick={() => {
+                setAutorToEdit(null)
+                setShowForm(!showForm)
+                setError(null)
+              }}
+              disabled={loading}
+            >
+              Adicionar Autor
+            </Button>
+          </Col>
       </Row>
 
       {showForm && (

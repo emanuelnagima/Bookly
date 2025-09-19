@@ -139,7 +139,6 @@ const CadAutor = ({ onSave, onCancel, autor, loading }) => {
               Cancelar
             </Button>
             <Button 
-              variant='paginacao' 
               type='submit'
               disabled={loading}
             >

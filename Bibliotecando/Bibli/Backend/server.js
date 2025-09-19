@@ -8,6 +8,7 @@ const alunosRoutes = require('./routes/alunosRoutes');
 const autoresRoutes = require('./routes/autoresRoutes');
 const editorasRoutes = require('./routes/editorasRoutes');
 const usuariosEspeciaisRoutes = require('./routes/usuariosEspeciaisRoutes');
+const entradaSaidaRoutes = require('./routes/entradaSaidaRoutes'); // NOVA IMPORTÇÃO
 
 const app = express();
 const PORT = 3000;
@@ -32,6 +33,7 @@ app.use('/api/alunos', alunosRoutes);
 app.use('/api/autores', autoresRoutes);
 app.use('/api/editoras', editorasRoutes);
 app.use('/api/usuarios-especiais', usuariosEspeciaisRoutes);
+app.use('/api/entrada-saida', entradaSaidaRoutes); 
 
 app.get('/', (req, res) => {
   res.json({
@@ -42,7 +44,8 @@ app.get('/', (req, res) => {
       alunos: '/api/alunos',
       autores: '/api/autores',
       editoras: '/api/editoras',
-      usuariosEspeciais: '/api/usuarios-especiais'
+      usuariosEspeciais: '/api/usuarios-especiais',
+      entradaSaida: '/api/entrada-saida' 
     }
   });
 });
