@@ -23,3 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Vite
+node_modules/
+.vite/
+dist/
