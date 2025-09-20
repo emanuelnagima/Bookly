@@ -1,6 +1,6 @@
-# Bibliotecando (Bibli)
+# Bookly
 
-O **Bibliotecando** é um sistema completo para gerenciamento do acervo da biblioteca da **Escola Prof. Oswaldo Ranazzi**, desenvolvido para uso interno. Ele foi criado para tornar o controle de empréstimos, reservas e consultas de livros mais **eficiente, seguro e organizado**, garantindo que o acervo da biblioteca esteja sempre atualizado.
+O **Bookly** é um sistema completo para gerenciamento do acervo de biblioteca desenvolvido para uso interno administrativo. Ele foi criado para tornar o controle de empréstimos, reservas e consultas de livros mais **eficiente, seguro e organizado**, garantindo que o acervo da biblioteca esteja sempre atualizado.
 
 O sistema permite o cadastro de **alunos, professores, usuários gerais, livros, autores e editoras**, além de gerenciar todo o ciclo de empréstimos, incluindo:
 
@@ -9,7 +9,7 @@ O sistema permite o cadastro de **alunos, professores, usuários gerais, livros,
 - Renovação de empréstimos  
 - Reservas de livros  
 
-O **Bibliotecando** também garante que apenas **exemplares disponíveis possam ser emprestados**, registra automaticamente a entrada de novos livros e realiza a baixa de exemplares descartados.
+O **Bookly** também garante que apenas **exemplares disponíveis possam ser emprestados**, registra automaticamente a entrada de novos livros e realiza a baixa de exemplares descartados.
 
 ---
 
