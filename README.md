@@ -47,7 +47,7 @@ Antes de começar, certifique-se de ter instalado:
 1. Acesse a pasta do frontend:
    ```bash
    
-   cd Bibliotecando/Bibli/Frontend
+   cd Frontend
    
    npm install
    
@@ -71,7 +71,7 @@ Antes de começar, certifique-se de ter instalado:
 3. Acesse a pasta do backend:
    ```bash
    
-   cd Bibliotecando/Bibli/Backend
+   cd Backend
    
    npm install
 
