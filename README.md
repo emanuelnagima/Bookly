@@ -21,7 +21,7 @@ O **Bookly** também garante que apenas **exemplares disponíveis possam ser emp
 - Facilita o planejamento de aquisições de livros, identificando os mais utilizados e os menos procurados.  
 - Proporciona uma experiência organizada para alunos e professores, incentivando o uso do acervo.  
 
-O **Bibliotecando** é, portanto, uma **solução completa, confiável e moderna** para gerenciamento de bibliotecas escolares, que alia tecnologia, segurança e praticidade para melhorar a gestão do acervo e o atendimento aos usuários.
+O **Bookly** é, portanto, uma **solução completa, confiável e moderna** para gerenciamento de bibliotecas escolares, que alia tecnologia, segurança e praticidade para melhorar a gestão do acervo e o atendimento aos usuários.
 
 ---
 
