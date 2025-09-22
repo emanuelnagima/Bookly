@@ -50,6 +50,8 @@ Antes de começar, certifique-se de ter instalado:
    cd Frontend
    
    npm install
+
+   npm install axios
    
    npm install react-bootstrap bootstrap
    
@@ -83,7 +85,7 @@ Antes de começar, certifique-se de ter instalado:
 1. Acesse a pasta do frontend:
    ```bash
    
-   cd Bibliotecando/Bibli/Frontend
+   cd Frontend
    
    npm run dev (rodar)
    
@@ -91,6 +93,6 @@ Antes de começar, certifique-se de ter instalado:
 2. Acesse a pasta do backend:
    ```bash
    
-   cd Bibliotecando/Bibli/Backend
+   cd Backend
    
    npm start (rodar)
