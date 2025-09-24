@@ -186,7 +186,7 @@ const Alunos = () => {
           <Col md={8}>
             <h4 className="display-30 fw-bold text">Alunos</h4>
             <p className="text-muted fs-10">
-              Cadastre e gerencie os alunos que têm acesso ao sistema.
+              Cadastre e gerencie os alunos do sistema.
             </p>
           </Col>
           <Col md={4} className="text-md-end mt-3 mt-md-0">

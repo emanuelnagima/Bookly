@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaBookOpen, FaEye, FaEyeSlash } from 'react-icons/fa';
+import {FaEye, FaEyeSlash } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const INACTIVITY_LIMIT = 60 * 60 * 1000; // 1 hora
@@ -154,7 +154,7 @@ const Login = () => {
       )}
 
       <div className="login-form">
-        <h2><FaBookOpen /> Bookly</h2>
+        <h2> Bookly</h2>
         <p>Faça login para acessar a plataforma</p>
 
         <form onSubmit={handleLogin}>

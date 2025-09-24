@@ -201,7 +201,7 @@ const Editoras = () => {
           <Col md={8}>
             <h4 className="display-30 fw-bold text">Editoras</h4>
             <p className="text-muted fs-10">
-              Cadastre e gerencie as editoras disponíveis no sistema.
+              Cadastre e gerencie as editoras no sistema.
             </p>
           </Col>
           <Col md={4} className="text-md-end mt-3 mt-md-0">
