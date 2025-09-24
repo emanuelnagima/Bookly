@@ -450,7 +450,7 @@ body.tema-padrao {
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
   border-radius: 0.25rem;
-  min-width: 50px;
+  min-width: 40px;
 }
 
 
@@ -640,7 +640,7 @@ body.tema-padrao {
   height: 30px;
   padding: 0;
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 12px;
   transition: all 0.1s ease;
   cursor: pointer;
 }

@@ -118,7 +118,7 @@
                         <div><strong>Estoque:</strong> {livro.estoque || 0}</div>
                       </div>
 
-                      <div className="d-flex gap-2 mt-2">
+                      <div className="d-flex gap-1 mt-2">
                         <button
                           className="btn-sm-custom btn-edit d-flex align-items-center justify-content-center"
                           onClick={() => onEdit(livro.id)}

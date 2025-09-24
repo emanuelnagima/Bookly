@@ -171,7 +171,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
           <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='titulo'>
-                <Form.Label>Título *</Form.Label>
+                <Form.Label>Título </Form.Label>
                 <Form.Control
                   type='text'
                   name='titulo'
@@ -185,7 +185,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
             </Col>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='isbn'>
-                <Form.Label>ISBN *</Form.Label>
+                <Form.Label>ISBN </Form.Label>
                 <Form.Control
                   type='text'
                   name='isbn'
@@ -203,7 +203,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
           <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='autor_id'>
-                <Form.Label>Autor *</Form.Label>
+                <Form.Label>Autor </Form.Label>
                 <Form.Select
                   name="autor_id"
                   value={livroData.autor_id}
@@ -223,7 +223,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
             </Col>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='editora_id'>
-                <Form.Label>Editora *</Form.Label>
+                <Form.Label>Editora </Form.Label>
                 <Form.Select
                   name='editora_id'
                   value={livroData.editora_id}
@@ -246,7 +246,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
           <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='genero'>
-                <Form.Label>Gênero *</Form.Label>
+                <Form.Label>Gênero </Form.Label>
                 <Form.Select
                   name='genero'
                   value={livroData.genero}
@@ -270,7 +270,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
             </Col>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='ano_publicacao'>
-                <Form.Label>Ano de Publicação *</Form.Label>
+                <Form.Label>Ano de Publicação </Form.Label>
                 <Form.Control
                   type='number'
                   name='ano_publicacao'
