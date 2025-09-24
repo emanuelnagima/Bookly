@@ -187,7 +187,7 @@ const Professores = () => {
           <Col md={8}>
             <h4 className="display-30 fw-bold text">Professores</h4>
             <p className="text-muted fs-10">
-              Cadastre e gerencie os professores que fazem parte do sistema.
+              Cadastre e gerencie os professores do sistema.
             </p>
           </Col>
           <Col md={4} className="text-md-end mt-3 mt-md-0">

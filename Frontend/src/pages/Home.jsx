@@ -261,26 +261,9 @@ useEffect(() => {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               {/* Logo SVG */}
-              <svg
-                width="60"
-                height="60"
-                viewBox="0 0 64 64"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                {/* Livros com cores diferentes */}
-                <rect x="12" y="10" width="10" height="42" rx="2"  stroke="#000000ff" // cor 
-                strokeWidth="1" fill="#000000ff"/> {/* azul */}
-                <rect x="26" y="6" width="12" height="46" rx="2"  stroke="#000000" // cor 
-                strokeWidth="1" fill="#ff0059ff"/>  {/* verde */}
-                <rect x="40" y="14" width="10" height="38" rx="2" stroke="#000000" // cor
-                strokeWidth="1"  fill="#fff"/> {/* preto */}
-
-                {/* Linhas decorativas */}
-                <path d="M18 18L26 18" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M32 14L40 14" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M44 22L52 22" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
+              
+                
+              
 
               {/* Texto estilo logo */}
               <div>
@@ -371,6 +354,7 @@ useEffect(() => {
                             {formatarTexto(livro.titulo || livro.title || '')}
                           </h6>
                           <div className="livro-detalhes">
+                            <div><strong>ID:</strong> {livro.id}</div>
                             <div><strong>Autor:</strong> {formatarTexto(livro.autor_nome || livro.author || '')}</div>
                             <div><strong>Editora:</strong> {formatarTexto(livro.editora_nome || livro.publisher || '')}</div>
 

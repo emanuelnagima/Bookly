@@ -109,6 +109,7 @@
                         {formatarTexto(livro.titulo || livro.title || '')}
                       </h6>
                       <div className="livro-detalhes flex-grow-1">
+                        <div><strong>ID:</strong> {livro.id}</div>
                         <div><strong>Autor:</strong> {formatarTexto(livro.autor_nome || livro.author || '')}</div>
                         <div><strong>Editora:</strong> {formatarTexto(livro.editora_nome || livro.publisher || '')}</div>
                         <div><strong>Gênero:</strong> {formatarTexto(livro.genero || livro.genre || '')}</div>

@@ -180,7 +180,7 @@ const UsuariosEspeciais = () => {
         <Col md={8}>
           <h4 className="display-30 fw-bold text">Usuários</h4>
           <p className="text-muted fs-10">
-            Cadastre e gerencie os usuários do sistema de forma prática e organizada.
+            Cadastre e gerencie os usuários externos do sistema .
           </p>
         </Col>
         <Col md={4} className="text-md-end mt-3 mt-md-0">
