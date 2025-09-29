@@ -41,21 +41,17 @@ const Livros = () => {
       setLoading(true)
       setError('')
 
-      let savedLivro
-
       if (livroToEdit) {
         // Modo edição
-        savedLivro = await livroService.update({ ...livro, id: livroToEdit.id })
+        await livroService.update({ ...livro, id: livroToEdit.id })
         setToastMessage('Livro atualizado com sucesso!')
         setOperationType('update')
       } else {
         // Modo cadastro
-        savedLivro = await livroService.add(livro)
+        await livroService.add(livro)
         setToastMessage('Livro cadastrado com sucesso!')
         setOperationType('create')
       }
-
-      console.log('Livro salvo com sucesso:', savedLivro)
 
       // Recarrega a lista e limpa o estado
       await loadLivros()
@@ -63,14 +59,12 @@ const Livros = () => {
       setShowForm(false)
       setLivroToEdit(null)
 
-    } catch (error) {
-      console.error('Erro ao salvar livro:', error)
-
+    } catch (err) {
       // Tratamento específico para erros de duplicação
-      if (error.message.includes('Duplicate') || error.message.includes('duplicidade') || error.message.includes('já existe') || error.message.includes('ISBN')) {
+      if (err.message.includes('Duplicate') || err.message.includes('duplicidade') || err.message.includes('já existe') || err.message.includes('ISBN')) {
         setError('ISBN já cadastrado! Por favor, use um ISBN diferente.')
       } else {
-        setError(error.message)
+        setError(`Falha ao ${livroToEdit ? 'atualizar' : 'cadastrar'} livro: ${err.message}`)
       }
     } finally {
       setLoading(false)
@@ -152,64 +146,65 @@ const Livros = () => {
   return (
     <Container className="py-4">
       {/* Toast de Sucesso */}
-  <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
-    <Toast
-      show={showSuccessToast}
-      onClose={() => setShowSuccessToast(false)}
-      delay={3000}
-      autohide
-      bg={operationType === 'delete' ? 'danger' : 'success'}
-    >
-      <Toast.Header>
-        <strong className="me-auto">
-          {operationType === 'create' && 'Cadastro realizado'}
-          {operationType === 'update' && 'Atualização realizada'}
-          {operationType === 'delete' && 'Exclusão realizada'}
-        </strong>
-      </Toast.Header>
-      <Toast.Body className="text-white">
-        {toastMessage}
-      </Toast.Body>
-    </Toast>
-  </div>
+      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
+        <Toast
+          show={showSuccessToast}
+          onClose={() => setShowSuccessToast(false)}
+          delay={3000}
+          autohide
+          bg={operationType === 'delete' ? 'danger' : 'success'}
+        >
+          <Toast.Header>
+            <strong className="me-auto">
+              {operationType === 'create' && 'Cadastro realizado'}
+              {operationType === 'update' && 'Atualização realizada'}
+              {operationType === 'delete' && 'Exclusão realizada'}
+            </strong>
+          </Toast.Header>
+          <Toast.Body className="text-white">
+            {toastMessage}
+          </Toast.Body>
+        </Toast>
+      </div>
 
-      {/* Loading Global */}
       {loading && !isDeleting && (
         <div className="text-center my-4">
-          <Spinner animation="border" variant="primary" />
-          <p className="mt-2 text-muted">Carregando...</p>
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Carregando...</span>
+          </Spinner>
+        </div>
+      )}
+      
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+          <button 
+            type="button" 
+            className="btn-close float-end" 
+            onClick={() => setError('')}
+            aria-label="Close"
+          ></button>
         </div>
       )}
 
-      {/* Alert de Erro */}
-      {error && (
-        <Alert variant="danger" dismissible onClose={() => setError('')} className="mt-3">
-          <Alert.Heading>Erro</Alert.Heading>
-          {error}
-        </Alert>
-      )}
-
-      {/* Cabeçalho */}
       <Row className="mb-4 align-items-center">
         <Col md={8}>
-          <h4 className="display-30 fw-bold text-primary">Acervo de Livros</h4>
-          <p className="text-muted">
+          <h4 className="display-30 fw-bold text">Acervo de Livros</h4>
+          <p className="text-muted fs-10">
             Cadastre e gerencie todos os livros do acervo bibliográfico e acompanhe o estoque em tempo real.
           </p>
         </Col>
         <Col md={4} className="text-md-end mt-3 mt-md-0">
-          <Button
+          <Button 
             variant="success"
             onClick={handleOpenForm}
             disabled={loading}
-            className="px-4"
           >
             Adicionar Livro
           </Button>
         </Col>
-      </Row>
+      </Row>    
 
-      {/* Formulário */}
       {showForm && (
         <Row className="mb-4">
           <Col>
@@ -223,7 +218,6 @@ const Livros = () => {
         </Row>
       )}
 
-      {/* Lista de Livros */}
       <Row>
         <Col>
           <LivroList
@@ -235,7 +229,6 @@ const Livros = () => {
         </Col>
       </Row>
 
-      {/* Modal de Confirmação de Exclusão */}
       <Modal show={showDeleteModal} onHide={() => !isDeleting && setShowDeleteModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirmar exclusão</Modal.Title>
@@ -244,15 +237,15 @@ const Livros = () => {
           Tem certeza que deseja excluir este livro?
         </Modal.Body>
         <Modal.Footer>
-          <Button
-            variant="paginacao"
+          <Button 
+            variant="paginacao" 
             onClick={() => setShowDeleteModal(false)}
             disabled={isDeleting}
           >
             Cancelar
           </Button>
-          <Button
-            variant="danger"
+          <Button 
+            variant="danger" 
             onClick={handleDeleteLivro}
             disabled={isDeleting}
           >
