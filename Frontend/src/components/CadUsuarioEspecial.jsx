@@ -223,7 +223,7 @@ const CadUsuarioEspecial = ({ onSave, onCancel, usuario, loading }) => {
                   {usuarioData.id ? ' Atualizando...' : ' Salvando...'}
                 </>
               ) : (
-                usuarioData.id ? 'Atualizar' : 'Salvar'
+                usuarioData.id ? 'Atualizar' : ' Cadastrar Usuário'
               )}
             </Button>
           </div>
