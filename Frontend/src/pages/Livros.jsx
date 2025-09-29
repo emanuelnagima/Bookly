@@ -152,26 +152,26 @@ const Livros = () => {
   return (
     <Container className="py-4">
       {/* Toast de Sucesso */}
-      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
-        <Toast
-          show={showSuccessToast}
-          onClose={() => setShowSuccessToast(false)}
-          delay={3000}
-          autohide
-          bg={operationType === 'delete' ? 'danger' : 'success'}
-        >
-          <Toast.Header>
-            <strong className="me-auto">
-              {operationType === 'create' && 'Cadastro realizado'}
-              {operationType === 'update' && 'Atualização realizada'}
-              {operationType === 'delete' && 'Exclusão realizada'}
-            </strong>
-          </Toast.Header>
-          <Toast.Body className="text-white">
-            {toastMessage}
-          </Toast.Body>
-        </Toast>
-      </div>
+  <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
+    <Toast
+      show={showSuccessToast}
+      onClose={() => setShowSuccessToast(false)}
+      delay={3000}
+      autohide
+      bg={operationType === 'delete' ? 'danger' : 'success'}
+    >
+      <Toast.Header>
+        <strong className="me-auto">
+          {operationType === 'create' && 'Cadastro realizado'}
+          {operationType === 'update' && 'Atualização realizada'}
+          {operationType === 'delete' && 'Exclusão realizada'}
+        </strong>
+      </Toast.Header>
+      <Toast.Body className="text-white">
+        {toastMessage}
+      </Toast.Body>
+    </Toast>
+  </div>
 
       {/* Loading Global */}
       {loading && !isDeleting && (
