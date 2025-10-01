@@ -217,6 +217,8 @@ const Footer = () => {
                   <li>
                     <a
                       href={GOOGLE_FORM_FEEDBACK}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="small text-muted hover-underline"
                     >
                       Formulário
@@ -231,11 +233,13 @@ const Footer = () => {
                 <ul className="lista-rodape list-unstyled ps-2">
                   <li>
                     <a
-                      href="#"
+                      href="/privacy-policy"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="small text-muted hover-underline"
                     >
                       <FaChevronRight className="me-2 text-primary" size={10} />
-                      Privacidade
+                      Política de Privacidade
                     </a>
                   </li>
                   <li>
