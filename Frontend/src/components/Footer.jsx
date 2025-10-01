@@ -262,7 +262,9 @@ const Footer = () => {
                   </li>
                   <li>
                     <a
-                      href="#"
+                      href="/faq"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="small text-muted hover-underline"
                     >
                       <FaChevronRight className="me-2 text-primary" size={10} />

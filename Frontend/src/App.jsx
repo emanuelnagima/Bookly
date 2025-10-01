@@ -10,6 +10,7 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Login from './pages/Login';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import FAQ from './pages/FAQ'; // ADICIONE ESTA IMPORTACAO
 
 // Listagens
 import Livros from './pages/Livros';
@@ -39,6 +40,7 @@ function App() {
         {/* Rotas públicas */}
         <Route path="/login" element={<Login />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/faq" element={<FAQ />} /> {/* ADICIONE ESTA ROTA */}
 
         {/* Rotas protegidas */}
         <Route
