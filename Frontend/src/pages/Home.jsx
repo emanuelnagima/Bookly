@@ -233,7 +233,7 @@ useEffect(() => {
       ]
     },
     {
-      titulo: "Operações",
+      titulo: "Movimentações",
       cards: [
         { icone: FaDoorOpen, titulo: "Entrada", descricao: "Registre a entrada de novos livros no acervo", link: "/entrada" },
         { icone: FaSignOutAlt, titulo: "Saída", descricao: "Registre a saída de livros do acervo do sistema", link: "/saida" },

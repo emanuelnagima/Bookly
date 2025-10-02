@@ -2,36 +2,47 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const FAQ = () => {
   return (
-    <div className="faq-page">
+    <div className="page-container">
       <div className="container py-5">
         <div className="row justify-content-center">
           <div className="col-lg-9 col-md-11">
 
             {/* Cabeçalho */}
             <div className="text-center mb-5">
-              <div className="faq-icon mb-4">
+              <div className="page-icon mb-4">
                 <span className="icon-wrapper">?</span>
               </div>
               <h1 className="display-5 fw-bold mb-3 gradient-text">FAQ - Bookly</h1>
-              <p className="lead text-muted">
-                Perguntas frequentes para bibliotecários(as) e administradores(as)
+              <p className="lead text-muted mb-2">
+                Manual e funcionamento para bibliotecários(as) e administradores(as)
+              </p>
+              <p className="text-muted">
+                Perguntas frequentes
               </p>
             </div>
 
             {/* Conteúdo Principal */}
-            <div className="faq-content">
+            <div className="page-content">
               
               {/* Pergunta 1 */}
-              <div className="faq-item mb-4">
-                <div className="faq-question">
+              <div className="content-item mb-4">
+                <div className="item-header">
                   <h3 className="h4 mb-0">
-                    <span className="question-number">01</span>
+                    <span className="item-number">01</span>
                     Como cadastrar um novo livro?
                   </h3>
                 </div>
-                <div className="faq-answer">
-                  <div className="answer-content">
-                    <p className="mb-2"><strong>Vá até:</strong> Cadastros › Livros › Adicionar Livro</p>
+                <div className="item-body">
+                  <div className="body-content">
+                    <p className="mb-3">
+                      <strong>Vá até:</strong> 
+                    </p>
+                    <div className="action-links">
+                      <a href="/livros" target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                        Acessar Livros
+                      </a>
+                    </div>
+                    <p className="mb-2 mt-3"><strong>Clique em:</strong> "Adicionar Livro" no canto superior direito</p>
                     <p className="mb-2"><strong>Preencha as informações:</strong> Título, autor, ISBN, editora e ano de publicação.</p>
                     <p className="mb-0"><strong>Clique em:</strong> Cadastrar livro.</p>
                   </div>
@@ -39,34 +50,63 @@ const FAQ = () => {
               </div>
 
               {/* Pergunta 2 */}
-              <div className="faq-item mb-4">
-                <div className="faq-question">
+              <div className="content-item mb-4">
+                <div className="item-header">
                   <h3 className="h4 mb-0">
-                    <span className="question-number">02</span>
-                    Como cadastrar autores ou editoras?
+                    <span className="item-number">02</span>
+                    Como cadastrar autores e editoras?
                   </h3>
                 </div>
-                <div className="faq-answer">
-                  <div className="answer-content">
-                    <p className="mb-2"><strong>Autores:</strong> Vá até Cadastros › Autores › Adicionar Autor → Preencha nome, data de nascimento e nacionalidade.</p>
-                    <p className="mb-2"><strong>Clique em:</strong> Cadastrar autor.</p>
-                    <p className="mb-2"><strong>Editoras:</strong> Vá até Cadastros › Editoras › Adicionar Editora → Preencha nome, endereço e contato.</p>
+                <div className="item-body">
+                  <div className="body-content">
+                    <p className="mb-3">
+                      <strong>Autores:</strong>
+                    </p>
+                    <div className="action-links">
+                      <a href="/autores" target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                        Acessar Autores
+                      </a>
+                    </div>
+                    <p className="mb-2 mt-3">Clique em "Adicionar Autor" › Preencha nome, data de nascimento e nacionalidade.</p>
+                    <p className="mb-3"><strong>Clique em:</strong> Cadastrar autor.</p>
+                    
+                    <p className="mb-3">
+                      <strong>Editoras:</strong>
+                    </p>
+                    <div className="action-links">
+                      <a href="/editoras" target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                        Acessar Editoras
+                      </a>
+                    </div>
+                    <p className="mb-2 mt-3">Clique em "Adicionar Editora" › Preencha nome, CNJP, endereço e contato.</p>
                     <p className="mb-0"><strong>Clique em:</strong> Cadastrar editora.</p>
                   </div>
                 </div>
               </div>
 
               {/* Pergunta 3 */}
-              <div className="faq-item mb-4">
-                <div className="faq-question">
+              <div className="content-item mb-4">
+                <div className="item-header">
                   <h3 className="h4 mb-0">
-                    <span className="question-number">03</span>
+                    <span className="item-number">03</span>
                     Como cadastrar usuários (alunos, professores ou outros)?
                   </h3>
                 </div>
-                <div className="faq-answer">
-                  <div className="answer-content">
-                    <p className="mb-2"><strong>Vá até:</strong> Cadastros › Usuários › Adicionar Usuário</p>
+                <div className="item-body">
+                  <div className="body-content">
+                    <p className="mb-3"><strong>Acesse as páginas:</strong></p>
+                    <div className="action-links">
+                      <a href="/alunos" target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                        Acessar Alunos
+                      </a>
+                      <a href="/professores" target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                        Acessar Professores
+                      </a>
+                      <a href="/usuarios-especiais" target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                        Acessar Usuários 
+                      </a>
+                    </div>
+                    <p className="mb-2 mt-3"><strong>Em cada página:</strong> Clique em "Adicionar" no canto superior direito</p>
                     <p className="mb-2"><strong>Preencha:</strong> Nome, tipo, dados de matrícula/ID, e-mail e demais informações.</p>
                     <p className="mb-0"><strong>Clique em:</strong> Cadastrar usuário/aluno/professor.</p>
                   </div>
@@ -74,17 +114,25 @@ const FAQ = () => {
               </div>
 
               {/* Pergunta 4 */}
-              <div className="faq-item mb-4">
-                <div className="faq-question">
+              <div className="content-item mb-4">
+                <div className="item-header">
                   <h3 className="h4 mb-0">
-                    <span className="question-number">04</span>
+                    <span className="item-number">04</span>
                     Como registrar entrada ou saída de livros?
                   </h3>
                 </div>
-                <div className="faq-answer">
-                  <div className="answer-content">
-                    <p className="mb-2"><strong>Vá até:</strong> Movimentações › Entradas ou Saídas</p>
-                    <p className="mb-2"><strong>Procedimento:</strong> Pesquise e selecione o livro › escolha o tipo de entrada/saída. Dependendo do tipo, o sistema irá solicitar que seja preenchido o motivo, depois informe a quantidade.</p>
+                <div className="item-body">
+                  <div className="body-content">
+                    <p className="mb-3"><strong>Acesse as páginas de movimentação:</strong></p>
+                    <div className="action-links">
+                      <a href="/entrada" target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                        Acessar Entrada
+                      </a>
+                      <a href="/saida" target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                        Acessar Saída
+                      </a>
+                    </div>
+                    <p className="mb-2 mt-3"><strong>Procedimento:</strong> Pesquise e selecione o livro › escolha o tipo de entrada/saída. Dependendo do tipo, o sistema irá solicitar que seja preenchido o motivo, depois informe a quantidade.</p>
                     <p className="mb-0"><strong>Clique em:</strong> Registrar entrada/saída.</p>
                   </div>
                 </div>
@@ -97,7 +145,7 @@ const FAQ = () => {
       </div>
 
       <style>{`
-        .faq-page {
+        .page-container {
           min-height: 100vh;
           background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -105,7 +153,7 @@ const FAQ = () => {
           line-height: 1.6;
         }
 
-        .faq-icon .icon-wrapper {
+        .page-icon .icon-wrapper {
           display: inline-block;
           width: 80px;
           height: 80px;
@@ -125,21 +173,21 @@ const FAQ = () => {
           background-clip: text;
         }
 
-        .faq-item {
+        .content-item {
           border-left: 4px solid #6F00FF;
           padding-left: 1.5rem;
           margin-bottom: 2rem;
         }
 
-        .faq-item:hover {
+        .content-item:hover {
           border-left-color: #8A2BE2;
         }
 
-        .faq-question {
+        .item-header {
           margin-bottom: 1rem;
         }
 
-        .question-number {
+        .item-number {
           display: inline-block;
           background: linear-gradient(135deg, #6F00FF 0%, #8A2BE2 100%);
           color: white;
@@ -153,7 +201,7 @@ const FAQ = () => {
           font-size: 0.9rem;
         }
 
-        .faq-answer {
+        .item-body {
           background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
           padding: 1.5rem;
           border-radius: 12px;
@@ -161,28 +209,35 @@ const FAQ = () => {
           margin-left: 3rem;
         }
 
-        .answer-content p {
+        .body-content p {
           margin-bottom: 0.75rem;
           color: #555;
           line-height: 1.7;
         }
 
-        .answer-content strong {
+        .body-content strong {
           color: #6F00FF;
         }
 
+        .action-links {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem;
+          margin: 1rem 0;
+        }
+
         @media (max-width: 768px) {
-          .faq-item {
+          .content-item {
             padding-left: 1rem;
             margin-left: 0.5rem;
           }
           
-          .faq-answer {
+          .item-body {
             margin-left: 1rem;
             padding: 1.25rem;
           }
           
-          .question-number {
+          .item-number {
             width: 35px;
             height: 35px;
             line-height: 35px;
@@ -191,12 +246,12 @@ const FAQ = () => {
         }
 
         @media (max-width: 576px) {
-          .faq-answer {
+          .item-body {
             margin-left: 0;
             padding: 1rem;
           }
           
-          .faq-icon .icon-wrapper {
+          .page-icon .icon-wrapper {
             width: 60px;
             height: 60px;
             line-height: 60px;
