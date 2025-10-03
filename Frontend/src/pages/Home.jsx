@@ -261,11 +261,8 @@ useEffect(() => {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               {/* Logo SVG */}
-              
-                
-              
+  
 
-              {/* Texto estilo logo */}
               <div>
                 <h1 style={{
               fontFamily: '"Montserrat", sans-serif',
@@ -282,7 +279,7 @@ useEffect(() => {
                   className="text-muted mb-0"
                   style={{ fontSize: '0.95rem', marginTop: '-5px', marginLeft: '-1.1rem' }}
                 >
-                  Sua plataforma completa de gestão bibliotecária
+                  Sistema de Gestão Bibliotecária
                 </p>
               </div>
             </div>

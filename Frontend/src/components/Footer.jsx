@@ -242,15 +242,16 @@ const Footer = () => {
                       Política de Privacidade
                     </a>
                   </li>
-                  <li>
-                    <a
-                      href="#"
-                      className="small text-muted hover-underline"
-                    >
-                      <FaChevronRight className="me-2 text-primary" size={10} />
-                      Termos
-                    </a>
-                  </li>
+                    <li>
+                      <a
+                        href="/terms-of-use"
+                        className="small text-muted hover-underline"
+                      >
+                        <FaChevronRight className="me-2 text-primary" size={10} />
+                        Termos de uso
+                      </a>
+                    </li>
+
                   <li>
                     <a
                       href="#"

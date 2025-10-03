@@ -62,7 +62,7 @@ const Sidebar = () => {
             color: '#b0b0b0',
             margin: 0,
           }}>
-            Solução integrada para bibliotecas
+             Sistema de Gestão Bibliotecária
           </p>
         </div>
       </div>

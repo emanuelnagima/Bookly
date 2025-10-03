@@ -1,5 +1,4 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 const FAQ = () => {
   return (
     <div className="page-container">
@@ -28,6 +27,9 @@ const FAQ = () => {
               <p className="text-muted">
                 Perguntas frequentes
               </p>
+              <div className="last-update-badge">
+                Última atualização: {new Date().toLocaleDateString('pt-BR')}
+              </div>
             </div>
 
             {/* Conteúdo Principal */}
@@ -180,6 +182,17 @@ const FAQ = () => {
           background-clip: text;
         }
 
+        .last-update-badge {
+          display: inline-block;
+          background: linear-gradient(135deg, #6F00FF 0%, #8A2BE2 100%);
+          color: white;
+          padding: 0.5rem 1.5rem;
+          border-radius: 25px;
+          font-size: 0.9rem;
+          font-weight: 500;
+          margin-top: 1rem;
+        }
+
         .content-item {
           border-left: 4px solid #6F00FF;
           padding-left: 1.5rem;
@@ -231,6 +244,14 @@ const FAQ = () => {
           flex-wrap: wrap;
           gap: 0.75rem;
           margin: 1rem 0;
+        }
+
+        .contact-box {
+          background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+          padding: 1rem;
+          border-radius: 8px;
+          border-left: 4px solid #6F00FF;
+          display: inline-block;
         }
 
         @media (max-width: 768px) {
