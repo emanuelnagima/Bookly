@@ -4,6 +4,7 @@ O **Bookly** é um sistema completo para gerenciamento do acervo de biblioteca d
 
 O sistema permite o cadastro de **alunos, professores, usuários gerais, livros, autores e editoras**, além de gerenciar todo o ciclo de empréstimos, incluindo:
 
+- Entradas de livros  
 - Saídas de livros  
 - Devoluções  
 - Renovação de empréstimos  
