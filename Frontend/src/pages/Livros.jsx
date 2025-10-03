@@ -1,5 +1,5 @@
-import { Button, Col, Container, Row, Modal, Spinner, Toast } from 'react-bootstrap'
-import { useState, useEffect } from 'react'
+import { Button, Col, Container, Row, Modal, Spinner, Toast, Alert } from 'react-bootstrap'
+import { useState, useEffect, useCallback } from 'react'
 import LivroForm from '../components/CadLivro'
 import LivroList from '../components/LivroList'
 import livroService from '../services/livroService'
@@ -11,102 +11,92 @@ const Livros = () => {
   const [livroToEdit, setLivroToEdit] = useState(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  
+  const [error, setError] = useState('')
+
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const [operationType, setOperationType] = useState('')
 
-  const loadLivros = async () => {
+  // Carregar livros com useCallback para evitar loops
+  const loadLivros = useCallback(async () => {
     try {
       setLoading(true)
+      setError('')
       const dados = await livroService.getAll()
       setLivros(dados)
-      setError(null)
     } catch (error) {
       console.error('Erro ao carregar livros:', error)
-      setError('Falha ao carregar livros. Tente recarregar a página.')
+      setError(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadLivros()
+  }, [loadLivros])
+
+  const handleSaveLivro = async (livro) => {
+    try {
+      setLoading(true)
+      setError('')
+
+      if (livroToEdit) {
+        // Modo edição
+        await livroService.update({ ...livro, id: livroToEdit.id })
+        setToastMessage('Livro atualizado com sucesso!')
+        setOperationType('update')
+      } else {
+        // Modo cadastro
+        await livroService.add(livro)
+        setToastMessage('Livro cadastrado com sucesso!')
+        setOperationType('create')
+      }
+
+      // Recarrega a lista e limpa o estado
+      await loadLivros()
+      setShowSuccessToast(true)
+      setShowForm(false)
+      setLivroToEdit(null)
+
+    } catch (err) {
+      // Tratamento específico para erros de duplicação
+      if (err.message.includes('Duplicate') || err.message.includes('duplicidade') || err.message.includes('já existe') || err.message.includes('ISBN')) {
+        setError('ISBN já cadastrado! Por favor, use um ISBN diferente.')
+      } else {
+        setError(`Falha ao ${livroToEdit ? 'atualizar' : 'cadastrar'} livro: ${err.message}`)
+      }
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-    loadLivros()
-  }, [])
-
-
-const handleSaveLivro = async (livro) => {
-  try {
-    setLoading(true);
-    setError(null);
-
-    console.log('Dados sendo enviados para salvamento:', livro);
-
-    // ENVIO DIRETO PARA O SERVIDOR 
-    let savedLivro;
-    
-    if (livro.id) {
-      // Edição
-      savedLivro = await livroService.update(livro);
-      setToastMessage('Livro atualizado com sucesso!');
-      setOperationType('update');
-    } else {
-      // Cadastro
-      savedLivro = await livroService.add(livro);
-      setToastMessage('Livro cadastrado com sucesso!');
-      setOperationType('create');
-    }
-    
-    console.log('Livro salvo com sucesso:', savedLivro);
-    
-    await loadLivros();
-    setShowSuccessToast(true);
-    setShowForm(false);
-    setLivroToEdit(null);
-    
-  } catch (error) {
-    console.error('Erro completo ao salvar livro:', error);
-    
-    // Verifica a resposta do servidor 
-    const serverMessage = error.response?.data?.message || error.message;
-    
-    if (serverMessage.includes('Duplicate') || 
-        serverMessage.includes('duplicidade') ||
-        serverMessage.includes('já existe') ||
-        serverMessage.includes('ISBN')) {
-      setError(serverMessage);
-    } else {
-      setError(`Falha ao ${livro.id ? 'atualizar' : 'cadastrar'} livro: ${serverMessage}`);
-    }
-  } finally {
-    setLoading(false);
-  }
-};
   const handleEditLivro = async (id) => {
     try {
       setLoading(true)
+      setError('')
+
       const livro = await livroService.getById(id)
-      
-      if (!livro || !livro.id) {
+
+      if (!livro) {
         throw new Error('Livro não encontrado')
       }
-      
+
       setLivroToEdit({
         id: livro.id,
-        titulo: livro.titulo || livro.title || '',
-        autor_id: livro.autor_id,       
-        editora_id: livro.editora_id,   
+        titulo: livro.titulo || '',
+        autor_id: livro.autor_id?.toString() || '',
+        editora_id: livro.editora_id?.toString() || '',
         isbn: livro.isbn || '',
-        genero: livro.genero || livro.genre || '',
-        ano_publicacao: livro.ano_publicacao || livro.year || '',
+        genero: livro.genero || '',
+        ano_publicacao: livro.ano_publicacao?.toString() || '',
         imagem: livro.imagem || null
       })
+
       setShowForm(true)
-      setError(null)
     } catch (error) {
       console.error('Erro ao buscar livro:', error)
-      setError('Erro ao carregar livro para edição.')
+      setError(error.message)
     } finally {
       setLoading(false)
     }
@@ -123,7 +113,7 @@ const handleSaveLivro = async (livro) => {
     if (!livroToDelete || isDeleting) return
 
     setIsDeleting(true)
-    setLoading(true)
+    setError('')
 
     try {
       await livroService.remove(livroToDelete)
@@ -133,23 +123,34 @@ const handleSaveLivro = async (livro) => {
       await loadLivros()
     } catch (error) {
       console.error("Falha na exclusão:", error)
-      setError("Não foi possível excluir o livro. Tente novamente.")
+      setError(error.message)
     } finally {
       setIsDeleting(false)
-      setLoading(false)
       setShowDeleteModal(false)
       setLivroToDelete(null)
     }
   }
 
+  const handleCloseForm = () => {
+    setShowForm(false)
+    setLivroToEdit(null)
+    setError('')
+  }
+
+  const handleOpenForm = () => {
+    setLivroToEdit(null)
+    setShowForm(true)
+    setError('')
+  }
+
   return (
     <Container className="py-4">
-     
+      {/* Toast de Sucesso */}
       <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
-        <Toast 
-          show={showSuccessToast} 
-          onClose={() => setShowSuccessToast(false)} 
-          delay={3000} 
+        <Toast
+          show={showSuccessToast}
+          onClose={() => setShowSuccessToast(false)}
+          delay={3000}
           autohide
           bg={operationType === 'delete' ? 'danger' : 'success'}
         >
@@ -180,7 +181,7 @@ const handleSaveLivro = async (livro) => {
           <button 
             type="button" 
             className="btn-close float-end" 
-            onClick={() => setError(null)}
+            onClick={() => setError('')}
             aria-label="Close"
           ></button>
         </div>
@@ -196,11 +197,7 @@ const handleSaveLivro = async (livro) => {
         <Col md={4} className="text-md-end mt-3 mt-md-0">
           <Button 
             variant="success"
-            onClick={() => {
-              setLivroToEdit(null)
-              setShowForm(!showForm)
-              setError(null)
-            }}
+            onClick={handleOpenForm}
             disabled={loading}
           >
             Adicionar Livro
@@ -214,11 +211,7 @@ const handleSaveLivro = async (livro) => {
             <LivroForm
               livro={livroToEdit}
               onSave={handleSaveLivro}
-              onCancel={() => {
-                setShowForm(false)
-                setLivroToEdit(null)
-                setError(null)
-              }}
+              onCancel={handleCloseForm}
               loading={loading}
             />
           </Col>

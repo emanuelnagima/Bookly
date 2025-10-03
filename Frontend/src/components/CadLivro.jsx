@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Card, Form, Col, Row, Button, Spinner, Image, Alert } from 'react-bootstrap';
+import { Card, Form, Col, Row, Button, Spinner, Alert } from 'react-bootstrap';
 import axios from 'axios';
 
 const CadLivro = ({ onSave, onCancel, livro, loading }) => {
-  const [livroData, setLivroData] = useState({
-    id: null,
+  const [formData, setFormData] = useState({
     titulo: '',
     autor_id: '',
     editora_id: '',
@@ -19,23 +18,38 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
   const [imagemPreview, setImagemPreview] = useState('');
   const [validated, setValidated] = useState(false);
   const [error, setError] = useState('');
+  const [optionsLoading, setOptionsLoading] = useState(false);
 
   // Carregar opções de editoras e autores
   useEffect(() => {
+    const carregarOpcoes = async () => {
+      try {
+        setOptionsLoading(true);
+        const response = await axios.get('http://localhost:3000/api/livros/options');
+        setEditoras(response.data.data.editoras || []);
+        setAutores(response.data.data.autores || []);
+      } catch (err) {
+        console.error('Erro ao carregar opções:', err);
+        setError('Erro ao carregar editoras e autores');
+      } finally {
+        setOptionsLoading(false);
+      }
+    };
+
     carregarOpcoes();
   }, []);
 
   // Preencher dados se for edição
   useEffect(() => {
     if (livro) {
-      setLivroData({
-        id: livro.id,
+      console.log('Editando livro:', livro);
+      setFormData({
         titulo: livro.titulo || '',
-        autor_id: livro.autor_id || '',
-        editora_id: livro.editora_id || '',
+        autor_id: livro.autor_id?.toString() || '',
+        editora_id: livro.editora_id?.toString() || '',
         isbn: livro.isbn || '',
         genero: livro.genero || '',
-        ano_publicacao: livro.ano_publicacao || '',
+        ano_publicacao: livro.ano_publicacao?.toString() || '',
         imagem: null
       });
 
@@ -43,8 +57,8 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
         setImagemPreview(`http://localhost:3000${livro.imagem}`);
       }
     } else {
-      setLivroData({
-        id: null,
+      console.log('Novo cadastro de livro');
+      setFormData({
         titulo: '',
         autor_id: '',
         editora_id: '',
@@ -57,29 +71,30 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
     }
   }, [livro]);
 
-  const carregarOpcoes = async () => {
-    try {
-      const response = await axios.get('http://localhost:3000/api/livros/options');
-      setEditoras(response.data.data.editoras);
-      setAutores(response.data.data.autores);
-    } catch (err) {
-      console.error('Erro ao carregar opções:', err);
-      setError('Erro ao carregar editoras e autores');
-    }
-  };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setLivroData(prev => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: name === 'ano_publicacao' ? parseInt(value) || '' : value
+      [name]: value
     }));
   };
 
   const handleImagemChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setLivroData(prev => ({ ...prev, imagem: file }));
+      // Validação básica do arquivo
+      if (!file.type.startsWith('image/')) {
+        setError('Por favor, selecione um arquivo de imagem válido');
+        return;
+      }
+      
+      if (file.size > 5 * 1024 * 1024) { // 5MB
+        setError('A imagem deve ter menos de 5MB');
+        return;
+      }
+
+      setFormData(prev => ({ ...prev, imagem: file }));
+      setError('');
 
       const reader = new FileReader();
       reader.onload = (e) => setImagemPreview(e.target.result);
@@ -88,77 +103,52 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  const form = e.currentTarget;
+    e.preventDefault();
+    const form = e.currentTarget;
 
-  if (form.checkValidity() === false) {
-    e.stopPropagation();
-    setValidated(true);
-    return;
-  }
-
-  try {
-    const formData = new FormData();
-    
-    // Apenas adiciona campos que têm valores
-    if (livroData.titulo) formData.append('titulo', livroData.titulo);
-    if (livroData.autor_id) formData.append('autor_id', parseInt(livroData.autor_id));
-    if (livroData.editora_id) formData.append('editora_id', parseInt(livroData.editora_id));
-    if (livroData.isbn) formData.append('isbn', livroData.isbn);
-    if (livroData.genero) formData.append('genero', livroData.genero);
-    if (livroData.ano_publicacao) formData.append('ano_publicacao', parseInt(livroData.ano_publicacao));
-    
-    if (livroData.imagem && livroData.imagem instanceof File) {
-      formData.append('imagem', livroData.imagem);
+    // Validação do formulário
+    if (form.checkValidity() === false) {
+      e.stopPropagation();
+      setValidated(true);
+      return;
     }
 
-    console.log('Dados sendo enviados:');
-    for (let [key, value] of formData.entries()) {
-      console.log(key + ': ' + value);
-    }
+    try {
+      setError('');
 
-    let response;
-    if (livroData.id) {
-      // Atualizar livro
-      response = await axios.put(`http://localhost:3000/api/livros/${livroData.id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-    } else {
-      // Criar livro
-      response = await axios.post('http://localhost:3000/api/livros', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-    }
+      console.log('Dados do formulário:', formData);
 
-    if (response.data.success) {
-      // VERIFICA SE onSave É UMA FUNÇÃO ANTES DE CHAMAR
+      // Prepara os dados para envio
+      const livroParaEnviar = {
+        ...formData,
+        autor_id: parseInt(formData.autor_id),
+        editora_id: parseInt(formData.editora_id),
+        ano_publicacao: parseInt(formData.ano_publicacao),
+        imagem: formData.imagem
+      };
+
+      console.log('Enviando livro:', livroParaEnviar);
+
+      // Chama a função de salvamento do componente pai
       if (typeof onSave === 'function') {
-        onSave(response.data.data);
+        await onSave(livroParaEnviar);
       } else {
-        console.error('onSave não é uma função:', onSave);
-        setError('Erro interno: função de salvamento não disponível');
+        throw new Error('Função de salvamento não disponível');
       }
-    } else {
-      setError(response.data.message || 'Erro ao salvar livro');
+
+    } catch (err) {
+      console.error('Erro no formulário:', err);
     }
-  } catch (err) {
-    console.error('Erro completo ao salvar livro:', err);
-    
-    // Mensagem de erro mais específica
-    if (err.response?.data?.message) {
-      setError(err.response.data.message);
-    } else if (err.message) {
-      setError(err.message);
-    } else {
-      setError('Erro ao salvar livro. Verifique os dados e tente novamente.');
-    }
-  }
-};  
+  };  
+
+  const currentYear = new Date().getFullYear();
 
   return (
-    <Card>
+    <Card className="shadow-sm">
       <Card.Header className='bg-primary text-white'>
-        <h5 className='mb-0'>{livroData.id ? 'Editar Livro' : 'Cadastrar Livro'}</h5>
+        <h5 className='mb-0'>
+          {livro ? 'Editar Livro' : 'Cadastrar Livro'}
+        </h5>
       </Card.Header>
       <Card.Body>
         {error && (
@@ -175,12 +165,15 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
                 <Form.Control
                   type='text'
                   name='titulo'
-                  value={livroData.titulo}
+                  value={formData.titulo}
                   onChange={handleChange}
                   required
                   disabled={loading}
+                  placeholder="Digite o título do livro"
                 />
-                <Form.Control.Feedback type='invalid'>Informe o título</Form.Control.Feedback>
+                <Form.Control.Feedback type='invalid'>
+                  Informe o título do livro
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
             <Col md={6}>
@@ -189,13 +182,15 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
                 <Form.Control
                   type='text'
                   name='isbn'
-                  value={livroData.isbn}
-                  placeholder='000-00-000-000-0'
+                  value={formData.isbn}
+                  placeholder='000-00-000-0000-0'
                   onChange={handleChange}
                   required
                   disabled={loading}
                 />
-                <Form.Control.Feedback type='invalid'>Informe o ISBN</Form.Control.Feedback>
+                <Form.Control.Feedback type='invalid'>
+                  Informe o ISBN do livro
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
           </Row>
@@ -206,19 +201,21 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
                 <Form.Label>Autor </Form.Label>
                 <Form.Select
                   name="autor_id"
-                  value={livroData.autor_id}
+                  value={formData.autor_id}
                   onChange={handleChange}
                   required
-                  disabled={loading}
+                  disabled={loading || optionsLoading}
                 >
-                  <option value="">Selecione um autor...</option>
+                  <option value="">{optionsLoading ? 'Carregando...' : 'Selecione um autor'}</option>
                   {autores.map(autor => (
                     <option key={autor.id} value={autor.id}>
                       {autor.nome}
                     </option>
                   ))}
                 </Form.Select>
-                <Form.Control.Feedback type='invalid'>Selecione um autor</Form.Control.Feedback>
+                <Form.Control.Feedback type='invalid'>
+                  Selecione um autor
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
             <Col md={6}>
@@ -226,19 +223,21 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
                 <Form.Label>Editora </Form.Label>
                 <Form.Select
                   name='editora_id'
-                  value={livroData.editora_id}
+                  value={formData.editora_id}
                   onChange={handleChange}
                   required
-                  disabled={loading}
+                  disabled={loading || optionsLoading}
                 >
-                  <option value=''>Selecione uma editora...</option>
+                  <option value="">{optionsLoading ? 'Carregando...' : 'Selecione uma editora'}</option>
                   {editoras.map(editora => (
                     <option key={editora.id} value={editora.id}>
                       {editora.nome}
                     </option>
                   ))}
                 </Form.Select>
-                <Form.Control.Feedback type='invalid'>Selecione uma editora</Form.Control.Feedback>
+                <Form.Control.Feedback type='invalid'>
+                  Selecione uma editora
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
           </Row>
@@ -249,7 +248,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
                 <Form.Label>Gênero </Form.Label>
                 <Form.Select
                   name='genero'
-                  value={livroData.genero}
+                  value={formData.genero}
                   onChange={handleChange}
                   required
                   disabled={loading}
@@ -265,7 +264,9 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
                   <option value='Educação'>Educação</option>
                   <option value='Outro'>Outro</option>
                 </Form.Select>
-                <Form.Control.Feedback type='invalid'>Selecione um gênero</Form.Control.Feedback>
+                <Form.Control.Feedback type='invalid'>
+                  Selecione um gênero
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
             <Col md={6}>
@@ -274,15 +275,17 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
                 <Form.Control
                   type='number'
                   name='ano_publicacao'
-                  placeholder='0000'
-                  value={livroData.ano_publicacao}
+                  placeholder={currentYear}
+                  value={formData.ano_publicacao}
                   onChange={handleChange}
                   required
-                  min="0"
-                  max={new Date().getFullYear()}
+                  min="1000"
+                  max={currentYear}
                   disabled={loading}
                 />
-                <Form.Control.Feedback type='invalid'>Informe um ano válido</Form.Control.Feedback>
+                <Form.Control.Feedback type='invalid'>
+                  Informe um ano válido
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
           </Row>
@@ -290,21 +293,24 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
           <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='imagem'>
-                <Form.Label>Imagem do Livro</Form.Label>
+                <Form.Label>Imagem da Capa</Form.Label>
                 <Form.Control
                   type='file'
                   accept='image/*'
                   onChange={handleImagemChange}
                   disabled={loading}
                 />
+                <Form.Text className="text-muted">
+                  Formatos suportados: JPG, PNG, GIF. Tamanho máximo: 5MB
+                </Form.Text>
               </Form.Group>
             </Col>
             <Col md={6}>
               {imagemPreview && (
-                <div className='mt-3'>
-                  <p>Preview:</p>
+                <div className='mt-4'>
+                  <p className="small text-muted mb-2">Preview:</p>
                   <div
-                    style={{
+style={{
                       width: '150px',
                       height: '220px',
                       border: '1px solid #ccc',
@@ -315,15 +321,12 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
                       alignItems: 'center',
                       backgroundColor: '#f8f9fa',
                     }}
-                  >
+>
                     <img
                       src={imagemPreview}
-                      alt='Capa do Livro'
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                      }}
+                      alt='Preview da capa'
+                      className="img-fluid"
+                      style={{ maxHeight: '200px', objectFit: 'cover' }}
                     />
                   </div>
                 </div>
@@ -338,10 +341,10 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
             <Button variant='primary' type='submit' disabled={loading}>
               {loading ? (
                 <>
-                  <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-                  {livroData.id ? ' Atualizando...' : ' Salvando...'}
+                  <Spinner as="span" animation="border" size="sm" className="me-2" />
+                  {livro ? 'Atualizando...' : 'Salvando...'}
                 </>
-              ) : (livroData.id ? 'Atualizar' : 'Salvar')}
+              ) : (livro ? 'Atualizar Livro' : 'Cadastrar Livro')}
             </Button>
           </div>
         </Form>

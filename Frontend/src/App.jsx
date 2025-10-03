@@ -9,6 +9,8 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import About from './pages/About';
 import Login from './pages/Login';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import FAQ from './pages/FAQ'; // ADICIONE ESTA IMPORTACAO
 
 // Listagens
 import Livros from './pages/Livros';
@@ -19,6 +21,7 @@ import Editoras from './pages/Editoras';
 import UsuariosEspeciais from './pages/UsuariosEspeciais';
 import Entrada from './pages/Entrada';
 import Saida from './pages/Saida';
+
 // Cadastros
 import CadastroLivros from './pages/cadastros/CadastroLivros.jsx';
 import CadastroProfessores from './pages/cadastros/CadastroProfessores';
@@ -34,8 +37,10 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Rota pública de login */}
+        {/* Rotas públicas */}
         <Route path="/login" element={<Login />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/faq" element={<FAQ />} /> {/* ADICIONE ESTA ROTA */}
 
         {/* Rotas protegidas */}
         <Route
@@ -71,9 +76,11 @@ function App() {
                     <Route path="/cadastros/autores/:id" element={<CadastroAutores />} />
                     <Route path="/cadastros/usuarios-especiais" element={<CadastroUsuariosEspeciais />} />
                     <Route path="/cadastros/usuarios-especiais/:id" element={<CadastroUsuariosEspeciais />} />
-                  {/* MOVIMENTAÇÕES */}
+                  
+                    {/* MOVIMENTAÇÕES */}
                     <Route path="/entrada" element={<Entrada />} />
                     <Route path="/saida" element={<Saida />} />
+                    
                     {/* Redireciona rotas desconhecidas para home */}
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>

@@ -167,7 +167,7 @@ const CadEditora = ({ onSave, onCancel, editora, loading }) => {
                   {editoraData.id ? ' Atualizando...' : ' Salvando...'}
                 </>
               ) : (
-                editoraData.id ? 'Atualizar' : 'Salvar'
+                editoraData.id ? 'Atualizar' : 'Cadastrar Editora'
               )}
             </Button>
           </div>
