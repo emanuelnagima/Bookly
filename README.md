@@ -97,6 +97,6 @@ Antes de começar, certifique-se de ter instalado:
    
    npm start (rodar)
 
-Imagem da Home inicial (desatualizada, atualizar)
-![WhatsApp Image 2025-08-30 at 04 40 16](https://github.com/user-attachments/assets/f2cb195d-ddb5-480a-a85b-2c5ef902dc1f)
+## Imagem da Home inicial (nome e versão desatualizados, atualizar)
+![WhatsApp Image 2025-08-30 at 18 11 43](https://github.com/user-attachments/assets/85a05843-d5aa-4875-81b4-8678c09527b4)
 
