@@ -10,7 +10,16 @@ const FAQ = () => {
             {/* Cabeçalho */}
             <div className="text-center mb-5">
               <div className="page-icon mb-4">
-                <span className="icon-wrapper">?</span>
+                <span 
+                  className="icon-wrapper"
+                  style={{
+                    background: 'linear-gradient(135deg, #6F00FF 0%, #8A2BE2 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}
+                >
+                  ?
+                </span>
               </div>
               <h1 className="display-5 fw-bold mb-3 gradient-text">FAQ - Bookly</h1>
               <p className="lead text-muted mb-2">
@@ -157,8 +166,6 @@ const FAQ = () => {
           display: inline-block;
           width: 80px;
           height: 80px;
-          background: linear-gradient(135deg, #6F00FF 0%, #8A2BE2 100%);
-          color: white;
           border-radius: 50%;
           font-size: 2.5rem;
           font-weight: bold;
