@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Tooltip, OverlayTrigger } from "react-bootstrap";
 import { Container, Row, Col, Modal, Button } from "react-bootstrap";
 import {
   FaFacebookF,
@@ -126,7 +127,7 @@ const Footer = () => {
                   <li>
                     <a
                       href="/entrada"
-                    className="small text-muted hover-underline"
+                      className="small text-muted hover-underline"
                     >
                       Entrada
                     </a>
@@ -134,7 +135,7 @@ const Footer = () => {
                   <li>
                     <a
                       href="/saida"
-                    className="small text-muted hover-underline"
+                      className="small text-muted hover-underline"
                     >
                       Saída
                     </a>
@@ -150,7 +151,7 @@ const Footer = () => {
                   <li>
                     <a
                       href="/emprestimos"
-                    className="small text-muted hover-underline"
+                      className="small text-muted hover-underline"
                     >
                       Empréstimos
                     </a>
@@ -158,7 +159,7 @@ const Footer = () => {
                   <li>
                     <a
                       href="/renovacoes"
-                    className="small text-muted hover-underline"
+                      className="small text-muted hover-underline"
                     >
                       Renovações
                     </a>
@@ -201,7 +202,7 @@ const Footer = () => {
                         e.preventDefault();
                         setShowHelpModal(true);
                       }}
-                    className="small text-muted hover-underline"
+                      className="small text-muted hover-underline"
                     >
                       Ajuda
                     </a>
@@ -242,21 +243,18 @@ const Footer = () => {
                       Política de Privacidade
                     </a>
                   </li>
-                    <li>
-                      <a
-                        href="/terms-of-use"
-                        className="small text-muted hover-underline"
-                      >
-                        <FaChevronRight className="me-2 text-primary" size={10} />
-                        Termos de uso
-                      </a>
-                    </li>
-
                   <li>
                     <a
-                      href="#"
+                      href="/terms-of-use"
                       className="small text-muted hover-underline"
                     >
+                      <FaChevronRight className="me-2 text-primary" size={10} />
+                      Termos de uso
+                    </a>
+                  </li>
+
+                  <li>
+                    <a href="#" className="small text-muted hover-underline">
                       <FaChevronRight className="me-2 text-primary" size={10} />
                       Documentação
                     </a>
@@ -288,32 +286,45 @@ const Footer = () => {
                   Unoeste - Universidade do Oeste Paulista
                 </p>
                 <p className="mb-0 small text-muted">
-                  R. José Bongiovani, 700 - Cidade Universitária, Pres. Prudente - SP, 19050-920</p>
+                  R. José Bongiovani, 700 - Cidade Universitária, Pres. Prudente
+                  - SP, 19050-920
+                </p>
               </div>
             </div>
 
             <div className="small text-muted text-decoration-none">
-                booklysuporte@gmail.com
+              booklysuporte@gmail.com
             </div>
-
             <div className="feedback-section mt-3">
-              <a
-                href={GOOGLE_FORM_FEEDBACK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-primary d-flex align-items-center justify-content-center gap-2"
-                style={{
-                  fontSize: "12px",
-                  padding: "4px 10px",
-                  borderRadius: "4px",
-                }}
+              {" "}
+              <OverlayTrigger
+                placement="top"
+                overlay={
+                  <Tooltip id="tooltip-feedback">
+                    Ajude-nos com sua opinião ou sugestão de melhoria
+                  </Tooltip>
+                }
               >
-                <FaCommentDots size={12} />
-                Ajude-nos a melhorar
-              </a>
+                {" "}
+                <a
+                  href={GOOGLE_FORM_FEEDBACK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary d-flex align-items-center justify-content-center gap-2"
+                  style={{
+                    fontSize: "12px",
+                    padding: "4px 10px",
+                    borderRadius: "4px",
+                  }}
+                >
+                  {" "}
+                  <FaCommentDots size={12} /> Ajude-nos a melhorar{" "}
+                </a>{" "}
+              </OverlayTrigger>{" "}
               <p className="small text-muted mt-2 mb-0">
-                Sua opinião é valiosa para nós!
-              </p>
+                {" "}
+                Sua opinião é valiosa para nós!{" "}
+              </p>{" "}
             </div>
           </Col>
         </Row>
@@ -334,7 +345,7 @@ const Footer = () => {
           <p className="mb-0 small text-muted">
             &copy; {new Date().getFullYear()} Bookly. Todos os direitos
             reservados. <br />
-            Versão 1.0.0 em desenvolvimento 
+            Versão 1.0.0 em desenvolvimento
           </p>
         </div>
 
