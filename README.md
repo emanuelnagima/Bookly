@@ -10,7 +10,7 @@ O sistema permite o cadastro de **alunos, professores, usuários gerais, livros,
 - Empréstimos
 - Renovação de empréstimos  
 - Devoluções
-
+- Relatórios
 
 O **Bookly** também garante que apenas **exemplares disponíveis possam ser emprestados**, registra automaticamente a entrada de novos livros e realiza a baixa de exemplares descartados.
 
@@ -21,8 +21,6 @@ O **Bookly** também garante que apenas **exemplares disponíveis possam ser emp
 
 - Automatiza processos que antes eram manuais, economizando tempo da equipe da biblioteca.  
 - Melhora o controle sobre empréstimos e devoluções, evitando perdas e atrasos.  
-- Facilita o planejamento de aquisições de livros, identificando os mais utilizados e os menos procurados.  
-- Proporciona uma experiência organizada para alunos e professores, incentivando o uso do acervo.  
 
 O **Bookly** é, portanto, uma **solução completa, confiável e moderna** para gerenciamento de bibliotecas escolares, que alia tecnologia, segurança e praticidade para melhorar a gestão do acervo e o atendimento aos usuários.
 
