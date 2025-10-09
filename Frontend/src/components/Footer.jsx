@@ -31,7 +31,7 @@ const Footer = () => {
           className="g-4 mt-5"
           style={{
             padding: "40px",
-            backgroundColor: "#ffffffff",      
+            backgroundColor: "#ffffffff",       
             border: "1px solid rgb(230, 230, 230)",  
             borderRadius: "20px",         
              borderRight: "4px solid #f7e6e6"

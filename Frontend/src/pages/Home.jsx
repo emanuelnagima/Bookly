@@ -1,8 +1,19 @@
-import { useState, useEffect } from 'react'
-import { Container, Row, Col, Card, InputGroup, Form, Button, Image, Modal, Badge } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
-import { Tooltip, OverlayTrigger } from 'react-bootstrap'
-import entradaSaidaService from '../services/entradaSaidaService'
+import { useState, useEffect } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  InputGroup,
+  Form,
+  Button,
+  Image,
+  Modal,
+  Badge,
+} from "react-bootstrap";
+import { Link } from "react-router-dom";
+import { Tooltip, OverlayTrigger } from "react-bootstrap";
+import entradaSaidaService from "../services/entradaSaidaService";
 
 import {
   FaBookOpen,
@@ -31,39 +42,39 @@ import {
   FaChalkboardTeacher,
   FaGraduationCap,
   FaFeatherAlt,
-  FaUniversity
-} from 'react-icons/fa'
-import livroService from '../services/livroService'
-import professorService from '../services/professorService'
-import alunoService from '../services/alunoService'
-import autorService from '../services/autorService'
-import editoraService from '../services/editoraService'
+  FaUniversity,
+} from "react-icons/fa";
+import livroService from "../services/livroService";
+import professorService from "../services/professorService";
+import alunoService from "../services/alunoService";
+import autorService from "../services/autorService";
+import editoraService from "../services/editoraService";
 import usuarioEspecialService from "../services/usuarioEspecialService";
 // Função utilitária para formatar texto
-const formatarTexto = (texto = '') =>
+const formatarTexto = (texto = "") =>
   texto
     .toLowerCase()
-    .split(' ')
-    .map(p => p.charAt(0).toUpperCase() + p.slice(1))
-    .join(' ')
+    .split(" ")
+    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+    .join(" ");
 
-const ITENS_POR_PAGINA = 4
+const ITENS_POR_PAGINA = 4;
 
 const Home = () => {
-  const [currentDate, setCurrentDate] = useState('')
-  const [showWelcome, setShowWelcome] = useState(true)
-  const [livros, setLivros] = useState([])
-  const [professores, setProfessores] = useState([])
-  const [alunos, setAlunos] = useState([])
-  const [autores, setAutores] = useState([])
-  const [estoqueTotal, setEstoqueTotal] = useState(0)
-  const [editoras, setEditoras] = useState([])
-  const [usuarios, setUsuarios] = useState([])
-  const [termoBusca, setTermoBusca] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [paginaAtual, setPaginaAtual] = useState(1)
-  const [showHelpModal, setShowHelpModal] = useState(false)
-  const [isButtonActive, setIsButtonActive] = useState(false)
+  const [currentDate, setCurrentDate] = useState("");
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [livros, setLivros] = useState([]);
+  const [professores, setProfessores] = useState([]);
+  const [alunos, setAlunos] = useState([]);
+  const [autores, setAutores] = useState([]);
+  const [estoqueTotal, setEstoqueTotal] = useState(0);
+  const [editoras, setEditoras] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
+  const [termoBusca, setTermoBusca] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const [showHelpModal, setShowHelpModal] = useState(false);
+  const [isButtonActive, setIsButtonActive] = useState(false);
 
   useEffect(() => {
     const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }
@@ -124,7 +135,7 @@ const Home = () => {
     fetchTodosDados()
   }, [])
 
-  useEffect(() => setPaginaAtual(1), [termoBusca])
+  useEffect(() => setPaginaAtual(1), [termoBusca]);
 
   const livrosFiltrados = livros.filter(livro => {
     const termo = termoBusca.toLowerCase()
@@ -138,17 +149,22 @@ const Home = () => {
     )
   })
 
-
-  const totalPaginas = Math.ceil(livrosFiltrados.length / ITENS_POR_PAGINA)
+  const totalPaginas = Math.ceil(livrosFiltrados.length / ITENS_POR_PAGINA);
 
   const livrosPaginaAtual = [...livrosFiltrados]
     .sort((a, b) =>
-      formatarTexto(a.titulo || a.title || '').localeCompare(formatarTexto(b.titulo || b.title || ''))
+      formatarTexto(a.titulo || a.title || "").localeCompare(
+        formatarTexto(b.titulo || b.title || "")
+      )
     )
-    .slice((paginaAtual - 1) * ITENS_POR_PAGINA, paginaAtual * ITENS_POR_PAGINA)
+    .slice(
+      (paginaAtual - 1) * ITENS_POR_PAGINA,
+      paginaAtual * ITENS_POR_PAGINA
+    );
 
-  const handlePaginaAnterior = () => setPaginaAtual(p => Math.max(p - 1, 1))
-  const handleProximaPagina = () => setPaginaAtual(p => Math.min(p + 1, totalPaginas))
+  const handlePaginaAnterior = () => setPaginaAtual((p) => Math.max(p - 1, 1));
+  const handleProximaPagina = () =>
+    setPaginaAtual((p) => Math.min(p + 1, totalPaginas));
 
   const handleHelpClick = () => {
     setIsButtonActive(true)
@@ -163,37 +179,102 @@ const Home = () => {
     {
       titulo: "Gestão de Pessoas",
       cards: [
-        { icone: FaUserTie, titulo: "Professores", descricao: "Cadastre e atualize informações de professores", link: "/professores" },
-        { icone: FaUserCircle, titulo: "Usuários", descricao: "Cadastre e gerencie outros tipos de usuários ", link: "/usuarios-especiais" },
-        { icone: FaUserGraduate, titulo: "Alunos", descricao: "Cadastre e acompanhe os alunos da turma", link: "/alunos" },
-      ]
+        {
+          icone: FaUserTie,
+          titulo: "Professores",
+          descricao: "Cadastre e atualize informações de professores",
+          link: "/professores",
+        },
+        {
+          icone: FaUserCircle,
+          titulo: "Usuários",
+          descricao: "Cadastre e gerencie outros tipos de usuários ",
+          link: "/usuarios-especiais",
+        },
+        {
+          icone: FaUserGraduate,
+          titulo: "Alunos",
+          descricao: "Cadastre e acompanhe os alunos da turma",
+          link: "/alunos",
+        },
+      ],
     },
     {
       titulo: "Gestão de Acervo",
       cards: [
-        { icone: FaBook, titulo: "Livros", descricao: "Cadastre e gerencie todos os livros do acervo", link: "/livros" },
-        { icone: FaPenFancy, titulo: "Autores", descricao: "Cadastre e atualize informações sobre autores", link: "/autores" },
-        { icone: FaBuilding, titulo: "Editoras", descricao: "Cadastre e organize as editoras do acervo", link: "/editoras" },
-      ]
+        {
+          icone: FaBook,
+          titulo: "Livros",
+          descricao: "Cadastre e gerencie todos os livros do acervo",
+          link: "/livros",
+        },
+        {
+          icone: FaPenFancy,
+          titulo: "Autores",
+          descricao: "Cadastre e atualize informações sobre autores",
+          link: "/autores",
+        },
+        {
+          icone: FaBuilding,
+          titulo: "Editoras",
+          descricao: "Cadastre e organize as editoras do acervo",
+          link: "/editoras",
+        },
+      ],
     },
     {
       titulo: "Movimentações",
       cards: [
-        { icone: FaDoorOpen, titulo: "Entrada", descricao: "Registre a entrada de novos livros no acervo", link: "/entrada" },
-        { icone: FaSignOutAlt, titulo: "Saída", descricao: "Registre a saída de livros do acervo do sistema", link: "/saida" },
-        { icone: FaCalendarAlt, titulo: "Reservas", descricao: "Gerencie e acompanhe as reservas de livros", link: "/reservas" },
-        { icone: FaHandshake, titulo: "Empréstimos", descricao: "Controle os empréstimos de livros do sistema", link: "/emprestimos" },
-        { icone: FaSyncAlt, titulo: "Renovações", descricao: "Registre e gerencie as renovações de empréstimos", link: "/renovacoes" },
-        { icone: FaReply, titulo: "Devoluções", descricao: "Registre e acompanhe as devoluções de livros", link: "/devolucoes" },
-      ]
+        {
+          icone: FaDoorOpen,
+          titulo: "Entrada",
+          descricao: "Registre a entrada de novos livros no acervo",
+          link: "/entrada",
+        },
+        {
+          icone: FaSignOutAlt,
+          titulo: "Saída",
+          descricao: "Registre a saída de livros do acervo do sistema",
+          link: "/saida",
+        },
+        {
+          icone: FaCalendarAlt,
+          titulo: "Reservas",
+          descricao: "Gerencie e acompanhe as reservas de livros",
+          link: "/reservas",
+        },
+        {
+          icone: FaHandshake,
+          titulo: "Empréstimos",
+          descricao: "Controle os empréstimos de livros do sistema",
+          link: "/emprestimos",
+        },
+        {
+          icone: FaSyncAlt,
+          titulo: "Renovações",
+          descricao: "Registre e gerencie as renovações de empréstimos",
+          link: "/renovacoes",
+        },
+        {
+          icone: FaReply,
+          titulo: "Devoluções",
+          descricao: "Registre e acompanhe as devoluções de livros",
+          link: "/devolucoes",
+        },
+      ],
     },
     {
       titulo: "Relatórios",
       cards: [
-        { icone: FaChartBar, titulo: "Relatórios", descricao: "Veja estatísticas e relatórios do acervo", link: "/relatorios" },
-      ]
-    }
-  ]
+        {
+          icone: FaChartBar,
+          titulo: "Relatórios",
+          descricao: "Veja estatísticas e relatórios do acervo",
+          link: "/relatorios",
+        },
+      ],
+    },
+  ];
 
   return (
     <Container className="py-4">
@@ -322,10 +403,15 @@ const Home = () => {
               <div className="d-flex align-items-center gap-2 mb-2 mb-md-0">
                 <h5 className="mb-0">Acervo de Livros</h5>
                 <span className="badge bg-light text-primary">
-                  {livrosFiltrados.length} {livrosFiltrados.length === 1 ? 'livro' : 'livros'} / Página {paginaAtual} de {totalPaginas || 1}
+                  {livrosFiltrados.length}{" "}
+                  {livrosFiltrados.length === 1 ? "livro" : "livros"} / Página{" "}
+                  {paginaAtual} de {totalPaginas || 1}
                 </span>
               </div>
-              <div className="mt-2 mt-md-0 flex-grow-1" style={{ minWidth: '300px', maxWidth: '600px' }}>
+              <div
+                className="mt-2 mt-md-0 flex-grow-1"
+                style={{ minWidth: "300px", maxWidth: "600px" }}
+              >
                 <InputGroup>
                   <InputGroup.Text className="bg-light text-primary">
                     <FaSearch />
@@ -334,7 +420,7 @@ const Home = () => {
                     type="text"
                     placeholder="Pesquise por título, autor, editora ou ISBN..."
                     value={termoBusca}
-                    onChange={e => setTermoBusca(e.target.value)}
+                    onChange={(e) => setTermoBusca(e.target.value)}
                   />
                 </InputGroup>
               </div>
@@ -343,19 +429,25 @@ const Home = () => {
               {loading ? (
                 <p className="text-center text-muted">Carregando livros...</p>
               ) : livrosPaginaAtual.length === 0 ? (
-                <p className="text-center text-muted">{termoBusca ? 'Nenhum livro encontrado' : 'Nenhum livro cadastrado'}</p>
+                <p className="text-center text-muted">
+                  {termoBusca
+                    ? "Nenhum livro encontrado"
+                    : "Nenhum livro cadastrado"}
+                </p>
               ) : (
                 <Row>
-                  {livrosPaginaAtual.map(livro => (
+                  {livrosPaginaAtual.map((livro) => (
                     <Col key={livro.id} md={6} lg={4} xl={3} className="mb-4">
                       <Card className="h-100 livro-card">
                         <div className="p-3 text-center">
                           {livro.imagem ? (
                             <Image
                               src={`http://localhost:3000${livro.imagem}`}
-                              alt={livro.titulo || livro.title || ''}
+                              alt={livro.titulo || livro.title || ""}
                               className="livro-imagem"
-                              onError={e => { e.target.style.display = 'none' }}
+                              onError={(e) => {
+                                e.target.style.display = "none";
+                              }}
                             />
                           ) : (
                             <div className="sem-imagem">
@@ -364,8 +456,8 @@ const Home = () => {
                           )}
                         </div>
                         <Card.Body className="livro-card-body">
-                          <h6 title={livro.titulo || livro.title || ''}>
-                            {formatarTexto(livro.titulo || livro.title || '')}
+                          <h6 title={livro.titulo || livro.title || ""}>
+                            {formatarTexto(livro.titulo || livro.title || "")}
                           </h6>
                           <div className="livro-detalhes">
                             <div><strong>ID:</strong> {livro.id}</div>
@@ -458,28 +550,55 @@ const Home = () => {
       ))}
 
       {/* BOTÃO DE AJUDA */}
+
       <div className="help-button-container">
-        <button className={`help-button ${isButtonActive ? 'active' : ''}`} onClick={handleHelpClick} aria-label="Botão de ajuda" title="Ajuda">
-          <FaEnvelope size={18} className="icon" />
-          <span className="pulse-effect"></span>
-        </button>
+        <OverlayTrigger
+          placement="top"
+          overlay={<Tooltip id="tooltip-help">Contato</Tooltip>}
+        >
+          <button
+            className={`help-button ${isButtonActive ? "active" : ""}`}
+            onClick={handleHelpClick}
+            aria-label="Botão de ajuda"
+          >
+            <FaEnvelope size={18} className="icon" />
+            <span className="pulse-effect"></span>
+          </button>
+        </OverlayTrigger>
       </div>
 
-      <Modal show={showHelpModal} onHide={handleCloseHelpModal} centered className="help-modal">
+      <Modal
+        show={showHelpModal}
+        onHide={handleCloseHelpModal}
+        centered
+        className="help-modal"
+      >
         <Modal.Header closeButton className="modal-header-help">
-          <Modal.Title className="text-white"><FaInfoCircle className="me-2" />Precisa de ajuda?</Modal.Title>
+          <Modal.Title className="text-white">
+            <FaInfoCircle className="me-2" />
+            Precisa de ajuda?
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body className="modal-body-help">
           <div className="contact-options">
             <div className="contact-method">
-              <div className="method-icon email-icon"><FaEnvelope size={32} /></div>
+              <div className="method-icon email-icon">
+                <FaEnvelope size={32} />
+              </div>
               <div className="method-info">
                 <h5>E-mail de suporte</h5>
-                <a href="mailto:booklysuporte@gmail.com" className="contact-link">booklysuporte@gmail.com</a>
+                <a
+                  href="mailto:booklysuporte@gmail.com"
+                  className="contact-link"
+                >
+                  booklysuporte@gmail.com
+                </a>
               </div>
             </div>
             <div className="contact-method">
-              <div className="method-icon hours-icon"><FaBriefcase size={32} /></div>
+              <div className="method-icon hours-icon">
+                <FaBriefcase size={32} />
+              </div>
               <div className="method-info">
                 <h5>Horário de atendimento</h5>
                 <p>Segunda a sexta, das 8h às 18h</p>
@@ -488,11 +607,17 @@ const Home = () => {
           </div>
         </Modal.Body>
         <Modal.Footer className="modal-footer-help">
-          <Button variant="light" onClick={handleCloseHelpModal} className="btn-paginacao">Fechar</Button>
+          <Button
+            variant="light"
+            onClick={handleCloseHelpModal}
+            className="btn-paginacao"
+          >
+            Fechar
+          </Button>
         </Modal.Footer>
       </Modal>
     </Container>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
