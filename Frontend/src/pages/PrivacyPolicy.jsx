@@ -1,6 +1,11 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useEffect } from "react";
 
 const PrivacyPolicy = () => {
+  useEffect(() => {
+    document.title = "Política de Privacidade - Bookly ";
+  }, []);
+  
   return (
     <div className="page-container">
       <div className="container py-5">

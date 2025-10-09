@@ -1,7 +1,11 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useEffect } from "react";
 
 const TermsOfUse = () => {
-    
+  useEffect(() => {
+    document.title = "Termos de Uso - Bookly";
+  }, []);
+  
   return (
     <>
     <div className="page-container">
