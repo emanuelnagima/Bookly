@@ -82,7 +82,7 @@ const Sidebar = () => {
               textAlign: 'center',
               lineHeight: 1.3
             }}>
-              v1 1.0.0 em desenvolvimento
+              v1.0.0 em desenvolvimento
             </p>
           </div>
         </div>
