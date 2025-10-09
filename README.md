@@ -43,7 +43,7 @@ Antes de começar, certifique-se de ter instalado:
 - Banco de dados (MySQL ou outro compatível, conforme scripts do projeto)  
 - Ligue o MySQL no Xamp
 
-## 🚀 Primeira instalação e execução
+## 🚀 Primeira instalação e execução (SOMENTE SE PRECISAR)
 
 ### 🔹 Frontend
 
@@ -80,7 +80,7 @@ Antes de começar, certifique-se de ter instalado:
    
    npm install
 
-   npm start (rodar)
+   npm run dev
 
  ---
    
@@ -98,7 +98,8 @@ Antes de começar, certifique-se de ter instalado:
    
    cd Backend
    
-   npm start (rodar)
+   npm run dev (rodar)
+
 
 ## Imagem da Home inicial (nome e versão desatualizados, atualizar)
 ![WhatsApp Image 2025-08-30 at 18 11 43](https://github.com/user-attachments/assets/85a05843-d5aa-4875-81b4-8678c09527b4)
