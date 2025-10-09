@@ -283,11 +283,7 @@ const Home = () => {
         <Col>
           <div
             style={{
-              border: '1px solid rgb(230, 230, 230)',
-              borderRadius: '0 16px 16px 0',
-              backgroundColor: '#ffffff',
-              padding: '1.5rem',
-              borderRight: '4px solid #f7e6e6',
+              padding: '1rem',
               display: 'flex',
               alignItems: 'flex-start',
               justifyContent: 'space-between',
@@ -497,10 +493,6 @@ const Home = () => {
           </Card>
         </Col>
       </Row>
-
-
-
-
 
       {/* CARDS DE FUNCIONALIDADES */}
       {categoriasCards.map((categoria, index) => (
