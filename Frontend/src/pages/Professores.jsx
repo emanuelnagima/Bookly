@@ -39,7 +39,7 @@ const Professores = () => {
     try {
       setLoading(true)
 
-      // 🔹 Verificação de duplicidade por e-mail, matrícula e telefone
+      // Verificação de duplicidade por e-mail, matrícula e telefone
       const emailExistente = professores.find(p =>
         p.email.toLowerCase().trim() === professor.email.toLowerCase().trim() && p.id !== professor.id
       )

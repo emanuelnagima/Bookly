@@ -71,72 +71,72 @@ const Home = () => {
     const timer = setTimeout(() => setShowWelcome(false), 10000)
     return () => clearTimeout(timer)
   }, [])
-    
-useEffect(() => {
-  const fetchTodosDados = async () => {
-    try {
-      const [
-        livrosData, 
-        professoresData, 
-        alunosData, 
-        autoresData, 
-        editorasData,
-        usuariosData
-      ] = await Promise.all([
-        livroService.getAll(),
-        professorService.getAll(),
-        alunoService.getAll(),
-        autorService.getAll(),
-        editoraService.getAll(),
-        usuarioEspecialService.getAll()
-      ])
 
-      // calcula estoque total
-      const livrosComEstoque = await Promise.all(
-        livrosData.map(async livro => {
-          try {
-            const estoque = await entradaSaidaService.verificarEstoque(livro.id)
-            return { ...livro, estoque: estoque ?? 0 }
-          } catch {
-            return { ...livro, estoque: 0 }
-          }
-        })
-      )
+  useEffect(() => {
+    const fetchTodosDados = async () => {
+      try {
+        const [
+          livrosData,
+          professoresData,
+          alunosData,
+          autoresData,
+          editorasData,
+          usuariosData
+        ] = await Promise.all([
+          livroService.getAll(),
+          professorService.getAll(),
+          alunoService.getAll(),
+          autorService.getAll(),
+          editoraService.getAll(),
+          usuarioEspecialService.getAll()
+        ])
 
-      setLivros(livrosComEstoque)
-      setProfessores(professoresData)
-      setAlunos(alunosData)
-      setAutores(autoresData)
-      setEditoras(editorasData)
-      setUsuarios(usuariosData.data || usuariosData)
+        // calcula estoque total
+        const livrosComEstoque = await Promise.all(
+          livrosData.map(async livro => {
+            try {
+              const estoque = await entradaSaidaService.verificarEstoque(livro.id)
+              return { ...livro, estoque: estoque ?? 0 }
+            } catch {
+              return { ...livro, estoque: 0 }
+            }
+          })
+        )
 
-      // soma de todos os estoques
-      const total = livrosComEstoque.reduce((acc, l) => acc + (l.estoque || 0), 0)
-      setEstoqueTotal(total)
+        setLivros(livrosComEstoque)
+        setProfessores(professoresData)
+        setAlunos(alunosData)
+        setAutores(autoresData)
+        setEditoras(editorasData)
+        setUsuarios(usuariosData.data || usuariosData)
 
-    } catch (error) {
-      console.error('Erro ao carregar dados:', error)
-    } finally {
-      setLoading(false)
+        // soma de todos os estoques
+        const total = livrosComEstoque.reduce((acc, l) => acc + (l.estoque || 0), 0)
+        setEstoqueTotal(total)
+
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error)
+      } finally {
+        setLoading(false)
+      }
     }
-  }
 
-  fetchTodosDados()
-}, [])
+    fetchTodosDados()
+  }, [])
 
   useEffect(() => setPaginaAtual(1), [termoBusca])
 
   const livrosFiltrados = livros.filter(livro => {
-  const termo = termoBusca.toLowerCase()
-  return (
-    (livro.titulo || livro.title || '').toLowerCase().includes(termo) ||
-    (livro.autor_nome || livro.author || '').toLowerCase().includes(termo) ||
-    (livro.editora_nome || livro.publisher || '').toLowerCase().includes(termo) ||
-    (livro.isbn || '').toString().toLowerCase().includes(termo) ||
-    (livro.genero || livro.genre || '').toLowerCase().includes(termo) ||
-    (livro.ano_publicacao || livro.year || '').toString().includes(termo)
-  )
-})
+    const termo = termoBusca.toLowerCase()
+    return (
+      (livro.titulo || livro.title || '').toLowerCase().includes(termo) ||
+      (livro.autor_nome || livro.author || '').toLowerCase().includes(termo) ||
+      (livro.editora_nome || livro.publisher || '').toLowerCase().includes(termo) ||
+      (livro.isbn || '').toString().toLowerCase().includes(termo) ||
+      (livro.genero || livro.genre || '').toLowerCase().includes(termo) ||
+      (livro.ano_publicacao || livro.year || '').toString().includes(termo)
+    )
+  })
 
 
   const totalPaginas = Math.ceil(livrosFiltrados.length / ITENS_POR_PAGINA)
@@ -156,64 +156,8 @@ useEffect(() => {
     setShowHelpModal(true)
   }
   const handleCloseHelpModal = () => setShowHelpModal(false)
-    
-  const estatisticas = [
-    { 
-      titulo: "Livros", 
-      valor: livros.length, 
-      icone: FaBookOpen, 
-      cor: "#4e54c8", // azul moderno
-      descricao: "Acervo Cadastrado"
-    },
 
-    { 
-      titulo: "Estoque Total", 
-      valor: estoqueTotal, 
-      icone: FaBox, 
-      cor: "#ff6b7fff", // vermelho suave
-      descricao: "Livros disponíveis em estoque"
-    },
 
-    { 
-      titulo: "Usuários", 
-      valor: usuarios.length, 
-      icone: FaUsers, 
-      cor: "#1ae36eff", // verde
-      descricao: "Usuários cadastrados"
-    },
-
-    { 
-      titulo: "Professores", 
-      valor: professores.length, 
-      icone: FaChalkboardTeacher, 
-      cor: "#000000ff", // azul claro
-      descricao: "Professores cadastrados"
-    },
-
-    { 
-      titulo: "Alunos", 
-      valor: alunos.length, 
-      icone: FaGraduationCap, 
-      cor: "#f1c40f", // amarelo
-      descricao: "Alunos cadastrados"
-    },
-
-    { 
-      titulo: "Autores", 
-      valor: autores.length, 
-      icone: FaFeatherAlt, 
-      cor: "#e62222ff", // laranja
-      descricao: "Autores cadastrados"
-    },
-
-    { 
-      titulo: "Editoras", 
-      valor: editoras.length, 
-      icone: FaUniversity, 
-      cor: "#9b59b6", // roxo
-      descricao: "Editoras cadastradas"
-    }
-  ]
 
   const categoriasCards = [
     {
@@ -254,54 +198,127 @@ useEffect(() => {
   return (
     <Container className="py-4">
       {/* CABEÇALHO */}
-     <Row className="mb-4">
+      <Row className="mb-4">
         <Col>
           <div
-            className="d-flex align-items-center justify-content-between p-4 rounded"
+            style={{
+              border: '1px solid rgb(230, 230, 230)',
+              borderRadius: '0 16px 16px 0',
+              backgroundColor: '#ffffff',
+              padding: '1.5rem',
+              borderRight: '4px solid #f7e6e6',
+              display: 'flex',
+              alignItems: 'flex-start',
+              justifyContent: 'space-between',
+              gap: '2rem',
+              flexWrap: 'wrap'
+            }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              {/* Logo SVG */}
-  
 
+            <div style={{ padding: '1rem' }}>
+              {/* Logo e Nome do Sistema */}
               <div>
                 <h1 style={{
-              fontFamily: '"Montserrat", sans-serif',
-              fontWeight: '600',
-              fontSize: '3.8rem',
-              color: '#000000ff', 
-              marginBottom: '0.2rem',
-              letterSpacing: '-8.5px',
-              marginLeft:'-1.2rem'
-            }}> {/* nome */}
-              Bookly
+                  fontFamily: '"Montserrat", sans-serif',
+                  fontWeight: '700',
+                  fontSize: '3.8rem',
+                  background: 'linear-gradient(90deg, #2119b4, #5b2cff)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  marginBottom: '0.1rem',
+                  letterSpacing: '-10px'
+                }}>
+                  Bookly
                 </h1>
-                <p
-                  className="text-muted mb-0"
-                  style={{ fontSize: '0.95rem', marginTop: '-5px', marginLeft: '-1.1rem' }}
-                >
-                  Sistema de Gestão Bibliotecária
+                <p style={{ fontSize: '1rem', margin: 0, color: '#6c757d' }}>
+                  <strong>Gestão para Bibliotecas</strong >
                 </p>
+                <p style={{ fontSize: '10px', color: '#acacacff', marginTop: '0.1rem' }}>
+                  Gerencie todo o acervo da sua biblioteca, controle empréstimos, reservas e mantenha seu sistema sempre atualizado.
+                </p>
+
+              </div>
+
+              {/* Estatísticas */}
+              <div className="d-flex gap-2 flex-wrap mt-3">
+                <span className="badge border border-dark text-dark px-3 py-2">Livros: {livros.length}</span>
+                <span className="badge border border-success text-success px-3 py-2">Estoque total: {estoqueTotal}</span>
+                <span className="badge border border-info text-info px-3 py-2">Professores: {professores.length}</span>
+                <span className="badge border border-warning text-warning px-3 py-2">Alunos: {alunos.length}</span>
+                <span className="badge border border-secondary text-secondary px-3 py-2">Usuários: {usuarios.length}</span>
+                <span className="badge border border-danger text-danger px-3 py-2">Autores: {autores.length}</span>
+                <span className="badge border border-dark text-dark px-3 py-2">Editoras: {editoras.length}</span>
               </div>
             </div>
 
-            {/*  boas-vindas e data */}
-            <div className="text-end">
+            {/* Boas-vindas e Data */}
+            <div className="text-end" style={{ padding: '1rem' }}>
               {showWelcome && (
-                <h3 className="mb-3 fw-bold text-primary">Seja bem-vindo!</h3>
+                <h3 className="mb-3 fw-bold text-primary">Bem-vindo ao Bookly!</h3>
               )}
-              <p className="text-muted mb-5">
+              <p className="text-muted mb-2">
                 <FaCalendarAlt className="me-1" /> {currentDate}
               </p>
+
+              {/* Link para Termos de Uso */}
+              <div className="border-top pt-2 mt-2">
+                <div className="mt-1">
+                  <small
+                    style={{
+                      fontSize: '0.7rem',
+                      lineHeight: '1.2',
+                      color: '#025fbdff'
+                    }}
+                  >
+                    Conheça as regras e condições do sistema
+                  </small>
+                </div>
+
+
+                <ul className="list-unstyled mt-1 mb-0" style={{ fontSize: '0.8rem' }}>
+                  <li>
+                    <a
+                      href="/terms-of-use"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted hover-underline"
+                    >
+                      Termos de uso
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="/sobre"
+                      className="text-muted hover-underline"
+                    >
+                      Sobre
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setShowHelpModal(true);
+                      }}
+                      className="text-muted hover-underline"
+                    >
+                      Ajuda
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </Col>
       </Row>
 
+
       {/* LISTA DE LIVROS COM BARRA DE PESQUISA */}
       <Row className="mb-4">
         <Col>
           <Card>
-           <Card.Header className="bg-primary text-white d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <Card.Header className="bg-primary text-white d-flex flex-column flex-md-row justify-content-between align-items-center">
               <div className="d-flex align-items-center gap-2 mb-2 mb-md-0">
                 <h5 className="mb-0">Acervo de Livros</h5>
                 <span className="badge bg-light text-primary">
@@ -340,7 +357,7 @@ useEffect(() => {
                               className="livro-imagem"
                               onError={e => { e.target.style.display = 'none' }}
                             />
-                          ) : ( 
+                          ) : (
                             <div className="sem-imagem">
                               <FaImage size={24} />
                             </div>
@@ -354,7 +371,6 @@ useEffect(() => {
                             <div><strong>ID:</strong> {livro.id}</div>
                             <div><strong>Autor:</strong> {formatarTexto(livro.autor_nome || livro.author || '')}</div>
                             <div><strong>Editora:</strong> {formatarTexto(livro.editora_nome || livro.publisher || '')}</div>
-
                             <div><strong>Gênero:</strong> {formatarTexto(livro.genero || livro.genre || '')}</div>
                             {livro.isbn && <div><strong>ISBN:</strong> {livro.isbn}</div>}
                             <div><strong>Ano:</strong> {livro.ano_publicacao || livro.year || ''}</div>
@@ -367,113 +383,79 @@ useEffect(() => {
               )}
 
               {/* PAGINAÇÃO */}
-                  {totalPaginas > 1 && (
-                    <div className="d-flex justify-content-center justify-content-md-end align-items-center mt-3 gap-2 flex-wrap">
-                      <Button
-                        className="btn-paginacao"
-                        onClick={handlePaginaAnterior}
-                        disabled={paginaAtual === 1}
-                      >
-                        <FaChevronLeft className="me-1" /> Anterior
-                      </Button>
-                      <Button
-                        className="btn-paginacao"
-                        onClick={handleProximaPagina}
-                        disabled={paginaAtual === totalPaginas}
-                      >
-                        Próxima <FaChevronRight className="ms-1" />
-                      </Button>
-                    </div>
-                  )}
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-
-
-            <Row className="mb-4">
-              <Col>
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h4 className="mb-0">Estatísticas do Sistema</h4>
-                  <Badge bg="light" text="dark" className="fs-6 p-2">
-                    Atualizado em tempo real
-                  </Badge>
+              {totalPaginas > 1 && (
+                <div className="d-flex justify-content-center justify-content-md-end align-items-center mt-3 gap-2 flex-wrap">
+                  <Button
+                    className="btn-paginacao"
+                    onClick={handlePaginaAnterior}
+                    disabled={paginaAtual === 1}
+                  >
+                    <FaChevronLeft className="me-1" /> Anterior
+                  </Button>
+                  <Button
+                    className="btn-paginacao"
+                    onClick={handleProximaPagina}
+                    disabled={paginaAtual === totalPaginas}
+                  >
+                    Próxima <FaChevronRight className="ms-1" />
+                  </Button>
                 </div>
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
 
-                 <Row className="g-0">
-                    {estatisticas.map((estatistica, index) => (
-                      <Col xs={12} sm={6} md={4} lg={3} key={index}>
-                        <div
-                          className="estatistica-card text-center h-100"
-                          style={{
-                            padding: '1rem',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                          }}
-                        >
-                          {/* Valor */}
-                          <h3 className="fw-bold" style={{ color: estatistica.cor }}>
-                            {estatistica.valor}
-                          </h3>
 
-                          {/* Título e descrição */}
-                          <h6 className="mb-1">{estatistica.titulo}</h6>
-                          <small className="text-muted">{estatistica.descricao}</small>
-                        </div>
-                      </Col>
-                    ))}
-                  </Row>
+
+
+
+      {/* CARDS DE FUNCIONALIDADES */}
+      {categoriasCards.map((categoria, index) => (
+        <div key={index} className="mb-4">
+          <h5 className="mb-3 text-primary">{categoria.titulo}</h5>
+          <Row className="g-3">
+            {categoria.cards.map((card, i) => {
+              const Icone = card.icone
+              return (
+                <Col md={6} lg={4} xl={3} key={i}>
+                  <Card
+                    className="h-100 text-center card-funcionalidade"
+                    style={{ border: '1px solid  rgb(230, 230, 230)', borderRadius: '16px', overflow: 'visible' }}
+                  >
+
+                    <div className="d-flex flex-column p-3 h-100">
+                      {/* Ícone clicável com tooltip */}
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id={`tooltip-${i}`}>Gerenciar {card.titulo}</Tooltip>}
+                      >
+                        <Link
+                          to={card.link}
+                          className="mb-2 mx-auto icone-dinamico"
+                          style={{ display: 'inline-flex', justifyContent: 'center', alignItems: 'center' }}
+                        > {/* tamanhos dos icones */}
+                          <Icone size={26} />
+                        </Link>
+                      </OverlayTrigger>
+                      {/* titulo e descrição  */}
+                      <Card.Title className="h4 mb-1">{card.titulo}</Card.Title>
+                      <div className="text-muted flex-grow-1">
+                        <p style={{ fontSize: "12px", color: '#454545' }}>{card.descricao}</p>
+                        <hr className="my-2" />
+                      </div>
+
+                      <Link to={card.link} className="btn btn-primary mt-2">
+                        Acessar
+                      </Link>
+                    </div>
+                  </Card>
                 </Col>
-              </Row>
-
-
-             {/* CARDS DE FUNCIONALIDADES */}
-            {categoriasCards.map((categoria, index) => (
-              <div key={index} className="mb-4">
-                <h5 className="mb-3 text-primary">{categoria.titulo}</h5>
-                <Row className="g-3">
-                  {categoria.cards.map((card, i) => {
-                    const Icone = card.icone
-                    return (
-                      <Col md={6} lg={4} xl={3} key={i}>
-                        <Card 
-                          className="h-100 text-center card-funcionalidade" 
-                          style={{ border: '1px solid rgba(171, 171, 171, 1)', borderRadius: '16px', overflow: 'visible' }} 
-                        >
-                          <div className="d-flex flex-column p-3 h-100">
-                            {/* Ícone clicável com tooltip */}
-                            <OverlayTrigger
-                              placement="top"
-                              overlay={<Tooltip id={`tooltip-${i}`}>Gerenciar {card.titulo}</Tooltip>}
-                            >
-                              <Link 
-                                to={card.link} 
-                                className="mb-2 mx-auto icone-dinamico" 
-                                style={{ display: 'inline-flex', justifyContent: 'center', alignItems: 'center' }}
-                              > {/* tamanhos dos icones */}
-                                <Icone size={26} />
-                              </Link>
-                            </OverlayTrigger>
-                            {/* titulo e descrição  */}
-                            <Card.Title className="h4 mb-1">{card.titulo}</Card.Title>
-                            <div className="text-muted flex-grow-1">
-                              <p style={{ fontSize: "12px", color:'#454545' }}>{card.descricao}</p>
-                              <hr className="my-2" />
-                            </div>
-
-                            <Link to={card.link} className="btn btn-primary mt-2">
-                              Acessar
-                            </Link>
-                          </div>
-                        </Card>
-                      </Col>
-                    )
-                  })}
-                </Row>
-              </div>
-            ))}
+              )
+            })}
+          </Row>
+        </div>
+      ))}
 
       {/* BOTÃO DE AJUDA */}
       <div className="help-button-container">

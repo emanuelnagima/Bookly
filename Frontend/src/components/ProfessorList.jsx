@@ -86,7 +86,7 @@ const ProfessorList = ({ professores, onDelete, onEdit }) => {
         <div className="d-flex align-items-center">
           <h5 className="mb-0">Professores Cadastrados</h5>
           <span className="badge bg-light text-primary ms-3">
-            {professoresFiltrados.length} {professoresFiltrados.length === 1 ? 'professor' : 'professores'} •
+            {professoresFiltrados.length} {professoresFiltrados.length === 1 ? 'professor' : 'professores'} /
             Página {paginaAtual} de {totalPaginas || 1}
           </span>
         </div>

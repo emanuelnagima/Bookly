@@ -3,9 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const TermsOfUse = () => {
     
   return (
-     <> <Helmet>
-        <title>Termos de Uso - Bookly</title>
-      </Helmet>
+    <>
     <div className="page-container">
       <div className="container py-5">
         <div className="row justify-content-center">
@@ -13,25 +11,10 @@ const TermsOfUse = () => {
 
             {/* Cabeçalho */}
             <div className="text-center mb-5">
-              <div className="page-icon mb-4">
-                <span 
-                  className="icon-wrapper"
-                  style={{
-                    background: 'linear-gradient(135deg, #6F00FF 0%, #8A2BE2 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent'
-                  }}
-                >
-                  📜
-                </span>
-              </div>
-              <h1 className="display-5 fw-bold mb-3 gradient-text">Termos de Uso - Bookly</h1>
+              <h1 className="display-5 fw-bold mb-3 gradient-text">Termos de Uso </h1>
               <p className="lead text-muted mb-2">
-                Sistema de Gestão Bibliotecária
+                Bookly - Sistema de Gestão Bibliotecária
               </p>
-              <div className="last-update-badge">
-                Última atualização: {new Date().toLocaleDateString('pt-BR')}
-              </div>
             </div>
 
             {/* Conteúdo Principal */}
@@ -219,7 +202,6 @@ const TermsOfUse = () => {
         }
 
         .content-item {
-          border-left: 4px solid #6F00FF;
           padding-left: 1.5rem;
           margin-bottom: 2rem;
         }

@@ -270,7 +270,7 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
                   {alunoData.id ? ' Atualizando...' : ' Salvando...'}
                 </>
               ) : (
-                alunoData.id ? 'Atualizar' : 'Cadastrar Aluno'
+                alunoData.id ? 'Atualizar Aluno' : 'Cadastrar Aluno'
               )}
             </Button>
           </div>

@@ -110,7 +110,7 @@ const AlunoList = ({ alunos, onDelete, onEdit }) => {
         <div className="d-flex align-items-center">
           <h5 className="mb-0">Alunos Cadastrados</h5>
           <span className="badge bg-light text-primary ms-3">
-            {alunosFiltrados.length} {alunosFiltrados.length === 1 ? 'aluno' : 'alunos'} •
+            {alunosFiltrados.length} {alunosFiltrados.length === 1 ? 'aluno' : 'alunos'} /
             Página {paginaAtual} de {totalPaginas || 1}
           </span>
         </div>

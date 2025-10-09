@@ -154,7 +154,7 @@ const CadAutor = ({ onSave, onCancel, autor, loading }) => {
                   {autorData.id ? ' Atualizando...' : ' Salvando...'}
                 </>
               ) : (
-                autorData.id ? 'Atualizar' : 'Cadastrar Autor'
+                autorData.id ? 'Atualizar Autor' : 'Cadastrar Autor'
               )}
             </Button>
           </div>
