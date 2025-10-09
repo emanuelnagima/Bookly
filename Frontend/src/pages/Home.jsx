@@ -50,6 +50,7 @@ import alunoService from "../services/alunoService";
 import autorService from "../services/autorService";
 import editoraService from "../services/editoraService";
 import usuarioEspecialService from "../services/usuarioEspecialService";
+
 // Função utilitária para formatar texto
 const formatarTexto = (texto = "") =>
   texto
@@ -82,6 +83,10 @@ const Home = () => {
     const timer = setTimeout(() => setShowWelcome(false), 10000)
     return () => clearTimeout(timer)
   }, [])
+
+  useEffect(() => {
+    document.title = "Bookly - Home ";
+  }, []);
 
   useEffect(() => {
     const fetchTodosDados = async () => {

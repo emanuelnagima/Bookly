@@ -14,11 +14,13 @@ const Login = () => {
   const navigate = useNavigate();
   const canvasRef = useRef(null);
   const inactivityTimer = useRef(null);
-
   const ADMIN_CREDENTIALS = {
     email: 'admin@gmail.com',
     password: 'L!vr0$V00@2025'
   };
+  useEffect(() => {
+    document.title = "Login - Bookly ";
+  }, []);
 
   const resetInactivityTimer = () => {
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current);

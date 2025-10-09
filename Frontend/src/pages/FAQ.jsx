@@ -1,5 +1,11 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useEffect } from "react";
+
 const FAQ = () => {
+  useEffect(() => {
+    document.title = "FAQs - Bookly ";
+  }, []);
+
   return (
     <div className="page-container">
       <div className="container py-5">
