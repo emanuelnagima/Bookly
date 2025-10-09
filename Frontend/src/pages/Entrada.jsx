@@ -125,16 +125,10 @@ const Entrada = () => {
         </Col>
         <Col md={4} className="text-md-end mt-3 mt-md-0">
           <div className="d-flex justify-content-end flex-wrap gap-2">
-            <Badge bg="secondary" className="p-2">
-               Livros Cadastrados: {livros.length}
-            </Badge>
-            <Badge bg="success" className="p-2">
-              Livros Selecionados: {livroSelecionado ? 1 : 0}
-            </Badge>
-            <Badge bg="info" className="p-2 text-dark">
-              Estoque Total: {livros.reduce((acc, l) => acc + (l.estoque || 0), 0)}
-            </Badge>
-          </div>
+            <span className="badge border border-dark text-dark p-2">Livros Cadastrados: {livros.length}</span>
+            <span className="badge border border-success text-success p-2">Livros Selecionados: {livroSelecionado ? 1 : 0}</span>
+            <span className="badge border border-info text-info p-2">Estoque Total: {livros.reduce((acc, l) => acc + (l.estoque || 0), 0)}</span>
+        </div>
         </Col>
      </Row>
 

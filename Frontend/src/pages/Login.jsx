@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const INACTIVITY_LIMIT = 60 * 60 * 1000; // 1 hora
@@ -16,7 +16,7 @@ const Login = () => {
   const inactivityTimer = useRef(null);
 
   const ADMIN_CREDENTIALS = {
-    email: 'adm@gmail.com',
+    email: 'admin@gmail.com',
     password: 'L!vr0$V00@2025'
   };
 
@@ -115,10 +115,10 @@ const Login = () => {
       const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
       gradient.addColorStop(0, '#6F00FF');
       gradient.addColorStop(1, '#19183B');
-      
+
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
+
       particlesArray.forEach(p => {
         p.update();
         p.draw();
@@ -154,7 +154,20 @@ const Login = () => {
       )}
 
       <div className="login-form">
-        <h2> Bookly</h2>
+
+        <div>
+          <h1 style={{
+            fontFamily: '"Montserrat", sans-serif',
+            fontWeight: '600',
+            fontSize: '3.8rem',
+            color: '#372ee0',
+            marginBottom: '0.2rem',
+            letterSpacing: '-10px',
+            marginLeft: '-1.2rem'
+          }}> {/* nome */}
+            Bookly
+          </h1>
+        </div>
         <p>Faça login para acessar a plataforma</p>
 
         <form onSubmit={handleLogin}>
@@ -197,16 +210,28 @@ const Login = () => {
             {isLoading ? 'Carregando...' : 'Entrar'}
           </button>
         </form>
+        <div className="privacy-links">
+          <div className="privacy-link">
+            <a
+              href="/privacy-policy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted small"
+            >
+              Veja nossa política de privacidade
+            </a>
+          </div>
 
-        <div className="privacy-link">
-          <a 
-            href="/privacy-policy" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-muted small"
-          >
-            Veja nossa política de privacidade
-          </a>
+          <div className="privacy-link">
+            <a
+              href="/terms-of-use"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted small"
+            >
+              Termos de uso
+            </a>
+          </div>
         </div>
 
       </div>
@@ -259,7 +284,7 @@ const Login = () => {
         }
 
         .login-form p {
-          margin-bottom: 2rem;
+          margin-bottom: 1rem;
           color: var(--color-muted);
           font-size: 0.95rem;
         }
@@ -374,23 +399,26 @@ const Login = () => {
           margin: 0;
         }
 
-        .privacy-link {
-          margin-top: 1.5rem;
-          padding-top: 1rem;
-          border-top: 1px solid var(--color-card-border);
-        }
+       .privacy-links {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 1rem; 
+      }
 
-        .privacy-link a {
-          color: var(--color-muted);
-          text-decoration: none;
-          font-size: 0.9rem;
-          transition: color 0.3s ease;
-        }
 
-        .privacy-link a:hover {
-          color: var(--color-accent);
-          text-decoration: underline;
-        }
+  .privacy-link a {
+    color: var(--color-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.3s ease;
+  }
+
+  .privacy-link a:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
+
 
         @media (max-width: 480px) {
           .login-form {

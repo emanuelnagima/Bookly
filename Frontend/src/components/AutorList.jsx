@@ -68,7 +68,7 @@ const AutorList = ({ autores, onDelete, onEdit }) => {
         <div className="d-flex align-items-center">
           <h5 className="mb-0">Autores Cadastrados</h5>
           <span className="badge bg-light text-primary ms-3">
-            {autoresFiltrados.length} {autoresFiltrados.length === 1 ? 'autor' : 'autores'} •
+            {autoresFiltrados.length} {autoresFiltrados.length === 1 ? 'autor' : 'autores'} /
             Página {paginaAtual} de {totalPaginas || 1}
           </span>
         </div>

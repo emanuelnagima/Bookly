@@ -11,6 +11,7 @@ import About from './pages/About';
 import Login from './pages/Login';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import FAQ from './pages/FAQ'; // ADICIONE ESTA IMPORTACAO
+import TermsOfUse from './pages/TermsOfUse';
 
 // Listagens
 import Livros from './pages/Livros';
@@ -40,7 +41,8 @@ function App() {
         {/* Rotas públicas */}
         <Route path="/login" element={<Login />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/faq" element={<FAQ />} /> {/* ADICIONE ESTA ROTA */}
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/terms-of-use" element={<TermsOfUse />} />
 
         {/* Rotas protegidas */}
         <Route

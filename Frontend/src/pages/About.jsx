@@ -30,14 +30,8 @@ import photoRodrigo from "../images/rodrigo.jpg";
 // Importando as imagens do carrossel
 import img2 from "../images/img2.jpg";
 import img3 from "../images/img3.jpg";
-import img5 from "../images/img5.jpg";
-import img10 from "../images/img10.jpg";
-import img11 from "../images/img11.jpg";
 import img16 from "../images/img16.jpg";
-import img18 from "../images/img18.jpg";
 import img21 from "../images/img21.jpg";
-import img27 from "../images/img27.jpg";
-import img25 from "../images/img25.jpg";
 
 // Equipe
 const devs = [
@@ -108,49 +102,23 @@ const features = [
   }
 ];
 
-// Mural de imagens usando imagens locais
 const galleryImages = [
   { src: img2,},
   { src: img3,},
   { src: img16,},
-  {src: img10,},
-  {src: img11,},
-  {src: img18,}
-
-
-
 
 ];
 
 
-// Imagens para o carrossel criativo - AGORA COM IMAGENS LOCAIS
 const creativeCarouselImages = [
 
   {
     src: img21,
   },
   {
-    src: img2,
+    src: img2
   },
-  {
-    src: img25,
-  },
-  {
-    src: img5,
-  },
-  {
-    src: img27,
-  },
-  {
-    src: img10,
-  },
-  {
-    src: img11,
-  },
-  
-    {
-    src: img18,
-  },
+
 ];
 
 // Componente About
@@ -172,11 +140,11 @@ export default function About() {
 
             <h5 className="mt-3">Principais funcionalidades:</h5>
             <ul className="list-unstyled about-text">
-              <li>📚 Cadastro completo de livros, autores e editoras</li>
-              <li>🕒 Sistema de reservas e empréstimos inteligente</li>
-              <li>👥 Gestão de usuários (alunos, professores e outros)</li>
-              <li>📊 Relatórios e consultas em tempo real</li>
-              <li>⏳ Controle de prazos e renovações</li>
+              <li> Cadastro completo de livros, autores e editoras</li>
+              <li> Sistema de reservas e empréstimos inteligente</li>
+              <li> Gestão de usuários (alunos, professores e outros)</li>
+              <li> Relatórios e consultas em tempo real</li>
+              <li> Controle de prazos e renovações</li>
             </ul>
 
             <p className="about-text mt-2">

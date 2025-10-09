@@ -81,7 +81,7 @@ const UsuarioEspecialList = ({ usuarios, onDelete, onEdit }) => {
         <div className="d-flex align-items-center">
           <h5 className="mb-0">Usuários Cadastrados</h5>
           <span className="badge bg-light text-primary ms-3">
-            {usuariosFiltrados.length} {usuariosFiltrados.length === 1 ? 'usuário' : 'usuários'} •
+            {usuariosFiltrados.length} {usuariosFiltrados.length === 1 ? 'usuário' : 'usuários'} /
             Página {paginaAtual} de {totalPaginas || 1}
           </span>
         </div>

@@ -130,19 +130,12 @@ const Saida = () => {
         </Col>
         <Col md={4} className="text-md-end mt-3 mt-md-0">
           <div className="d-flex justify-content-end flex-wrap gap-2">
-            <Badge bg="secondary" className="p-2">
-              Total de Livros: {livros.length}
-            </Badge>
-            <Badge bg="danger" className="p-2">
-              Livros Selecionados: {livroSelecionado ? 1 : 0}
-            </Badge>
-            <Badge bg="info" className="p-2 text-dark">
-              Estoque Total: {livros.reduce((acc, l) => acc + (l.estoque || 0), 0)}
-            </Badge>
+           <span className="badge border border-dark text-dark p-2">Livros Cadastrados: {livros.length}</span>
+            <span className="badge border border-success text-success p-2">Livros Selecionados: {livroSelecionado ? 1 : 0}</span>
+            <span className="badge border border-info text-info p-2">Estoque Total: {livros.reduce((acc, l) => acc + (l.estoque || 0), 0)}</span>
           </div>
         </Col>
      </Row>
-
 
       <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
         <Toast show={showSuccess} onClose={() => setShowSuccess(false)} delay={4000} autohide bg="success">

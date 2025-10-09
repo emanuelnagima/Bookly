@@ -61,7 +61,7 @@
           <div className="d-flex align-items-center mb-2 mb-md-0">
             <h5 className="mb-0">Livros Cadastrados</h5>
             <span className="badge bg-light text-primary ms-3">
-              {livrosComEstoque.length} {livrosComEstoque.length === 1 ? 'livro' : 'livros'} • Página {paginaAtual} de {totalPaginas || 1}
+              {livrosComEstoque.length} {livrosComEstoque.length === 1 ? 'livro' : 'livros'} / Página {paginaAtual} de {totalPaginas || 1}
             </span>
           </div>
           <div style={{ minWidth: '250px', width: '100%', maxWidth: '300px' }}>

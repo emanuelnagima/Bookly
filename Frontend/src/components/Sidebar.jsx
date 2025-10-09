@@ -26,7 +26,7 @@ import { useState } from "react";
 
 // Defina as credenciais diretamente neste arquivo
 const ADMIN_CREDENTIALS = {
-  email: 'adm@gmail.com',
+  email: 'admin@gmail.com',
   password: 'L!vr0$V00@2025'
 };
 
@@ -42,28 +42,49 @@ const Sidebar = () => {
 
   return (
     <div className="sidebar">
-      {/* Cabeçalho com logo */}
-      <div className="sidebar-header">
-        <div className="header-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.2rem' }}>
-          {/* Título */}
-          <h4 style={{
-            fontFamily: '"Montserrat", sans-serif',
-            fontWeight: 600,
-            fontSize: '1.5rem',
-            color: '#fff',
-            margin: 0,
-            letterSpacing: '-2.2px',
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <div className="header-content" style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '0.3rem',
+            padding: '1rem 0'
           }}>
-            Bookly
-          </h4>
-          {/* Descrição */}
-          <p className="system-description" style={{
-            fontSize: '0.8rem',
-            color: '#b0b0b0',
-            margin: 0,
-          }}>
-            Solução integrada para bibliotecas
-          </p>
+            {/* Título */}
+            <h4 style={{
+              fontFamily: '"Montserrat", sans-serif',
+              fontWeight: 600,
+              fontSize: '1.8rem',
+              color: '#fff',
+              margin: 0,
+              letterSpacing: '-3.0px',
+              textAlign: 'center',
+              textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+            }}>
+              Bookly
+            </h4>
+
+            {/* Descrição */}
+            <p className="system-description" style={{
+              fontSize: '0.68rem',
+              color: '#b0b0b0',
+              marginTop: '-3px',
+              textAlign: 'center',
+              lineHeight: 1.3
+            }}>
+              Sistema de Gestão Bibliotecária
+            </p>
+            <p className="system-description" style={{
+              fontSize: '0.55rem',
+              color: '#b0b0b0',
+              marginTop: '-3px',
+              textAlign: 'center',
+              lineHeight: 1.3
+            }}>
+              v1 1.0.0 em desenvolvimento
+            </p>
+          </div>
         </div>
       </div>
 
@@ -198,14 +219,14 @@ const Sidebar = () => {
           <FaSignOutAlt className="me-2" />
           Sair
         </button>
-        
+
         {/* Área do perfil do usuário */}
         <div className="user-profile-section p-3 mb-3">
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             {/* Imagem ícone */}
-            <img 
-              src={avatarImg} 
-              alt="Foto do Bibliotecário" 
+            <img
+              src={avatarImg}
+              alt="Foto do Bibliotecário"
               style={{
                 width: '40px',
                 height: '40px',
@@ -218,9 +239,9 @@ const Sidebar = () => {
               <h6 style={{ color: '#ffffff', margin: '0 0 3px 0', fontWeight: '600', fontSize: '0.95rem' }}>
                 Bibliotecário
               </h6>
-              <p style={{ 
-                color: '#b0b0b0', 
-                fontSize: '0.75rem', 
+              <p style={{
+                color: '#b0b0b0',
+                fontSize: '0.75rem',
                 margin: '0',
                 display: 'flex',
                 alignItems: 'center',

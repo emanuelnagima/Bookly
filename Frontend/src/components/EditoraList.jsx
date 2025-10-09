@@ -89,7 +89,7 @@ const EditoraList = ({ editoras, onDelete, onEdit }) => {
         <div className="d-flex align-items-center">
           <h5 className="mb-0">Editoras Cadastradas</h5>
           <span className="badge bg-light text-primary ms-3">
-            {editorasFiltradas.length} {editorasFiltradas.length === 1 ? 'editora' : 'editoras'} •
+            {editorasFiltradas.length} {editorasFiltradas.length === 1 ? 'editora' : 'editoras'} /
             Página {paginaAtual} de {totalPaginas || 1}
           </span>
         </div>

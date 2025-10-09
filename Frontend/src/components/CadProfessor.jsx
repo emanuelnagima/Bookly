@@ -232,7 +232,7 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
                   {professorData.id ? ' Atualizando...' : ' Salvando...'}
                 </>
               ) : (
-                professorData.id ? 'Atualizar' : 'Cadastrar Professor'
+                professorData.id ? 'Atualizar Professor' : 'Cadastrar Professor'
               )}
             </Button>
           </div>
