@@ -78,11 +78,16 @@ const Home = () => {
   const [isButtonActive, setIsButtonActive] = useState(false);
 
   useEffect(() => {
-    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }
-    setCurrentDate(new Date().toLocaleDateString('pt-BR', options))
-    const timer = setTimeout(() => setShowWelcome(false), 10000)
-    return () => clearTimeout(timer)
-  }, [])
+    const options = {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    };
+    setCurrentDate(new Date().toLocaleDateString("pt-BR", options));
+    const timer = setTimeout(() => setShowWelcome(false), 10000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     document.title = "Bookly - Home ";
@@ -97,62 +102,68 @@ const Home = () => {
           alunosData,
           autoresData,
           editorasData,
-          usuariosData
+          usuariosData,
         ] = await Promise.all([
           livroService.getAll(),
           professorService.getAll(),
           alunoService.getAll(),
           autorService.getAll(),
           editoraService.getAll(),
-          usuarioEspecialService.getAll()
-        ])
+          usuarioEspecialService.getAll(),
+        ]);
 
         // calcula estoque total
         const livrosComEstoque = await Promise.all(
-          livrosData.map(async livro => {
+          livrosData.map(async (livro) => {
             try {
-              const estoque = await entradaSaidaService.verificarEstoque(livro.id)
-              return { ...livro, estoque: estoque ?? 0 }
+              const estoque = await entradaSaidaService.verificarEstoque(
+                livro.id
+              );
+              return { ...livro, estoque: estoque ?? 0 };
             } catch {
-              return { ...livro, estoque: 0 }
+              return { ...livro, estoque: 0 };
             }
           })
-        )
+        );
 
-        setLivros(livrosComEstoque)
-        setProfessores(professoresData)
-        setAlunos(alunosData)
-        setAutores(autoresData)
-        setEditoras(editorasData)
-        setUsuarios(usuariosData.data || usuariosData)
+        setLivros(livrosComEstoque);
+        setProfessores(professoresData);
+        setAlunos(alunosData);
+        setAutores(autoresData);
+        setEditoras(editorasData);
+        setUsuarios(usuariosData.data || usuariosData);
 
         // soma de todos os estoques
-        const total = livrosComEstoque.reduce((acc, l) => acc + (l.estoque || 0), 0)
-        setEstoqueTotal(total)
-
+        const total = livrosComEstoque.reduce(
+          (acc, l) => acc + (l.estoque || 0),
+          0
+        );
+        setEstoqueTotal(total);
       } catch (error) {
-        console.error('Erro ao carregar dados:', error)
+        console.error("Erro ao carregar dados:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchTodosDados()
-  }, [])
+    fetchTodosDados();
+  }, []);
 
   useEffect(() => setPaginaAtual(1), [termoBusca]);
 
-  const livrosFiltrados = livros.filter(livro => {
-    const termo = termoBusca.toLowerCase()
+  const livrosFiltrados = livros.filter((livro) => {
+    const termo = termoBusca.toLowerCase();
     return (
-      (livro.titulo || livro.title || '').toLowerCase().includes(termo) ||
-      (livro.autor_nome || livro.author || '').toLowerCase().includes(termo) ||
-      (livro.editora_nome || livro.publisher || '').toLowerCase().includes(termo) ||
-      (livro.isbn || '').toString().toLowerCase().includes(termo) ||
-      (livro.genero || livro.genre || '').toLowerCase().includes(termo) ||
-      (livro.ano_publicacao || livro.year || '').toString().includes(termo)
-    )
-  })
+      (livro.titulo || livro.title || "").toLowerCase().includes(termo) ||
+      (livro.autor_nome || livro.author || "").toLowerCase().includes(termo) ||
+      (livro.editora_nome || livro.publisher || "")
+        .toLowerCase()
+        .includes(termo) ||
+      (livro.isbn || "").toString().toLowerCase().includes(termo) ||
+      (livro.genero || livro.genre || "").toLowerCase().includes(termo) ||
+      (livro.ano_publicacao || livro.year || "").toString().includes(termo)
+    );
+  });
 
   const totalPaginas = Math.ceil(livrosFiltrados.length / ITENS_POR_PAGINA);
 
@@ -172,13 +183,11 @@ const Home = () => {
     setPaginaAtual((p) => Math.min(p + 1, totalPaginas));
 
   const handleHelpClick = () => {
-    setIsButtonActive(true)
-    setTimeout(() => setIsButtonActive(false), 200)
-    setShowHelpModal(true)
-  }
-  const handleCloseHelpModal = () => setShowHelpModal(false)
-
-
+    setIsButtonActive(true);
+    setTimeout(() => setIsButtonActive(false), 200);
+    setShowHelpModal(true);
+  };
+  const handleCloseHelpModal = () => setShowHelpModal(false);
 
   const categoriasCards = [
     {
@@ -288,55 +297,85 @@ const Home = () => {
         <Col>
           <div
             style={{
-              padding: '1rem',
-              display: 'flex',
-              alignItems: 'flex-start',
-              justifyContent: 'space-between',
-              gap: '2rem',
-              flexWrap: 'wrap'
+              padding: "1rem",
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              gap: "2rem",
+              flexWrap: "wrap",
             }}
           >
-
-            <div style={{ padding: '1rem' }}>
+            <div style={{ padding: "1rem" }}>
               {/* Logo e Nome do Sistema */}
               <div>
-                <h1 style={{
-                  fontFamily: '"Montserrat", sans-serif',
-                  fontWeight: '700',
-                  fontSize: '3.8rem',
-                  background: 'linear-gradient(90deg, #2119b4, #5b2cff)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  marginBottom: '0.1rem',
-                  letterSpacing: '-10px'
-                }}>
+                <h1
+                  style={{
+                    fontFamily: '"Montserrat", sans-serif',
+                    fontWeight: "700",
+                    fontSize: "3.8rem",
+                    background: "linear-gradient(90deg, #2119b4, #5b2cff)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    marginBottom: "0.1rem",
+                    letterSpacing: "-10px",
+                  }}
+                >
                   Bookly
                 </h1>
-                <p style={{ fontSize: '1rem', margin: 0, color: '#6c757d' }}>
-                  <strong>Gestão para Bibliotecas</strong >
+                <p style={{ fontSize: "1rem", margin: 0, color: "#6c757d" }}>
+                  <strong>Gestão para Bibliotecas</strong>
                 </p>
-                <p style={{ fontSize: '10px', color: '#acacacff', marginTop: '0.1rem' }}>
-                  Gerencie todo o acervo da sua biblioteca, controle empréstimos, reservas e mantenha seu sistema sempre atualizado.
+                <p
+                  style={{
+                    fontSize: "10px",
+                    color: "#acacacff",
+                    marginTop: "0.1rem",
+                  }}
+                >
+                  Gerencie todo o acervo da sua biblioteca, controle
+                  empréstimos, reservas e mantenha seu sistema sempre
+                  atualizado.
                 </p>
-
               </div>
 
               {/* Estatísticas */}
+              {/* Primeira linha */}
               <div className="d-flex gap-2 flex-wrap mt-3">
-                <span className="badge border border-dark text-dark px-3 py-2">Livros: {livros.length}</span>
-                <span className="badge border border-success text-success px-3 py-2">Estoque total: {estoqueTotal}</span>
-                <span className="badge border border-info text-info px-3 py-2">Professores: {professores.length}</span>
-                <span className="badge border border-warning text-warning px-3 py-2">Alunos: {alunos.length}</span>
-                <span className="badge border border-secondary text-secondary px-3 py-2">Usuários: {usuarios.length}</span>
-                <span className="badge border border-danger text-danger px-3 py-2">Autores: {autores.length}</span>
-                <span className="badge border border-dark text-dark px-3 py-2">Editoras: {editoras.length}</span>
+                <span className="badge bg-primary px-3 py-2 d-flex align-items-center">
+                  <FaBookOpen className="me-1" /> Livros: {livros.length}
+                </span>
+                <span className="badge bg-primary px-3 py-2 d-flex align-items-center">
+                  <FaBook className="me-1" /> Total no acervo: {estoqueTotal}
+                </span>
+                <span className="badge bg-secondary px-3 py-2 d-flex align-items-center">
+                  <FaUserTie className="me-1" /> Professores:{" "}
+                  {professores.length}
+                </span>
+                <span className="badge bg-secondary px-3 py-2 d-flex align-items-center">
+                  <FaGraduationCap className="me-1" /> Alunos: {alunos.length}
+                </span>
+                <span className="badge bg-secondary px-3 py-2 d-flex align-items-center">
+                  <FaUsers className="me-1" /> Usuários: {usuarios.length}
+                </span>
+              </div>
+
+              {/* Segunda linha */}
+              <div className="d-flex gap-2 flex-wrap mt-2">
+                <span className="badge bg-light text-dark px-3 py-2 d-flex align-items-center">
+                  <FaFeatherAlt className="me-1" /> Autores: {autores.length}
+                </span>
+                <span className="badge bg-light text-dark px-3 py-2 d-flex align-items-center">
+                  <FaUniversity className="me-1" /> Editoras: {editoras.length}
+                </span>
               </div>
             </div>
 
             {/* Boas-vindas e Data */}
-            <div className="text-end" style={{ padding: '1rem' }}>
+            <div className="text-end" style={{ padding: "1rem" }}>
               {showWelcome && (
-                <h3 className="mb-3 fw-bold text-primary">Bem-vindo ao Bookly!</h3>
+                <h3 className="mb-3 fw-bold text-primary">
+                  Bem-vindo ao Bookly!
+                </h3>
               )}
               <p className="text-muted mb-2">
                 <FaCalendarAlt className="me-1" /> {currentDate}
@@ -347,17 +386,19 @@ const Home = () => {
                 <div className="mt-1">
                   <small
                     style={{
-                      fontSize: '0.7rem',
-                      lineHeight: '1.2',
-                      color: '#025fbdff'
+                      fontSize: "0.7rem",
+                      lineHeight: "1.2",
+                      color: "#025fbdff",
                     }}
                   >
                     Conheça as regras e condições do sistema
                   </small>
                 </div>
 
-
-                <ul className="list-unstyled mt-1 mb-0" style={{ fontSize: '0.8rem' }}>
+                <ul
+                  className="list-unstyled mt-1 mb-0"
+                  style={{ fontSize: "0.8rem" }}
+                >
                   <li>
                     <a
                       href="/terms-of-use"
@@ -369,10 +410,7 @@ const Home = () => {
                     </a>
                   </li>
                   <li>
-                    <a
-                      href="/sobre"
-                      className="text-muted hover-underline"
-                    >
+                    <a href="/sobre" className="text-muted hover-underline">
                       Sobre
                     </a>
                   </li>
@@ -394,7 +432,6 @@ const Home = () => {
           </div>
         </Col>
       </Row>
-
 
       {/* LISTA DE LIVROS COM BARRA DE PESQUISA */}
       <Row className="mb-4">
@@ -461,12 +498,34 @@ const Home = () => {
                             {formatarTexto(livro.titulo || livro.title || "")}
                           </h6>
                           <div className="livro-detalhes">
-                            <div><strong>ID:</strong> {livro.id}</div>
-                            <div><strong>Autor:</strong> {formatarTexto(livro.autor_nome || livro.author || '')}</div>
-                            <div><strong>Editora:</strong> {formatarTexto(livro.editora_nome || livro.publisher || '')}</div>
-                            <div><strong>Gênero:</strong> {formatarTexto(livro.genero || livro.genre || '')}</div>
-                            {livro.isbn && <div><strong>ISBN:</strong> {livro.isbn}</div>}
-                            <div><strong>Ano:</strong> {livro.ano_publicacao || livro.year || ''}</div>
+                            <div>
+                              <strong>ID:</strong> {livro.id}
+                            </div>
+                            <div>
+                              <strong>Autor:</strong>{" "}
+                              {formatarTexto(
+                                livro.autor_nome || livro.author || ""
+                              )}
+                            </div>
+                            <div>
+                              <strong>Editora:</strong>{" "}
+                              {formatarTexto(
+                                livro.editora_nome || livro.publisher || ""
+                              )}
+                            </div>
+                            <div>
+                              <strong>Gênero:</strong>{" "}
+                              {formatarTexto(livro.genero || livro.genre || "")}
+                            </div>
+                            {livro.isbn && (
+                              <div>
+                                <strong>ISBN:</strong> {livro.isbn}
+                              </div>
+                            )}
+                            <div>
+                              <strong>Ano:</strong>{" "}
+                              {livro.ano_publicacao || livro.year || ""}
+                            </div>
                           </div>
                         </Card.Body>
                       </Card>
@@ -505,32 +564,47 @@ const Home = () => {
           <h5 className="mb-3 text-primary">{categoria.titulo}</h5>
           <Row className="g-3">
             {categoria.cards.map((card, i) => {
-              const Icone = card.icone
+              const Icone = card.icone;
               return (
                 <Col md={6} lg={4} xl={3} key={i}>
                   <Card
                     className="h-100 text-center card-funcionalidade"
-                    style={{ border: '1px solid  rgb(230, 230, 230)', borderRadius: '16px', overflow: 'visible' }}
+                    style={{
+                      border: "1px solid  rgb(230, 230, 230)",
+                      borderRadius: "16px",
+                      overflow: "visible",
+                    }}
                   >
-
                     <div className="d-flex flex-column p-3 h-100">
                       {/* Ícone clicável com tooltip */}
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id={`tooltip-${i}`}>Gerenciar {card.titulo}</Tooltip>}
+                        overlay={
+                          <Tooltip id={`tooltip-${i}`}>
+                            Gerenciar {card.titulo}
+                          </Tooltip>
+                        }
                       >
                         <Link
                           to={card.link}
                           className="mb-2 mx-auto icone-dinamico"
-                          style={{ display: 'inline-flex', justifyContent: 'center', alignItems: 'center' }}
-                        > {/* tamanhos dos icones */}
+                          style={{
+                            display: "inline-flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          {" "}
+                          {/* tamanhos dos icones */}
                           <Icone size={26} />
                         </Link>
                       </OverlayTrigger>
                       {/* titulo e descrição  */}
                       <Card.Title className="h4 mb-1">{card.titulo}</Card.Title>
                       <div className="text-muted flex-grow-1">
-                        <p style={{ fontSize: "12px", color: '#454545' }}>{card.descricao}</p>
+                        <p style={{ fontSize: "12px", color: "#454545" }}>
+                          {card.descricao}
+                        </p>
                         <hr className="my-2" />
                       </div>
 
@@ -540,7 +614,7 @@ const Home = () => {
                     </div>
                   </Card>
                 </Col>
-              )
+              );
             })}
           </Row>
         </div>
