@@ -55,7 +55,7 @@ const mvvItems = [
   },
   {
     title: "Valores",
-    text: "Inovação, transparência, acessibilidade e compromisso com la comunidad acadêmica e leitores.",
+    text: "Inovação, transparência, acessibilidade e compromisso com a comunidade acadêmica e leitores.",
     icon: <FaHeart size={30} className="text-primary" />
   }
 ];
