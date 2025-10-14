@@ -368,6 +368,15 @@
   font-weight: 600;
 }
 
+.nav-link-modern:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-accent);
+}
+
+.nav-link-modern:hover .nav-icon {
+  color: var(--color-accent);
+}
+
 .nav-link-modern.active .nav-icon,
 .submenu-link.active .nav-icon {
   color: var(--color-accent);
