@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Form, Button, Spinner } from 'react-bootstrap';
+import { BsCheckCircle } from "react-icons/bs";
 
 const CadastroAutores = ({ autor, onSave, onCancel, loading }) => {
   const [autorData, setAutorData] = useState({
@@ -77,6 +78,7 @@ const CadastroAutores = ({ autor, onSave, onCancel, loading }) => {
             <Form.Control
               type='text'
               name='nome'
+              placeholder='Digite o nome do autor'
               value={autorData.nome}
               onChange={handleChange}
               required
@@ -125,15 +127,15 @@ const CadastroAutores = ({ autor, onSave, onCancel, loading }) => {
           </Form.Group>
 
           <div className='d-flex justify-content-end gap-2'>
-            <Button 
-              variant='danger' 
+            <Button
+              variant='danger'
               onClick={onCancel}
               disabled={loading}
             >
               Cancelar
             </Button>
-            <Button 
-              variant='primary' 
+            <Button
+              variant='primary'
               type='submit'
               disabled={loading}
             >
@@ -145,11 +147,15 @@ const CadastroAutores = ({ autor, onSave, onCancel, loading }) => {
                     size="sm"
                     role="status"
                     aria-hidden="true"
+                    className="me-2"
                   />
                   {autorData.id ? ' Atualizando...' : ' Salvando...'}
                 </>
               ) : (
-                autorData.id ? 'Atualizar Autor' : 'Cadastrar Autor'
+                <>
+                  <BsCheckCircle style={{ marginRight: '8px', color: '#fff', fontSize: '18px' }} />
+                  {autorData.id ? 'Atualizar Autor' : 'Cadastrar Autor'}
+                </>
               )}
             </Button>
           </div>

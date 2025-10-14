@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Card, Form, Col, Row, Button, Spinner } from 'react-bootstrap'
+import { BsCheckCircle } from "react-icons/bs";
 
 const CadEditora = ({ onSave, onCancel, editora, loading }) => {
   const [editoraData, setEditoraData] = useState({
@@ -69,6 +70,7 @@ const CadEditora = ({ onSave, onCancel, editora, loading }) => {
                 <Form.Label>Nome da Editora</Form.Label>
                 <Form.Control
                   type='text'
+                  placeholder="Digite o nome da editora"
                   name='nome'
                   value={editoraData.nome}
                   onChange={handleChange}
@@ -118,6 +120,7 @@ const CadEditora = ({ onSave, onCancel, editora, loading }) => {
                 <Form.Control
                   type='text'
                   name='endereco'
+                  placeholder="Ex: Rua das Flores, 123, Bairro Centro, Cidade - SP"
                   value={editoraData.endereco}
                   onChange={handleChange}
                   disabled={loading}
@@ -143,15 +146,15 @@ const CadEditora = ({ onSave, onCancel, editora, loading }) => {
           </Row>
 
           <div className='d-flex justify-content-end gap-2'>
-            <Button 
-              variant='danger' 
+            <Button
+              variant='danger'
               onClick={onCancel}
               disabled={loading}
             >
               Cancelar
             </Button>
-            <Button 
-              variant='primary' 
+            <Button
+              variant='primary'
               type='submit'
               disabled={loading}
             >
@@ -163,11 +166,15 @@ const CadEditora = ({ onSave, onCancel, editora, loading }) => {
                     size="sm"
                     role="status"
                     aria-hidden="true"
+                    className="me-2"
                   />
                   {editoraData.id ? ' Atualizando...' : ' Salvando...'}
                 </>
               ) : (
-                editoraData.id ? 'Atualizar Editora' : 'Cadastrar Editora'
+                <>
+                  <BsCheckCircle style={{ marginRight: '8px', color: '#fff', fontSize: '18px' }} />
+                  {editoraData.id ? 'Atualizar Editora' : 'Cadastrar Editora'}
+                </>
               )}
             </Button>
           </div>

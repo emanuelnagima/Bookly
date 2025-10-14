@@ -174,36 +174,56 @@ const Livros = () => {
           </Spinner>
         </div>
       )}
-      
+
       {error && (
         <div className="alert alert-danger" role="alert">
           {error}
-          <button 
-            type="button" 
-            className="btn-close float-end" 
+          <button
+            type="button"
+            className="btn-close float-end"
             onClick={() => setError('')}
             aria-label="Close"
           ></button>
         </div>
       )}
 
-      <Row className="mb-4 align-items-center">
-        <Col md={8}>
-          <h4 className="display-30 fw-bold text">Acervo de Livros</h4>
-          <p className="text-muted fs-10">
-            Cadastre e gerencie todos os livros do acervo bibliográfico e acompanhe o estoque em tempo real.
-          </p>
-        </Col>
-        <Col md={4} className="text-md-end mt-3 mt-md-0">
-          <Button 
-            variant="success"
-            onClick={handleOpenForm}
-            disabled={loading}
-          >
-            Adicionar Livro
-          </Button>
-        </Col>
-      </Row>    
+      {/* Cabeçalho Acervo de Livros */}
+      <div
+        className="rounded-3 p-4 mb-4"
+        style={{
+          border: '1px solid #e6e6e6',
+          borderRadius: '0.75rem'
+        }}
+      >
+        <Row className="align-items-center">
+          <Col md={8}>
+            <div className="d-flex align-items-center">
+              <div className="me-3">
+                <i className="fas fa-book-open fa-2x" style={{ color: '#0b192c' }}></i>
+              </div>
+              <div>
+                <h4 className="fw-bold text-dark mb-1">Acervo de Livros</h4>
+                <p className="text-muted mb-0">
+                  Total de <strong>{livros.length}</strong> livros cadastrados
+                </p>
+              </div>
+            </div>
+          </Col>
+
+          <Col md={4} className="text-md-end">
+            <Button
+              variant="success"
+              className="fw-semibold px-4"
+              onClick={handleOpenForm}
+              disabled={loading}
+            >
+              <i className="fas fa-plus-circle me-2"></i>
+              Adicionar Livro
+            </Button>
+          </Col>
+        </Row>
+      </div>
+
 
       {showForm && (
         <Row className="mb-4">
@@ -237,15 +257,15 @@ const Livros = () => {
           Tem certeza que deseja excluir este livro?
         </Modal.Body>
         <Modal.Footer>
-          <Button 
-            variant="paginacao" 
+          <Button
+            variant="paginacao"
             onClick={() => setShowDeleteModal(false)}
             disabled={isDeleting}
           >
             Cancelar
           </Button>
-          <Button 
-            variant="danger" 
+          <Button
+            variant="danger"
             onClick={handleDeleteLivro}
             disabled={isDeleting}
           >

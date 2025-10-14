@@ -2,81 +2,49 @@
 :root {
   /* Cores principais do tema */
   --color-bg: #ffffff;
-  /* Cor de fundo principal */
   --color-page: #fdfdfd;
-  /* Cor de fundo da página */
   --color-foreground: #222222;
-  /* Cor do texto principal */
   --color-sidebar: #0B192C;
-  /* Cor do sidebar */
   --color-accent: #2119b4;
-  /* Cor de destaque/acento */
   --color-white: #ffffff;
-  /* Branco puro */
   --color-muted: rgba(34, 34, 34, 0.6);
-  /* Texto com opacidade reduzida */
   --color-card-border: rgba(0, 0, 0, 0.1);
-  /* Borda sutil para cards */
   --color-card-shadow: rgba(0, 0, 0, 0.05);
-  /* Sombra padrão para cards */
   --color-card-shadow-hover: rgba(0, 0, 0, 0.12);
-  /* Sombra para hover em cards */
 
   /* Tipografia */
   --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
-  /* Fonte principal */
   --font-size-base: 16px;
-  /* Tamanho base da fonte */
   --font-size-small: 0.79rem;
-  /* Tamanho pequeno */
   --font-size-smaller: 0.75rem;
-  /* Tamanho menor ainda */
 
   /* Dimensões e espaçamentos */
-  --sidebar-width: 300px;
-  /* Largura do sidebar */
+  --sidebar-width: 280px;
+  --sidebar-width-mobile: 100vw;
   --gap-sm: 0.4rem;
-  /* Espaçamento pequeno */
   --gap-base: 1rem;
-  /* Espaçamento base */
   --pad-wide: 24px;
-  /* Padding largo */
   --pad-medium: 1.5rem;
-  /* Padding médio */
   --border-radius: 8px;
-  /* Raio de borda padrão */
   --round-big: 12px;
-  /* Raio de borda maior */
   --avatar-size: 140px;
-  /* Tamanho do avatar */
 
   /* Sombras e transições */
   --shadow-sidebar: 4px 0 20px rgba(44, 62, 80, 0.4);
-  /* Sombra do sidebar */
   --shadow-card: 0 4px 12px var(--color-card-shadow);
-  /* Sombra padrão de card */
   --shadow-card-hover: 0 8px 24px var(--color-card-shadow-hover);
-  /* Sombra de card no hover */
   --transition-fast: 0.3s ease;
-  /* Transição rápida */
   --transition-slower: 0.5s ease;
-  /* Transição mais lenta */
 
   /* Botões */
   --btn-bg: var(--color-accent);
-  /* Cor de fundo do botão */
   --btn-bg-hover: #1B6AA8;
-  /* Cor de fundo no hover */
   --btn-color: var(--color-white);
-  /* Cor do texto do botão */
   --btn-color-hover: var(--color-white);
-  /* Cor do texto no hover */
 
   /* Outras medidas úteis */
   --help-size: 48px;
-  /* Tamanho do botão de ajuda */
   --devs-grid-min: 280px;
-  /* Largura mínima para grid de desenvolvedores */
 }
 
 /* ====== RESET BÁSICO E ESTILOS GERAIS ====== */
@@ -88,203 +56,78 @@ body.tema-padrao {
   padding: 0;
   font-size: var(--font-size-base);
   background: linear-gradient(to bottom, #f0f4f8, #ffffff);
-  /* Gradiente sutil de fundo */
 }
 
-  /* ====== CONTEÚDO PRINCIPAL ====== */
-  .content {
-  flex: 1; /* ocupa todo o espaço restante */
+/* ====== CONTEÚDO PRINCIPAL ====== */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-page);
+  overflow-x: hidden;
+}
+
+.content {
+  flex: 1;
   background-color: var(--color-page);
   color: var(--color-foreground);
-  min-width: 0; /* evita overflow horizontal */
-  max-width: 100%; /* não ultrapassa a tela */
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  padding: 2rem 3rem;
+  margin-left: var(--sidebar-width);
+  transition: all var(--transition-fast);
+  box-sizing: border-box;
+  min-height: 100vh;
 }
 
-.app-container {
-  display: flex;
-  min-height: 100vh; /* ocupa toda a altura da tela */
-  background-color: var(--color-page);
+/* Ajustes de responsividade para o conteúdo */
+@media (max-width: 768px) {
+  .content {
+    margin-left: 0;
+    padding: 1rem 1.5rem;
+    margin-top: 60px; /* Espaço para o botão hamburger */
+  }
 }
 
-/* ====== SIDEBAR ====== */
-.sidebar {
-  width: var(--sidebar-width);
-  background-color: #0d162b; 
-  color: var(--color-white);
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  z-index: 10;
-  box-shadow: inset -2px 0 5px rgba(0, 0, 0, 0.1);
+@media (max-width: 480px) {
+  .content {
+    padding: 1rem;
+    margin-top: 50px;
+  }
 }
 
-
-/* Cabeçalho do sidebar */
-.sidebar-header {
-  padding: 4rem 1.5rem 1.2rem;
+/* se quiser o conteúdo centralizado horizontalmente */
+.content > * {
+  margin: 0 auto;
+  width: 100%;
 }
-
-/* Conteúdo do cabeçalho */
-.header-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-}
-
-/* Container do título */
-.title-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-
-}
-
-/* ====== Sidebar Header ====== */
-.sidebar-header {
-  padding: 1rem 0; /* espaço em cima e embaixo */
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* centraliza o conteúdo */
-  gap: 0.3rem; /* espaço entre título e parágrafo */
-}
-
-.sidebar-header h4 {
-  font-family: "Montserrat", sans-serif;
-  font-weight: 600;
-  font-size: 1.8rem;
-  color: #ffffff;
-  margin: 0;
-  letter-spacing: -1px;
-  text-align: center;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-}
-
-.sidebar-header p.system-description {
-  font-size: 0.85rem;
-  color: #b0b0b0;
-  margin: 0;
-  text-align: center;
-  line-height: 1.3;
-}
-
-
-/* Tagline abaixo do título */
-.sidebar-tagline {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
-  margin-top: 6px;
-  font-style: italic;
-  letter-spacing: 0.8px;
-  user-select: none;
-  /* Impede seleção de texto */
-  line-height: 1.2;
-  max-width: 220px;
-}
-
-
-/* Navegação principal */
-.sidebar .nav {
-  flex: 1;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Títulos de seção no sidebar */
-.sidebar .sidebar-section-title {
-  color: #45ffd6 !important;
-  font-size: var(--font-size-smaller);
-  font-weight: 500;
-  padding: 1rem 1.5rem 0.5rem;
-  text-transform: uppercase;
-  margin-top: 0.5rem;
-}
-
-/* Links de navegação */
-.nav-link {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem 1.5rem;
-  color: var(--color-white);
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 1rem;
-  font-weight: 400;
-  transition: color var(--transition-fast);
-  cursor: pointer;
-
-}
-
-/* Efeito de sublinhado animado */
-.nav-link::after {
-  content: "";
-  position: absolute;
-  left: 1.5rem;
-  bottom: 0.3rem;
-  width: 0;
-  height: 2px;
-  background-color: var(--color-accent);
-  transition: width var(--transition-slower);
-  border-radius: 1px;
-}
-
-/* Animação do sublinhado no hover */
-.nav-link:hover::after {
-  width: calc(100% - 3rem);
-}
-
-.nav-link.active {
-  font-weight: 500;
-  background-color: rgba(41, 127, 185, 0.137); /* Fundo azul suave */
-  color: var(--color-accent); /* opcional, deixa texto destacado */
-  border-radius: 6px;
-}
-
-.nav-link:hover {
-  background-color: rgba(41, 128, 185, 0.1); /* Fundo leve no hover */
-}
-
-/* Ícones nos links */
-.nav-link .me-2 {
-  margin-right: 1rem;
-  font-size: 1.1rem;
-  width: 24px;
-  text-align: center;
-  color: var(--color-white);
-}
-
 
 /* ====== COMPONENTES ====== */
 /* Botões */
 
-/* BOTÕES PRINCIPAIS E SALVAR */
+/* BOTÕES PRINCIPAIS E SALVAR - HOVER ORIGINAL */
 .btn-primary {
-  background-color: #2119b4; 
+  background-color: #2119b4;
   color: var(--btn-color) !important;
   border: none !important;
-  border-radius: 0.5rem; 
+  border-radius: 0.6rem;
   font-weight: 500;
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: background-color var(--transition-fast), transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 .btn-primary:hover {
-  background-color: #372ee0; 
+  background-color: #372ee0;
   color: var(--btn-color-hover) !important;
-    transform: translateY(-2px); 
-
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .btn-sucess:hover {
   background-color: #169976;
   color: var(--btn-color-hover) !important;
 }
-
 
 /* BOTÃO CANCELAR E EXCLUIR*/
 .btn-danger {
@@ -307,7 +150,6 @@ body.tema-padrao {
   color: white;
   cursor: pointer;
   font-weight: 500;
-
   transition: background-color var(--transition-fast);
 }
 
@@ -317,8 +159,6 @@ body.tema-padrao {
 }
 
 /* ====== PAGINAÇÃO HOME ====== */
-/* ====== BOTÃO PROXIMA E CANCELAR  ====== */
-
 .btn-paginacao {
   background-color: var(--color-sidebar) !important;
   color: #fff;
@@ -342,30 +182,33 @@ body.tema-padrao {
 }
 
 .icone-dinamico {
-  color: #ffffff;             
-  border: 2px solid #ffffff;  
-  border-radius: 50%;     
-  padding: 8px;           
-  display: inline-flex;   
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  padding: 8px;
+  display: inline-flex;
   justify-content: center;
   align-items: center;
 
-  background-color: #0B192C;  
-  transform: scale(1);      
+  background-color: #0B192C;
+  transform: scale(1);
   transition: all 0.3s ease;
 
-  position: relative; /* ajuda tooltip */
+  position: relative;
+  /* ajuda tooltip */
   z-index: 1;
 }
 
 .icone-dinamico:hover {
-  color: #ffffff;             
-  border-color: #ffffff;     
-  background-color: #7bff00; 
-  transform: scale(1.2);    
+  color: #ffffff;
+  border-color: #ffffff;
+  background-color: #7bff00;
+  transform: scale(1.2);
 }
+
 .card-funcionalidade {
-  overflow: visible; /* permite tooltip flutuar */
+  overflow: visible;
+  /* permite tooltip flutuar */
 }
 
 /* Cards */
@@ -376,16 +219,18 @@ body.tema-padrao {
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   background-color: var(--color-white);
   color: var(--color-foreground);
-  }
+}
 
 /* Corpo do card */
 .card-body {
   padding: var(--pad-wide);
-  border: 1px solid  rgb(230, 230, 230);
-  border-bottom-left-radius: 0;   /* canto inferior esquerdo quadrado */
-  border-bottom-right-radius: 16px; /* canto inferior direito arredondado */
+  border: 1px solid rgb(230, 230, 230);
+  border-bottom-left-radius: 0;
+  /* canto inferior esquerdo quadrado */
+  border-bottom-right-radius: 16px;
+  /* canto inferior direito arredondado */
 
-  }
+}
 
 /* Cabeçalho do card */
 .card-header {
@@ -393,7 +238,7 @@ body.tema-padrao {
   color: var(--color-white);
   padding: 1rem 1.5rem;
   border-bottom: 2px solid var(---accent);
-  
+
 }
 
 /* Título do card */
@@ -420,33 +265,27 @@ body.tema-padrao {
   width: 120px;
   height: 180px;
   object-fit: cover;
-  border-radius: 8px; 
+  border-radius: 8px;
   border: 1.5px solid rgb(175, 175, 175);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-
-.livro-imagem:hover {
-  transform: scale(1.07); 
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25); 
-}
 
 .lista-livro-imagem {
-  width: 80px;      
-  height: 120px;  
+  width: 80px;
+  height: 120px;
   object-fit: cover;
   border-radius: 6px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.4s ease;
 }
 
 .lista-livro-imagem.selecionada {
-  border: 3px solid #28a745; 
+  border: 3px solid #28a745;
 }
 
 .sem-imagem {
-  width: 150px;      
+  width: 150px;
   height: 220px;
   background-color: #f8f9fa;
   border-radius: 6px;
@@ -457,7 +296,8 @@ body.tema-padrao {
 }
 
 .livro-card-body {
-  border: none; /* remove a borda */
+  border: none;
+  /* remove a borda */
 }
 
 .btn-sm-custom {
@@ -538,7 +378,7 @@ body.tema-padrao {
 
 .modal-footer-help {
   border-top: none;
-  background-color: #45ffd6 ;
+  background-color: #45ffd6;
   padding: 1rem 1.5rem;
 }
 
@@ -549,11 +389,13 @@ body.tema-padrao {
 }
 
 .hover-underline {
-  text-decoration: none; /* sem sublinhado por padrão */
+  text-decoration: none;
+  /* sem sublinhado por padrão */
 }
 
 .hover-underline:hover {
-  text-decoration: underline; /* aparece o sublinhado ao passar o mouse */
+  text-decoration: underline;
+  /* aparece o sublinhado ao passar o mouse */
 }
 
 
@@ -694,11 +536,6 @@ body.tema-padrao {
     /* Empilha sidebar e conteúdo em mobile */
   }
 
-  .sidebar {
-    width: 100%;
-    /* Sidebar ocupa toda a largura */
-  }
-
   .content {
     padding: var(--pad-medium);
     /* Reduz padding em mobile */
@@ -746,9 +583,8 @@ body.tema-padrao {
 }
 
 .livro-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(10px);
 }
-
 
 .livro-titulo {
   font-weight: 600;
@@ -781,21 +617,18 @@ body.tema-padrao {
   margin-bottom: 0.25rem;
 }
 
-.detalhes-linha > div {
+.detalhes-linha>div {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.detalhes-linha > div:first-child {
+.detalhes-linha>div:first-child {
   font-weight: 600;
   min-width: 60px;
   margin-right: 8px;
 }
 
-.detalhes-linha > div:last-child {
+.detalhes-linha>div:last-child {
   flex: 1;
 }
-
-
-

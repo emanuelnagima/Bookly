@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Card, Table, Form, InputGroup, Button } from 'react-bootstrap'
 import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
+import { FaUsers } from "react-icons/fa";
 
 const ITENS_POR_PAGINA = 10
 
@@ -78,13 +79,27 @@ const UsuarioEspecialList = ({ usuarios, onDelete, onEdit }) => {
   return (
     <Card>
       <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
+
         <div className="d-flex align-items-center">
-          <h5 className="mb-0">Usuários Cadastrados</h5>
+          <h5 className="mb-0 d-flex align-items-center">
+            <FaUsers className="me-2 text" style={{
+              marginRight: '8px',
+              fontSize: '26px',
+              color: '#ffffffff',
+              border: '2px solid #585858',
+              borderRadius: '50%',
+              padding: '4px',
+              display: 'inline-flex',
+              verticalAlign: 'middle'
+            }} />
+            Usuários Cadastrados
+          </h5>
           <span className="badge bg-light text-primary ms-3">
             {usuariosFiltrados.length} {usuariosFiltrados.length === 1 ? 'usuário' : 'usuários'} /
             Página {paginaAtual} de {totalPaginas || 1}
           </span>
         </div>
+
         <div style={{ width: '300px' }}>
           <InputGroup>
             <InputGroup.Text className="bg-light text-primary">

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { Container, Form, Button, Card, Spinner } from 'react-bootstrap'
 
 const CadastroEditoras = () => {
-  const { id } = useParams()     
+  const { id } = useParams()
   const navigate = useNavigate()
   const [editora, setEditora] = useState({
     nome: '',
@@ -77,6 +77,7 @@ const CadastroEditoras = () => {
               <Form.Label>Nome da Editora</Form.Label>
               <Form.Control
                 type="text"
+                placeholder="Digite o nome da editora"
                 name="nome"
                 value={editora.nome}
                 onChange={handleChange}
@@ -100,6 +101,8 @@ const CadastroEditoras = () => {
               <Form.Control
                 type="text"
                 name="endereco"
+                placeholder="Ex: Rua das Flores, 123, Bairro Centro, Cidade - SP"
+
                 value={editora.endereco}
                 onChange={handleChange}
               />

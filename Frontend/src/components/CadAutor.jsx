@@ -77,6 +77,7 @@ const CadAutor = ({ onSave, onCancel, autor, loading }) => {
                 <Form.Control
                   type='text'
                   name='nome'
+                  placeholder='Digite o nome do autor'
                   value={autorData.nome}
                   onChange={handleChange}
                   required
@@ -131,14 +132,14 @@ const CadAutor = ({ onSave, onCancel, autor, loading }) => {
           </Row>
 
           <div className='d-flex justify-content-end gap-2'>
-            <Button 
-              variant='danger' 
+            <Button
+              variant='danger'
               onClick={onCancel}
               disabled={loading}
             >
               Cancelar
             </Button>
-            <Button 
+            <Button
               type='submit'
               disabled={loading}
             >
@@ -150,11 +151,15 @@ const CadAutor = ({ onSave, onCancel, autor, loading }) => {
                     size="sm"
                     role="status"
                     aria-hidden="true"
+                    className="me-2"
                   />
                   {autorData.id ? ' Atualizando...' : ' Salvando...'}
                 </>
               ) : (
-                autorData.id ? 'Atualizar Autor' : 'Cadastrar Autor'
+                <>
+                  <BsCheckCircle style={{ marginRight: '8px', color: '#fff', fontSize: '18px' }} />
+                  {autorData.id ? 'Atualizar Autor' : 'Cadastrar Autor'}
+                </>
               )}
             </Button>
           </div>

@@ -43,13 +43,13 @@ const Editoras = () => {
   const handleSaveEditora = async (editora) => {
     try {
       setLoading(true)
-      
+
       // VERIFICAÇÃO NO FRONTEND 
-      const editoraExistente = editoras.find(e => 
-        e.nome.toLowerCase().trim() === editora.nome.toLowerCase().trim() && 
+      const editoraExistente = editoras.find(e =>
+        e.nome.toLowerCase().trim() === editora.nome.toLowerCase().trim() &&
         e.id !== editora.id
       )
-      
+
       if (editoraExistente) {
         setError(`Já existe uma editora com o nome "${editora.nome}" cadastrada. Por favor, utilize um nome diferente.`)
         setLoading(false)
@@ -88,7 +88,7 @@ const Editoras = () => {
       setShowForm(false)
       setEditoraToEdit(null)
       setError(null) // Limpa erros anteriores
-      
+
     } catch (error) {
       console.error('Erro ao salvar editora:', error)
       setError(error.message || `Falha ao ${editora.id ? 'atualizar' : 'cadastrar'} editora. Tente novamente.`)
@@ -197,16 +197,33 @@ const Editoras = () => {
       )}
 
       {/* Cabeçalho + botão */}
-      <Row className="mb-4 align-items-center">
+
+      <div
+        className="rounded-3 p-4 mb-4"
+        style={{
+          border: '1px solid #e6e6e6',
+          borderRadius: '0.75rem'
+        }}
+      >
+        <Row className="align-items-center">
           <Col md={8}>
-            <h4 className="display-30 fw-bold text">Editoras</h4>
-            <p className="text-muted fs-10">
-              Cadastre e gerencie as editoras no sistema.
-            </p>
+            <div className="d-flex align-items-center">
+              <div className="me-3">
+                <i className="fas fa-book fa-2x" style={{ color: '#0b192c' }}></i>
+              </div>
+              <div>
+                <h4 className="fw-bold text-dark mb-1">Editoras</h4>
+                <p className="text-muted mb-0">
+                  Total de <strong>{editoras.length}</strong> editoras cadastradas
+                </p>
+              </div>
+            </div>
           </Col>
-          <Col md={4} className="text-md-end mt-3 mt-md-0">
+
+          <Col md={4} className="text-md-end">
             <Button
               variant="success"
+              className="fw-semibold px-4"
               onClick={() => {
                 setEditoraToEdit(null)
                 setShowForm(!showForm)
@@ -214,10 +231,13 @@ const Editoras = () => {
               }}
               disabled={loading}
             >
+              <i className="fas fa-plus-circle me-2"></i>
               Adicionar Editora
             </Button>
           </Col>
-    </Row>
+        </Row>
+      </div>
+
 
       {/* Formulário */}
       {showForm && (

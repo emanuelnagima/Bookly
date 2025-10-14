@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Container, Row, Col, Button, Modal, Spinner, Toast } from 'react-bootstrap'
-import AutorList from '../components/AutorList' 
+import AutorList from '../components/AutorList'
 import CadastroAutores from './cadastros/CadastroAutores'
 import autorService from '../services/autorService';
 
@@ -46,7 +46,7 @@ const Autores = () => {
         setToastMessage('Autor cadastrado com sucesso!')
         setOperationType('create')
       }
-      
+
       await loadAutores()
       setShowSuccessToast(true)
       setShowForm(false)
@@ -106,10 +106,10 @@ const Autores = () => {
   return (
     <Container className="py-4">
       <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
-        <Toast 
-          show={showSuccessToast} 
-          onClose={() => setShowSuccessToast(false)} 
-          delay={3000} 
+        <Toast
+          show={showSuccessToast}
+          onClose={() => setShowSuccessToast(false)}
+          delay={3000}
           autohide
           bg={operationType === 'delete' ? 'danger' : 'success'}
         >
@@ -133,29 +133,46 @@ const Autores = () => {
           </Spinner>
         </div>
       )}
-      
+
       {error && (
         <div className="alert alert-danger" role="alert">
           {error}
-          <button 
-            type="button" 
-            className="btn-close float-end" 
+          <button
+            type="button"
+            className="btn-close float-end"
             onClick={() => setError(null)}
             aria-label="Close"
           ></button>
         </div>
       )}
 
-      <Row className="mb-4 align-items-center">
+      {/* Cabeçalho com borda completa e ícone */}
+      <div
+        className="rounded-3 p-4 mb-4"
+        style={{
+          border: '1px solid #e6e6e6',
+          borderRadius: '0.75rem'
+        }}
+      >
+        <Row className="align-items-center">
           <Col md={8}>
-            <h4 className="display-30 fw-bold text">Autores</h4>
-            <p className="text-muted fs-10">
-              Cadastre e gerencie os autores do acervo bibliográfico.
-            </p>
+            <div className="d-flex align-items-center">
+              <div className="me-3">
+                <i className="fas fa-book fa-2x" style={{ color: '#0b192c' }}></i>
+              </div>
+              <div>
+                <h4 className="fw-bold text-dark mb-1">Autores</h4>
+                <p className="text-muted mb-0">
+                  Total de <strong>{autores.length}</strong> autores cadastrados
+                </p>
+              </div>
+            </div>
           </Col>
-          <Col md={4} className="text-md-end mt-3 mt-md-0">
+
+          <Col md={4} className="text-md-end">
             <Button
               variant="success"
+              className="fw-semibold px-4"
               onClick={() => {
                 setAutorToEdit(null)
                 setShowForm(!showForm)
@@ -163,22 +180,24 @@ const Autores = () => {
               }}
               disabled={loading}
             >
+              <i className="fas fa-plus-circle me-2"></i>
               Adicionar Autor
             </Button>
           </Col>
-      </Row>
+        </Row>
+      </div>
 
       {showForm && (
         <Row className="mb-4">
           <Col>
             <CadastroAutores
-                autor={autorToEdit}   // <-- aqui
-                onSave={handleSaveAutor}  // alterar de onSubmit para onSave
-                onCancel={() => {
-                  setShowForm(false)
-                  setAutorToEdit(null)
-                }}
-              />
+              autor={autorToEdit}
+              onSave={handleSaveAutor}
+              onCancel={() => {
+                setShowForm(false)
+                setAutorToEdit(null)
+              }}
+            />
           </Col>
         </Row>
       )}
@@ -201,15 +220,15 @@ const Autores = () => {
           Tem certeza que deseja excluir este autor?
         </Modal.Body>
         <Modal.Footer>
-          <Button 
-            variant="paginacao" 
+          <Button
+            variant="paginacao"
             onClick={() => setShowDeleteModal(false)}
             disabled={isDeleting}
           >
             Cancelar
           </Button>
-          <Button 
-            variant="danger" 
+          <Button
+            variant="danger"
             onClick={handleDeleteAutor}
             disabled={isDeleting}
           >

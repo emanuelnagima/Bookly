@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Card, Table, Form, InputGroup, Button } from 'react-bootstrap'
 import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
+import { FaBuilding } from "react-icons/fa";
 
 const ITENS_POR_PAGINA = 12
 
@@ -15,22 +16,22 @@ const formatarTexto = texto =>
 // Função para formatar CNPJ
 const formatarCNPJ = (cnpj) => {
   if (!cnpj) return '-'
-  
+
   const cnpjLimpo = cnpj.toString().replace(/\D/g, '')
-  
+
   if (cnpjLimpo.length === 14) {
     return `${cnpjLimpo.substring(0, 2)}.${cnpjLimpo.substring(2, 5)}.${cnpjLimpo.substring(5, 8)}/${cnpjLimpo.substring(8, 12)}-${cnpjLimpo.substring(12)}`
   }
-  
+
   return cnpj
 }
 
 // Função para formatar telefone
 const formatarTelefone = (telefone) => {
   if (!telefone) return '-'
-  
+
   const numeros = telefone.toString().replace(/\D/g, '')
-  
+
   if (numeros.length === 11) {
     return `(${numeros.substring(0, 2)}) ${numeros.substring(2, 7)}-${numeros.substring(7)}`
   } else if (numeros.length === 10) {
@@ -40,7 +41,7 @@ const formatarTelefone = (telefone) => {
   } else if (numeros.length === 9) {
     return `${numeros.substring(0, 5)}-${numeros.substring(5)}`
   }
-  
+
   return telefone
 }
 
@@ -87,7 +88,19 @@ const EditoraList = ({ editoras, onDelete, onEdit }) => {
     <Card>
       <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
         <div className="d-flex align-items-center">
-          <h5 className="mb-0">Editoras Cadastradas</h5>
+          <h5 className="mb-0 d-flex align-items-center">
+            <FaBuilding style={{
+              marginRight: '8px',
+              fontSize: '26px',
+              color: '#ffffffff',
+              border: '2px solid #585858',
+              borderRadius: '50%',
+              padding: '4px',
+              display: 'inline-flex',
+              verticalAlign: 'middle'
+            }} />
+            Editoras Cadastradas
+          </h5>
           <span className="badge bg-light text-primary ms-3">
             {editorasFiltradas.length} {editorasFiltradas.length === 1 ? 'editora' : 'editoras'} /
             Página {paginaAtual} de {totalPaginas || 1}

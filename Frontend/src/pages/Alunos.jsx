@@ -42,8 +42,8 @@ const Alunos = () => {
       // Verifica por CPF, email ou outro campo único que identifique um aluno
       const alunoExistente = alunos.find(a =>
         (a.cpf === aluno.cpf ||
-         a.email.toLowerCase().trim() === aluno.email.toLowerCase().trim() ||
-         a.matricula === aluno.matricula) &&
+          a.email.toLowerCase().trim() === aluno.email.toLowerCase().trim() ||
+          a.matricula === aluno.matricula) &&
         a.id !== aluno.id
       )
 
@@ -142,10 +142,10 @@ const Alunos = () => {
   return (
     <Container className="py-4">
       <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
-        <Toast 
-          show={showSuccessToast} 
-          onClose={() => setShowSuccessToast(false)} 
-          delay={3000} 
+        <Toast
+          show={showSuccessToast}
+          onClose={() => setShowSuccessToast(false)}
+          delay={3000}
           autohide
           bg={operationType === 'delete' ? 'danger' : 'success'}
         >
@@ -169,29 +169,46 @@ const Alunos = () => {
           </Spinner>
         </div>
       )}
-      
+
       {error && (
         <div className="alert alert-danger" role="alert">
           {error}
-          <button 
-            type="button" 
-            className="btn-close float-end" 
+          <button
+            type="button"
+            className="btn-close float-end"
             onClick={() => setError(null)}
             aria-label="Close"
           ></button>
         </div>
       )}
 
-      <Row className="mb-4 align-items-center">
+      {/* Cabeçalho com borda completa e ícone */}
+      <div
+        className="rounded-3 p-4 mb-4"
+        style={{
+          border: '1px solid #e6e6e6',
+          borderRadius: '0.75rem'
+        }}
+      >
+        <Row className="align-items-center">
           <Col md={8}>
-            <h4 className="display-30 fw-bold text">Alunos</h4>
-            <p className="text-muted fs-10">
-              Cadastre e gerencie os alunos do sistema.
-            </p>
+            <div className="d-flex align-items-center">
+              <div className="me-3">
+                <i className="fas fa-user-graduate fa-2x" style={{ color: '#0b192c' }}></i>
+              </div>
+              <div>
+                <h4 className="fw-bold text-dark mb-1">Alunos</h4>
+                <p className="text-muted mb-0">
+                  Total de <strong>{alunos.length}</strong> alunos cadastrados
+                </p>
+              </div>
+            </div>
           </Col>
-          <Col md={4} className="text-md-end mt-3 mt-md-0">
+
+          <Col md={4} className="text-md-end">
             <Button
               variant="success"
+              className="fw-semibold px-4"
               onClick={() => {
                 setAlunoToEdit(null)
                 setShowForm(!showForm)
@@ -199,10 +216,13 @@ const Alunos = () => {
               }}
               disabled={loading}
             >
+              <i className="fas fa-plus-circle me-2"></i>
               Adicionar Aluno
             </Button>
           </Col>
         </Row>
+      </div>
+
 
       {showForm && (
         <Row className="mb-4">
@@ -240,15 +260,15 @@ const Alunos = () => {
           Tem certeza que deseja excluir este aluno?
         </Modal.Body>
         <Modal.Footer>
-          <Button 
-            variant="paginacao" 
+          <Button
+            variant="paginacao"
             onClick={() => setShowDeleteModal(false)}
             disabled={isDeleting}
           >
             Cancelar
           </Button>
-          <Button 
-            variant="danger" 
+          <Button
+            variant="danger"
             onClick={handleDeleteAluno}
             disabled={isDeleting}
           >

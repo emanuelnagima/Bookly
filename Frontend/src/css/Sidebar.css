@@ -1,0 +1,528 @@
+/* ===== VARIÁVEIS CSS ===== */
+:root {
+  --sidebar-width: 280px;
+  --sidebar-width-mobile: 100vw;
+  --color-bg: #ffffff;
+  --color-page: #fdfdfd;
+  --color-foreground: #222222;
+  --color-sidebar: #0B192C;
+  --color-accent: #6366f1;
+  --color-accent-light: #7c7c7cff;
+  --color-white: #ffffff;
+  --color-muted: rgba(34, 34, 34, 0.6);
+  --color-card-border: rgba(0, 0, 0, 0.1);
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-size-base: 16px;
+  --font-size-small: 0.79rem;
+  --font-size-smaller: 0.75rem;
+  --gap-sm: 0.4rem;
+  --gap-base: 1rem;
+  --pad-wide: 24px;
+  --pad-medium: 1.5rem;
+  --border-radius: 8px;
+  --round-big: 12px;
+  --avatar-size: 140px;
+  --shadow-sidebar: 4px 0 20px rgba(44, 62, 80, 0.4);
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --transition-fast: 0.3s ease;
+  --transition-slower: 0.5s ease;
+  --btn-bg: var(--color-accent);
+  --btn-bg-hover: #2119b4;
+  --btn-color: var(--color-white);
+  --btn-color-hover: var(--color-white);
+}
+
+/* ===== SIDEBAR MODERNO ===== */
+.sidebar-modern {
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--color-sidebar);
+  color: var(--color-white);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  box-shadow: var(--shadow-sidebar);
+  overflow: hidden;
+  transition: transform var(--transition-slower), width var(--transition-fast);
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .sidebar-modern {
+    width: var(--sidebar-width-mobile);
+    transform: translateX(-100%);
+  }
+  
+  .sidebar-modern.mobile-open {
+    transform: translateX(0);
+  }
+}
+
+/* Overlay para mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+@media (max-width: 768px) {
+  .sidebar-overlay.mobile-open {
+    display: block;
+  }
+}
+
+/* Botão hamburger */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 1001;
+  background: var(--color-sidebar);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+}
+
+@media (max-width: 768px) {
+  .sidebar-toggle {
+    display: flex;
+  }
+}
+
+/* ===== HEADER ===== */
+.sidebar-header-modern {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.header-content-modern {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.logo-text {
+  flex: 1;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.logo-title {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -3.2px;
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
+  background-clip: unset;
+}
+
+.system-description {
+  font-size: 0.75rem;
+  color: rgba(190, 155, 155, 1);
+  margin: 0.1rem 0 0.2rem;
+  font-weight: 500;
+}
+
+
+.system-version {
+  font-size: 0.65rem;
+  color: #45ffd6;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* ===== MENU PRINCIPAL ===== */
+.sidebar-menu {
+  flex: 1;
+  padding: 1rem 0;
+  overflow-y: auto;
+}
+
+.sidebar-menu::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+/* ===== LINKS DE NAVEGAÇÃO ===== */
+.nav-link-modern {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all var(--transition-fast);
+  position: relative;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+
+
+
+/* ===== ESTILO ATIVO PADRONIZADO ===== */
+.nav-link-modern.active,
+.submenu-link.active {
+  background: rgba(255, 255, 255, 0.12); /* mesma transparência */
+  color: var(--color-accent);
+  border-right: 3px solid var(--color-accent);
+  font-weight: 600;
+}
+
+.nav-link-modern.active .nav-icon,
+.submenu-link.active .nav-icon {
+  color: var(--color-accent);
+}
+
+
+/* ===== ÍCONES ===== */
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.nav-icon.small {
+  width: 16px;
+  height: 16px;
+  font-size: 0.85rem;
+}
+
+/* ===== SEÇÕES DO MENU ===== */
+.menu-section {
+  position: relative;
+  margin: 1rem 0 0.5rem;
+  padding: 0 1.5rem;
+}
+
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  font-size: 0.7rem;
+  color: var(--color-accent-light);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+}
+
+.accordion-item {
+  margin-bottom: 0.25rem;
+}
+
+.accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-sans);
+}
+
+.accordion-header:hover {
+  color: var(--color-white);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.accordion-header:hover .nav-icon {
+  color: var(--color-accent);
+}
+
+.accordion-header.open {
+  color: var(--color-white);
+}
+
+.accordion-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.accordion-arrow {
+  transition: transform var(--transition-fast);
+  color: rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
+}
+
+.accordion-header.open .accordion-arrow {
+  transform: rotate(180deg);
+  color: var(--color-accent);
+}
+
+.accordion-content {
+  animation: slideDown 0.3s ease;
+  overflow: hidden;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== SUBMENU ===== */
+.submenu-section {
+  padding: 0.5rem 1.5rem 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.submenu-title {
+  font-size: 0.65rem;
+  color: var(--color-accent-light);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.submenu-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1.5rem 0.6rem 2.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 400;
+  transition: all var(--transition-fast);
+  position: relative;
+  font-family: var(--font-sans);
+}
+
+.submenu-link:hover {
+  color: var(--color-white);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.submenu-link:hover .nav-icon {
+  color: var(--color-accent);
+}
+.nav-link-modern.active,
+.submenu-link.active {
+  background: rgba(0, 0, 0, 0.103);
+  color: var(--color-accent);
+  border-right: 3px solid var(--color-accent);
+  font-weight: 600;
+}
+
+.nav-link-modern.active .nav-icon,
+.submenu-link.active .nav-icon {
+  color: var(--color-accent);
+}
+
+
+/* ===== BOTÃO DE LOGOUT ===== */
+.logout-btn {
+  color: #ef4444 !important;
+  margin-top: 0.5rem;
+}
+
+.logout-btn:hover {
+  color: #dc2626 !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+}
+
+.logout-btn .nav-icon {
+  color: inherit;
+}
+
+/* ===== PERFIL DO USUÁRIO ===== */
+.user-profile-modern {
+  padding: 1rem 1.5rem;
+  margin: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--round-big);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.user-profile-modern::before {
+  content: '';
+  position: absolute;
+  top: -1rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius);
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: all var(--transition-fast);
+}
+
+.user-info:hover .user-avatar {
+  border-color: var(--color-accent);
+  transform: scale(1.05);
+}
+
+.online-indicator {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background: #10b981;
+  border: 2px solid var(--color-sidebar);
+  border-radius: 50%;
+}
+
+.user-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-white);
+  margin: 0 0 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-email {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-profile-modern::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: var(--round-big);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), transparent);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  pointer-events: none;
+}
+
+.user-profile-modern:hover::after {
+  opacity: 1;
+}
+
+/* Ajustes específicos para mobile */
+@media (max-width: 480px) {
+  .sidebar-header-modern {
+    padding: 1rem 1rem 0.75rem;
+  }
+  
+  .logo-title {
+    font-size: 1.5rem;
+  }
+  
+  .system-description {
+    font-size: 0.7rem;
+  }
+  
+  
+  .nav-link-modern {
+    padding: 1rem 1rem;
+    font-size: 1rem;
+  }
+  
+  .accordion-header {
+    padding: 1rem 1rem;
+  }
+  
+  .submenu-link {
+    padding: 0.8rem 1rem 0.8rem 2rem;
+  }
+  
+  .user-profile-modern {
+    padding: 1rem 1rem;
+    margin: 0.5rem;
+  }
+  
+}

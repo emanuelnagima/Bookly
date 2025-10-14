@@ -75,12 +75,12 @@ const Saida = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (formData.origem === 'Ajuste de Inventário' && !formData.observacoes.trim()) {
       setError('Para "Ajuste de Inventário", o campo observações é obrigatório.');
       return;
     }
-    
+
     if (!formData.livro_id || !formData.origem || !formData.quantidade || formData.quantidade <= 0) {
       setError('Preencha todos os campos obrigatórios corretamente');
       return;
@@ -121,21 +121,36 @@ const Saida = () => {
 
   return (
     <Container className="py-4">
-     <Row className="mb-4 align-items-center">
-        <Col md={8}>
-          <h4 className="display-30 fw-bold text-danger">Saída de Livros</h4>
-          <p className="text-muted fs-10">
-            Registre a saída de livros do acervo e acompanhe o estoque em tempo real.
-          </p>
-        </Col>
-        <Col md={4} className="text-md-end mt-3 mt-md-0">
-          <div className="d-flex justify-content-end flex-wrap gap-2">
-           <span className="badge border border-dark text-dark p-2">Livros Cadastrados: {livros.length}</span>
-            <span className="badge border border-success text-success p-2">Livros Selecionados: {livroSelecionado ? 1 : 0}</span>
-            <span className="badge border border-info text-info p-2">Estoque Total: {livros.reduce((acc, l) => acc + (l.estoque || 0), 0)}</span>
-          </div>
-        </Col>
-     </Row>
+      <div
+        className="rounded-3 p-4 mb-4"
+        style={{
+          border: '1px solid #e6e6e6',
+          borderRadius: '0.75rem'
+        }}
+      >
+        <Row className="align-items-center">
+          <Col md={8}>
+            <h4 className="display-30 fw-bold text-danger">Saída de Livros</h4>
+            <p className="text-muted fs-10 mt-1 mb-0">
+              Registre a saída de livros do acervo e acompanhe o estoque em tempo real.
+            </p>
+          </Col>
+          <Col md={4} className="text-md-end mt-3 mt-md-0">
+            <div className="d-flex justify-content-end flex-wrap gap-2">
+              <span className="badge border border-dark text-dark p-2">
+                Livros Cadastrados: {livros.length}
+              </span>
+              <span className="badge border border-success text-success p-2">
+                Livros Selecionados: {livroSelecionado ? 1 : 0}
+              </span>
+              <span className="badge border border-info text-info p-2">
+                Estoque Total: {livros.reduce((acc, l) => acc + (l.estoque || 0), 0)}
+              </span>
+            </div>
+          </Col>
+        </Row>
+      </div>
+
 
       <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
         <Toast show={showSuccess} onClose={() => setShowSuccess(false)} delay={4000} autohide bg="success">
@@ -143,7 +158,7 @@ const Saida = () => {
             <strong className="me-auto">Saída registrada!</strong>
           </Toast.Header>
           <Toast.Body className="text-white">
-            {formData.origem === 'Ajuste de Inventário' 
+            {formData.origem === 'Ajuste de Inventário'
               ? 'Ajuste de inventário registrado com sucesso!'
               : 'Saída de livro registrada com sucesso!'}
           </Toast.Body>
@@ -298,7 +313,7 @@ const Saida = () => {
                     <Alert variant="info" className="py-2 mb-2">
                       <FaInfoCircle className="me-1" />
                       <small>
-                        <strong>Importante:</strong> Para ajustes de inventário, descreva o motivo da alteração 
+                        <strong>Importante:</strong> Para ajustes de inventário, descreva o motivo da alteração
                         (ex: "Inventário físico realizado", "Correção de lançamento", etc.)
                       </small>
                     </Alert>
@@ -307,8 +322,8 @@ const Saida = () => {
                   <Form.Control
                     as="textarea"
                     rows={3}
-                    placeholder={formData.origem === 'Ajuste de Inventário' 
-                      ? 'Descreva o motivo do ajuste de inventário...' 
+                    placeholder={formData.origem === 'Ajuste de Inventário'
+                      ? 'Descreva o motivo do ajuste de inventário...'
                       : 'Ex: Livro extraviado em biblioteca filial, Danificado por água...'}
                     value={formData.observacoes}
                     onChange={e => setFormData({ ...formData, observacoes: e.target.value })}
@@ -321,10 +336,10 @@ const Saida = () => {
                   <Alert variant="danger" className="mb-3">{error}</Alert>
                 )}
 
-                <Button 
-                  type="submit" 
-                  variant="success" 
-                  className="w-30" 
+                <Button
+                  type="submit"
+                  variant="success"
+                  className="w-30"
                   disabled={loading || !livroSelecionado || (formData.origem === 'Ajuste de Inventário' && !formData.observacoes.trim())}
                 >
                   {loading ? (

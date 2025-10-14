@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Card, Form, Col, Row, Button, Spinner } from 'react-bootstrap'
+import { BsCheckCircle } from "react-icons/bs";
 
 // Máscaras 
 const maskCPF = (value) => {
@@ -99,6 +100,7 @@ const CadUsuarioEspecial = ({ onSave, onCancel, usuario, loading }) => {
                 <Form.Control
                   type='text'
                   name='nome_completo'
+                  placeholder='digite o nome do usuário'
                   value={usuarioData.nome_completo}
                   onChange={handleChange}
                   required
@@ -149,21 +151,21 @@ const CadUsuarioEspecial = ({ onSave, onCancel, usuario, loading }) => {
               </Form.Group>
             </Col>
             <Col md={6}>
-             <Form.Group className='mb-3' controlId='telefone'>
-  <Form.Label>Telefone</Form.Label>
-  <Form.Control
-    type='text'
-    name='telefone'
-    value={usuarioData.telefone}
-    onChange={handleChange}
-    placeholder='(00) 00000-0000'
-    required
-    disabled={loading}
-  />
-  <Form.Control.Feedback type='invalid'>
-    Informe o telefone
-  </Form.Control.Feedback>
-</Form.Group>
+              <Form.Group className='mb-3' controlId='telefone'>
+                <Form.Label>Telefone</Form.Label>
+                <Form.Control
+                  type='text'
+                  name='telefone'
+                  value={usuarioData.telefone}
+                  onChange={handleChange}
+                  placeholder='(00) 00000-0000'
+                  required
+                  disabled={loading}
+                />
+                <Form.Control.Feedback type='invalid'>
+                  Informe o telefone
+                </Form.Control.Feedback>
+              </Form.Group>
 
             </Col>
           </Row>
@@ -199,33 +201,31 @@ const CadUsuarioEspecial = ({ onSave, onCancel, usuario, loading }) => {
           </Row>
 
           <div className='d-flex justify-content-end gap-2'>
-            <Button 
-              variant='danger' 
+            <Button
+              variant='danger'
               onClick={onCancel}
               disabled={loading}
             >
               Cancelar
             </Button>
-            <Button 
-              variant='primary' 
-              type='submit'
+            <Button
+              variant="primary"
+              type="submit"
               disabled={loading}
             >
               {loading ? (
                 <>
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                  />
+                  <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
                   {usuarioData.id ? ' Atualizando...' : ' Salvando...'}
                 </>
               ) : (
-                usuarioData.id ? 'Atualizar Usuário' : ' Cadastrar Usuário'
+                <>
+                  <BsCheckCircle className="me-2 text" />
+                  {usuarioData.id ? 'Atualizar Usuário' : 'Cadastrar Usuário'}
+                </>
               )}
             </Button>
+
           </div>
         </Form>
       </Card.Body>
