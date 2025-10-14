@@ -83,12 +83,12 @@ const features = [
   {
     icon: <FaUsers size={40} />,
     title: "Controle de Usuários",
-    description: "Cadastro para bibliotecários, professores e alunos."
+    description: "Cadastro para usuários, professores e alunos."
   },
   {
     icon: <FaChartLine size={40} />,
-    title: "Relatórios e Analytics",
-    description: "Dados sobre circulação de livros para decisões informadas."
+    title: "Relatórios",
+    description: "Dados sobre circulação de livros para decisões."
   },
   {
     icon: <FaMobileAlt size={40} />,
