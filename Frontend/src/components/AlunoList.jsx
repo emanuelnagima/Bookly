@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Card, Table, Form, InputGroup, Button } from 'react-bootstrap'
 import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
+import { FaGraduationCap } from "react-icons/fa";
 
 const ITENS_POR_PAGINA = 10
 
@@ -15,12 +16,12 @@ const formatarNome = (nome) =>
 // Função para formatar data no padrão brasileiro
 const formatarData = (data) => {
   if (!data) return '-'
-  
+
   try {
     // Tenta converter para formato brasileiro
     const dataObj = new Date(data)
     if (isNaN(dataObj.getTime())) return data
-    
+
     return dataObj.toLocaleDateString('pt-BR')
   } catch {
     return data
@@ -30,22 +31,22 @@ const formatarData = (data) => {
 // Função para formatar CPF
 const formatarCPF = (cpf) => {
   if (!cpf) return '-'
-  
+
   const cpfLimpo = cpf.toString().replace(/\D/g, '')
-  
+
   if (cpfLimpo.length === 11) {
     return `${cpfLimpo.substring(0, 3)}.${cpfLimpo.substring(3, 6)}.${cpfLimpo.substring(6, 9)}-${cpfLimpo.substring(9)}`
   }
-  
+
   return cpf
 }
 
 // Função para formatar telefone
 const formatarTelefone = (telefone) => {
   if (!telefone) return '-'
-  
+
   const numeros = telefone.toString().replace(/\D/g, '')
-  
+
   if (numeros.length === 11) {
     return `(${numeros.substring(0, 2)}) ${numeros.substring(2, 7)}-${numeros.substring(7)}`
   } else if (numeros.length === 10) {
@@ -55,7 +56,7 @@ const formatarTelefone = (telefone) => {
   } else if (numeros.length === 9) {
     return `${numeros.substring(0, 5)}-${numeros.substring(5)}`
   }
-  
+
   return telefone
 }
 
@@ -108,6 +109,16 @@ const AlunoList = ({ alunos, onDelete, onEdit }) => {
     <Card>
       <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
         <div className="d-flex align-items-center">
+          <FaGraduationCap style={{
+            marginRight: '8px',
+            fontSize: '26px',
+            color: '#ffffffff',
+            border: '2px solid #585858',
+            borderRadius: '50%',
+            padding: '4px',
+            display: 'inline-flex',
+            verticalAlign: 'middle'
+          }} />
           <h5 className="mb-0">Alunos Cadastrados</h5>
           <span className="badge bg-light text-primary ms-3">
             {alunosFiltrados.length} {alunosFiltrados.length === 1 ? 'aluno' : 'alunos'} /

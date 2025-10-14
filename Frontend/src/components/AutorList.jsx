@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, Table, Form, InputGroup, Button } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { FaFeatherAlt } from "react-icons/fa";
 
 const ITENS_POR_PAGINA = 10;
 
@@ -66,7 +67,19 @@ const AutorList = ({ autores, onDelete, onEdit }) => {
     <Card>
       <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
         <div className="d-flex align-items-center">
-          <h5 className="mb-0">Autores Cadastrados</h5>
+          <h5 className="mb-0 d-flex align-items-center">
+            <FaFeatherAlt style={{
+              marginRight: '8px',
+              fontSize: '26px',
+              color: '#ffffffff',
+              border: '2px solid #585858',
+              borderRadius: '50%',
+              padding: '4px',
+              display: 'inline-flex',
+              verticalAlign: 'middle'
+            }} />
+            Autores Cadastrados
+          </h5>
           <span className="badge bg-light text-primary ms-3">
             {autoresFiltrados.length} {autoresFiltrados.length === 1 ? 'autor' : 'autores'} /
             Página {paginaAtual} de {totalPaginas || 1}
@@ -109,7 +122,7 @@ const AutorList = ({ autores, onDelete, onEdit }) => {
                   <tr key={autor.id}>
                     <td>{autor.id}</td>
                     <td>
-                    <td>{formatarNome(autor.nome)}</td>
+                      <td>{formatarNome(autor.nome)}</td>
 
                     </td>
                     <td>{formatarNome(autor.nacionalidade)}</td>

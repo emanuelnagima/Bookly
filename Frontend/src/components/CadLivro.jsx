@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Form, Col, Row, Button, Spinner, Alert } from 'react-bootstrap';
 import axios from 'axios';
+import { BsCheckCircle } from "react-icons/bs";
 
 const CadLivro = ({ onSave, onCancel, livro, loading }) => {
   const [formData, setFormData] = useState({
@@ -87,7 +88,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
         setError('Por favor, selecione um arquivo de imagem válido');
         return;
       }
-      
+
       if (file.size > 5 * 1024 * 1024) { // 5MB
         setError('A imagem deve ter menos de 5MB');
         return;
@@ -139,7 +140,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
     } catch (err) {
       console.error('Erro no formulário:', err);
     }
-  };  
+  };
 
   const currentYear = new Date().getFullYear();
 
@@ -310,7 +311,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
                 <div className='mt-4'>
                   <p className="small text-muted mb-2">Preview:</p>
                   <div
-style={{
+                    style={{
                       width: '150px',
                       height: '220px',
                       border: '1px solid #ccc',
@@ -321,7 +322,7 @@ style={{
                       alignItems: 'center',
                       backgroundColor: '#f8f9fa',
                     }}
->
+                  >
                     <img
                       src={imagemPreview}
                       alt='Preview da capa'
@@ -344,7 +345,12 @@ style={{
                   <Spinner as="span" animation="border" size="sm" className="me-2" />
                   {livro ? 'Atualizando...' : 'Salvando...'}
                 </>
-              ) : (livro ? 'Atualizar Livro' : 'Cadastrar Livro')}
+              ) : (
+                <>
+                  <BsCheckCircle style={{ marginRight: '8px', color: '#fff', fontSize: '18px' }} />
+                  {livro ? 'Atualizar Livro' : 'Cadastrar Livro'}
+                </>
+              )}
             </Button>
           </div>
         </Form>

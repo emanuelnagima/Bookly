@@ -12,17 +12,22 @@ import {
   FaClipboardList,
   FaChevronDown,
   FaChevronUp,
+  FaUsers,
   FaHandshake,
   FaQuestionCircle,
   FaBook,
   FaUserTie,
   FaUserGraduate,
+  FaGraduationCap,
   FaPenFancy,
+  FaFeatherAlt,
   FaBuilding,
   FaUserAlt,
+  FaBars,
 } from "react-icons/fa";
 import { NavLink, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import "../css/Sidebar.css";
 
 // Defina as credenciais diretamente neste arquivo
 const ADMIN_CREDENTIALS = {
@@ -33,228 +38,297 @@ const ADMIN_CREDENTIALS = {
 const Sidebar = () => {
   const [showCadastros, setShowCadastros] = useState(false);
   const [showMovimentacoes, setShowMovimentacoes] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+      if (window.innerWidth > 768) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
     navigate("/login");
   };
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  const closeSidebar = () => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+
   return (
-    <div className="sidebar">
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <div className="header-content" style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '0.3rem',
-            padding: '1rem 0'
-          }}>
-            {/* Título */}
-            <h4 style={{
-              fontFamily: '"Montserrat", sans-serif',
-              fontWeight: 600,
-              fontSize: '1.8rem',
-              color: '#fff',
-              margin: 0,
-              letterSpacing: '-3.0px',
-              textAlign: 'center',
-              textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
-            }}>
-              Bookly
-            </h4>
+    <>
+      {/* Overlay para mobile */}
+      <div
+        className={`sidebar-overlay ${sidebarOpen && isMobile ? 'mobile-open' : ''}`}
+        onClick={closeSidebar}
+      />
 
-            {/* Descrição */}
-            <p className="system-description" style={{
-              fontSize: '0.68rem',
-              color: '#b0b0b0',
-              marginTop: '-3px',
-              textAlign: 'center',
-              lineHeight: 1.3
-            }}>
-              Sistema de Gestão Bibliotecária
-            </p>
-            <p className="system-description" style={{
-              fontSize: '0.55rem',
-              color: '#b0b0b0',
-              marginTop: '-3px',
-              textAlign: 'center',
-              lineHeight: 1.3
-            }}>
-              v1.0.0 em desenvolvimento
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* Botão hamburger para mobile */}
+      <button
+        className="sidebar-toggle"
+        onClick={toggleSidebar}
+      >
+        <FaBars size={20} />
+      </button>
 
-      {/* Menu */}
-      <Nav className="flex-column mt-3">
-        <NavLink to="/" className={({ isActive }) => `nav-link py-3 ${isActive ? "active" : ""}`}>
-          <FaHome className="me-2" />
-          Home
-        </NavLink>
-
-        {/* Cadastros */}
-        <div className="sidebar-section-title mt-3 mb-2 ps-3 text-uppercase small text-muted">
-          Gestão
-        </div>
-        <div
-          className="nav-link py-3 d-flex justify-content-between align-items-center"
-          onClick={() => setShowCadastros(!showCadastros)}
-          style={{ cursor: "pointer" }}
-        >
-          <div>
-            <FaClipboardList className="me-2" />
-            Cadastros
-          </div>
-          {showCadastros ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
-        </div>
-
-        {showCadastros && (
-          <div className="submenu ps-4">
-            <div className="sidebar-section-title mt-3 mb-2 ps-3 text-uppercase small text-muted">
-              Pessoas
+      <div className={`sidebar-modern ${sidebarOpen ? 'mobile-open' : ''}`}>
+        {/* Header */}
+        <div className="sidebar-header-modern">
+          <div className="header-content-modern">
+            <div className="logo-container">
+              <div className="logo-text">
+                <h4 className="logo-title">Bookly</h4>
+                <p className="system-description">Sistema de Gestão Bibliotecária</p>
+                <p className="system-version">v1.0.0 em desenvolvimento</p>
+              </div>
             </div>
-            <NavLink to="/usuarios-especiais" className="nav-link py-2">
-              <FaUserAlt className="me-2" />
-              Usuários
-            </NavLink>
-            <NavLink to="/professores" className="nav-link py-2">
-              <FaUserTie className="me-2" />
-              Professores
-            </NavLink>
-            <NavLink to="/alunos" className="nav-link py-2">
-              <FaUserGraduate className="me-2" />
-              Alunos
+          </div>
+        </div>
+
+        {/* Menu Principal */}
+        <div className="sidebar-menu">
+          <Nav className="flex-column">
+            {/* Home */}
+            <NavLink
+              to="/"
+              className={({ isActive }) => `nav-link-modern ${isActive ? "active" : ""}`}
+              onClick={closeSidebar}
+            >
+              <div className="nav-icon">
+                <FaHome />
+              </div>
+              <span className="nav-text">Home</span>
             </NavLink>
 
-            <div className="sidebar-section-title mt-3 mb-2 ps-3 text-uppercase small text-muted">
-              Acervo
+            {/* Seção Gestão */}
+            <div className="menu-section">
+              <div className="section-divider"></div>
+              <span className="section-title">Gestão</span>
             </div>
-            <NavLink to="/livros" className="nav-link py-2">
-              <FaBook className="me-2" />
-              Livros
-            </NavLink>
-            <NavLink to="/autores" className="nav-link py-2">
-              <FaPenFancy className="me-2" />
-              Autores
-            </NavLink>
-            <NavLink to="/editoras" className="nav-link py-2">
-              <FaBuilding className="me-2" />
-              Editoras
-            </NavLink>
-          </div>
-        )}
 
-        {/* Movimentações */}
-        <div className="sidebar-section-title mt-3 mb-2 ps-3 text-uppercase small text-muted">
-          Movimentações
+            {/* Cadastros - Accordion */}
+            <div className="accordion-item">
+              <div
+                className={`accordion-header ${showCadastros ? 'open' : ''}`}
+                onClick={() => setShowCadastros(!showCadastros)}
+              >
+                <div className="accordion-trigger">
+                  <div className="nav-icon">
+                    <FaClipboardList />
+                  </div>
+                  <span className="nav-text">Cadastros</span>
+                </div>
+                <div className="accordion-arrow">
+                  {showCadastros ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
+                </div>
+              </div>
+
+              {showCadastros && (
+                <div className="accordion-content">
+                  {/* Subseção Pessoas */}
+                  <div className="submenu-section">
+                    <span className="submenu-title">Pessoas</span>
+                  </div>
+
+                  <NavLink to="/usuarios-especiais" className="submenu-link" onClick={closeSidebar}>
+                    <div className="nav-icon small">
+                      <FaUsers />
+                    </div>
+                    <span>Usuários</span>
+                  </NavLink>
+
+                  <NavLink to="/professores" className="submenu-link" onClick={closeSidebar}>
+                    <div className="nav-icon small">
+                      <FaUserTie />
+                    </div>
+                    <span>Professores</span>
+                  </NavLink>
+
+                  <NavLink to="/alunos" className="submenu-link" onClick={closeSidebar}>
+                    <div className="nav-icon small">
+                      <FaGraduationCap />
+                    </div>
+                    <span>Alunos</span>
+                  </NavLink>
+
+                  {/* Subseção Acervo */}
+                  <div className="submenu-section">
+                    <span className="submenu-title">Acervo</span>
+                  </div>
+
+                  <NavLink to="/livros" className="submenu-link" onClick={closeSidebar}>
+                    <div className="nav-icon small">
+                      <FaBook />
+                    </div>
+                    <span>Livros</span>
+                  </NavLink>
+
+                  <NavLink to="/autores" className="submenu-link" onClick={closeSidebar}>
+                    <div className="nav-icon small">
+                      <FaFeatherAlt />
+                    </div>
+                    <span>Autores</span>
+                  </NavLink>
+
+                  <NavLink to="/editoras" className="submenu-link" onClick={closeSidebar}>
+                    <div className="nav-icon small">
+                      <FaBuilding />
+                    </div>
+                    <span>Editoras</span>
+                  </NavLink>
+                </div>
+              )}
+            </div>
+
+            {/* Seção Movimentações */}
+            <div className="menu-section">
+              <div className="section-divider"></div>
+              <span className="section-title">Movimentações</span>
+            </div>
+
+            {/* Movimentações - Accordion */}
+            <div className="accordion-item">
+              <div
+                className={`accordion-header ${showMovimentacoes ? 'open' : ''}`}
+                onClick={() => setShowMovimentacoes(!showMovimentacoes)}
+              >
+                <div className="accordion-trigger">
+                  <div className="nav-icon">
+                    <FaTasks />
+                  </div>
+                  <span className="nav-text">Movimentações</span>
+                </div>
+                <div className="accordion-arrow">
+                  {showMovimentacoes ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
+                </div>
+              </div>
+
+              {showMovimentacoes && (
+                <div className="accordion-content">
+                  <NavLink to="/entrada" className="submenu-link" onClick={closeSidebar}>
+                    <div className="nav-icon small">
+                      <FaDoorOpen />
+                    </div>
+                    <span>Entrada</span>
+                  </NavLink>
+
+                  <NavLink to="/saida" className="submenu-link" onClick={closeSidebar}>
+                    <div className="nav-icon small">
+                      <FaSignOutAlt />
+                    </div>
+                    <span>Saída</span>
+                  </NavLink>
+
+                  <NavLink to="/reservas" className="submenu-link" onClick={closeSidebar}>
+                    <div className="nav-icon small">
+                      <FaCalendarAlt />
+                    </div>
+                    <span>Reservas</span>
+                  </NavLink>
+
+                  <NavLink to="/emprestimos" className="submenu-link" onClick={closeSidebar}>
+                    <div className="nav-icon small">
+                      <FaHandshake />
+                    </div>
+                    <span>Empréstimos</span>
+                  </NavLink>
+
+                  <NavLink to="/renovacoes" className="submenu-link" onClick={closeSidebar}>
+                    <div className="nav-icon small">
+                      <FaSyncAlt />
+                    </div>
+                    <span>Renovações</span>
+                  </NavLink>
+
+                  <NavLink to="/devolucoes" className="submenu-link" onClick={closeSidebar}>
+                    <div className="nav-icon small">
+                      <FaReply />
+                    </div>
+                    <span>Devoluções</span>
+                  </NavLink>
+                </div>
+              )}
+            </div>
+
+            {/* Seção Relatórios */}
+            <div className="menu-section">
+              <div className="section-divider"></div>
+              <span className="section-title">Relatórios</span>
+            </div>
+
+            <NavLink to="/relatorios" className="nav-link-modern" onClick={closeSidebar}>
+              <div className="nav-icon">
+                <FaChartBar />
+              </div>
+              <span className="nav-text">Relatórios</span>
+            </NavLink>
+
+            {/* Seção Sistema */}
+            <div className="menu-section">
+              <div className="section-divider"></div>
+              <span className="section-title">Sistema</span>
+            </div>
+
+            <NavLink to="/sobre" className="nav-link-modern" onClick={closeSidebar}>
+              <div className="nav-icon">
+                <FaQuestionCircle />
+              </div>
+              <span className="nav-text">Sobre</span>
+            </NavLink>
+
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              className="nav-link-modern logout-btn"
+            >
+              <div className="nav-icon">
+                <FaSignOutAlt />
+              </div>
+              <span className="nav-text">Sair</span>
+            </button>
+          </Nav>
         </div>
-        <div
-          className="nav-link py-3 d-flex justify-content-between align-items-center"
-          onClick={() => setShowMovimentacoes(!showMovimentacoes)}
-          style={{ cursor: "pointer" }}
-        >
-          <div>
-            <FaTasks className="me-2" />
-            Movimentações
-          </div>
-          {showMovimentacoes ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
-        </div>
 
-        {showMovimentacoes && (
-          <div className="submenu ps-4">
-            <NavLink to="/entrada" className="nav-link py-2">
-              <FaDoorOpen className="me-2" />
-              Entrada
-            </NavLink>
-            <NavLink to="/saida" className="nav-link py-2">
-              <FaSignOutAlt className="me-2" />
-              Saída
-            </NavLink>
-            <NavLink to="/reservas" className="nav-link py-2">
-              <FaCalendarAlt className="me-2" />
-              Reservas
-            </NavLink>
-            <NavLink to="/emprestimos" className="nav-link py-2">
-              <FaHandshake className="me-2" />
-              Empréstimos
-            </NavLink>
-            <NavLink to="/renovacoes" className="nav-link py-2">
-              <FaSyncAlt className="me-2" />
-              Renovações
-            </NavLink>
-            <NavLink to="/devolucoes" className="nav-link py-2">
-              <FaReply className="me-2" />
-              Devoluções
-            </NavLink>
-          </div>
-        )}
-
-        {/* Relatórios */}
-        <div className="sidebar-section-title mt-3 mb-2 ps-3 text-uppercase small text-muted">
-          Relatórios
-        </div>
-        <NavLink to="/relatorios" className="nav-link py-3">
-          <FaChartBar className="me-2" />
-          Relatórios
-        </NavLink>
-
-        {/* Sistema */}
-        <div className="sidebar-section-title mt-3 mb-2 ps-3 text-uppercase small text-muted">
-          Sistema
-        </div>
-        <NavLink to="/sobre" className="nav-link py-3">
-          <FaQuestionCircle className="me-2" />
-          Sobre
-        </NavLink>
-
-        {/* Logout */}
-        <button
-          onClick={handleLogout}
-          className="nav-link py-3 text-start"
-          style={{ cursor: "pointer", color: "#ff6b6b", width: '100%' }}
-        >
-          <FaSignOutAlt className="me-2" />
-          Sair
-        </button>
-
-        {/* Área do perfil do usuário */}
-        <div className="user-profile-section p-3 mb-3">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            {/* Imagem ícone */}
-            <img
-              src={avatarImg}
-              alt="Foto do Bibliotecário"
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                objectFit: 'cover',
-                border: '2px solid #ffffff'
-              }}
-            />
-            <div style={{ textAlign: 'left' }}>
-              <h6 style={{ color: '#ffffff', margin: '0 0 3px 0', fontWeight: '600', fontSize: '0.95rem' }}>
-                Bibliotecário
-              </h6>
-              <p style={{
-                color: '#b0b0b0',
-                fontSize: '0.75rem',
-                margin: '0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px'
-              }}>
+        {/* User Profile */}
+        <div className="user-profile-modern">
+          <div className="user-info">
+            <div className="avatar-container">
+              <img
+                src={avatarImg}
+                alt="Foto do Bibliotecário"
+                className="user-avatar"
+              />
+              <div className="online-indicator"></div>
+            </div>
+            <div className="user-details">
+              <h6 className="user-name">Bibliotecário</h6>
+              <p className="user-email">
                 <FaUserAlt size={10} />
-                {ADMIN_CREDENTIALS.email} {/* Email puxado das credenciais */}
+                {ADMIN_CREDENTIALS.email}
               </p>
             </div>
           </div>
         </div>
-      </Nav>
-    </div>
+      </div>
+    </>
   );
 };
 

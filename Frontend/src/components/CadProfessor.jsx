@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Card, Form, Col, Row, Button, Spinner } from 'react-bootstrap'
+import { BsCheckCircle } from "react-icons/bs";
 
 
 const maskTelefone = (value) => {
@@ -116,6 +117,7 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
                 <Form.Control
                   type='text'
                   name='nome'
+                  placeholder='Digite o nome do professor'
                   value={professorData.nome}
                   onChange={handleChange}
                   required
@@ -132,6 +134,7 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
                 <Form.Control
                   type='text'
                   name='matricula'
+                  placeholder='Ex: 2025-001'
                   value={professorData.matricula}
                   onChange={handleChange}
                   disabled={loading}
@@ -208,15 +211,15 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
           </Row>
 
           <div className='d-flex justify-content-end gap-2'>
-            <Button 
-              variant='danger' 
+            <Button
+              variant='danger'
               onClick={onCancel}
               disabled={loading}
             >
               Cancelar
             </Button>
-            <Button 
-              variant='primary' 
+            <Button
+              variant='primary'
               type='submit'
               disabled={loading}
             >
@@ -232,7 +235,10 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
                   {professorData.id ? ' Atualizando...' : ' Salvando...'}
                 </>
               ) : (
-                professorData.id ? 'Atualizar Professor' : 'Cadastrar Professor'
+                <>
+                  <BsCheckCircle style={{ marginRight: '8px', color: '#fff', fontSize: '18px' }} />
+                  {professorData.id ? 'Atualizar Professor' : 'Cadastrar Professor'}
+                </>
               )}
             </Button>
           </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Card, Form, Col, Row, Button, Spinner } from 'react-bootstrap'
+import { BsCheckCircle } from "react-icons/bs";
 
 // Máscaras 
 const maskCPF = (value) => {
@@ -113,6 +114,7 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
                 <Form.Control
                   type='text'
                   name='nome'
+                  placeholder='Digite o nome do aluno'
                   value={alunoData.nome}
                   onChange={handleChange}
                   required
@@ -129,6 +131,7 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
                 <Form.Control
                   type='text'
                   name='matricula'
+                  placeholder='Ex: 2025-001'
                   value={alunoData.matricula}
                   onChange={handleChange}
                   required
@@ -213,7 +216,7 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
                 <Form.Control.Feedback type='invalid'>
                   Informe o telefone
                 </Form.Control.Feedback>
-                
+
               </Form.Group>
             </Col>
           </Row>
@@ -246,15 +249,15 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
           </Row>
 
           <div className='d-flex justify-content-end gap-2'>
-            <Button 
-              variant='danger' 
+            <Button
+              variant='danger'
               onClick={onCancel}
               disabled={loading}
             >
               Cancelar
             </Button>
-            <Button 
-              variant='primary' 
+            <Button
+              variant='primary'
               type='submit'
               disabled={loading}
             >
@@ -266,11 +269,15 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
                     size="sm"
                     role="status"
                     aria-hidden="true"
+                    className="me-2"
                   />
                   {alunoData.id ? ' Atualizando...' : ' Salvando...'}
                 </>
               ) : (
-                alunoData.id ? 'Atualizar Aluno' : 'Cadastrar Aluno'
+                <>
+                  <BsCheckCircle style={{ marginRight: '8px', color: '#fff', fontSize: '18px' }} />
+                  {alunoData.id ? 'Atualizar Aluno' : 'Cadastrar Aluno'}
+                </>
               )}
             </Button>
           </div>

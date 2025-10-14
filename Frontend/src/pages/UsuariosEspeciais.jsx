@@ -51,8 +51,8 @@ const UsuariosEspeciais = () => {
       // Verificação de duplicidade: e-mail, CPF e telefone
       const usuarioExistente = usuarios.find(u =>
         (u.email.toLowerCase().trim() === usuario.email.toLowerCase().trim() ||
-         u.cpf === usuario.cpf ||
-         u.telefone === usuario.telefone) &&
+          u.cpf === usuario.cpf ||
+          u.telefone === usuario.telefone) &&
         u.id !== usuario.id
       )
 
@@ -135,10 +135,10 @@ const UsuariosEspeciais = () => {
     <Container className="py-4">
       {/* Toast */}
       <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
-        <Toast 
-          show={showSuccessToast} 
-          onClose={() => setShowSuccessToast(false)} 
-          delay={3000} 
+        <Toast
+          show={showSuccessToast}
+          onClose={() => setShowSuccessToast(false)}
+          delay={3000}
           autohide
           bg={operationType === 'delete' ? 'danger' : 'success'}
         >
@@ -166,38 +166,53 @@ const UsuariosEspeciais = () => {
       {error && (
         <div className="alert alert-danger" role="alert">
           {error}
-          <button 
-            type="button" 
-            className="btn-close float-end" 
+          <button
+            type="button"
+            className="btn-close float-end"
             onClick={() => setError(null)}
             aria-label="Close"
           ></button>
         </div>
       )}
-
+      
       {/* Cabeçalho */}
-      <Row className="mb-4 align-items-center">
-        <Col md={8}>
-          <h4 className="display-30 fw-bold text">Usuários</h4>
-          <p className="text-muted fs-10">
-            Cadastre e gerencie os usuários externos do sistema.
-          </p>
-        </Col>
-        <Col md={4} className="text-md-end mt-3 mt-md-0">
-          <Button 
-            variant="success" 
-            onClick={() => {
-              setUsuarioToEdit(null)
-              setShowForm(!showForm)
-              setError(null)
-            }}
-            disabled={loading}
-          >
-            Adicionar Usuário
-          </Button>
-        </Col>
-        </Row>
+      <div
+        className="rounded-3 p-4 mb-4"
+        style={{
+          border: '1px solid #e6e6e6' 
+        }} rgb>
+        <Row className="align-items-center">
+          <Col md={8}>
+            <div className="d-flex align-items-center">
+              <div className="me-3">
+                <i className="fas fa-users fa-2x" style={{ color: '#0b192c' }}></i>
+              </div>
+              <div>
+                <h4 className="fw-bold text-dark mb-1">Usuários Especiais</h4>
+                <p className="text-muted mb-0">
+                  Total de <strong>{usuarios.length}</strong> usuários cadastrados
+                </p>
+              </div>
+            </div>
+          </Col>
 
+          <Col md={4} className="text-md-end">
+            <Button
+              variant="success"
+              className="fw-semibold px-4"
+              onClick={() => {
+                setUsuarioToEdit(null)
+                setShowForm(!showForm)
+                setError(null)
+              }}
+              disabled={loading}
+            >
+              <i className="fas fa-plus-circle me-2"></i>
+              Adicionar Usuário
+            </Button>
+          </Col>
+        </Row>
+      </div>
 
       {/* Formulário */}
       {showForm && (
@@ -238,15 +253,15 @@ const UsuariosEspeciais = () => {
           Tem certeza que deseja excluir este usuário?
         </Modal.Body>
         <Modal.Footer>
-          <Button 
-            variant="paginacao" 
+          <Button
+            variant="paginacao"
             onClick={() => setShowDeleteModal(false)}
             disabled={isDeleting}
           >
             Cancelar
           </Button>
-          <Button 
-            variant="danger" 
+          <Button
+            variant="danger"
             onClick={handleDeleteUsuario}
             disabled={isDeleting}
           >

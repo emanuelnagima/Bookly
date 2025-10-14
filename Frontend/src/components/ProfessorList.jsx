@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Card, Table, Form, InputGroup, Button } from 'react-bootstrap'
 import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
-
+import { FaUserTie } from "react-icons/fa";
 const ITENS_POR_PAGINA = 10
 
 const formatarTexto = texto =>
@@ -15,10 +15,10 @@ const formatarTexto = texto =>
 // Função para formatar números de telefone
 const formatarTelefone = (telefone) => {
   if (!telefone) return '-'
-  
+
   // Remove caracteres não numéricos
   const numeros = telefone.toString().replace(/\D/g, '')
-  
+
   // Formata de acordo com o tamanho
   if (numeros.length === 11) {
     return `(${numeros.substring(0, 2)}) ${numeros.substring(2, 7)}-${numeros.substring(7)}`
@@ -29,7 +29,7 @@ const formatarTelefone = (telefone) => {
   } else if (numeros.length === 9) {
     return `${numeros.substring(0, 5)}-${numeros.substring(5)}`
   }
-  
+
   // Retorna o original se não conseguir formatar
   return telefone
 }
@@ -84,7 +84,21 @@ const ProfessorList = ({ professores, onDelete, onEdit }) => {
     <Card>
       <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
         <div className="d-flex align-items-center">
-          <h5 className="mb-0">Professores Cadastrados</h5>
+          <h5 className="mb-0 d-flex align-items-center">
+            <FaUserTie
+              style={{
+                marginRight: '8px',
+                fontSize: '26px',
+                color: '#ffffffff',
+                border: '2px solid #585858',
+                borderRadius: '50%',
+                padding: '4px',
+                display: 'inline-flex',
+                verticalAlign: 'middle'
+              }}
+            />
+            Professores Cadastrados
+          </h5>
           <span className="badge bg-light text-primary ms-3">
             {professoresFiltrados.length} {professoresFiltrados.length === 1 ? 'professor' : 'professores'} /
             Página {paginaAtual} de {totalPaginas || 1}
