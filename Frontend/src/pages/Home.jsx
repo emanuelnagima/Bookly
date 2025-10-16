@@ -384,19 +384,19 @@ const Home = () => {
               <div
                 className="rounded-3 p-3 mt-3"
                 style={{
-                  border: '1px solid #e6e6e6',
-                  maxWidth: '360px',
-                  backgroundColor: '#f9f9f9'
+                  border: "1px solid #e6e6e6",
+                  maxWidth: "360px",
+                  backgroundColor: "#f9f9f9",
                 }}
               >
                 {/* Título / descrição */}
-                <div style={{ marginBottom: '0.5rem' }}>
+                <div style={{ marginBottom: "0.5rem" }}>
                   <small
                     style={{
                       fontSize: "0.75rem",
                       lineHeight: "1.3",
                       color: "#025fbdff",
-                      display: 'block'
+                      display: "block",
                     }}
                   >
                     Conheça as regras e condições do sistema
@@ -408,13 +408,13 @@ const Home = () => {
                   className="list-unstyled m-0 p-0"
                   style={{
                     fontSize: "0.8rem",
-                    borderTop: '1px solid #e6e6e6',
-                    paddingTop: '0.5rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.25rem'
+                    borderTop: "1px solid #e6e6e6",
+                    paddingTop: "0.5rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.25rem",
                   }}
-                > 
+                >
                   <li>
                     <a
                       href="/terms-of-use"
@@ -426,6 +426,16 @@ const Home = () => {
                     </a>
                   </li>
                   <li>
+                    <a
+                      href="/privacy-policy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted hover-underline"
+                    >
+                      Política de Privacidade
+                    </a>
+                  </li>
+                  <li>
                     <a href="/sobre" className="text-muted hover-underline">
                       Sobre
                     </a>
@@ -434,8 +444,8 @@ const Home = () => {
                     <a
                       href="#"
                       onClick={(e) => {
-                        e.preventDefault()
-                        setShowHelpModal(true)
+                        e.preventDefault();
+                        setShowHelpModal(true);
                       }}
                       className="text-muted hover-underline"
                     >
@@ -444,7 +454,6 @@ const Home = () => {
                   </li>
                 </ul>
               </div>
-
             </div>
           </div>
         </Col>
@@ -491,7 +500,6 @@ const Home = () => {
                 </p>
               ) : (
                 <Row>
-                  
                   {livrosPaginaAtual.map((livro) => (
                     <Col key={livro.id} md={6} lg={4} xl={3} className="mb-4">
                       <Card className="h-100 livro-card">
@@ -503,20 +511,20 @@ const Home = () => {
                               className="livro-imagem"
                               onError={(e) => {
                                 e.target.style.display = "none";
-                              }} 
-                            /> 
+                              }}
+                            />
                           ) : (
                             <div className="sem-imagem">
                               <FaImage size={24} />
-                            </div> 
-                          )} 
-                        </div> 
+                            </div>
+                          )}
+                        </div>
                         <Card.Body className="livro-card-body">
                           <h6 title={livro.titulo || livro.title || ""}>
                             {formatarTexto(livro.titulo || livro.title || "")}
                           </h6>
                           <div className="livro-detalhes">
-                            <div> 
+                            <div>
                               <strong>ID:</strong> {livro.id}
                             </div>
                             <div>
@@ -593,7 +601,6 @@ const Home = () => {
                       overflow: "visible",
                     }}
                   >
-                    
                     <div className="d-flex flex-column p-3 h-100">
                       {/* Ícone clicável com tooltip */}
                       <OverlayTrigger
