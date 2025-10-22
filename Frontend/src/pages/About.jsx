@@ -1,37 +1,30 @@
-import { Container, Row, Col, Button, Carousel } from "react-bootstrap";
+import { Container, Row, Col, Button } from "react-bootstrap";
 import {
   FaBookOpen,
   FaUsers,
+  FaDatabase,
+  FaSearch,
+  FaClock,
+  FaChartBar,
+  FaUserCheck,
+  FaExchangeAlt,
+  FaRegCalendarCheck,
+  FaRegCalendarTimes,
+  FaRegFileAlt,
   FaReact,
   FaNodeJs,
-  FaDatabase,
   FaHtml5,
   FaCss3Alt,
   FaJsSquare,
   FaGithub,
-  FaChartLine,
-  FaMobileAlt,
-  FaHandsHelping,
-  FaBullseye,
-  FaEye,
-  FaHeart,
-  FaEnvelope,
   FaBootstrap,
-  FaFigma,
-  FaChevronLeft,
-  FaChevronRight
+  FaFigma
 } from "react-icons/fa";
-
+import "/src/css/about.css";
 import photoEmanuel from "../images/emanuel.jpg";
 import photoMaria from "../images/maria.jpg";
 import photoDaniel from "../images/daniel.jpg";
 import photoRodrigo from "../images/rodrigo.jpg";
-
-// Importando as imagens do carrossel
-import img2 from "../images/img2.jpg";
-import img3 from "../images/img3.jpg";
-import img16 from "../images/img16.jpg";
-import img21 from "../images/img21.jpg";
 
 // Equipe
 const devs = [
@@ -41,155 +34,161 @@ const devs = [
   { name: "Maria Clara Garcia de Oliveira", photo: photoMaria },
 ];
 
-// Missão, Visão, Valores
-const mvvItems = [
+// Funcionalidades baseadas na ERD
+const features = [
   {
-    title: "Missão",
-    text: "Facilitar o acesso à informação através de uma plataforma simples e eficiente, promovendo o hábito da leitura.",
-    icon: <FaBullseye size={30} className="text-primary" />
+    icon: <FaBookOpen className="fa-book-open" />,
+    title: "Gestão Completa do Acervo",
+    description: "Cadastro completo de livros, autores e editoras com controle de entrada e saída de exemplares"
   },
   {
-    title: "Visão",
-    text: "Ser referência em soluções digitais para bibliotecas, contribuindo para o desenvolvimento educacional e cultural.",
-    icon: <FaEye size={30} className="text-primary" />
+    icon: <FaUserCheck className="fa-user-check" />,
+    title: "Controle de Usuários",
+    description: "Cadastro diferenciado para alunos, professores e administradores da biblioteca"
   },
   {
-    title: "Valores",
-    text: "Inovação, transparência, acessibilidade e compromisso com a comunidade acadêmica e leitores.",
-    icon: <FaHeart size={30} className="text-primary" />
-  }
+    icon: <FaRegCalendarCheck className="fa-reg-calendar-check" />,
+    title: "Sistema de Reservas",
+    description: "Reserva de livros com notificação quando estiverem disponíveis para retirada"
+  },
+  {
+    icon: <FaExchangeAlt className="fa-exchange-alt" />,
+    title: "Empréstimos",
+    description: "Controle de empréstimos por usuário e verificação de disponibilidade"
+  },
+  {
+    icon: <FaClock className="fa-clock" />,
+    title: "Renovações",
+    description: "Prorrogação de prazo quando o livro não está reservado, dentro dos limites permitidos"
+  },
+  {
+    icon: <FaSearch className="fa-search" />,
+    title: "Consultas em Tempo Real",
+    description: "Acesso rápido a informações sobre acervo, empréstimos, reservas e devoluções"
+  },
+  {
+    icon: <FaRegFileAlt className="fa-reg-file-alt" />,
+    title: "Baixa de Exemplares",
+    description: "Registro de descarte de livros com manutenção do controle histórico"
+  },
+  {
+    icon: <FaChartBar className="fa-chart-bar" />,
+    title: "Relatórios Detalhados",
+    description: "Emissão de relatórios sobre reservas, estoque, empréstimos e devoluções"
+  },
+  {
+    icon: <FaChartBar className="fa-chart-bar" />,
+    title: "Segurança de Dados",
+    description: "Proteção contra acessos não autorizados e preservação de informações sensíveis"
+  },
+  {
+    icon: <FaDatabase className="fa-database" />,
+    title: "Controle de Aquisições",
+    description: "Registro de novas aquisições com atualização automática do acervo"
+  },
 ];
 
 // Tecnologias
 const technologies = [
-  { name: "HTML5", icon: <FaHtml5 size={55} color="#E44D26" /> },
-  { name: "CSS3", icon: <FaCss3Alt size={55} color="#264DE4" /> },
-  { name: "JavaScript", icon: <FaJsSquare size={55} color="#F0DB4F" /> },
-  { name: "React", icon: <FaReact size={55} color="#61DBFB" /> },
-  { name: "Node.js", icon: <FaNodeJs size={55} color="#68A063" /> },
-  { name: "MySQL", icon: <FaDatabase size={55} color="#336791" /> },
-  { name: "Git", icon: <FaGithub size={55} color="#171515" /> },
-  { name: "Bootstrap", icon: <FaBootstrap size={55} color="#7952B3" /> },
-  { name: "Figma", icon: <FaFigma size={55} color="#6699CC" /> },
+  { name: "HTML5", icon: <FaHtml5 size={40} color="#E44D26" />, description: "Estrutura semântica" },
+  { name: "CSS3", icon: <FaCss3Alt size={40} color="#264DE4" />, description: "Estilos e layout" },
+  { name: "JavaScript", icon: <FaJsSquare size={40} color="#F0DB4F" />, description: "Interatividade" },
+  { name: "React", icon: <FaReact size={40} color="#61DBFB" />, description: "Interface moderna" },
+  { name: "Node.js", icon: <FaNodeJs size={40} color="#68A063" />, description: "Backend robusto" },
+  { name: "MySQL", icon: <FaDatabase size={40} color="#336791" />, description: "Banco de dados" },
+  { name: "Git", icon: <FaGithub size={40} color="#171515" />, description: "Controle de versão" },
+  { name: "Bootstrap", icon: <FaBootstrap size={40} color="#7952B3" />, description: "Design responsivo" },
+  { name: "Figma", icon: <FaFigma size={40} color="#6699CC" />, description: "Design e prototipagem" }
 ];
 
-// Funcionalidades
-const features = [
-  {
-    icon: <FaBookOpen size={40} />,
-    title: "Gestão Completa de Acervo",
-    description: "Controle total sobre livros com categorização."
-  },
-  {
-    icon: <FaUsers size={40} />,
-    title: "Controle de Usuários",
-    description: "Cadastro para usuários, professores e alunos."
-  },
-  {
-    icon: <FaChartLine size={40} />,
-    title: "Relatórios",
-    description: "Dados sobre circulação de livros para decisões."
-  },
-  {
-    icon: <FaMobileAlt size={40} />,
-    title: "Responsividade Total",
-    description: "Interface adaptável a qualquer dispositivo."
-  },
-  {
-    icon: <FaHandsHelping size={40} />,
-    title: "Suporte Especializado",
-    description: "Equipe disponível para ajudar com dúvidas e necessidades."
-  }
-];
-
-const galleryImages = [
-  { src: img2,},
-  { src: img3,},
-  { src: img16,},
-
-];
-
-
-const creativeCarouselImages = [
-
-  {
-    src: img21,
-  },
-  {
-    src: img2
-  },
-
-];
-
-// Componente About
 export default function About() {
   return (
-    <Container className="about-container py-5">
+    <Container className="about-page py-4">
+      {/* Header Institucional */}
+      <section className="institutional-header text-center mb-5">
+        <h1 className="display-5 fw-bold mb-3">Sistema Bookly</h1>
+        <p className="lead mb-4">
+          Sistema exclusivo de gestão bibliotecária para <strong>instituições educacionais</strong>
+        </p>
+        <div className="institutional-divider"></div>
+      </section>
 
-      {/* Sobre o sistema */}
-      <section className="about-section mb-5">
-        <Row className="align-items-center g-4">
-          <Col md={6}>
-            <h2>Sobre o Bookly</h2>
-            <p className="about-text mt-3">
-              <strong>O Bookly</strong> nasceu em 2025, na Unoeste, como um projeto integrador com o objetivo de administrar bibliotecas e tornar a leitura mais acessível.
-            </p>
-            <p className="about-text">
-              Nossa plataforma oferece <strong>controle completo</strong> do acervo: empréstimos, reservas, devoluções e renovações com facilidade e segurança.
-            </p>
-
-            <h5 className="mt-3">Principais funcionalidades:</h5>
-            <ul className="list-unstyled about-text">
-              <li> Cadastro completo de livros, autores e editoras</li>
-              <li> Sistema de reservas e empréstimos inteligente</li>
-              <li> Gestão de usuários (alunos, professores e outros)</li>
-              <li> Relatórios e consultas em tempo real</li>
-              <li> Controle de prazos e renovações</li>
-            </ul>
-
-            <p className="about-text mt-2">
-              Com <strong>praticidade, segurança e eficiência</strong>, garantimos a melhor experiência para toda a comunidade.
-            </p>
-          </Col>
-
-          <Col md={6}>
-            <div className="gallery-grid">
-              {galleryImages.map((image, index) => (
-                <div key={index} className={`gallery-item gallery-item-${index + 1}`}>
-                  <img src={image.src} alt={image.alt} />
-                </div>
-              ))}
+      {/* Sobre o Sistema */}
+      <section className="system-description mb-5">
+        <Row className="align-items-center">
+          <Col lg={8} className="mx-auto">
+            <div className="description-content">
+              <h2 className="section-title mb-4">Sobre o Bookly</h2>
+              <p className="system-text">
+                O <strong>Bookly</strong> é um sistema desenvolvido especificamente para atender às necessidades 
+                de bibliotecas de instituições educacionais, oferecendo controle completo 
+                sobre todo o processo de gestão do acervo bibliográfico.
+              </p>
+              
+              <div className="system-highlights mt-4">
+                <h5 className="mb-3">Principais Objetivos:</h5>
+                <ul className="system-list">
+                  <li>Gerenciamento integral do acervo bibliográfico</li>
+                  <li>Controle de empréstimos, reservas e devoluções</li>
+                  <li>Vinculação de todas as operações ao processo de empréstimo</li>
+                  <li>Garantia de disponibilidade e controle de exemplares</li>
+                  <li>Segurança e privacidade dos dados</li>
+                </ul>
+              </div>
             </div>
           </Col>
         </Row>
       </section>
 
-      {/* Recursos */}
-      <section className="about-section mb-5 text-center">
-        <h3 className="mb-4">Nossos Recursos</h3>
+      {/* Fluxo de Trabalho */}
+      <section className="workflow-section mb-5">
+        <h2 className="section-title text-center mb-5">Fluxo de Trabalho</h2>
         <Row className="g-4">
-          {features.map((feature, i) => (
-            <Col key={i} md={6} lg={4}>
-              <div className="hover-card feature-item p-3 rounded text-center">
-                <div className="feature-icon mb-3">{feature.icon}</div>
-                <h5>{feature.title}</h5>
-                <p>{feature.description}</p>
-              </div>
-            </Col>
-          ))}
+          <Col md={6} lg={3}>
+            <div className="workflow-step">
+              <div className="step-number">1</div>
+              <h5>Cadastro</h5>
+              <p>Registro de livros, usuários, autores e editoras no sistema</p>
+            </div>
+          </Col>
+          <Col md={6} lg={3}>
+            <div className="workflow-step">
+              <div className="step-number">2</div>
+              <h5>Reserva</h5>
+              <p>Usuários reservam livros disponíveis por período determinado</p>
+            </div>
+          </Col>
+          <Col md={6} lg={3}>
+            <div className="workflow-step">
+              <div className="step-number">3</div>
+              <h5>Empréstimo</h5>
+              <p>Retirada de exemplares com controle de prazos automático</p>
+            </div>
+          </Col>
+          <Col md={6} lg={3}>
+            <div className="workflow-step">
+              <div className="step-number">4</div>
+              <h5>Devolução</h5>
+              <p>Registro de devolução com atualização em tempo real</p>
+            </div>
+          </Col>
         </Row>
       </section>
 
-      {/* Missão, Visão e Valores */}
-      <section className="about-section mb-5 text-center">
-        <h3 className="mb-4">Nossa Cultura</h3>
-        <Row className="g-4">
-          {mvvItems.map((item, i) => (
-            <Col key={i} md={4}>
-              <div className="hover-card mvv-item p-3 rounded text-center">
-                <div className="mvv-icon mb-3">{item.icon}</div>
-                <h4>{item.title}</h4>
-                <p>{item.text}</p>
+      {/* Funcionalidades */}
+      <section className="features-section mb-5">
+        <h2 className="section-title text-center mb-5">Funcionalidades</h2>
+        <Row className="g-3">
+          {features.map((feature, index) => (
+            <Col key={index} xs={12} sm={6} lg={4}>
+              <div className="feature-item">
+                <div className="feature-icon">
+                  {feature.icon}
+                </div>
+                <div className="feature-content">
+                  <h6>{feature.title}</h6>
+                  <p>{feature.description}</p>
+                </div>
               </div>
             </Col>
           ))}
@@ -197,14 +196,17 @@ export default function About() {
       </section>
 
       {/* Tecnologias */}
-      <section className="about-section text-center mb-5">
-        <h3 className="mb-4">Tecnologias Utilizadas</h3>
-        <Row className="justify-content-center g-3">
-          {technologies.map((tech, i) => (
-            <Col key={i} xs={6} sm={4} md={3} lg={2}>
-              <div className="tech-item">
-                {tech.icon}
-                <div className="mt-2">{tech.name}</div>
+      <section className="technologies-section mb-5">
+        <h2 className="section-title text-center mb-4">Tecnologias Utilizadas</h2>
+        <Row className="justify-content-center g-4">
+          {technologies.map((tech, index) => (
+            <Col key={index} xs={6} sm={4} md={3} lg={2}>
+              <div className="tech-item text-center">
+                <div className="tech-icon mb-2">
+                  {tech.icon}
+                </div>
+                <h6 className="mb-1">{tech.name}</h6>
+                <p className="tech-description">{tech.description}</p>
               </div>
             </Col>
           ))}
@@ -212,381 +214,34 @@ export default function About() {
       </section>
 
       {/* Equipe */}
-      <section id="equipe" className="about-section text-center mb-5">
-        <FaUsers size={60} className="mb-3 text-primary" />
-        <h2>Nossa Equipe</h2>
-        <p className="mb-4">Conheça os desenvolvedores por trás do Bookly</p>
-        <Row className="g-4 mt-4">
-          {devs.map((dev, i) => (
-            <Col key={i} xs={12} sm={6} md={3}>
-              <div className="team-card">
-                <img src={dev.photo} alt={dev.name} className="team-photo" />
-                <h5>{dev.name}</h5>
+      <section className="team-section mb-5">
+        <h2 className="section-title text-center mb-4">Equipe de Desenvolvimento</h2>
+        <p className="text-center mb-4">Conheça os desenvolvedores responsáveis pelo sistema Bookly</p>
+        <Row className="g-4 justify-content-center">
+          {devs.map((dev, index) => (
+            <Col key={index} xs={12} sm={6} md={3}>
+              <div className="team-member text-center">
+                <img 
+                  src={dev.photo} 
+                  alt={dev.name}
+                  className="member-photo"
+                />
+                <h6 className="mt-3">{dev.name}</h6>
               </div>
             </Col>
           ))}
         </Row>
       </section>
 
-      {/* CTA com Carrossel Criativo */}
-      <section className="about-section mb-5">
-        <Row className="align-items-center journey-section g-4">
-          <Col md={6}>
-            <h2 className="mb-3">Junte-se à nossa Jornada!</h2>
-            <p className="journey-description">
-              Transformamos a forma como instituições gerenciam acervos e promovem a leitura. Faça parte desta missão!
-            </p>
-
-            <Row className="g-3 mt-3">
-              <Col xs={12} sm={6}>
-                <div>
-                  <h5> Instituições</h5>
-                  <p>Modernize sua biblioteca com o Bookly</p>
-                </div>
-              </Col>
-              <Col xs={12} sm={6}>
-                <div className="option-item">
-                  <h5>Desenvolvedores</h5>
-                  <p>Contribua com nosso projeto open source</p>
-                </div>
-              </Col>
-              <Col xs={12}>
-                <div>
-                  <h5> Parcerias</h5>
-                  <p>Expanda o acesso à leitura e tecnologia</p>
-                </div>
-              </Col>
-            </Row>
-
-            <div className="mt-4 text-center text-md-start">
-              <Button variant="primary" size="lg" className="me-3 mb-3" href="mailto:booklysuporte@gmail.com">
-                <FaEnvelope className="me-2" /> Entre em Contato
-              </Button>
-              <Button variant="btn btn-paginacao" size="lg" href="#equipe">Conheça a Equipe</Button>
-            </div>
-          </Col>
-
-          <Col md={6}>
-            <div className="creative-carousel-container">
-              <Carousel 
-                indicators 
-                interval={4000}
-                prevIcon={<FaChevronLeft className="carousel-control-icon" />}
-                nextIcon={<FaChevronRight className="carousel-control-icon" />}
-              >
-                {creativeCarouselImages.map((image, index) => (
-                  <Carousel.Item key={index}>
-                    <div className="creative-carousel-item">
-                      <img
-                        className="d-block w-100"
-                        src={image.src}
-                        alt={image.alt}
-                      />
-                      <Carousel.Caption>
-                        <h5>{image.title}</h5>
-                        <p>{image.caption}</p>
-                      </Carousel.Caption>
-                    </div>
-                  </Carousel.Item>
-                ))}
-              </Carousel>
-            </div>
-          </Col>
-        </Row>
+      {/* Informações Institucionais */}
+      <section className="info text-center">
+        <div className="info-content">
+          <h5 className="mb-3">Sistema Bookly - Gestão Bibliotecária</h5>
+          <p className="mb-3">
+            Desenvolvido para uso interno de bibliotecas educacionais
+          </p>
+        </div>
       </section>
-
-      {/* CSS local */}
-      <style>{`
-
-        /* Títulos com efeito de sublinhado */
-        .about-section h2,
-        .about-section h3 {
-          font-weight: 700;
-          margin-bottom: 1rem;
-          position: relative;
-        }
-
-        .about-section h2::after,
-        .about-section h3::after {
-          content: "";
-          display: block;
-          width: 60px;
-          height: 4px;
-          background-color: #0d6efd;
-          margin: 0.5rem auto 0;
-          border-radius: 2px;
-        }
-
-        /* Texto sobre */
-        .about-text {
-          max-width: 700px;
-          margin: 0 auto;
-          font-size: 1.05rem;
-          line-height: 1.6;
-          color: #555;
-        }
-
-        /* Cards de Missão, Visão e Valores */
-        .mvv-card {
-          border-radius: 15px;
-          padding: 2rem;
-          height: 100%;
-        }
-
-        .mvv-card h4 {
-          color: #ff4894;
-        }
-
-        .mvv-card p {
-          color: #666;
-          font-size: 0.95rem;
-          line-height: 1.5;
-        }
-
-        /* Lista de tecnologias */
-        .tech-list {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 1rem;
-          margin-top: 2rem;
-        }
-
-        .tech-item {
-          display: flex;
-          align-items: center;
-          gap: 0.2rem;
-          padding: 0.8rem 1rem;
-        }
-
-        .tech-item:hover {
-          transform: translateY(-4px);
-        }
-
-        /* Cards de equipe */
-        .team-card {
-          padding: 1.5rem 1rem;
-          transition: transform 0.3s ease, box-shadow 0.5s ease;
-        }
-
-        .team-card:hover {
-          transform: translateY(-20px) scale(1.1); 
-        }
-
-        /* Avatar da equipe */
-        .team-card img {
-          width: 120px;
-          height: 120px;
-          object-fit: cover;
-          border-radius: 50%;
-          border: 3px solid #0d6efd;
-          margin-bottom: 1rem;
-          transition: transform 0.1s ease, border-color 0.6s ease;
-        }
-
-        .team-card:hover img {
-          transform: scale(1.05);
-          border-color: #7bff00;
-        }
-
-        /* Textos no card de equipe */
-        .team-card h5 {
-          margin-bottom: 0.3rem;
-          font-weight: 600;
-        }
-
-        .team-card h6 {
-          color: #1DCD9F;
-          margin-bottom: 0.5rem;
-          font-weight: 500;
-        }
-
-        .team-card p {
-          font-size: 0.9rem;
-          color: #666;
-          text-align: center;
-        }
-
-        /* Responsividade para a página Sobre */
-        @media (max-width: 768px) {
-
-          .mvv-card,
-          .team-card,
-          .tech-item {
-            padding: 1rem;
-          }
-
-          .about-text {
-            font-size: 1rem;
-          }
-        }
-
-        .about-container {
-          font-family: 'Poppins', sans-serif;
-          color: #222;
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 1rem;
-        }
-
-        /* ====== TEXTOS ====== */
-        .about-text {
-          font-size: 1rem;
-          line-height: 1.7;
-          color: #555;
-        }
-
-        /* ====== MURAL DE IMAGENS ====== */
-        .gallery-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          grid-template-rows: repeat(3, 1fr);
-          gap: 12px;
-          height: 400px;
-        }
-
-        .gallery-item {
-          border-radius: 8px;
-          overflow: hidden;
-          transition: transform 0.3s ease;
-        }
-
-        .gallery-item:hover {
-          transform: scale(1.03);
-        }
-
-        .gallery-item img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-          border-radius: 8px;
-
-
-        }
-
-        /* ====== EQUIPE ====== */
-        .team-card {
-          text-align: center;
-        }
-
-        .team-photo {
-          width: 120px;
-          height: 120px;
-          border-radius: 50%;
-          padding: 5px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-          transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
-        }
-
-        /* ====== FEATURES, MVV, TECNOLOGIAS, OPÇÕES ====== */
-        .feature-item,
-        .mvv-item,
-        .tech-item {
-          border-radius: 12px;
-          padding: 1rem;
-        }
-
-        /* animação ícones */
-        .feature-item .feature-icon,
-        .mvv-item .mvv-icon {
-          transition: transform 0.3s ease, color 0.3s ease;
-        }
-
-        .feature-item:hover .feature-icon,
-        .mvv-item:hover .mvv-icon {
-          transform: scale(1.2);
-          color: rgba(105, 105, 105, 0.33);
-        }
-
-        /* ====== ICONES ====== */
-        .feature-icon,
-        .mvv-icon {
-          font-size: 2rem;
-          margin-bottom: 0.5rem;
-          color: rgba(0, 0, 0, 0.94);
-        }
-
-        /* ====== TECNOLOGIAS ====== */
-        .tech-item {
-          text-align: center;
-          }
-
-        .tech-item div {
-          margin-top: 0.5rem;
-        }
-
-        .tech-item:hover {
-          transform: scale(1.10);
-        }
-
-        /* ====== CARROSSEL CRIATIVO ====== */
-        .creative-carousel-container {
-          border-radius: 12px;
-          overflow: hidden;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-          transition: transform 0.3s ease;
-        }
-
-        .creative-carousel-container:hover {
-          transform: translateY(-5px);
-        }
-
-        .creative-carousel-item {
-          position: relative;
-          height: 350px;
-          overflow: hidden;
-        }
-
-        .creative-carousel-item img {
-          object-fit: cover;
-          height: 100%;
-          width: 100%;
-          filter: brightness(0.7);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-          border-radius: 8px;
-        }
-
-        .carousel-control-icon {
-          font-size: 1.5rem;
-          color: #fff;
-          background: rgba(0, 0, 0, 0.3);
-          padding: 10px;
-          border-radius: 50%;
-        }
-
-        .carousel-caption {
-          background: rgba(0, 0, 0, 0.5);
-          border-radius: 8px;
-          padding: 15px;
-          max-width: 80%;
-          margin: 0 auto;
-        }
-
-        .carousel-caption h5 {
-          font-weight: 600;
-          margin-bottom: 5px;
-        }
-
-        /* ====== RESPONSIVO ====== */
-        @media (min-width: 768px) {
-          .gallery-grid {
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(2, 1fr);
-            height: 300px;
-          }
-          
-          .creative-carousel-item {
-            height: 400px;
-          }
-        }
-
-        @media (max-width: 767px) {
-          .creative-carousel-container {
-            margin-top: 2rem;
-          }
-        }
-      `}</style>
     </Container>
   );
 }

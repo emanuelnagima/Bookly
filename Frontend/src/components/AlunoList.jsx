@@ -107,27 +107,29 @@ const AlunoList = ({ alunos, onDelete, onEdit }) => {
 
   return (
     <Card>
-      <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-        <div className="d-flex align-items-center">
-          <FaGraduationCap style={{
-            marginRight: '8px',
-            fontSize: '26px',
-            color: '#ffffffff',
-            border: '2px solid #585858',
-            borderRadius: '50%',
-            padding: '4px',
-            display: 'inline-flex',
-            verticalAlign: 'middle'
-          }} />
+      <Card.Header className="bg-primary text-white d-flex flex-wrap justify-content-between align-items-center">
+        <div className="d-flex align-items-center mb-2 mb-md-0">
+          <FaGraduationCap
+            style={{
+              marginRight: '8px',
+              fontSize: '26px',
+              color: '#ffffff',
+              border: '2px solid #585858',
+              borderRadius: '50%',
+              padding: '4px',
+              display: 'inline-flex',
+              verticalAlign: 'middle'
+            }}
+          />
           <h5 className="mb-0">Alunos Cadastrados</h5>
           <span className="badge bg-light text-primary ms-3">
-            {alunosFiltrados.length} {alunosFiltrados.length === 1 ? 'aluno' : 'alunos'} /
-            Página {paginaAtual} de {totalPaginas || 1}
+            {alunosFiltrados.length} {alunosFiltrados.length === 1 ? 'aluno' : 'alunos'} / Página {paginaAtual} de {totalPaginas || 1}
           </span>
         </div>
-        <div style={{ width: '300px' }}>
+
+        <div className="flex-grow-1 flex-md-grow-0" style={{ minWidth: '200px', maxWidth: '300px' }}>
           <InputGroup>
-            <InputGroup.Text className="bg-light text-primary">
+            <InputGroup.Text className="bg-light text-primary" style={{ fontSize: '1rem' }}>
               <FaSearch />
             </InputGroup.Text>
             <Form.Control
@@ -139,6 +141,8 @@ const AlunoList = ({ alunos, onDelete, onEdit }) => {
           </InputGroup>
         </div>
       </Card.Header>
+
+
       <Card.Body>
         {alunosPaginaAtual.length === 0 ? (
           <p className="text-muted text-center py-4">

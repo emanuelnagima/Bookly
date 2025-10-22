@@ -58,28 +58,29 @@ const LivroList = ({ livros, loading, onDelete, onEdit }) => {
 
   return (
     <Card>
-      <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center flex-wrap">
+      <Card.Header className="bg-primary text-white d-flex flex-wrap justify-content-between align-items-center">
         <div className="d-flex align-items-center mb-2 mb-md-0">
-          <h5 className="mb-0 d-flex align-items-center">
-            <FaBook style={{
+          <FaBook
+            style={{
               marginRight: '8px',
               fontSize: '26px',
-              color: '#ffffffff',
+              color: '#ffffff',
               border: '2px solid #585858',
               borderRadius: '50%',
               padding: '4px',
               display: 'inline-flex',
               verticalAlign: 'middle'
-            }} />
-            Livros Cadastrados
-          </h5>
+            }}
+          />
+          <h5 className="mb-0">Livros Cadastrados</h5>
           <span className="badge bg-light text-primary ms-3">
             {livrosComEstoque.length} {livrosComEstoque.length === 1 ? 'livro' : 'livros'} / Página {paginaAtual} de {totalPaginas || 1}
           </span>
         </div>
-        <div style={{ minWidth: '250px', width: '100%', maxWidth: '300px' }}>
+
+        <div className="flex-grow-1 flex-md-grow-0" style={{ minWidth: '200px', maxWidth: '300px' }}>
           <InputGroup>
-            <InputGroup.Text className="bg-light text-primary">
+            <InputGroup.Text className="bg-light text-primary" style={{ fontSize: '1rem' }}>
               <FaSearch />
             </InputGroup.Text>
             <Form.Control

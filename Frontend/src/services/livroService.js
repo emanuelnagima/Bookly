@@ -17,7 +17,9 @@ const handleResponse = async (response) => {
 
 const getAll = async () => {
   try {
-    const response = await fetch(API_BASE_URL);
+    const response = await fetch(API_BASE_URL, {
+      credentials: 'include' // ADICIONAR
+    });
     const result = await handleResponse(response);
     return result.data || [];
   } catch (error) {
@@ -28,7 +30,9 @@ const getAll = async () => {
 
 const getById = async (id) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${id}`);
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
+      credentials: 'include' // ADICIONAR
+    });
     const result = await handleResponse(response);
     return result.data;
   } catch (error) {
@@ -64,6 +68,7 @@ const add = async (livro) => {
     
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
+      credentials: 'include', // ADICIONAR
       body: formData,
     });
     
@@ -99,6 +104,7 @@ const update = async (livro) => {
     
     const response = await fetch(`${API_BASE_URL}/${livro.id}`, {
       method: 'PUT',
+      credentials: 'include', // ADICIONAR
       body: formData,
     });
     
@@ -116,6 +122,7 @@ const remove = async (id) => {
     
     const response = await fetch(`${API_BASE_URL}/${id}`, {
       method: 'DELETE',
+      credentials: 'include' // ADICIONAR
     });
     
     const result = await handleResponse(response);

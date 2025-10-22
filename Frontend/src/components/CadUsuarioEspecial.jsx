@@ -100,7 +100,7 @@ const CadUsuarioEspecial = ({ onSave, onCancel, usuario, loading }) => {
                 <Form.Control
                   type='text'
                   name='nome_completo'
-                  placeholder='digite o nome do usuário'
+                  placeholder='Digite o nome do usuário'
                   value={usuarioData.nome_completo}
                   onChange={handleChange}
                   required

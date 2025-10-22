@@ -86,29 +86,29 @@ const EditoraList = ({ editoras, onDelete, onEdit }) => {
 
   return (
     <Card>
-      <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-        <div className="d-flex align-items-center">
-          <h5 className="mb-0 d-flex align-items-center">
-            <FaBuilding style={{
+      <Card.Header className="bg-primary text-white d-flex flex-wrap justify-content-between align-items-center">
+        <div className="d-flex align-items-center mb-2 mb-md-0">
+          <FaBuilding
+            style={{
               marginRight: '8px',
               fontSize: '26px',
-              color: '#ffffffff',
+              color: '#ffffff',
               border: '2px solid #585858',
               borderRadius: '50%',
               padding: '4px',
               display: 'inline-flex',
               verticalAlign: 'middle'
-            }} />
-            Editoras Cadastradas
-          </h5>
+            }}
+          />
+          <h5 className="mb-0">Editoras Cadastradas</h5>
           <span className="badge bg-light text-primary ms-3">
-            {editorasFiltradas.length} {editorasFiltradas.length === 1 ? 'editora' : 'editoras'} /
-            Página {paginaAtual} de {totalPaginas || 1}
+            {editorasFiltradas.length} {editorasFiltradas.length === 1 ? 'editora' : 'editoras'} / Página {paginaAtual} de {totalPaginas || 1}
           </span>
         </div>
-        <div style={{ width: '300px' }}>
+
+        <div className="flex-grow-1 flex-md-grow-0" style={{ minWidth: '200px', maxWidth: '300px' }}>
           <InputGroup>
-            <InputGroup.Text className="bg-light text-primary">
+            <InputGroup.Text className="bg-light text-primary" style={{ fontSize: '1rem' }}>
               <FaSearch />
             </InputGroup.Text>
             <Form.Control
@@ -120,6 +120,7 @@ const EditoraList = ({ editoras, onDelete, onEdit }) => {
           </InputGroup>
         </div>
       </Card.Header>
+
       <Card.Body>
         {editorasPaginaAtual.length === 0 ? (
           <p className="text-muted text-center py-4">

@@ -1,7 +1,7 @@
 const livrosRepository = require('../repository/livrosRepository');
 const editorasRepository = require('../repository/editorasRepository');
 const autoresRepository = require('../repository/autoresRepository');
-const Livro = require('../../models/livros');
+const Livro = require('../models/livros');
 
 class LivrosController {
     async getAll(req, res) {

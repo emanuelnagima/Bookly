@@ -1,16 +1,21 @@
 const API_BASE_URL = 'http://localhost:3000/api/editoras';
 
 const handleResponse = async (response) => {
+  const data = await response.json().catch(() => ({}));
+  
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const errorMessage = data?.message || data?.error || `HTTP error! status: ${response.status}`;
+    throw new Error(errorMessage);
   }
-  const data = await response.json();
+  
   return data;
 };
 
 const getAll = async () => {
   try {
-    const response = await fetch(API_BASE_URL);
+    const response = await fetch(API_BASE_URL, {
+      credentials: 'include'
+    });
     const result = await handleResponse(response);
     return result.data || result;
   } catch (error) {
@@ -21,7 +26,9 @@ const getAll = async () => {
 
 const getById = async (id) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${id}`);
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
+      credentials: 'include'
+    });
     const result = await handleResponse(response);
     return result.data || result;
   } catch (error) {
@@ -37,6 +44,7 @@ const add = async (editora) => {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(editora),
     });
     
@@ -55,6 +63,7 @@ const update = async (editora) => {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(editora)
     })
 
@@ -70,11 +79,22 @@ const remove = async (id) => {
   try {
     const response = await fetch(`${API_BASE_URL}/${id}`, {
       method: 'DELETE',
+      credentials: 'include'
     });
-    const result = await handleResponse(response); 
-    return result.message || 'Editora excluída com sucesso';
+    
+    const responseData = await response.json().catch(() => null);
+    
+    if (!response.ok) {
+      // CORREÇÃO: busca a mensagem no campo "message" 
+      if (responseData && responseData.message) {
+        throw new Error(responseData.message);
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return responseData?.message || 'Editora excluída com sucesso';
   } catch (error) {
-    console.log(`Erro ao remover editora ${id}:`, error);
+    console.error(`Erro ao remover editora ${id}:`, error);
     throw error;
   }
 };

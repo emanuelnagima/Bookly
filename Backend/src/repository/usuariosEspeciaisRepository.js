@@ -1,5 +1,5 @@
 const db = require('../../config/database');
-const UsuarioEspecial = require('../../models/usuarioEspecial');
+const UsuarioEspecial = require('../models/usuarioEspecial');
 
 class UsuariosEspeciaisRepository {
     async findAll() {

@@ -8,13 +8,17 @@ const handleResponse = async (response) => {
 };
 
 const getAll = async () => {
-  const response = await fetch(API_BASE_URL);
+  const response = await fetch(API_BASE_URL, {
+    credentials: 'include' // ADICIONAR
+  });
   const result = await handleResponse(response);
   return result.data;
 };
 
 const getById = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/${id}`);
+  const response = await fetch(`${API_BASE_URL}/${id}`, {
+    credentials: 'include' // ADICIONAR
+  });
   const result = await handleResponse(response);
   return result.data;
 };
@@ -23,6 +27,7 @@ const add = async (usuario) => {
   const response = await fetch(API_BASE_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include', // ADICIONAR
     body: JSON.stringify(usuario),
   });
   const result = await handleResponse(response);
@@ -33,6 +38,7 @@ const update = async (id, usuario) => {
   const response = await fetch(`${API_BASE_URL}/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include', // ADICIONAR
     body: JSON.stringify(usuario),
   });
   const result = await handleResponse(response);
@@ -40,7 +46,10 @@ const update = async (id, usuario) => {
 };
 
 const remove = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/${id}`, { method: 'DELETE' });
+  const response = await fetch(`${API_BASE_URL}/${id}`, { 
+    method: 'DELETE',
+    credentials: 'include' // ADICIONAR
+  });
   const result = await handleResponse(response);
   return result.message;
 };

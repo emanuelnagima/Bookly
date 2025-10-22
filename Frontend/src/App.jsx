@@ -1,6 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 
+// Novos imports do sistema de autenticação
+import AuthProvider from './components/AuthProvider';
+import ProtectedRoute from './components/ProtectedRoute';
+
 // Layout
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
@@ -8,9 +12,9 @@ import Footer from './components/Footer';
 // Páginas principais
 import Home from './pages/Home';
 import About from './pages/About';
-import Login from './pages/Login';
+import Login from './pages/Login'; // JÁ ATUALIZADO
 import PrivacyPolicy from './pages/PrivacyPolicy';
-import FAQ from './pages/FAQ'; // ADICIONE ESTA IMPORTACAO
+import FAQ from './pages/FAQ';
 import TermsOfUse from './pages/TermsOfUse';
 
 // Listagens
@@ -31,70 +35,149 @@ import CadastroEditoras from './pages/cadastros/CadastroEditoras';
 import CadastroAutores from './pages/cadastros/CadastroAutores';
 import CadastroUsuariosEspeciais from './pages/cadastros/CadastroUsuariosEspeciais';
 
-// Componente de proteção de rotas
-import ProtectedRoute from './components/ProtectedRoute';
-
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Rotas públicas */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/faq" element={<FAQ />} />
-        <Route path="/terms-of-use" element={<TermsOfUse />} />
+    <AuthProvider> {/* ENVOLVE TUDO COM AUTH PROVIDER */}
+      <Router>
+        <Routes>
+          {/* Rotas públicas */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/terms-of-use" element={<TermsOfUse />} />
 
-        {/* Rotas protegidas */}
-        <Route
-          path="/*"
-          element={
-            <ProtectedRoute>
-              <div className="app-container">
-                <Sidebar />
-                <div className="content">
-                  <Routes>
-                    {/* Páginas principais */}
-                    <Route path="/" element={<Home />} />
-                    <Route path="/sobre" element={<About />} />
+          {/* Rotas protegidas - ESTRUTURA COMPLETAMENTE MODIFICADA */}
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute> {/* SEM ROLES - APENAS VERIFICA SE ESTÁ LOGADO */}
+                <div className="app-container">
+                  <Sidebar />
+                  <div className="content">
+                    <Routes>
+                      {/* Páginas principais - acesso livre para todos logados */}
+                      <Route path="/" element={<Home />} />
+                      <Route path="/sobre" element={<About />} />
 
-                    {/* Listagens */}
-                    <Route path="/livros" element={<Livros />} />
-                    <Route path="/professores" element={<Professores />} />
-                    <Route path="/alunos" element={<Alunos />} />
-                    <Route path="/autores" element={<Autores />} />
-                    <Route path="/editoras" element={<Editoras />} />
-                    <Route path="/usuarios-especiais" element={<UsuariosEspeciais />} />
+                      {/* Listagens - Acesso admin e operador */}
+                      <Route path="/livros" element={
+                        <ProtectedRoute roles={['admin', 'operador']}>
+                          <Livros />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/professores" element={
+                        <ProtectedRoute roles={['admin', 'operador']}>
+                          <Professores />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/alunos" element={
+                        <ProtectedRoute roles={['admin', 'operador']}>
+                          <Alunos />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/autores" element={
+                        <ProtectedRoute roles={['admin', 'operador']}>
+                          <Autores />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/editoras" element={
+                        <ProtectedRoute roles={['admin', 'operador']}>
+                          <Editoras />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/usuarios-especiais" element={
+                        <ProtectedRoute roles={['admin', 'operador']}>
+                          <UsuariosEspeciais />
+                        </ProtectedRoute>
+                      } />
 
-                    {/* Formulários de cadastro */}
-                    <Route path="/cadastros/livros" element={<CadastroLivros />} />
-                    <Route path="/cadastros/livros/:id" element={<CadastroLivros />} />
-                    <Route path="/cadastros/professores" element={<CadastroProfessores />} />
-                    <Route path="/cadastros/professores/:id" element={<CadastroProfessores />} />
-                    <Route path="/cadastros/alunos" element={<CadastroAlunos />} />
-                    <Route path="/cadastros/alunos/:id" element={<CadastroAlunos />} />
-                    <Route path="/cadastros/editoras" element={<CadastroEditoras />} />
-                    <Route path="/cadastros/editoras/:id" element={<CadastroEditoras />} />
-                    <Route path="/cadastros/autores" element={<CadastroAutores />} />
-                    <Route path="/cadastros/autores/:id" element={<CadastroAutores />} />
-                    <Route path="/cadastros/usuarios-especiais" element={<CadastroUsuariosEspeciais />} />
-                    <Route path="/cadastros/usuarios-especiais/:id" element={<CadastroUsuariosEspeciais />} />
-                  
-                    {/* MOVIMENTAÇÕES */}
-                    <Route path="/entrada" element={<Entrada />} />
-                    <Route path="/saida" element={<Saida />} />
-                    
-                    {/* Redireciona rotas desconhecidas para home */}
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                  </Routes>
+                      {/* Movimentações - Acesso admin e operador */}
+                      <Route path="/entrada" element={
+                        <ProtectedRoute roles={['admin', 'operador']}>
+                          <Entrada />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/saida" element={
+                        <ProtectedRoute roles={['admin', 'operador']}>
+                          <Saida />
+                        </ProtectedRoute>
+                      } />
 
-                  <Footer />
+                      {/* Cadastros - Apenas admin */}
+                      <Route path="/cadastros/livros" element={
+                        <ProtectedRoute roles={['admin']}>
+                          <CadastroLivros />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/cadastros/livros/:id" element={
+                        <ProtectedRoute roles={['admin']}>
+                          <CadastroLivros />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/cadastros/professores" element={
+                        <ProtectedRoute roles={['admin']}>
+                          <CadastroProfessores />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/cadastros/professores/:id" element={
+                        <ProtectedRoute roles={['admin']}>
+                          <CadastroProfessores />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/cadastros/alunos" element={
+                        <ProtectedRoute roles={['admin']}>
+                          <CadastroAlunos />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/cadastros/alunos/:id" element={
+                        <ProtectedRoute roles={['admin']}>
+                          <CadastroAlunos />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/cadastros/editoras" element={
+                        <ProtectedRoute roles={['admin']}>
+                          <CadastroEditoras />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/cadastros/editoras/:id" element={
+                        <ProtectedRoute roles={['admin']}>
+                          <CadastroEditoras />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/cadastros/autores" element={
+                        <ProtectedRoute roles={['admin']}>
+                          <CadastroAutores />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/cadastros/autores/:id" element={
+                        <ProtectedRoute roles={['admin']}>
+                          <CadastroAutores />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/cadastros/usuarios-especiais" element={
+                        <ProtectedRoute roles={['admin']}>
+                          <CadastroUsuariosEspeciais />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/cadastros/usuarios-especiais/:id" element={
+                        <ProtectedRoute roles={['admin']}>
+                          <CadastroUsuariosEspeciais />
+                        </ProtectedRoute>
+                      } />
+                      
+                      {/* Redireciona rotas desconhecidas para home */}
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+
+                    <Footer />
+                  </div>
                 </div>
-              </div>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </Router>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

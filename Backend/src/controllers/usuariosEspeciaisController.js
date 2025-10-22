@@ -1,5 +1,5 @@
 const usuariosRepo = require('../repository/usuariosEspeciaisRepository');
-const UsuarioEspecial = require('../../models/usuarioEspecial');
+const UsuarioEspecial = require('../models/usuarioEspecial');
 
 class UsuariosEspeciaisController {
     async getAll(req, res) {

@@ -80,28 +80,29 @@ const Autores = () => {
     setShowDeleteModal(true)
   }
 
-  const handleDeleteAutor = async () => {
-    if (!autorToDelete || isDeleting) return
+const handleDeleteAutor = async () => {
+  if (!autorToDelete || isDeleting) return
 
-    setIsDeleting(true)
-    setLoading(true)
+  setIsDeleting(true)
+  setLoading(true)
 
-    try {
-      await autorService.remove(autorToDelete)
-      setToastMessage('Autor excluído com sucesso!')
-      setOperationType('delete')
-      setShowSuccessToast(true)
-      await loadAutores()
-    } catch (error) {
-      console.error("Falha na exclusão:", error)
-      setError("Não foi possível excluir o autor. Tente novamente.")
-    } finally {
-      setIsDeleting(false)
-      setLoading(false)
-      setShowDeleteModal(false)
-      setAutorToDelete(null)
-    }
+  try {
+    await autorService.remove(autorToDelete)
+    setToastMessage('Autor excluído com sucesso!')
+    setOperationType('delete')
+    setShowSuccessToast(true)
+    await loadAutores()
+  } catch (error) {
+    console.error("Falha na exclusão:", error)
+    setError(error.message)
+  } finally {
+    setIsDeleting(false)
+    setLoading(false)
+    setShowDeleteModal(false)
+    setAutorToDelete(null)
   }
+}
+  
 
   return (
     <Container className="py-4">
@@ -186,7 +187,9 @@ const Autores = () => {
           </Col>
         </Row>
       </div>
-
+        <p className="text-muted mb-4" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
+        Esta seção permite o <strong>cadastro e gerenciamento de autores</strong>. Você pode adicionar novos autores, atualizar informações existentes ou remover registros, mantendo o sistema sempre atualizado e organizado.
+      </p>
       {showForm && (
         <Row className="mb-4">
           <Col>

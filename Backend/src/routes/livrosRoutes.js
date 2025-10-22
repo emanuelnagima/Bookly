@@ -3,12 +3,17 @@ const livrosController = require('../controllers/livrosController.js');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { authenticate, authorize } = require('../middlewares/auth');
 
 const router = express.Router();
 
-const uploadsDir = path.join(__dirname, '../uploads');
+// USAR O MESMO CAMINHO DO SERVER.JS
+const uploadsDir = path.join(process.cwd(), 'uploads');
+
+// Garantir que a pasta existe
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('📁 Pasta uploads criada em:', uploadsDir);
 }
 
 const storage = multer.diskStorage({
@@ -35,6 +40,7 @@ const upload = multer({
   }
 });
 
+
 const handleMulterError = (error, req, res, next) => {
   if (error instanceof multer.MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {
@@ -50,12 +56,15 @@ const handleMulterError = (error, req, res, next) => {
   });
 };
 
+// Rotas públicas
 router.get('/', livrosController.getAll);
 router.get('/options', livrosController.getOptions);
 router.get('/:id', livrosController.getById);
 router.get('/generos', livrosController.getGeneros);
-router.post('/', upload.single('imagem'), handleMulterError, livrosController.create);
-router.put('/:id', upload.single('imagem'), handleMulterError, livrosController.update);
-router.delete('/:id', livrosController.delete);
+
+// Rotas protegidas
+router.post('/', authenticate, authorize('admin', 'operador'), upload.single('imagem'), handleMulterError, livrosController.create);
+router.put('/:id', authenticate, authorize('admin', 'operador'), upload.single('imagem'), handleMulterError, livrosController.update);
+router.delete('/:id', authenticate, authorize('admin'), livrosController.delete);
 
 module.exports = router;

@@ -1,5 +1,5 @@
 const professoresRepository = require('../repository/professoresRepository');
-const Professor = require('../../models/professor');
+const Professor = require('../models/professor');
 
 class ProfessoresController {
     async getAll(req, res) {

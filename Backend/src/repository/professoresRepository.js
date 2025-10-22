@@ -1,5 +1,5 @@
 const db = require('../../config/database');
-const Professor = require('../../models/professor');
+const Professor = require('../models/professor');
 
 class ProfessoresRepository {
     async findAll() {

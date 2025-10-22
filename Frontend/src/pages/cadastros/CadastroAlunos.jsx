@@ -24,8 +24,8 @@ const CadastroAlunos = () => {
   }
 
   const handleSave = (aluno) => {
-    const operation = alunoToEdit ? 
-      alunoService.update(alunoToEdit.id, aluno) : 
+    const operation = alunoToEdit ?
+      alunoService.update(alunoToEdit.id, aluno) :
       alunoService.add(aluno)
 
     operation
@@ -64,8 +64,8 @@ const CadastroAlunos = () => {
             <Button variant="secondary" onClick={() => navigate('/cadastros')} className="me-2">
               Voltar
             </Button>
-            <Button 
-              variant={alunoToEdit ? "warning" : "success"} 
+            <Button
+              variant={alunoToEdit ? "warning" : "success"}
               onClick={() => setShowForm(true)}
             >
               {alunoToEdit ? 'Editar' : 'Novo'} Aluno
@@ -77,8 +77,8 @@ const CadastroAlunos = () => {
       {showForm && (
         <Row className="mb-4">
           <Col>
-            <CadAluno 
-              onSave={handleSave} 
+            <CadAluno
+              onSave={handleSave}
               onCancel={() => {
                 setShowForm(false)
                 setAlunoToEdit(null)
@@ -91,7 +91,7 @@ const CadastroAlunos = () => {
 
       <Row>
         <Col>
-          <AlunoList 
+          <AlunoList
             alunos={alunos}
             onDelete={(id) => {
               setAlunoToDelete(id)

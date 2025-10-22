@@ -281,7 +281,7 @@ body.tema-padrao {
 }
 
 .lista-livro-imagem.selecionada {
-  border: 3px solid #28a745;
+  border: 1px solid #28a745;
 }
 
 .sem-imagem {

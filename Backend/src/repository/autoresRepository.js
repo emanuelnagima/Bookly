@@ -1,5 +1,5 @@
 const db = require('../../config/database');
-const Autor = require('../../models/Autor');
+const Autor = require('../models/Autor');
 
 class AutoresRepository {
     async findAll() {
@@ -34,6 +34,20 @@ class AutoresRepository {
     async delete(id) {
         const [result] = await db.execute('DELETE FROM autores WHERE id = ?', [id]);
         return result.affectedRows > 0;
+    }
+
+    // NOVO MÉTODO: Verificar se existem livros vinculados
+    async verificarLivrosVinculados(autorId) {
+        try {
+            const [rows] = await db.execute(
+                'SELECT COUNT(*) as total FROM livros WHERE autor_id = ?',
+                [autorId]
+            );
+            return rows[0].total;
+        } catch (error) {
+            console.error('Erro ao verificar livros vinculados:', error);
+            throw error;
+        }
     }
 }
 

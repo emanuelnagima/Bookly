@@ -1,28 +1,29 @@
 const express = require('express');
 const entradaSaidaController = require('../controllers/entradaSaidaController');
+const { authenticate, authorize } = require('../middlewares/auth');
 
 const router = express.Router();
 
 // Rotas para Entradas
-router.post('/entradas', entradaSaidaController.registrarEntrada);
-router.get('/entradas', entradaSaidaController.getAllEntradas);
-router.get('/entradas/livro/:livroId', entradaSaidaController.getEntradasPorLivro);
+router.post('/entradas', authenticate, authorize('admin', 'operador'), entradaSaidaController.registrarEntrada);
+router.get('/entradas', authenticate, authorize('admin', 'operador'), entradaSaidaController.getAllEntradas);
+router.get('/entradas/livro/:livroId', authenticate, authorize('admin', 'operador'), entradaSaidaController.getEntradasPorLivro);
 
 // Rotas para Saídas
-router.post('/saidas', entradaSaidaController.registrarSaida);
-router.get('/saidas', entradaSaidaController.getAllSaidas);
-router.get('/saidas/livro/:livroId', entradaSaidaController.getSaidasPorLivro);
+router.post('/saidas', authenticate, authorize('admin', 'operador'), entradaSaidaController.registrarSaida);
+router.get('/saidas', authenticate, authorize('admin', 'operador'), entradaSaidaController.getAllSaidas);
+router.get('/saidas/livro/:livroId', authenticate, authorize('admin', 'operador'), entradaSaidaController.getSaidasPorLivro);
 
 // Rotas para opções
-router.get('/opcoes/entrada', entradaSaidaController.getOpcoesEntrada);
-router.get('/opcoes/saida', entradaSaidaController.getOpcoesSaida);
+router.get('/opcoes/entrada', authenticate, authorize('admin', 'operador'), entradaSaidaController.getOpcoesEntrada);
+router.get('/opcoes/saida', authenticate, authorize('admin', 'operador'), entradaSaidaController.getOpcoesSaida);
 
 // Rotas para estatísticas e histórico
-router.get('/estatisticas', entradaSaidaController.getEstatisticas);
-router.get('/historico', entradaSaidaController.getHistoricoCompleto);
-router.get('/estoque/:livroId', entradaSaidaController.verificarEstoque);
+router.get('/estatisticas', authenticate, authorize('admin', 'operador'), entradaSaidaController.getEstatisticas);
+router.get('/historico', authenticate, authorize('admin', 'operador'), entradaSaidaController.getHistoricoCompleto);
+router.get('/estoque/:livroId', authenticate, authorize('admin', 'operador'), entradaSaidaController.verificarEstoque);
 
 // NOVA ROTA: Processamento de inventário em lote
-router.post('/inventario', entradaSaidaController.processarInventario);
+router.post('/inventario', authenticate, authorize('admin'), entradaSaidaController.processarInventario);
 
 module.exports = router;

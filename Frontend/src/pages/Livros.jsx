@@ -222,7 +222,10 @@ const Livros = () => {
             </Button>
           </Col>
         </Row>
-      </div>
+      </div>  
+       <p className="text-muted mb-4" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
+        Esta seção permite o <strong>cadastro e gerenciamento de livros</strong>. Você pode adicionar novos livros, atualizar informações existentes ou remover registros, mantendo o sistema sempre atualizado e organizado.
+      </p>
 
 
       {showForm && (

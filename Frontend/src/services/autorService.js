@@ -1,42 +1,49 @@
 const API_BASE_URL = 'http://localhost:3000/api/autores';
 
-// Trata a resposta da API
 const handleResponse = async (response) => {
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
   const data = await response.json().catch(() => ({}));
-  return data.data ?? data;
+  
+  if (!response.ok) {
+    // CORREÇÃO: busca em "message" primeiro, depois em "error"
+    const errorMessage = data?.message || data?.error || `HTTP error! status: ${response.status}`;
+    throw new Error(errorMessage);
+  }
+  
+  return data;
 };
 
-// Busca todos os autores
 const getAll = async () => {
   try {
-    const response = await fetch(API_BASE_URL);
-    return await handleResponse(response);
+    const response = await fetch(API_BASE_URL, {
+      credentials: 'include'
+    });
+    const result = await handleResponse(response);
+    return result.data || [];
   } catch (error) {
     console.error('Erro ao buscar autores:', error);
     throw error;
   }
 };
 
-// Busca autor por ID
 const getById = async (id) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${id}`);
-    return await handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
+      credentials: 'include'
+    });
+    const result = await handleResponse(response);
+    return result.data;
   } catch (error) {
     console.error(`Erro ao buscar autor ${id}:`, error);
     throw error;
   }
 };
 
-// Adiciona um autor
 const add = async (autor) => {
   try {
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(autor),
     });
     return await handleResponse(response);
@@ -46,12 +53,12 @@ const add = async (autor) => {
   }
 };
 
-// Atualiza um autor
 const update = async (autor) => {
   try {
     const response = await fetch(`${API_BASE_URL}/${autor.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(autor),
     });
     return await handleResponse(response);
@@ -61,12 +68,24 @@ const update = async (autor) => {
   }
 };
 
-// Remove um autor
 const remove = async (id) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${id}`, { method: 'DELETE' });
-    const data = await handleResponse(response);
-    return data.message || 'Autor excluído com sucesso';
+    const response = await fetch(`${API_BASE_URL}/${id}`, { 
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    
+    const responseData = await response.json().catch(() => null);
+    
+    if (!response.ok) {
+      // CORREÇÃO: busca a mensagem no campo "message" 
+      if (responseData && responseData.message) {
+        throw new Error(responseData.message);
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return responseData?.message || 'Autor excluído com sucesso';
   } catch (error) {
     console.error(`Erro ao remover autor ${id}:`, error);
     throw error;

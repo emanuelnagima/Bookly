@@ -36,63 +36,56 @@ const Alunos = () => {
 
   const handleSaveAluno = async (aluno) => {
     try {
-      setLoading(true)
+      setLoading(true);
 
       // VERIFICAÇÃO DE DUPLICIDADE NO FRONTEND
-      // Verifica por CPF, email ou outro campo único que identifique um aluno
       const alunoExistente = alunos.find(a =>
         (a.cpf === aluno.cpf ||
           a.email.toLowerCase().trim() === aluno.email.toLowerCase().trim() ||
           a.matricula === aluno.matricula) &&
         a.id !== aluno.id
-      )
+      );
 
       if (alunoExistente) {
         setError(
           `O aluno "${alunoExistente.nome}" já está cadastrado no sistema. Verifique os dados e tente novamente.`
-        )
-        setLoading(false)
-        return
+        );
+        setLoading(false);
+        return;
       }
 
-      // ENVIO PARA O SERVIDOR
-      const method = aluno.id ? 'PUT' : 'POST'
-      const url = aluno.id
-        ? `http://localhost:3000/api/alunos/${aluno.id}`
-        : 'http://localhost:3000/api/alunos'
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(aluno)
-      })
-
-      const responseData = await response.json()
-
-      if (!response.ok) {
-        if (responseData.message && responseData.message.includes('Duplicate entry')) {
-          throw new Error(`O aluno "${aluno.nome}" já está cadastrado no sistema. Verifique os dados e tente novamente.`)
-        }
-        throw new Error(responseData.message || 'Erro ao salvar aluno')
+      let responseData;
+      if (aluno.id) {
+        responseData = await alunoService.update(aluno);
+      } else {
+        responseData = await alunoService.add(aluno);
       }
 
-      await loadAlunos()
+      await loadAlunos();
 
-      setToastMessage(aluno.id ? 'Aluno atualizado com sucesso!' : 'Aluno cadastrado com sucesso!')
-      setOperationType(aluno.id ? 'update' : 'create')
-      setShowSuccessToast(true)
+      setToastMessage(aluno.id ? 'Aluno atualizado com sucesso!' : 'Aluno cadastrado com sucesso!');
+      setOperationType(aluno.id ? 'update' : 'create');
+      setShowSuccessToast(true);
 
-      setShowForm(false)
-      setAlunoToEdit(null)
-      setError(null)
+      setShowForm(false);
+      setAlunoToEdit(null);
+      setError(null);
 
     } catch (error) {
-      console.error('Erro ao salvar aluno:', error)
-      setError(error.message || `Falha ao ${aluno.id ? 'atualizar' : 'cadastrar'} aluno. Tente novamente.`)
+      console.error('Erro ao salvar aluno:', error);
+
+      // Tratamento específico para erro 401
+      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+        setError('Sessão expirada. Faça login novamente.');
+        // Opcional: redirecionar para login
+        // navigate('/login');
+      } else {
+        setError(error.message || `Falha ao ${aluno.id ? 'atualizar' : 'cadastrar'} aluno. Tente novamente.`);
+      }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleEditAluno = async (id) => {
     try {
@@ -222,7 +215,9 @@ const Alunos = () => {
           </Col>
         </Row>
       </div>
-
+       <p className="text-muted mb-4" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
+        Esta seção permite o <strong>cadastro e gerenciamento de alunos</strong>. Você pode adicionar novos alunos, atualizar informações existentes ou remover registros, mantendo o sistema sempre atualizado e organizado.
+      </p>
 
       {showForm && (
         <Row className="mb-4">

@@ -1,8 +1,6 @@
 const API_BASE_URL = 'http://localhost:3000/api/entrada-saida';
 
 const handleResponse = async (response) => {
-  
-  // Verifica se a resposta é JSON
   const contentType = response.headers.get('content-type');
   if (!contentType || !contentType.includes('application/json')) {
     const text = await response.text();
@@ -29,6 +27,7 @@ const registrarEntrada = async (entradaData) => {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // ADICIONAR
       body: JSON.stringify(entradaData),
     });
     const result = await handleResponse(response);
@@ -41,7 +40,9 @@ const registrarEntrada = async (entradaData) => {
 
 const getEntradas = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/entradas`);
+    const response = await fetch(`${API_BASE_URL}/entradas`, {
+      credentials: 'include' // ADICIONAR
+    });
     const result = await handleResponse(response);
     return result.data;
   } catch (error) {
@@ -52,7 +53,9 @@ const getEntradas = async () => {
 
 const getEntradasPorLivro = async (livroId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/entradas/livro/${livroId}`);
+    const response = await fetch(`${API_BASE_URL}/entradas/livro/${livroId}`, {
+      credentials: 'include' // ADICIONAR
+    });
     const result = await handleResponse(response);
     return result.data;
   } catch (error) {
@@ -69,6 +72,7 @@ const registrarSaida = async (saidaData) => {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // ADICIONAR
       body: JSON.stringify(saidaData),
     });
     const result = await handleResponse(response);
@@ -81,7 +85,9 @@ const registrarSaida = async (saidaData) => {
 
 const getSaidas = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/saidas`);
+    const response = await fetch(`${API_BASE_URL}/saidas`, {
+      credentials: 'include' // ADICIONAR
+    });
     const result = await handleResponse(response);
     return result.data;
   } catch (error) {
@@ -92,7 +98,9 @@ const getSaidas = async () => {
 
 const getSaidasPorLivro = async (livroId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/saidas/livro/${livroId}`);
+    const response = await fetch(`${API_BASE_URL}/saidas/livro/${livroId}`, {
+      credentials: 'include' // ADICIONAR
+    });
     const result = await handleResponse(response);
     return result.data;
   } catch (error) {
@@ -104,7 +112,9 @@ const getSaidasPorLivro = async (livroId) => {
 // OPÇÕES
 const getOpcoesEntrada = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/opcoes/entrada`);
+    const response = await fetch(`${API_BASE_URL}/opcoes/entrada`, {
+      credentials: 'include' // ADICIONAR
+    });
     const result = await handleResponse(response);
     return result.data;
   } catch (error) {
@@ -115,7 +125,9 @@ const getOpcoesEntrada = async () => {
 
 const getOpcoesSaida = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/opcoes/saida`);
+    const response = await fetch(`${API_BASE_URL}/opcoes/saida`, {
+      credentials: 'include' // ADICIONAR
+    });
     const result = await handleResponse(response);
     return result.data;
   } catch (error) {
@@ -127,7 +139,9 @@ const getOpcoesSaida = async () => {
 // ESTATÍSTICAS E HISTÓRICO
 const getEstatisticas = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/estatisticas`);
+    const response = await fetch(`${API_BASE_URL}/estatisticas`, {
+      credentials: 'include' // ADICIONAR
+    });
     const result = await handleResponse(response);
     return result.data;
   } catch (error) {
@@ -139,7 +153,9 @@ const getEstatisticas = async () => {
 const getHistorico = async (livroId = null) => {
   try {
     const url = livroId ? `${API_BASE_URL}/historico?livroId=${livroId}` : `${API_BASE_URL}/historico`;
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      credentials: 'include' // ADICIONAR
+    });
     const result = await handleResponse(response);
     return result.data;
   } catch (error) {
@@ -150,7 +166,9 @@ const getHistorico = async (livroId = null) => {
 
 const verificarEstoque = async (livroId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/estoque/${livroId}`);
+    const response = await fetch(`${API_BASE_URL}/estoque/${livroId}`, {
+      credentials: 'include' // ADICIONAR
+    });
     const result = await handleResponse(response);
     return result.data.estoque;
   } catch (error) {
@@ -167,6 +185,7 @@ const processarInventario = async (inventarioData) => {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // ADICIONAR
       body: JSON.stringify(inventarioData),
     });
     const result = await handleResponse(response);
