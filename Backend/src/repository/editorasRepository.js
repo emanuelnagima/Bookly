@@ -1,5 +1,5 @@
 const db = require('../../config/database');
-const Editora = require('../../models/editora');
+const Editora = require('../models/editora');
 
 class EditorasRepository {
     async findAll() {
@@ -42,8 +42,29 @@ class EditorasRepository {
     }
 
     async delete(id) {
-        const [result] = await db.execute('DELETE FROM editoras WHERE id = ?', [id]);
-        return result.affectedRows > 0;
+        try {
+            const [result] = await db.execute('DELETE FROM editoras WHERE id = ?', [id]);
+            return result.affectedRows > 0;
+        } catch (error) {
+            console.error('Erro no repositório ao excluir editora:', error);
+            throw error;
+        }
+    }
+
+    // MÉTODO PARA VERIFICAR LIVROS VINCULADOS
+    async verificarLivrosVinculados(editoraId) {
+        try {
+            console.log(`🔍 Executando query para verificar livros da editora ${editoraId}`);
+            const [rows] = await db.execute(
+                'SELECT COUNT(*) as total FROM livros WHERE editora_id = ?',
+                [editoraId]
+            );
+            console.log(`📊 Resultado da verificação: ${rows[0].total} livros`);
+            return rows[0].total;
+        } catch (error) {
+            console.error('❌ Erro ao verificar livros vinculados:', error);
+            throw error;
+        }
     }
 }
 

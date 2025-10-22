@@ -222,7 +222,9 @@ const Professores = () => {
         </Row>
       </div>
 
-
+      <p className="text-muted mb-4" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
+        Esta seção permite o <strong>cadastro e gerenciamento de professores</strong>. Você pode adicionar novos professores, atualizar informações existentes ou remover registros, mantendo o sistema sempre atualizado e organizado.
+      </p>
 
       {/* Formulário */}
       {showForm && (

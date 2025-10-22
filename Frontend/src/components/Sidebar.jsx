@@ -27,13 +27,8 @@ import {
 } from "react-icons/fa";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useAuth } from "../hooks/useAuth"; // IMPORTE O USE AUTH
 import "../css/Sidebar.css";
-
-// Defina as credenciais diretamente neste arquivo
-const ADMIN_CREDENTIALS = {
-  email: 'admin@gmail.com',
-  password: 'L!vr0$V00@2025'
-};
 
 const Sidebar = () => {
   const [showCadastros, setShowCadastros] = useState(false);
@@ -41,6 +36,9 @@ const Sidebar = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  
+  // USE O HOOK DE AUTENTICAÇÃO
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -58,9 +56,13 @@ const Sidebar = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    }
   };
 
   const toggleSidebar = () => {
@@ -307,22 +309,24 @@ const Sidebar = () => {
           </Nav>
         </div>
 
-        {/* User Profile */}
+        {/* User Profile - ATUALIZADO COM DADOS REAIS DO USUÁRIO */}
         <div className="user-profile-modern">
           <div className="user-info">
             <div className="avatar-container">
               <img
                 src={avatarImg}
-                alt="Foto do Bibliotecário"
+                alt="Foto do Usuário"
                 className="user-avatar"
               />
               <div className="online-indicator"></div>
             </div>
             <div className="user-details">
-              <h6 className="user-name">Bibliotecário</h6>
-              <p className="user-email">
+              <h6 className="user-name">
+                {user ? user.email : 'Usuário'}
+              </h6>
+              <p className="user-role">
                 <FaUserAlt size={10} />
-                {ADMIN_CREDENTIALS.email}
+                {user ? user.role : 'Carregando...'}
               </p>
             </div>
           </div>

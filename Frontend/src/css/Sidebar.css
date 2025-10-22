@@ -33,7 +33,7 @@
   --btn-color-hover: var(--color-white);
 }
 
-/* ===== SIDEBAR MODERNO ===== */
+/* ===== SIDEBAR ===== */
 .sidebar-modern {
   width: var(--sidebar-width);
   height: 100vh;
@@ -205,7 +205,7 @@
 /* ===== ESTILO ATIVO PADRONIZADO ===== */
 .nav-link-modern.active,
 .submenu-link.active {
-  background: rgba(255, 255, 255, 0.12); /* mesma transparência */
+  background: rgba(255, 255, 255, 0.12); 
   color: var(--color-accent);
   border-right: 3px solid var(--color-accent);
   font-weight: 600;
@@ -251,7 +251,7 @@
 
 .section-title {
   font-size: 0.7rem;
-  color: var(--color-accent-light);
+  color: #494949;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -404,7 +404,6 @@
   margin: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--round-big);
-  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   position: relative;
   overflow: hidden;
@@ -455,20 +454,34 @@
   border: 2px solid var(--color-sidebar);
   border-radius: 50%;
 }
-
 .user-details {
   flex: 1;
-  min-width: 0;
+  min-width: 0; 
+  overflow: hidden;
 }
 
 .user-name {
-  font-size: 0.9rem;
+  font-size: 0.85rem; 
   font-weight: 600;
   color: var(--color-white);
   margin: 0 0 0.2rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 150px; 
+}
+
+.user-role { 
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
 }
 
 .user-email {

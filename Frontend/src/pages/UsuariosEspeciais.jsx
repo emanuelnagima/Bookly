@@ -213,6 +213,11 @@ const UsuariosEspeciais = () => {
           </Col>
         </Row>
       </div>
+            
+       <p className="text-muted mb-4" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
+        Esta seção permite o <strong>cadastro e gerenciamento de usuários</strong>. Você pode adicionar novos usuários, atualizar informações existentes ou remover registros, mantendo o sistema sempre atualizado e organizado.
+      </p>
+
 
       {/* Formulário */}
       {showForm && (

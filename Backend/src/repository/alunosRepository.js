@@ -1,5 +1,5 @@
 const db = require('../../config/database');
-const Aluno = require('../../models/aluno');
+const Aluno = require('../models/aluno');
 
 class AlunosRepository {
     async findAll() {

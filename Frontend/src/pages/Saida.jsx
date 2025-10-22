@@ -76,8 +76,9 @@ const Saida = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (formData.origem === 'Ajuste de Inventário' && !formData.observacoes.trim()) {
-      setError('Para "Ajuste de Inventário", o campo observações é obrigatório.');
+    // VALIDAÇÃO UNIVERSAL - Observações obrigatórias para TODAS as origens
+    if (!formData.observacoes.trim()) {
+      setError('O campo observações é obrigatório para registrar a saída.');
       return;
     }
 
@@ -131,36 +132,33 @@ const Saida = () => {
         <Row className="align-items-center">
           <Col md={8}>
             <h4 className="display-30 fw-bold text-danger">Saída de Livros</h4>
-            <p className="text-muted fs-10 mt-1 mb-0">
-              Registre a saída de livros do acervo e acompanhe o estoque em tempo real.
-            </p>
           </Col>
           <Col md={4} className="text-md-end mt-3 mt-md-0">
             <div className="d-flex justify-content-end flex-wrap gap-2">
-              <span className="badge border border-dark text-dark p-2">
-                Livros Cadastrados: {livros.length}
+              <span className="badge bg-primary px-3 py-2 d-flex align-items-center">
+                Livros: {livros.length}
               </span>
-              <span className="badge border border-success text-success p-2">
+              <span className="badge bg-primary px-3 py-2 d-flex align-items-center">
+                Total no acervo: {livros.reduce((acc, l) => acc + (l.estoque || 0), 0)}
+              </span>
+              <span className="badge bg-danger px-3 py-2 d-flex align-items-center">
                 Livros Selecionados: {livroSelecionado ? 1 : 0}
-              </span>
-              <span className="badge border border-info text-info p-2">
-                Estoque Total: {livros.reduce((acc, l) => acc + (l.estoque || 0), 0)}
               </span>
             </div>
           </Col>
         </Row>
       </div>
-
+      <p className="text-muted mb-4" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
+        Esta seção permite o <strong>registro de saída de livros</strong>. Você pode controlar <strong>baixas do acervo</strong>, mantendo o controle preciso do movimento de livros.
+      </p>
 
       <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
         <Toast show={showSuccess} onClose={() => setShowSuccess(false)} delay={4000} autohide bg="success">
           <Toast.Header>
-            <strong className="me-auto">Saída registrada!</strong>
+            <strong className="me-auto">Saída registrada</strong>
           </Toast.Header>
           <Toast.Body className="text-white">
-            {formData.origem === 'Ajuste de Inventário'
-              ? 'Ajuste de inventário registrado com sucesso!'
-              : 'Saída de livro registrada com sucesso!'}
+            Saída de livro registrada com sucesso!
           </Toast.Body>
         </Toast>
       </div>
@@ -207,8 +205,8 @@ const Saida = () => {
                   </div>
                   <Card.Body className="ps-3 py-2">
                     <h6 className="mb-0">{livro.titulo}</h6>
-                    <p className="mb-0">{livro.autor_nome}</p>
-                    <p className="mb-0" style={{ color: '#555' }}>Estoque: {livro.estoque || 0}</p>
+                    <p className="mb-0" style={{ fontSize: '0.7rem', color: '#666' }}>{livro.autor_nome}</p>
+                    <p className="mb-0" style={{fontSize: '0.9rem', color: '#555' }}>Estoque: {livro.estoque || 0}</p>
                   </Card.Body>
                 </Card>
               );
@@ -302,33 +300,27 @@ const Saida = () => {
                 <Form.Group className="mb-3">
                   <Form.Label>
                     Observações
-                    {formData.origem === 'Ajuste de Inventário' && (
-                      <span className="ms-2">
-                        <Badge bg="warning" text="dark">Obrigatório</Badge>
-                      </span>
-                    )}
+                    <span className="ms-2">
+                      <Badge bg="warning" text="dark">Obrigatório</Badge>
+                    </span>
                   </Form.Label>
 
-                  {formData.origem === 'Ajuste de Inventário' && (
-                    <Alert variant="info" className="py-2 mb-2">
-                      <FaInfoCircle className="me-1" />
-                      <small>
-                        <strong>Importante:</strong> Para ajustes de inventário, descreva o motivo da alteração
-                        (ex: "Inventário físico realizado", "Correção de lançamento", etc.)
-                      </small>
-                    </Alert>
-                  )}
+                  <Alert variant="info" className="py-2 mb-2">
+                    <FaInfoCircle className="me-1" />
+                    <small>
+                      <strong>Registro obrigatório:</strong> Informe o motivo desta saída. <br />
+                      Exemplos: livro extraviado, danificado por água, empréstimo externo, ajuste de inventário
+                    </small>
+                  </Alert>
 
                   <Form.Control
                     as="textarea"
                     rows={3}
-                    placeholder={formData.origem === 'Ajuste de Inventário'
-                      ? 'Descreva o motivo do ajuste de inventário...'
-                      : 'Ex: Livro extraviado em biblioteca filial, Danificado por água...'}
+                    placeholder="Descreva o motivo da saída..."
                     value={formData.observacoes}
                     onChange={e => setFormData({ ...formData, observacoes: e.target.value })}
                     disabled={!livroSelecionado}
-                    className={formData.origem === 'Ajuste de Inventário' && !formData.observacoes.trim() ? 'border-warning' : ''}
+                    className={!formData.observacoes.trim() ? 'border' : ''}
                   />
                 </Form.Group>
 
@@ -340,12 +332,12 @@ const Saida = () => {
                   type="submit"
                   variant="success"
                   className="w-30"
-                  disabled={loading || !livroSelecionado || (formData.origem === 'Ajuste de Inventário' && !formData.observacoes.trim())}
+                  disabled={loading || !livroSelecionado || !formData.observacoes.trim()}
                 >
                   {loading ? (
                     <><Spinner animation="border" size="sm" /> Registrando...</>
                   ) : (
-                    <><FaMinus className="me-2" /> Registrar Saída</>
+                    <> Registrar Saída</>
                   )}
                 </Button>
               </Form>

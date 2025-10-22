@@ -82,14 +82,14 @@ const ProfessorList = ({ professores, onDelete, onEdit }) => {
 
   return (
     <Card>
-      <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-        <div className="d-flex align-items-center">
+      <Card.Header className="bg-primary text-white d-flex flex-wrap justify-content-between align-items-center">
+        <div className="d-flex align-items-center mb-2 mb-md-0">
           <h5 className="mb-0 d-flex align-items-center">
             <FaUserTie
               style={{
                 marginRight: '8px',
                 fontSize: '26px',
-                color: '#ffffffff',
+                color: '#ffffff',
                 border: '2px solid #585858',
                 borderRadius: '50%',
                 padding: '4px',
@@ -100,13 +100,13 @@ const ProfessorList = ({ professores, onDelete, onEdit }) => {
             Professores Cadastrados
           </h5>
           <span className="badge bg-light text-primary ms-3">
-            {professoresFiltrados.length} {professoresFiltrados.length === 1 ? 'professor' : 'professores'} /
-            Página {paginaAtual} de {totalPaginas || 1}
+            {professoresFiltrados.length} {professoresFiltrados.length === 1 ? 'professor' : 'professores'} / Página {paginaAtual} de {totalPaginas || 1}
           </span>
         </div>
-        <div style={{ width: '300px' }}>
+
+        <div className="flex-grow-1 flex-md-grow-0" style={{ minWidth: '200px', maxWidth: '300px' }}>
           <InputGroup>
-            <InputGroup.Text className="bg-light text-primary">
+            <InputGroup.Text className="bg-light text-primary" style={{ fontSize: '1rem' }}>
               <FaSearch />
             </InputGroup.Text>
             <Form.Control
@@ -118,6 +118,8 @@ const ProfessorList = ({ professores, onDelete, onEdit }) => {
           </InputGroup>
         </div>
       </Card.Header>
+
+
       <Card.Body>
         {professoresPaginaAtual.length === 0 ? (
           <p className="text-muted text-center py-4">

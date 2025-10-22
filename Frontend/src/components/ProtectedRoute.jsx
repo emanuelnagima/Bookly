@@ -1,17 +1,37 @@
 import { Navigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
-const ProtectedRoute = ({ children }) => {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  const loginExpires = parseInt(localStorage.getItem('loginExpires'), 10) || 0;
+const ProtectedRoute = ({ children, roles = [] }) => {
+  const { user, loading, isAuthenticated } = useAuth();
 
-  // Se não estiver logado ou se a sessão expirou
-  if (!isLoggedIn || new Date().getTime() > loginExpires) {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('loginExpires');
+  // Mostra loading enquanto verifica autenticação
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Carregando...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Se não estiver logado, redireciona para login
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // Permite acessar as rotas internas
+  // Se tem roles específicas, verifica se o usuário tem permissão
+  if (roles.length > 0 && !roles.includes(user.role)) {
+    return (
+      <div className="container mt-5">
+        <div className="alert alert-danger">
+          <h4>Acesso Negado</h4>
+          <p>Você não tem permissão para acessar esta página.</p>
+        </div>
+      </div>
+    );
+  }
+
   return children;
 };
 

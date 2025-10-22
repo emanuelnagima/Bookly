@@ -1,162 +1,40 @@
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { Navigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import 'bootstrap/dist/css/bootstrap.min.css';
-
-const INACTIVITY_LIMIT = 60 * 60 * 1000; // 1 hora
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const canvasRef = useRef(null);
-  const inactivityTimer = useRef(null);
-  const ADMIN_CREDENTIALS = {
-    email: 'admin@gmail.com',
-    password: 'L!vr0$V00@2025'
-  };
-  useEffect(() => {
-    document.title = "Login - Bookly ";
-  }, []);
+  const [loading, setLoading] = useState(false);
+  
+  const { login, isAuthenticated } = useAuth();
 
-  const resetInactivityTimer = () => {
-    if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
-    inactivityTimer.current = setTimeout(() => {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('loginExpires');
-      alert('Você foi deslogado por inatividade.');
-      navigate('/login');
-    }, INACTIVITY_LIMIT);
-  };
+  // Se já estiver logado, redireciona
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
-  const handleLogin = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
-      setError('Digite um e-mail válido');
-      return;
-    }
+    setError('');
+    setLoading(true);
 
-    if (email.toLowerCase() === ADMIN_CREDENTIALS.email.toLowerCase() && password === ADMIN_CREDENTIALS.password) {
-      setIsLoading(true);
-      setTimeout(() => {
-        const expirationTime = new Date().getTime() + INACTIVITY_LIMIT;
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('loginExpires', expirationTime.toString());
-        setIsLoading(false);
-        navigate('/');
-        resetInactivityTimer();
-      }, 2000); // 2 segundos
-    } else {
-      setError('Credenciais inválidas');
+    try {
+      await login(email, password);
+    } catch (error) {
+      console.log(error);
+      setError('Email ou senha inválidos');
+    } finally {
+      setLoading(false);
     }
   };
-
-  useEffect(() => {
-    const resetTimer = () => {
-      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
-      inactivityTimer.current = setTimeout(() => {
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('loginExpires');
-        alert('Você foi deslogado por inatividade');
-        navigate('/login');
-      }, INACTIVITY_LIMIT);
-    };
-
-    const events = ['mousemove', 'keydown', 'click', 'scroll'];
-    events.forEach(event => window.addEventListener(event, resetTimer));
-
-    return () => events.forEach(event => window.removeEventListener(event, resetTimer));
-  }, [navigate]);
-
-  // Fundo animado de partículas
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    let particlesArray = [];
-    const numParticles = 80;
-
-    class Particle {
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 3 + 1;
-        this.speedX = Math.random() - 0.5;
-        this.speedY = Math.random() - 0.5;
-      }
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        if (this.x > canvas.width) this.x = 0;
-        if (this.x < 0) this.x = canvas.width;
-        if (this.y > canvas.height) this.y = 0;
-        if (this.y < 0) this.y = canvas.height;
-      }
-      draw() {
-        ctx.fillStyle = 'rgba(255,255,255,0.2)';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    function init() {
-      particlesArray = [];
-      for (let i = 0; i < numParticles; i++) {
-        particlesArray.push(new Particle());
-      }
-    }
-
-    function animate() {
-      // Criando um gradiente suave para o fundo
-      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-      gradient.addColorStop(0, '#6F00FF');
-      gradient.addColorStop(1, '#19183B');
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      particlesArray.forEach(p => {
-        p.update();
-        p.draw();
-      });
-      requestAnimationFrame(animate);
-    }
-
-    init();
-    animate();
-
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      init();
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   return (
     <div className="login-container">
-      <canvas ref={canvasRef} className="bg-canvas"></canvas>
-
-      {isLoading && (
-        <div className="loading-overlay d-flex justify-content-center align-items-center">
-          <div className="text-center text-white">
-            <div className="spinner-border text-light" role="status">
-              <span className="visually-hidden">Carregando...</span>
-            </div>
-            <p className="mt-3">Carregando, aguarde...</p>
-          </div>
-        </div>
-      )}
-
       <div className="login-form">
-
         <div>
           <h1 style={{
             fontFamily: '"Montserrat", sans-serif',
@@ -166,23 +44,28 @@ const Login = () => {
             marginBottom: '0.2rem',
             letterSpacing: '-10px',
             marginLeft: '-1.2rem'
-          }}> {/* nome */}
+          }}>
             Bookly
           </h1>
         </div>
         <p>Faça login para acessar a plataforma</p>
 
-        <form onSubmit={handleLogin}>
+        {error && (
+          <div className="alert alert-danger" role="alert">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>E-mail:</label>
             <input
               type="email"
               placeholder="Digite seu e-mail"
               value={email}
-              onChange={(e) => { setEmail(e.target.value); setError(''); }}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <small> <strong>{ADMIN_CREDENTIALS.email}</strong></small>
           </div>
 
           <div className="form-group">
@@ -192,7 +75,7 @@ const Login = () => {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Digite sua senha"
                 value={password}
-                onChange={(e) => { setPassword(e.target.value); setError(''); }}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
               <button
@@ -203,15 +86,23 @@ const Login = () => {
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
-            <small> <strong>{ADMIN_CREDENTIALS.password}</strong></small>
           </div>
 
-          {error && <div className="error-message">{error}</div>}
-
-          <button type="submit" className="login-button" disabled={isLoading}>
-            {isLoading ? 'Carregando...' : 'Entrar'}
+          <button 
+            type="submit" 
+            className="login-button" 
+            disabled={loading}
+          >
+            {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
+
+        <div className="mt-3 text-muted small">
+          <p><strong>Usuários de teste:</strong></p>
+          <p>Admin: admin@biblioteca.com / 123</p>
+          <p>Operador: operador@biblioteca.com / 123</p>
+        </div>
+
         <div className="privacy-links">
           <div className="privacy-link">
             <a
@@ -235,7 +126,6 @@ const Login = () => {
             </a>
           </div>
         </div>
-
       </div>
 
       <style>{`
@@ -247,13 +137,7 @@ const Login = () => {
           font-family: var(--font-sans);
           position: relative;
           overflow: hidden;
-        }
-
-        .bg-canvas {
-          position: absolute;
-          top: 0;
-          left: 0;
-          z-index: 0;
+          background: linear-gradient(135deg, #6F00FF, #19183B);
         }
 
         .login-form {
@@ -325,13 +209,6 @@ const Login = () => {
           box-shadow: 0 0 0 3px rgba(33,25,180,0.15);
         }
 
-        .error-message {
-          color: #ca1313;
-          font-size: 0.875rem;
-          margin-bottom: 1rem;
-          text-align: left;
-        }
-
         .login-button {
           width: 100%;
           background-color: var(--color-accent);
@@ -346,10 +223,15 @@ const Login = () => {
           box-shadow: var(--shadow-card);
         }
 
-        .login-button:hover {
+        .login-button:hover:not(:disabled) {
           background-color: #372ee0;
           transform: translateY(-2px);
           box-shadow: var(--shadow-card-hover);
+        }
+
+        .login-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
 
         .password-wrapper {
@@ -369,58 +251,34 @@ const Login = () => {
           font-size: 1.1rem;
         }
 
-        small {
-          margin-top: 0.25rem;
-          color: var(--color-muted);
+        .alert-danger {
+          background-color: #f8d7da;
+          border-color: #f5c6cb;
+          color: #721c24;
+          padding: 0.75rem;
+          border-radius: 0.375rem;
+          margin-bottom: 1rem;
+          text-align: left;
         }
 
-        .loading-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(11, 25, 44, 0.9);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 1000;
-        }
-
-        .loading-spinner {
+        .privacy-links {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 1rem;
-          color: white;
+          margin-top: 1rem; 
         }
 
-        .loading-spinner p {
-          color: white;
-          font-size: 1.2rem;
-          margin: 0;
+        .privacy-link a {
+          color: var(--color-muted);
+          text-decoration: none;
+          font-size: 0.85rem;
+          transition: color 0.3s ease;
         }
 
-       .privacy-links {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-top: 1rem; 
-      }
-
-
-  .privacy-link a {
-    color: var(--color-muted);
-    text-decoration: none;
-    font-size: 0.85rem;
-    transition: color 0.3s ease;
-  }
-
-  .privacy-link a:hover {
-    color: var(--color-accent);
-    text-decoration: underline;
-  }
-
+        .privacy-link a:hover {
+          color: var(--color-accent);
+          text-decoration: underline;
+        }
 
         @media (max-width: 480px) {
           .login-form {

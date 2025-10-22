@@ -1,5 +1,5 @@
 const editorasRepository = require('../repository/editorasRepository');
-const Editora = require('../../models/editora');
+const Editora = require('../models/editora');
 
 class EditorasController {
     async getAll(req, res) {
@@ -66,10 +66,36 @@ class EditorasController {
             const editora = await editorasRepository.findById(id);
             if (!editora) return res.status(404).json({ success: false, message: 'Editora não encontrada' });
 
+            // VERIFICA SE EXISTEM LIVROS VINCULADOS
+            const livrosVinculados = await editorasRepository.verificarLivrosVinculados(id);
+            
+            if (livrosVinculados > 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Não é possível excluir esta editora. Existem ${livrosVinculados} livro(s) vinculado(s) a ela. Remova primeiro os livros associados.`
+                });
+            }
+
             const deleted = await editorasRepository.delete(id);
             if (deleted) res.json({ success: true, message: 'Editora deletada com sucesso' });
             else res.status(500).json({ success: false, message: 'Erro ao deletar editora' });
         } catch (error) {
+            console.error('Erro ao excluir editora:', error);
+            
+            // TRATAMENTO PARA ERROS DE CHAVE ESTRANGEIRA
+            if (
+                error.message?.includes('foreign key') ||
+                error.message?.includes('livros') ||
+                error.code === 'ER_ROW_IS_REFERENCED' ||
+                error.code === 'ER_ROW_IS_REFERENCED_2' ||
+                error.errno === 1451
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Não é possível excluir esta editora pois ela está vinculada a um ou mais livros. Remova primeiro os livros associados.'
+                });
+            }
+
             res.status(500).json({ success: false, message: error.message });
         }
     }

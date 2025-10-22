@@ -1,5 +1,5 @@
 const alunosRepository = require('../repository/alunosRepository');
-const Aluno = require('../../models/aluno');
+const Aluno = require('../models/aluno');
 
 class AlunosController {
     async getAll(req, res) {

@@ -169,4 +169,4 @@ const CadAutor = ({ onSave, onCancel, autor, loading }) => {
   )
 }
 
-export default CadAutor
+export default CadAutor;  

@@ -1,5 +1,5 @@
 const entradaSaidaRepository = require('../repository/entradaSaidaRepository');
-const { Entrada, Saida } = require('../../models/entradasaida');
+const { Entrada, Saida } = require('../models/entradasaida');
 
 class EntradaSaidaController {
     // ENTRADAS

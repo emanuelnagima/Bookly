@@ -2,6 +2,7 @@ import { Button, Col, Container, Row, Modal, Spinner, Toast } from 'react-bootst
 import { useState, useEffect } from 'react'
 import CadEditora from '../components/CadEditora'
 import EditoraList from '../components/EditoraList'
+import editoraService from '../services/editoraService'
 
 const Editoras = () => {
   const [showForm, setShowForm] = useState(false)
@@ -16,16 +17,12 @@ const Editoras = () => {
   const [toastMessage, setToastMessage] = useState('')
   const [operationType, setOperationType] = useState('')
 
-  //  Carregar editoras
+  // Carregar editoras
   const loadEditoras = async () => {
     try {
       setLoading(true)
-      const response = await fetch('http://localhost:3000/api/editoras')
-      if (!response.ok) throw new Error('Erro ao carregar editoras')
-      const data = await response.json()
-
-      // Pega o array certo vindo da API
-      setEditoras(Array.isArray(data.data) ? data.data : [])
+      const dados = await editoraService.getAll()
+      setEditoras(Array.isArray(dados) ? dados : [])
       setError(null)
     } catch (error) {
       console.error('Erro ao carregar editoras:', error)
@@ -39,7 +36,7 @@ const Editoras = () => {
     loadEditoras()
   }, [])
 
-  //  Salvar editora
+  // Salvar editora
   const handleSaveEditora = async (editora) => {
     try {
       setLoading(true)
@@ -56,29 +53,14 @@ const Editoras = () => {
         return
       }
 
-      // ENVIO PARA O SERVIDOR
-      const method = editora.id ? 'PUT' : 'POST'
-      const url = editora.id
-        ? `http://localhost:3000/api/editoras/${editora.id}`
-        : 'http://localhost:3000/api/editoras'
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editora)
-      })
-
-      const responseData = await response.json()
-
-      if (!response.ok) {
-        //  TRATAMENTO DE ERRO DO BACKEND (segurança)
-        if (responseData.message && responseData.message.includes('Duplicate entry')) {
-          throw new Error('Já existe uma editora com este nome cadastrada no sistema. Utilize um nome diferente.')
-        }
-        throw new Error(responseData.message || 'Erro ao salvar editora')
+      // ENVIO PARA O SERVIDOR USANDO SERVICE
+      if (editora.id) {
+        await editoraService.update(editora)
+      } else {
+        await editoraService.add(editora)
       }
 
-      //  SUCESSO
+      // SUCESSO
       await loadEditoras()
 
       setToastMessage(editora.id ? 'Editora atualizada com sucesso!' : 'Editora cadastrada com sucesso!')
@@ -87,7 +69,7 @@ const Editoras = () => {
 
       setShowForm(false)
       setEditoraToEdit(null)
-      setError(null) // Limpa erros anteriores
+      setError(null)
 
     } catch (error) {
       console.error('Erro ao salvar editora:', error)
@@ -97,16 +79,14 @@ const Editoras = () => {
     }
   }
 
-  //  Editar
+  // Editar
   const handleEditEditora = async (id) => {
     try {
       setLoading(true)
-      const response = await fetch(`http://localhost:3000/api/editoras/${id}`)
-      if (!response.ok) throw new Error('Erro ao buscar editora')
-      const data = await response.json()
-      setEditoraToEdit(data.data) // pega editora do campo data
+      const editora = await editoraService.getById(id)
+      setEditoraToEdit(editora)
       setShowForm(true)
-      setError(null) // Limpa erros ao abrir edição
+      setError(null)
     } catch (error) {
       console.error('Erro ao buscar editora:', error)
       setError('Erro ao carregar editora para edição.')
@@ -130,20 +110,15 @@ const Editoras = () => {
     setLoading(true)
 
     try {
-      const response = await fetch(`http://localhost:3000/api/editoras/${editoraToDelete}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.ok) throw new Error('Erro ao excluir editora')
-      await loadEditoras()
-
+      await editoraService.remove(editoraToDelete)
       setToastMessage('Editora excluída com sucesso!')
       setOperationType('delete')
       setShowSuccessToast(true)
-      setError(null) // Limpa erros
+      await loadEditoras()
+      setError(null)
     } catch (error) {
       console.error("Falha na exclusão:", error)
-      setError("Não foi possível excluir a editora. Tente novamente.")
+      setError(error.message) // MOSTRA A MENSAGEM ESPECÍFICA
     } finally {
       setIsDeleting(false)
       setLoading(false)
@@ -197,7 +172,6 @@ const Editoras = () => {
       )}
 
       {/* Cabeçalho + botão */}
-
       <div
         className="rounded-3 p-4 mb-4"
         style={{
@@ -237,7 +211,10 @@ const Editoras = () => {
           </Col>
         </Row>
       </div>
-
+      {/* Descrição */}
+      <p className="text-muted mb-4" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
+        Esta seção permite o <strong>cadastro e gerenciamento de editoras</strong>. Você pode adicionar novas editoras, atualizar informações existentes ou remover registros, mantendo o sistema sempre atualizado e organizado.
+      </p>
 
       {/* Formulário */}
       {showForm && (
@@ -249,7 +226,7 @@ const Editoras = () => {
               onCancel={() => {
                 setShowForm(false)
                 setEditoraToEdit(null)
-                setError(null) // Limpa erros ao cancelar
+                setError(null)
               }}
               loading={loading}
             />
@@ -276,7 +253,7 @@ const Editoras = () => {
         </Modal.Header>
         <Modal.Body>Tem certeza que deseja excluir esta editora?</Modal.Body>
         <Modal.Footer>
-          <Button variant="paginacao  " onClick={() => setShowDeleteModal(false)} disabled={isDeleting}>
+          <Button variant="paginacao" onClick={() => setShowDeleteModal(false)} disabled={isDeleting}>
             Cancelar
           </Button>
           <Button variant="danger" onClick={handleDeleteEditora} disabled={isDeleting}>

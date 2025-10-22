@@ -1,5 +1,5 @@
 const db = require('../../config/database');
-const { Entrada, Saida } = require('../../models/entradasaida');
+const { Entrada, Saida } = require('../models/entradasaida');
 
 class EntradaSaidaRepository {
     // ENTRADAS
