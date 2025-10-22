@@ -11,7 +11,7 @@ const nacionalidades = [
   "Reino Unido",
   "França",
   "Índia",
-  "Outra" // sempre a última
+  "Outra" 
 ];
 
 const CadAutor = ({ onSave, onCancel, autor, loading }) => {

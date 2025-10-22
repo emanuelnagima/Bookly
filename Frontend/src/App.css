@@ -281,7 +281,7 @@ body.tema-padrao {
 }
 
 .lista-livro-imagem.selecionada {
-  border: 1px solid #28a745;
+  border: 3px solid #28a745;
 }
 
 .sem-imagem {
@@ -298,6 +298,93 @@ body.tema-padrao {
 .livro-card-body {
   border: none;
   /* remove a borda */
+}
+
+/* ===== ESTILOS UNIFICADOS PARA ENTRADA E SAÍDA ===== */
+.entrada-livro-imagem {
+  width: 120px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1.5px solid rgb(175, 175, 175);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.entrada-lista-livro-imagem {
+  width: 40px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s ease;
+}
+
+.entrada-lista-livro-imagem.selecionada {
+  border: 2px solid #28a745;
+}
+
+.entrada-sem-imagem {
+  width: 150px;
+  height: 220px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  flex-direction: column;
+}
+
+.entrada-livro-card-body {
+  border: none;
+}
+
+.entrada-btn-sm-custom {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 0.25rem;
+  min-width: 40px;
+}
+/* ===== ESTILOS ESPECÍFICOS PARA O COMPONENTE LIVROLIST ===== */
+.livrolist-livro-imagem {
+  width: 120px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1.5px solid rgb(175, 175, 175);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.livrolist-lista-livro-imagem {
+  width: 40px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s ease;
+}
+
+
+.livrolist-sem-imagem {
+  width: 150px;
+  height: 220px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+}
+
+.livrolist-livro-card-body {
+  border: none;
+}
+
+.livrolist-btn-sm-custom {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 0.25rem;
+  min-width: 40px;
 }
 
 .btn-sm-custom {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Form, Card, Spinner, Toast, InputGroup, FormControl, Badge, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Button, Form, Card, Spinner, Toast, InputGroup, FormControl, Badge, Alert, Table } from 'react-bootstrap';
 import { FaMinus, FaInfoCircle, FaSearch } from 'react-icons/fa';
 import entradaSaidaService from '../services/entradaSaidaService';
 import livroService from '../services/livroService';
@@ -76,7 +76,6 @@ const Saida = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // VALIDAÇÃO UNIVERSAL - Observações obrigatórias para TODAS as origens
     if (!formData.observacoes.trim()) {
       setError('O campo observações é obrigatório para registrar a saída.');
       return;
@@ -107,51 +106,46 @@ const Saida = () => {
     }
   };
 
-  // Filtro avançado igual LivroList
+  // Filtro SIMPLES - só título, ID e estoque na busca
   const livrosFiltrados = livros.filter(livro => {
     const termo = termoBusca.toLowerCase();
     return (
       (livro.titulo || '').toLowerCase().includes(termo) ||
-      (livro.autor_nome || '').toLowerCase().includes(termo) ||
-      (livro.editora_nome || '').toLowerCase().includes(termo) ||
-      (livro.isbn || '').toString().toLowerCase().includes(termo) ||
-      (livro.genero || '').toLowerCase().includes(termo) ||
-      (livro.ano_publicacao || '').toString().includes(termo)
+      (livro.id || '').toString().toLowerCase().includes(termo) ||
+      (livro.estoque || '').toString().includes(termo)
     );
   });
 
   return (
     <Container className="py-4">
-      <div
-        className="rounded-3 p-4 mb-4"
-        style={{
-          border: '1px solid #e6e6e6',
-          borderRadius: '0.75rem'
-        }}
-      >
+      <div className="rounded-3 p-4 mb-4 border">
         <Row className="align-items-center">
           <Col md={8}>
             <h4 className="display-30 fw-bold text-danger">Saída de Livros</h4>
           </Col>
-          <Col md={4} className="text-md-end mt-3 mt-md-0">
+          <Col md={4} className="text-md-end">
             <div className="d-flex justify-content-end flex-wrap gap-2">
-              <span className="badge bg-primary px-3 py-2 d-flex align-items-center">
+              <Badge bg="primary" className="px-3 py-2">
                 Livros: {livros.length}
-              </span>
-              <span className="badge bg-primary px-3 py-2 d-flex align-items-center">
+              </Badge>
+              <Badge bg="primary" className="px-3 py-2">
                 Total no acervo: {livros.reduce((acc, l) => acc + (l.estoque || 0), 0)}
-              </span>
-              <span className="badge bg-danger px-3 py-2 d-flex align-items-center">
-                Livros Selecionados: {livroSelecionado ? 1 : 0}
-              </span>
+              </Badge>
+              {livroSelecionado && (
+                <Badge bg="danger" className="px-3 py-2">
+                  Livro Selecionado
+                </Badge>
+              )}
             </div>
           </Col>
         </Row>
       </div>
-      <p className="text-muted mb-4" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
+
+      <p className="text-muted mb-4" style={{ fontSize: '0.9rem' }}>
         Esta seção permite o <strong>registro de saída de livros</strong>. Você pode controlar <strong>baixas do acervo</strong>, mantendo o controle preciso do movimento de livros.
       </p>
 
+      {/* Toast de sucesso */}
       <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
         <Toast show={showSuccess} onClose={() => setShowSuccess(false)} delay={4000} autohide bg="success">
           <Toast.Header>
@@ -164,99 +158,183 @@ const Saida = () => {
       </div>
 
       <Row>
-        {/* Lista + Pesquisa */}
+        {/* Lista de Livros  */}
         <Col lg={5}>
-          <InputGroup className="mb-3">
-            <InputGroup.Text className="bg-light"><FaSearch /></InputGroup.Text>
-            <FormControl
-              placeholder="Buscar livros..."
-              value={termoBusca}
-              onChange={e => setTermoBusca(e.target.value)}
-            />
-          </InputGroup>
+          <Card className="mb-3">
+            <Card.Header className="bg-primary text-white">
+              <h6 className="mb-0">Selecionar Livro</h6>
+            </Card.Header>
+            <Card.Body>
+              {/* Barra de pesquisa */}
+              <InputGroup className="mb-3">
+                <InputGroup.Text className="bg-light">
+                  <FaSearch />
+                </InputGroup.Text>
+                <FormControl
+                  placeholder="Buscar por título..."
+                  value={termoBusca}
+                  onChange={e => setTermoBusca(e.target.value)}
+                />
+              </InputGroup>
 
-          <div style={{ maxHeight: '720vh', overflowY: 'auto' }}>
-            {livrosFiltrados.map(livro => {
-              const isSelected = livroSelecionado?.id === livro.id;
-              return (
-                <Card
-                  key={livro.id}
-                  className={`mb-2 d-flex flex-row align-items-center ${isSelected ? 'border-danger' : ''}`}
-                  onClick={() => selecionarLivro(livro)}
-                  style={{
-                    cursor: 'pointer',
-                    height: isSelected ? '60px' : '90px',
-                    transition: 'height 0.2s ease'
-                  }}
-                >
-                  <div style={{ width: 80, height: 120, overflow: 'hidden', flexShrink: 0 }}>
-                    {livro.imagem ? (
-                      <img
-                        src={`http://localhost:3000${livro.imagem}`}
-                        alt={livro.titulo}
-                        className={`livro-imagem lista-livro-imagem ${isSelected ? 'selecionada' : ''}`}
-                        onError={e => e.target.style.display = 'none'}
-                      />
+              {/* Lista em tabela simples */}
+              <div className="table-responsive" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                <Table striped hover className="mb-0">
+                  <thead className="table">
+                    <tr>
+                      <th width="60px" className="text-center">Capa</th>
+                      <th>Título</th>
+                      <th width="50px" className="text-center">ID</th>
+                      <th width="100px" className="text-center">Estoque</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {loading ? (
+                      <tr>
+                        <td colSpan="4" className="text-center py-4">
+                          <Spinner animation="border" size="sm" /> Carregando...
+                        </td>
+                      </tr>
+                    ) : livrosFiltrados.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className="text-center py-4 text-muted">
+                          {termoBusca ? 'Nenhum livro encontrado' : 'Nenhum livro cadastrado'}
+                        </td>
+                      </tr>
                     ) : (
-                      <div className="sem-imagem d-flex justify-content-center align-items-center" style={{ width: '100%', height: '100%' }}>
-                        <FaMinus />
-                      </div>
+                      livrosFiltrados.map(livro => {
+                        const isSelected = livroSelecionado?.id === livro.id;
+                        return (
+                          <tr
+                            key={livro.id}
+                            className={`align-middle ${isSelected ? 'table-success' : ''}`}
+                            onClick={() => selecionarLivro(livro)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <td className="text-center">
+                              {livro.imagem ? (
+                                <img
+                                  src={`http://localhost:3000${livro.imagem}`}
+                                  alt={livro.titulo}
+                                  className={`entrada-lista-livro-imagem ${isSelected ? 'selecionada' : ''}`}
+                                  onError={e => { e.target.style.display = 'none' }}
+                                />
+                              ) : (
+                                <div className="entrada-sem-imagem d-flex justify-content-center align-items-center" style={{ width: '80px', height: '120px', margin: '0 auto' }}>
+                                  <FaPlus />
+                                </div>
+                              )}
+                            </td>
+                            <td className="align-middle">
+                              <div title={livro.titulo} className="fw-medium">
+                                {livro.titulo}
+                              </div>
+                              <small className="text-muted">
+                                {livro.autor_nome}
+                              </small>
+                            </td>
+                            <td className="text-center align-middle">
+                              {livro.id}
+                            </td>
+                            <td className="text-center align-middle">
+                              {livro.estoque || 0}
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
-                  </div>
-                  <Card.Body className="ps-3 py-2">
-                    <h6 className="mb-0">{livro.titulo}</h6>
-                    <p className="mb-0" style={{ fontSize: '0.7rem', color: '#666' }}>{livro.autor_nome}</p>
-                    <p className="mb-0" style={{fontSize: '0.9rem', color: '#555' }}>Estoque: {livro.estoque || 0}</p>
-                  </Card.Body>
-                </Card>
-              );
-            })}
-          </div>
+                  </tbody>
+                </Table>
+              </div>
+            </Card.Body>
+          </Card>
         </Col>
 
         {/* Formulário de Saída */}
         <Col lg={7}>
           {livroSelecionado && (
-            <Card className="mb-2">
-              <Card.Header className="bg-danger text-white"><h5>Livro Selecionado</h5></Card.Header>
+            <Card className="mb-3">
+              <Card.Header className="bg-danger text-white">
+                <h6 className="mb-0"> Livro Selecionado</h6>
+              </Card.Header>
               <Card.Body>
-                <Row>
+                <Row className="align-items-start">
                   <Col md={3} className="text-center">
                     {livroSelecionado.imagem ? (
                       <img
                         src={`http://localhost:3000${livroSelecionado.imagem}`}
                         alt={livroSelecionado.titulo}
-                        className="livro-imagem"
+                        className="entrada-livro-imagem"
                       />
                     ) : (
-                      <div className="sem-imagem">
+                      <div className="entrada-sem-imagem">
                         <FaMinus size={24} />
                         <div>Sem imagem</div>
                       </div>
                     )}
                   </Col>
                   <Col md={9}>
-                    <h6>{livroSelecionado.titulo}</h6>
-                    <p className="mb-1"><strong>Autor:</strong> {livroSelecionado.autor_nome}</p>
-                    <p className="mb-1"><strong>Editora:</strong> {livroSelecionado.editora_nome}</p>
-                    <p className="mb-1"><strong>ISBN:</strong> {livroSelecionado.isbn}</p>
-                    <p className="mb-1"><strong>Gênero:</strong> {livroSelecionado.genero}</p>
-                    <p className="mb-1"><strong>Estoque atual:</strong> {livroSelecionado.estoque} unidades</p>
+                    <div className="livro-info">
+                      <h6 className="fw-bold text-primary mb-3">{livroSelecionado.titulo}</h6>
+
+                      <div className="row">
+                        <div className="col-6">
+                          <div className="info-item mb-2">
+                            <span className="text-muted small">Autor:</span>
+                            <div className="fw-medium">{livroSelecionado.autor_nome}</div>
+                          </div>
+                        </div>
+
+                        <div className="col-6">
+                          <div className="info-item mb-2">
+                            <span className="text-muted small">Editora:</span>
+                            <div className="fw-medium">{livroSelecionado.editora_nome}</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row">
+                        <div className="col-6">
+                          <div className="info-item mb-2">
+                            <span className="text-muted small">ISBN:</span>
+                            <div>{livroSelecionado.isbn || 'Não informado'}</div>
+                          </div>
+                        </div>
+                        <div className="col-6">
+                          <div className="info-item mb-2">
+                            <span className="text-muted small">Gênero:</span>
+                            <div>{livroSelecionado.genero}</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row">
+                        <div className="col-12">
+                          <div className="info-item mb-2">
+                            <span className="text-muted small">Acervo atual:</span>
+                            <div className="d-flex align-items-center gap-2">
+                              <span className="">{livroSelecionado.estoque}</span>
+                              <span className="text-muted small">unidades</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="d-flex justify-content-end mt-3 pt-2 border-top">
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={() => {
+                          setLivroSelecionado(null);
+                          setFormData(prev => ({ ...prev, livro_id: '' }));
+                        }}
+                      >
+                        Remover seleção
+                      </Button>
+                    </div>
                   </Col>
                 </Row>
-
-                <div className="d-flex justify-content-end mt-3">
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => {
-                      setLivroSelecionado(null);
-                      setFormData(prev => ({ ...prev, livro_id: '' }));
-                    }}
-                  >
-                    Remover seleção
-                  </Button>
-                </div>
               </Card.Body>
             </Card>
           )}
@@ -330,7 +408,7 @@ const Saida = () => {
 
                 <Button
                   type="submit"
-                  variant="success"
+                  variant="danger"
                   className="w-30"
                   disabled={loading || !livroSelecionado || !formData.observacoes.trim()}
                 >

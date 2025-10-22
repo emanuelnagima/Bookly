@@ -29,14 +29,14 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 
-// Garantir que a pasta uploads existe (DENTRO DE SRC)
+// Garantir que a pasta uploads existe
 const uploadsPath = path.join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadsPath)) {
   fs.mkdirSync(uploadsPath, { recursive: true });
   console.log('📁 Pasta uploads criada em:', uploadsPath);
 }
 
-// Servir arquivos estáticos da pasta uploads (DENTRO DE SRC)
+// Servir arquivos estáticos da pasta uploads
 app.use('/uploads', express.static(uploadsPath));
 console.log('📁 Arquivos estáticos:', uploadsPath);
 
