@@ -311,7 +311,7 @@ const Saida = () => {
                       <div className="row">
                         <div className="col-12">
                           <div className="info-item mb-2">
-                            <span className="text-muted small">Acervo atual:</span>
+                            <span className="text-muted small">Estoque:</span>
                             <div className="d-flex align-items-center gap-2">
                               <span className="">{livroSelecionado.estoque}</span>
                               <span className="text-muted small">unidades</span>
