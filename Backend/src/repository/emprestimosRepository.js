@@ -2,27 +2,62 @@ const db = require('../../config/database');
 const Emprestimo = require('../models/emprestimo');
 
 class EmprestimosRepository {
-    async findAll() {
-        try {
-            const [rows] = await db.execute(`
-                SELECT e.*, 
-                       COUNT(el.livro_id) as total_livros,
-                       CASE 
-                           WHEN e.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = e.usuario_id)
-                           WHEN e.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = e.usuario_id)
-                           WHEN e.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = e.usuario_id)
-                       END as usuario_nome
-                FROM emprestimos e
-                LEFT JOIN emprestimo_livros el ON e.id = el.emprestimo_id
-                GROUP BY e.id
-                ORDER BY e.data_emprestimo DESC
-            `);
-            return rows.map(row => new Emprestimo(row));
-        } catch (error) {
-            throw new Error(`Erro ao buscar empréstimos: ${error.message}`);
-        }
-    }
+  async findAll() {
+    try {
+        console.log('=== REPOSITORY: Executando query principal ===');
+        const [rows] = await db.execute(`
+            SELECT 
+                e.*,
+                COUNT(el.livro_id) as total_livros,
+                CASE 
+                    WHEN e.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = e.usuario_id)
+                    WHEN e.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = e.usuario_id)
+                    WHEN e.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = e.usuario_id)
+                END as usuario
+            FROM emprestimos e
+            LEFT JOIN emprestimo_livros el ON e.id = el.emprestimo_id
+            GROUP BY e.id
+            ORDER BY e.data_emprestimo DESC
+        `);
+        
+        console.log('Resultado da query principal:', rows);
+        console.log('Primeira linha - usuario:', rows[0]?.usuario);
+        console.log('Primeira linha - usuario_id:', rows[0]?.usuario_id);
+        console.log('Primeira linha - usuario_tipo:', rows[0]?.usuario_tipo);
 
+        // Para cada empréstimo, buscar os livros
+        const emprestimosComLivros = await Promise.all(
+            rows.map(async (row) => {
+                console.log(`Buscando livros para empréstimo ${row.id}`);
+                const [livros] = await db.execute(`
+                    SELECT 
+                        l.titulo as livro_titulo, 
+                        l.imagem as livro_imagem, 
+                        l.isbn as livro_isbn,
+                        a.nome as autor_nome,
+                        el.quantidade,
+                        el.livro_id
+                    FROM emprestimo_livros el
+                    JOIN livros l ON el.livro_id = l.id
+                    LEFT JOIN autores a ON l.autor_id = a.id
+                    WHERE el.emprestimo_id = ?
+                `, [row.id]);
+
+                const resultado = {
+                    ...new Emprestimo(row),
+                    livros: livros,
+                    total_livros: livros.length
+                };
+
+                return resultado;
+            })
+        );
+
+        return emprestimosComLivros;
+    } catch (error) {
+        throw new Error(`Erro ao buscar empréstimos: ${error.message}`);
+    }
+}
     async findById(id) {
         try {
             // Buscar dados básicos do empréstimo
@@ -171,26 +206,100 @@ class EmprestimosRepository {
     async getEmprestimosAtivos() {
         try {
             const [rows] = await db.execute(`
-                SELECT e.*, 
-                       COUNT(el.livro_id) as total_livros,
-                       CASE 
-                           WHEN e.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = e.usuario_id)
-                           WHEN e.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = e.usuario_id)
-                           WHEN e.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = e.usuario_id)
-                       END as usuario_nome
+                SELECT 
+                    e.*,
+                    COUNT(el.livro_id) as total_livros,
+                    CASE 
+                        WHEN e.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = e.usuario_id)
+                        WHEN e.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = e.usuario_id)
+                        WHEN e.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = e.usuario_id)
+                    END as usuario_nome
                 FROM emprestimos e
                 LEFT JOIN emprestimo_livros el ON e.id = el.emprestimo_id
                 WHERE e.status = 'ativo'
                 GROUP BY e.id
                 ORDER BY e.data_devolucao_prevista ASC
             `);
-            return rows.map(row => new Emprestimo(row));
+
+            const emprestimosComLivros = await Promise.all(
+                rows.map(async (row) => {
+                    const [livros] = await db.execute(`
+                        SELECT 
+                            l.titulo as livro_titulo, 
+                            l.imagem as livro_imagem, 
+                            l.isbn as livro_isbn,
+                            a.nome as autor_nome,
+                            el.quantidade,
+                            el.livro_id
+                        FROM emprestimo_livros el
+                        JOIN livros l ON el.livro_id = l.id
+                        LEFT JOIN autores a ON l.autor_id = a.id
+                        WHERE el.emprestimo_id = ?
+                    `, [row.id]);
+
+                    return {
+                        ...new Emprestimo(row),
+                        livros: livros,
+                        total_livros: livros.length
+                    };
+                })
+            );
+
+            return emprestimosComLivros;
         } catch (error) {
             throw new Error(`Erro ao buscar empréstimos ativos: ${error.message}`);
         }
     }
 
-     async update(id, emprestimoData) {
+    async getEmprestimosAtrasados() {
+        try {
+            const [rows] = await db.execute(`
+                SELECT 
+                    e.*,
+                    COUNT(el.livro_id) as total_livros,
+                    CASE 
+                        WHEN e.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = e.usuario_id)
+                        WHEN e.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = e.usuario_id)
+                        WHEN e.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = e.usuario_id)
+                    END as usuario_nome
+                FROM emprestimos e
+                LEFT JOIN emprestimo_livros el ON e.id = el.emprestimo_id
+                WHERE e.status = 'ativo' AND e.data_devolucao_prevista < CURDATE()
+                GROUP BY e.id
+                ORDER BY e.data_devolucao_prevista ASC
+            `);
+
+            const emprestimosComLivros = await Promise.all(
+                rows.map(async (row) => {
+                    const [livros] = await db.execute(`
+                        SELECT 
+                            l.titulo as livro_titulo, 
+                            l.imagem as livro_imagem, 
+                            l.isbn as livro_isbn,
+                            a.nome as autor_nome,
+                            el.quantidade,
+                            el.livro_id
+                        FROM emprestimo_livros el
+                        JOIN livros l ON el.livro_id = l.id
+                        LEFT JOIN autores a ON l.autor_id = a.id
+                        WHERE el.emprestimo_id = ?
+                    `, [row.id]);
+
+                    return {
+                        ...new Emprestimo(row),
+                        livros: livros,
+                        total_livros: livros.length
+                    };
+                })
+            );
+
+            return emprestimosComLivros;
+        } catch (error) {
+            throw new Error(`Erro ao buscar empréstimos atrasados: ${error.message}`);
+        }
+    }
+
+    async update(id, emprestimoData) {
         let connection;
         try {
             connection = await db.getConnection();
@@ -321,27 +430,6 @@ class EmprestimosRepository {
             return rows[0].status === 'ativo';
         } catch (error) {
             throw new Error(`Erro ao verificar permissão de edição: ${error.message}`);
-        }
-    }
-    async getEmprestimosAtrasados() {
-        try {
-            const [rows] = await db.execute(`
-                SELECT e.*, 
-                       COUNT(el.livro_id) as total_livros,
-                       CASE 
-                           WHEN e.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = e.usuario_id)
-                           WHEN e.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = e.usuario_id)
-                           WHEN e.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = e.usuario_id)
-                       END as usuario_nome
-                FROM emprestimos e
-                LEFT JOIN emprestimo_livros el ON e.id = el.emprestimo_id
-                WHERE e.status = 'ativo' AND e.data_devolucao_prevista < CURDATE()
-                GROUP BY e.id
-                ORDER BY e.data_devolucao_prevista ASC
-            `);
-            return rows.map(row => new Emprestimo(row));
-        } catch (error) {
-            throw new Error(`Erro ao buscar empréstimos atrasados: ${error.message}`);
         }
     }
 

@@ -259,9 +259,9 @@ const Reservas = () => {
               </div>
               <div>
                 <h4 className="fw-bold text-dark mb-1">Gestão de Reservas</h4>
-                <p className="text-muted mb-0">
+               {/*  <p className="text-muted mb-0">
                   Total de <strong>{reservas.length}</strong> reservas registradas
-                </p>
+                </p> */}
               </div>
             </div>
           </Col>
@@ -358,7 +358,7 @@ const Reservas = () => {
             Cancelar
           </Button>
           <Button
-            variant="warning"
+            variant="success"
             onClick={handleConfirmarCancelamento}
             disabled={loading}
           >

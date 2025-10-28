@@ -267,9 +267,9 @@ const Emprestimos = () => {
               </div>
               <div>
                 <h4 className="fw-bold text-dark mb-1">Gestão de Empréstimos</h4>
-                <p className="text-muted mb-0">
+               {/*  <p className="text-muted mb-0">
                   Total de <strong>{emprestimos.length}</strong> empréstimos registrados
-                </p>
+                </p> */}
               </div>
             </div>
           </Col>
@@ -378,7 +378,7 @@ const Emprestimos = () => {
             Cancelar
           </Button>
           <Button
-            variant="primary"
+            variant="success"
             onClick={handleConfirmarRenovacao}
             disabled={loading || !novaDataDevolucao}
           >

@@ -259,7 +259,7 @@ const CadEmprestimo = ({ onSave, onCancel, emprestimo, loading }) => {
                 <FaUser className="me-2" />
                 <div>
                   <strong>Usuário selecionado:</strong> {usuarioSelecionado.nome}
-                  <Badge bg="secondary" className="ms-2">
+                  <Badge bg="success" className="ms-2">
                     {formData.usuario_tipo}
                   </Badge>
                 </div>

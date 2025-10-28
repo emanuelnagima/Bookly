@@ -14,7 +14,7 @@ class ReservasRepository {
                            WHEN r.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = r.usuario_id)
                            WHEN r.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = r.usuario_id)
                            WHEN r.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = r.usuario_id)
-                       END as usuario_nome
+                       END as usuario
                 FROM reservas r
                 JOIN livros l ON r.livro_id = l.id
                 LEFT JOIN autores a ON l.autor_id = a.id
@@ -38,7 +38,7 @@ class ReservasRepository {
                            WHEN r.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = r.usuario_id)
                            WHEN r.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = r.usuario_id)
                            WHEN r.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = r.usuario_id)
-                       END as usuario_nome
+                       END as usuario
                 FROM reservas r
                 JOIN livros l ON r.livro_id = l.id
                 LEFT JOIN autores a ON l.autor_id = a.id
@@ -127,7 +127,7 @@ class ReservasRepository {
                            WHEN r.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = r.usuario_id)
                            WHEN r.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = r.usuario_id)
                            WHEN r.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = r.usuario_id)
-                       END as usuario_nome
+                       END as usuario
                 FROM reservas r
                 JOIN livros l ON r.livro_id = l.id
                 LEFT JOIN autores a ON l.autor_id = a.id
@@ -139,7 +139,8 @@ class ReservasRepository {
             throw new Error(`Erro ao buscar reservas ativas: ${error.message}`);
         }
     }
-      async update(id, reservaData) {
+
+    async update(id, reservaData) {
         try {
             const reserva = new Reserva(reservaData);
             
@@ -214,22 +215,77 @@ class ReservasRepository {
             throw new Error(`Erro ao verificar permissão de edição: ${error.message}`);
         }
     }
+
     async getReservasPorLivro(livroId) {
         try {
             const [rows] = await db.execute(`
                 SELECT r.*,
+                       l.titulo as livro_titulo,
+                       l.imagem as livro_imagem,
+                       a.nome as autor_nome,
                        CASE 
                            WHEN r.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = r.usuario_id)
                            WHEN r.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = r.usuario_id)
                            WHEN r.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = r.usuario_id)
-                       END as usuario_nome
+                       END as usuario
                 FROM reservas r
+                JOIN livros l ON r.livro_id = l.id
+                LEFT JOIN autores a ON l.autor_id = a.id
                 WHERE r.livro_id = ? AND r.status = 'ativa' AND r.data_validade >= CURDATE()
                 ORDER BY r.data_reserva ASC
             `, [livroId]);
             return rows.map(row => new Reserva(row));
         } catch (error) {
             throw new Error(`Erro ao buscar reservas por livro: ${error.message}`);
+        }
+    }
+
+    async getReservasExpiradas() {
+        try {
+            const [rows] = await db.execute(`
+                SELECT r.*, 
+                       l.titulo as livro_titulo,
+                       l.isbn as livro_isbn,
+                       a.nome as autor_nome,
+                       CASE 
+                           WHEN r.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = r.usuario_id)
+                           WHEN r.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = r.usuario_id)
+                           WHEN r.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = r.usuario_id)
+                       END as usuario
+                FROM reservas r
+                JOIN livros l ON r.livro_id = l.id
+                LEFT JOIN autores a ON l.autor_id = a.id
+                WHERE r.status = 'ativa' AND r.data_validade < CURDATE()
+                ORDER BY r.data_validade ASC
+            `);
+            return rows.map(row => new Reserva(row));
+        } catch (error) {
+            throw new Error(`Erro ao buscar reservas expiradas: ${error.message}`);
+        }
+    }
+
+    async getReservasPorUsuario(usuarioId, usuarioTipo) {
+        try {
+            const [rows] = await db.execute(`
+                SELECT r.*, 
+                       l.titulo as livro_titulo,
+                       l.isbn as livro_isbn,
+                       l.imagem as livro_imagem,
+                       a.nome as autor_nome,
+                       CASE 
+                           WHEN r.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = r.usuario_id)
+                           WHEN r.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = r.usuario_id)
+                           WHEN r.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = r.usuario_id)
+                       END as usuario
+                FROM reservas r
+                JOIN livros l ON r.livro_id = l.id
+                LEFT JOIN autores a ON l.autor_id = a.id
+                WHERE r.usuario_id = ? AND r.usuario_tipo = ?
+                ORDER BY r.data_reserva DESC
+            `, [usuarioId, usuarioTipo]);
+            return rows.map(row => new Reserva(row));
+        } catch (error) {
+            throw new Error(`Erro ao buscar reservas por usuário: ${error.message}`);
         }
     }
 }

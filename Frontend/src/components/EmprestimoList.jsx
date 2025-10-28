@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Card, Table, Form, InputGroup, Button, Badge, Row, Col } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaSyncAlt, FaCheckCircle } from 'react-icons/fa';
+import { Card, Table, Form, InputGroup, Button, Badge, Row, Col, Modal } from 'react-bootstrap';
+import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaSyncAlt, FaCheckCircle, FaBook, FaList } from 'react-icons/fa';
 import { FaHandshake } from "react-icons/fa";
 
 const ITENS_POR_PAGINA = 12;
@@ -21,6 +21,10 @@ const EmprestimoList = ({ emprestimos, onDelete, onEdit, onRenovar, onFinalizar,
   const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [filtroStatus, setFiltroStatus] = useState('todos');
+  const [showLivrosModal, setShowLivrosModal] = useState(false);
+  const [livrosSelecionados, setLivrosSelecionados] = useState([]);
+  const [emprestimoSelecionado, setEmprestimoSelecionado] = useState(null);
+
 
   useEffect(() => {
     setPaginaAtual(1);
@@ -31,7 +35,7 @@ const EmprestimoList = ({ emprestimos, onDelete, onEdit, onRenovar, onFinalizar,
 
     const termo = termoBusca.toLowerCase();
     const matchesBusca = !termoBusca || (
-      (emprestimo.usuario_nome || '').toLowerCase().includes(termo) ||
+      (emprestimo.usuario || '').toLowerCase().includes(termo) ||
       (emprestimo.id || '').toString().toLowerCase().includes(termo)
     );
 
@@ -64,7 +68,7 @@ const EmprestimoList = ({ emprestimos, onDelete, onEdit, onRenovar, onFinalizar,
     const devolucao = new Date(dataDevolucao);
     
     if (status === 'finalizado') {
-      return <Badge bg="secondary">Finalizado</Badge>;
+      return <Badge bg="dark">Finalizado</Badge>;
     }
     
     if (status === 'atrasado') {
@@ -75,7 +79,7 @@ const EmprestimoList = ({ emprestimos, onDelete, onEdit, onRenovar, onFinalizar,
       return <Badge bg="danger">Atrasado</Badge>;
     }
     
-    return <Badge bg="success">Ativo</Badge>;
+    return <Badge bg="success">Emprestado</Badge>;
   };
 
   const isAtrasado = (dataDevolucao, status) => {
@@ -84,6 +88,21 @@ const EmprestimoList = ({ emprestimos, onDelete, onEdit, onRenovar, onFinalizar,
     const devolucao = new Date(dataDevolucao);
     return devolucao < hoje;
   };
+
+  // Função para abrir modal com livros do empréstimo
+  const handleVerLivros = (emprestimo) => {
+    setLivrosSelecionados(emprestimo.livros || []);
+    setEmprestimoSelecionado(emprestimo);
+    setShowLivrosModal(true);
+  };
+
+  // Fechar modal
+  const handleCloseLivrosModal = () => {
+    setShowLivrosModal(false);
+    setLivrosSelecionados([]);
+    setEmprestimoSelecionado(null);
+  };
+console.log('Dados dos empréstimos:', emprestimosPaginaAtual);
 
   return (
     <Card>
@@ -153,11 +172,11 @@ const EmprestimoList = ({ emprestimos, onDelete, onEdit, onRenovar, onFinalizar,
                   <th>ID</th>
                   <th>Usuário</th>
                   <th>Tipo</th>
+                  <th>Livros</th>
                   <th>Data Empréstimo</th>
                   <th>Data Devolução</th>
-                  <th>Livros</th>
                   <th>Status</th>
-                  <th width="180px">Ações</th>
+                  <th width="200px">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -167,20 +186,41 @@ const EmprestimoList = ({ emprestimos, onDelete, onEdit, onRenovar, onFinalizar,
                   return (
                     <tr key={emprestimo.id} className={atrasado ? 'table-warning' : ''}>
                       <td>{emprestimo.id}</td>
-                      <td>{formatarTexto(emprestimo.usuario_nome)}</td>
+                      
+                      {/* Coluna Usuário */}
                       <td>
-                        <Badge bg="info" text="dark">
-                          {emprestimo.usuario_tipo}
-                        </Badge>
+                        <div>{formatarTexto(emprestimo.usuario)}</div>
                       </td>
+                      
+                      {/* Coluna Tipo */}
+                      <td>
+                          {formatarTexto(emprestimo.usuario_tipo)}
+                      </td>
+                      
+                      {/* Coluna Livros - COM BOTÃO PARA VER LIVROS */}
+                      <td>
+                        <div className="d-flex align-items-center justify-content-between">
+                          <div>
+                            <Badge bg="primary" className="me-2">
+                              {emprestimo.total_livros || 0} livro(s)
+                            </Badge>
+                          </div>
+                          <Button
+                            variant="outline-dark"
+                            size="sm"
+                            onClick={() => handleVerLivros(emprestimo)}
+                            title="Ver livros do empréstimo"
+                            className="d-flex align-items-center"
+                          >
+                            <FaList className="me-1" />
+                            Ver Livros
+                          </Button>
+                        </div>
+                      </td>
+                      
                       <td>{formatarData(emprestimo.data_emprestimo)}</td>
                       <td className={atrasado ? 'text-danger fw-bold' : ''}>
                         {formatarData(emprestimo.data_devolucao_prevista)}
-                      </td>
-                      <td>
-                        <Badge bg="primary">
-                          {emprestimo.total_livros || 1} livro(s)
-                        </Badge>
                       </td>
                       <td>
                         {getStatusBadge(emprestimo.status, emprestimo.data_devolucao_prevista)}
@@ -190,21 +230,14 @@ const EmprestimoList = ({ emprestimos, onDelete, onEdit, onRenovar, onFinalizar,
                           {emprestimo.status === 'ativo' && (
                             <>
                               <button
-                                className="btn-sm-custom btn-edit"
-                                onClick={() => onEdit(emprestimo.id)}
-                                title="Editar empréstimo"
-                              >
-                                <FaEdit />
-                              </button>
-                              <button
-                                className="btn-sm-custom btn-success"
+                                className="btn-sm-custom btn-warning"
                                 onClick={() => onRenovar(emprestimo.id)}
                                 title="Renovar empréstimo"
                               >
                                 <FaSyncAlt />
                               </button>
                               <button
-                                className="btn-sm-custom btn-primary"
+                                className="btn-sm-custom btn-success"
                                 onClick={() => onFinalizar(emprestimo.id)}
                                 title="Finalizar empréstimo"
                               >
@@ -226,7 +259,102 @@ const EmprestimoList = ({ emprestimos, onDelete, onEdit, onRenovar, onFinalizar,
                 })}
               </tbody>
             </Table>
+                
+            {/* Modal para mostrar os livros */}
+            <Modal show={showLivrosModal} onHide={handleCloseLivrosModal} size="lg">
+              <Modal.Header closeButton className="bg-primary text-white">
+                <Modal.Title className="d-flex align-items-center">
+                  <FaBook className="me-2" />
+                  Livros do Empréstimo #{emprestimoSelecionado?.id}
+                </Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <div className="mb-3">
+                  <p className="mb-1"><strong>Usuário:</strong> {formatarTexto(emprestimoSelecionado?.usuario)}</p>
+                  <p className="mb-1"><strong>Tipo:</strong> {formatarTexto(emprestimoSelecionado?.usuario_tipo)}</p>
+                  <p className="mb-0"><strong>Total de livros:</strong> {livrosSelecionados.length}</p>
+                </div>
+                
+                {livrosSelecionados.length === 0 ? (
+                  <p className="text-muted text-center py-3">Nenhum livro encontrado neste empréstimo</p>
+                ) : (
+                  <div className="row">
+                    {livrosSelecionados.map((livro, index) => (
+                      <div key={livro.livro_id || index} className="col-12 mb-3">
+                        <div className="card border-0">
+                          <div className="card-body p-3">
+                            <div className="d-flex align-items-start">
+                              {/* Imagem do livro */}
+                              {livro.livro_imagem ? (
+                                <img 
+                                  src={`http://localhost:3000${livro.livro_imagem}`}
+                                  alt={livro.livro_titulo}
+                                  className="me-3 rounded border"
+                                  style={{ 
+                                    width: '60px', 
+                                    objectFit: 'cover'
+                                  }}
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    const placeholder = e.target.parentNode.querySelector('.livro-placeholder');
+                                    if (placeholder) placeholder.style.display = 'flex';
+                                  }}
+                                />
+                              ) : (
+                                <div 
+                                  className="livro-placeholder d-flex align-items-center justify-content-center bg-light text-muted rounded border me-3"
+                                  style={{ 
+                                    width: '60px', 
+                                    height: '80px'
+                                  }}
+                                >
+                                  <FaBook size={20} />
+                                </div>
+                              )}
+                              
+                              {/* Informações do livro */}
+                              <div className="flex-grow-1">
+                                <h6 className="card-title mb-2 text-primary">
+                                  {formatarTexto(livro.livro_titulo) || 'Livro sem título'}
+                                </h6>
+                                
+                                <div className="row small text-muted">
+                                  <div className="col-md-6">
+                                    <p className="mb-1">
+                                      <strong>Autor:</strong> {formatarTexto(livro.autor_nome) || 'Não informado'}
+                                    </p>
+                                    <p className="mb-1">
+                                      <strong>ISBN:</strong> {livro.livro_isbn || 'Não informado'}
+                                    </p>
+                                  </div>
+                                  <div className="col-md-6">
+                                    <p className="mb-1">
+                                      <strong>Quantidade: </strong> 
+                                        {livro.quantidade || 1}
+                                    </p>
+                                    <p className="mb-0">
+                                      <strong>ID do Livro: </strong> 
+                                        {livro.livro_id}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="paginacao" onClick={handleCloseLivrosModal}>
+                  Fechar
+                </Button>
+              </Modal.Footer>
+            </Modal>
 
+            {/* Paginação */}
             {totalPaginas > 1 && (
               <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
                 <Button

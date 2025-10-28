@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Card, Table, Form, InputGroup, Button, Badge, Row, Col } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaTimesCircle, FaCheckCircle } from 'react-icons/fa';
+import { Card, Table, Form, InputGroup, Button, Badge, Row, Col, Modal } from 'react-bootstrap';
+import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaTimesCircle, FaCheckCircle, FaBook, FaList } from 'react-icons/fa';
 import { FaCalendarAlt } from "react-icons/fa";
 
 const ITENS_POR_PAGINA = 12;
@@ -21,6 +21,9 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
   const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [filtroStatus, setFiltroStatus] = useState('todos');
+  const [showLivroModal, setShowLivroModal] = useState(false);
+  const [livroSelecionado, setLivroSelecionado] = useState(null);
+  const [reservaSelecionada, setReservaSelecionada] = useState(null);
 
   useEffect(() => {
     setPaginaAtual(1);
@@ -31,7 +34,7 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
 
     const termo = termoBusca.toLowerCase();
     const matchesBusca = !termoBusca || (
-      (reserva.usuario_nome || '').toLowerCase().includes(termo) ||
+      (reserva.usuario || '').toLowerCase().includes(termo) ||
       (reserva.livro_titulo || '').toLowerCase().includes(termo) ||
       (reserva.id || '').toString().toLowerCase().includes(termo)
     );
@@ -69,11 +72,11 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
         if (validade < hoje) {
           return <Badge bg="warning" text="dark">Expirada</Badge>;
         }
-        return <Badge bg="success">Ativa</Badge>;
+        return <Badge bg="success">Reservado</Badge>;
       case 'cancelada':
         return <Badge bg="secondary">Cancelada</Badge>;
       case 'concluida':
-        return <Badge bg="info">Concluída</Badge>;
+        return <Badge bg="dark">Finalizado</Badge>;
       default:
         return <Badge bg="secondary">{status}</Badge>;
     }
@@ -84,6 +87,23 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
     const hoje = new Date();
     const validade = new Date(dataValidade);
     return validade < hoje;
+  };
+
+  const handleVerLivro = (reserva) => {
+    setLivroSelecionado({
+      titulo: reserva.livro_titulo,
+      imagem: reserva.livro_imagem,
+      isbn: reserva.livro_isbn,
+      autor: reserva.autor_nome
+    });
+    setReservaSelecionada(reserva);
+    setShowLivroModal(true);
+  };
+
+  const handleCloseLivroModal = () => {
+    setShowLivroModal(false);
+    setLivroSelecionado(null);
+    setReservaSelecionada(null);
   };
 
   return (
@@ -109,7 +129,6 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
         </div>
 
         <div className="d-flex align-items-center gap-3">
-          {/* Filtro de Status */}
           <Form.Select
             value={filtroStatus}
             onChange={(e) => setFiltroStatus(e.target.value)}
@@ -119,10 +138,9 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
             <option value="todos">Todos os status</option>
             <option value="ativa">Ativas</option>
             <option value="cancelada">Canceladas</option>
-            <option value="concluida">Concluídas</option>
+            <option value="concluida">Finalizados</option>
           </Form.Select>
 
-          {/* Barra de pesquisa */}
           <div style={{ minWidth: '200px', maxWidth: '300px' }}>
             <InputGroup size="sm">
               <InputGroup.Text className="bg-light text-primary">
@@ -158,7 +176,7 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
                   <th>Data Reserva</th>
                   <th>Data Validade</th>
                   <th>Status</th>
-                  <th width="180px">Ações</th>
+                  <th width="200px">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -168,21 +186,38 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
                   return (
                     <tr key={reserva.id} className={expirada ? 'table-warning' : ''}>
                       <td>{reserva.id}</td>
-                      <td>{formatarTexto(reserva.usuario_nome)}</td>
+                      
                       <td>
-                        <Badge bg="info" text="dark">
-                          {reserva.usuario_tipo}
-                        </Badge>
+                        <div>{formatarTexto(reserva.usuario)}</div>
                       </td>
+                      
                       <td>
-                        <div>
-                          <strong>{formatarTexto(reserva.livro_titulo)}</strong>
-                          <br />
-                          <small className="text-muted">
-                            {reserva.autor_nome}
-                          </small>
+                          {formatarTexto(reserva.usuario_tipo)}
+                      </td>
+                      
+                      <td>
+                        <div className="d-flex align-items-center justify-content-between">
+                          <div>
+                            <div className="fw-medium small">
+                              {formatarTexto(reserva.livro_titulo)}
+                            </div>
+                            <Badge bg="primary" className="mt-1">
+                              1 livro
+                            </Badge>
+                          </div>
+                          <Button
+                            variant="outline-dark"
+                            size="sm"
+                            onClick={() => handleVerLivro(reserva)}
+                            title="Ver detalhes do livro"
+                            className="d-flex align-items-center"
+                          >
+                            <FaList className="me-1" />
+                            Ver Livro
+                          </Button>
                         </div>
                       </td>
+                      
                       <td>{formatarData(reserva.data_reserva)}</td>
                       <td className={expirada ? 'text-danger fw-bold' : ''}>
                         {formatarData(reserva.data_validade)}
@@ -194,13 +229,6 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
                         <div className="d-flex gap-2">
                           {reserva.status === 'ativa' && (
                             <>
-                              <button
-                                className="btn-sm-custom btn-edit"
-                                onClick={() => onEdit(reserva.id)}
-                                title="Editar reserva"
-                              >
-                                <FaEdit />
-                              </button>
                               <button
                                 className="btn-sm-custom btn-warning"
                                 onClick={() => onCancelar(reserva.id)}
@@ -231,6 +259,81 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
                 })}
               </tbody>
             </Table>
+
+            {/* Modal para mostrar detalhes do livro */}
+            <Modal show={showLivroModal} onHide={handleCloseLivroModal} size="md">
+              <Modal.Header closeButton className="bg-primary text-white">
+                <Modal.Title className="d-flex align-items-center">
+                  <FaBook className="me-2" />
+                  Livro da Reserva #{reservaSelecionada?.id}
+                </Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <div className="mb-3">
+                  <p className="mb-1"><strong>Usuário:</strong> {formatarTexto(reservaSelecionada?.usuario)}</p>
+                  <p className="mb-1"><strong>Tipo:</strong> {formatarTexto(reservaSelecionada?.usuario_tipo)}</p>
+                  <p className="mb-0"><strong>Status:</strong> {getStatusBadge(reservaSelecionada?.status, reservaSelecionada?.data_validade)}</p>
+                </div>
+                
+                {livroSelecionado ? (
+                  <div className="card border-0">
+                    <div className="card-body p-3">
+                      <div className="d-flex align-items-start">
+                        {livroSelecionado.imagem ? (
+                          <img 
+                            src={`http://localhost:3000${livroSelecionado.imagem}`}
+                            alt={livroSelecionado.titulo}
+                            className="me-3 rounded border"
+                            style={{ 
+                              width: '80px', 
+                              height: '100px', 
+                              objectFit: 'cover'
+                            }}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              const placeholder = e.target.parentNode.querySelector('.livro-placeholder');
+                              if (placeholder) placeholder.style.display = 'flex';
+                            }}
+                          />
+                        ) : (
+                          <div 
+                            className="livro-placeholder d-flex align-items-center justify-content-center bg-light text-muted rounded border me-3"
+                            style={{ 
+                              width: '80px', 
+                              height: '100px'
+                            }}
+                          >
+                            <FaBook size={24} />
+                          </div>
+                        )}
+                        
+                        <div className="flex-grow-1">
+                          <h6 className="card-title mb-2 text-primary">
+                            {formatarTexto(livroSelecionado.titulo) || 'Livro sem título'}
+                          </h6>
+                          
+                          <div className="small text-muted">
+                            <p className="mb-1">
+                              <strong>Autor:</strong> {formatarTexto(livroSelecionado.autor) || 'Não informado'}
+                            </p>
+                            <p className="mb-1">
+                              <strong>ISBN:</strong> {livroSelecionado.isbn || 'Não informado'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-muted text-center py-3">Nenhuma informação do livro disponível</p>
+                )}
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="paginacao" onClick={handleCloseLivroModal}>
+                  Fechar
+                </Button>
+              </Modal.Footer>
+            </Modal>
 
             {totalPaginas > 1 && (
               <div className="d-flex justify-content-end align-items-center mt-3 gap-2">

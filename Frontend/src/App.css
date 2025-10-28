@@ -85,7 +85,8 @@ body.tema-padrao {
   .content {
     margin-left: 0;
     padding: 1rem 1.5rem;
-    margin-top: 60px; /* Espaço para o botão hamburger */
+    margin-top: 60px;
+    /* Espaço para o botão hamburger */
   }
 }
 
@@ -97,7 +98,7 @@ body.tema-padrao {
 }
 
 /* se quiser o conteúdo centralizado horizontalmente */
-.content > * {
+.content>* {
   margin: 0 auto;
   width: 100%;
 }
@@ -106,6 +107,23 @@ body.tema-padrao {
 /* Botões */
 
 /* BOTÕES PRINCIPAIS E SALVAR - HOVER ORIGINAL */
+.btn-warning {
+  background-color: #f1c40f;
+  /* amarelo warning */
+  color: var(--btn-color, #fff) !important;
+  border: none !important;
+  border-radius: 0.6rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-warning:hover {
+  background-color: #d4ac0d;
+  /* tom mais escuro no hover */
+  color: var(--btn-color-hover, #fff) !important;
+}
+
+
 .btn-primary {
   background-color: #2119b4;
   color: var(--btn-color) !important;
@@ -345,6 +363,7 @@ body.tema-padrao {
   border-radius: 0.25rem;
   min-width: 40px;
 }
+
 /* ===== ESTILOS ESPECÍFICOS PARA O COMPONENTE LIVROLIST ===== */
 .livrolist-livro-imagem {
   width: 120px;
@@ -576,17 +595,17 @@ body.tema-padrao {
 
 /* Botões pequenos de edição e exclusão personalizados */
 .btn-sm-custom {
+  width: 32px;
+  height: 32px;
+  padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  border-radius: 6px;
-  font-size: 12px;
-  transition: all 0.1s ease;
-  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  transition: all 0.2s;
 }
+
 
 /* Botão de edição */
 .btn-edit {
