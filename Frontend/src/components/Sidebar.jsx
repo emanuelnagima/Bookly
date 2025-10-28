@@ -253,19 +253,7 @@ const Sidebar = () => {
                     <span>Empréstimos</span>
                   </NavLink>
 
-                  <NavLink to="/renovacoes" className="submenu-link" onClick={closeSidebar}>
-                    <div className="nav-icon small">
-                      <FaSyncAlt />
-                    </div>
-                    <span>Renovações</span>
-                  </NavLink>
-
-                  <NavLink to="/devolucoes" className="submenu-link" onClick={closeSidebar}>
-                    <div className="nav-icon small">
-                      <FaReply />
-                    </div>
-                    <span>Devoluções</span>
-                  </NavLink>
+                
                 </div>
               )}
             </div>

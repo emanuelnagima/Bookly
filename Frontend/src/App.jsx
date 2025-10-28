@@ -27,6 +27,9 @@ import UsuariosEspeciais from './pages/UsuariosEspeciais';
 import Entrada from './pages/Entrada';
 import Saida from './pages/Saida';
 
+import Emprestimos from './pages/Emprestimos';
+import Reservas from './pages/Reservas';
+
 // Cadastros
 import CadastroLivros from './pages/cadastros/CadastroLivros.jsx';
 import CadastroProfessores from './pages/cadastros/CadastroProfessores';
@@ -34,6 +37,8 @@ import CadastroAlunos from './pages/cadastros/CadastroAlunos';
 import CadastroEditoras from './pages/cadastros/CadastroEditoras';
 import CadastroAutores from './pages/cadastros/CadastroAutores';
 import CadastroUsuariosEspeciais from './pages/cadastros/CadastroUsuariosEspeciais';
+
+
 
 function App() {
   return (
@@ -102,7 +107,16 @@ function App() {
                           <Saida />
                         </ProtectedRoute>
                       } />
-
+                      <Route path="/emprestimos" element={
+  <ProtectedRoute roles={['admin', 'operador']}>
+    <Emprestimos />
+  </ProtectedRoute>
+} />
+<Route path="/reservas" element={
+  <ProtectedRoute roles={['admin', 'operador']}>
+    <Reservas />
+  </ProtectedRoute>
+} />
                       {/* Cadastros - Apenas admin */}
                       <Route path="/cadastros/livros" element={
                         <ProtectedRoute roles={['admin']}>
@@ -164,6 +178,8 @@ function App() {
                           <CadastroUsuariosEspeciais />
                         </ProtectedRoute>
                       } />
+
+
                       
                       {/* Redireciona rotas desconhecidas para home */}
                       <Route path="*" element={<Navigate to="/" replace />} />
