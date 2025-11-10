@@ -5,9 +5,11 @@ import { BsCheckCircle } from "react-icons/bs";
 // Máscaras 
 const maskCPF = (value) => {
   return value
-    .replace(/\D/g, '') // Remove tudo   que não for número
-    .replace(/(\d{9})(\d)/, '$1-$2') //    Coloca traço entre o 9º e 10º dígito
-    .slice(0, 12) // Limita  pra  no máximo 11  números  + 1 traço
+    .replace(/\D/g, '')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4')
+    .slice(0, 14)
 }
 
 const maskTelefone = (value) => {
@@ -211,42 +213,49 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
                   required
                   disabled={loading}
                 />
-                <Form.Text className='text-muted'>
-                </Form.Text>
                 <Form.Control.Feedback type='invalid'>
                   Informe o telefone
                 </Form.Control.Feedback>
-
               </Form.Group>
             </Col>
           </Row>
 
-          <Row>
-            <Col md={6}>
-              <Form.Group className='mb-3' controlId='turma'>
-                <Form.Label>Turma</Form.Label>
-                <Form.Select
-                  name='turma'
-                  value={alunoData.turma}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                >
-                  <option value=''>Selecione...</option>
-                  <option value='6º Ano'>6º Ano</option>
-                  <option value='7º Ano'>7º Ano</option>
-                  <option value='8º Ano'>8º Ano</option>
-                  <option value='9º Ano'>9º Ano</option>
-                  <option value='1º Colegial'>1º Colegial</option>
-                  <option value='2º Colegial'>2º Colegial</option>
-                  <option value='3º Colegial'>3º Colegial</option>
-                </Form.Select>
-                <Form.Control.Feedback type='invalid'>
-                  Selecione a turma
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
-          </Row>
+ <Row>
+  <Col md={6}>
+  <Form.Group className='mb-3' controlId='turma'>
+  <Form.Label>Turma</Form.Label>
+  <Form.Select
+    name='turma'
+    value={alunoData.turma}
+    onChange={handleChange}
+    required
+    disabled={loading}
+  >
+    <option value=''>Selecione...</option>
+    {/* Ensino Fundamental I */}
+    <option value='1º Ano'>1º Ano</option>
+    <option value='2º Ano'>2º Ano</option>
+    <option value='3º Ano'>3º Ano</option>
+    <option value='4º Ano'>4º Ano</option>
+    <option value='5º Ano'>5º Ano</option>
+    
+    {/* Ensino Fundamental II */}
+    <option value='6º Ano'>6º Ano</option>
+    <option value='7º Ano'>7º Ano</option>
+    <option value='8º Ano'>8º Ano</option>
+    <option value='9º Ano'>9º Ano</option>
+    
+    {/* Ensino Médio */}
+    <option value='1º Colegial'>1º Colegial</option>
+    <option value='2º Colegial'>2º Colegial</option>
+    <option value='3º Colegial'>3º Colegial</option>
+  </Form.Select>
+  <Form.Control.Feedback type='invalid'>
+    Selecione a turma
+  </Form.Control.Feedback>
+</Form.Group>
+  </Col>
+</Row>
 
           <div className='d-flex justify-content-end gap-2'>
             <Button

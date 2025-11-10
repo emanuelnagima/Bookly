@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { Card, Form, Col, Row, Button, Spinner } from 'react-bootstrap'
 import { BsCheckCircle } from "react-icons/bs";
 
-
 const maskTelefone = (value) => {
   return value
     .replace(/\D/g, '')
@@ -19,10 +18,21 @@ const maskMatricula = (value) => {
     .slice(0, 11)
 }
 
+const maskCPF = (value) => {
+  return value
+    .replace(/\D/g, '')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4')
+    .slice(0, 14)
+}
+
 const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
   const [professorData, setProfessorData] = useState({
     id: null,
     nome: '',
+    cpf: '',
+    data_nascimento: '',
     matricula: '',
     email: '',
     telefone: '',
@@ -49,11 +59,22 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
     return matricula
   }
 
+  const formatarCPF = (cpf) => {
+    if (!cpf) return ''
+    const nums = cpf.replace(/\D/g, '')
+    if (nums.length === 11) {
+      return nums.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+    }
+    return cpf
+  }
+
   useEffect(() => {
     if (professor) {
       setProfessorData({
         id: professor.id,
         nome: professor.nome || '',
+        cpf: formatarCPF(professor.cpf),
+        data_nascimento: professor.data_nascimento || '',
         matricula: formatarMatricula(professor.matricula),
         email: professor.email || '',
         telefone: formatarTelefone(professor.telefone),
@@ -63,6 +84,8 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
       setProfessorData({
         id: null,
         nome: '',
+        cpf: '',
+        data_nascimento: '',
         matricula: '',
         email: '',
         telefone: '',
@@ -77,6 +100,7 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
     let maskedValue = value
     if (name === 'telefone') maskedValue = maskTelefone(value)
     if (name === 'matricula') maskedValue = maskMatricula(value)
+    if (name === 'cpf') maskedValue = maskCPF(value)
 
     setProfessorData(prev => ({
       ...prev,
@@ -97,7 +121,8 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
     const dataToSave = {
       ...professorData,
       matricula: professorData.matricula.replace(/\D/g, ''),
-      telefone: professorData.telefone.replace(/\D/g, '')
+      telefone: professorData.telefone.replace(/\D/g, ''),
+      cpf: professorData.cpf.replace(/\D/g, '')
     }
 
     onSave(dataToSave)
@@ -125,6 +150,40 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
                 />
                 <Form.Control.Feedback type='invalid'>
                   Informe o nome
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className='mb-3' controlId='cpf'>
+                <Form.Label>CPF</Form.Label>
+                <Form.Control
+                  type='text'
+                  name='cpf'
+                  placeholder='000.000.000-00'
+                  value={professorData.cpf}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+                <Form.Control.Feedback type='invalid'>
+                  Informe um CPF válido
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col md={6}>
+              <Form.Group className='mb-3' controlId='data_nascimento'>
+                <Form.Label>Data de Nascimento</Form.Label>
+                <Form.Control
+                  type='date'
+                  name='data_nascimento'
+                  value={professorData.data_nascimento}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+                <Form.Control.Feedback type='invalid'>
+                  Informe a data de nascimento
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>
@@ -200,8 +259,22 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
                   <option value='História'>História</option>
                   <option value='Geografia'>Geografia</option>
                   <option value='Inglês'>Inglês</option>
+                  <option value='Espanhol'>Espanhol</option>
                   <option value='Educação Física'>Educação Física</option>
                   <option value='Artes'>Artes</option>
+                  <option value='Música'>Música</option>
+                  <option value='Teatro'>Teatro</option>
+                  <option value='Filosofia'>Filosofia</option>
+                  <option value='Sociologia'>Sociologia</option>
+                  <option value='Biologia'>Biologia</option>
+                  <option value='Física'>Física</option>
+                  <option value='Química'>Química</option>
+                  <option value='Informática'>Informática</option>
+                  <option value='Programação'>Programação</option>
+                  <option value='Administração'>Administração</option>
+                  <option value='Economia'>Economia</option>
+                  <option value='Psicologia'>Psicologia</option>
+                  <option value='Pedagogia'>Pedagogia</option>
                 </Form.Select>
                 <Form.Control.Feedback type='invalid'>
                   Selecione o departamento

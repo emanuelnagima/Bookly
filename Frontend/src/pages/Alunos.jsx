@@ -34,59 +34,79 @@ const Alunos = () => {
     loadAlunos()
   }, [])
 
-  const handleSaveAluno = async (aluno) => {
-    try {
-      setLoading(true);
+const handleSaveAluno = async (aluno) => {
+  try {
+    setLoading(true);
 
-      // VERIFICAÇÃO DE DUPLICIDADE NO FRONTEND
-      const alunoExistente = alunos.find(a =>
-        (a.cpf === aluno.cpf ||
-          a.email.toLowerCase().trim() === aluno.email.toLowerCase().trim() ||
-          a.matricula === aluno.matricula) &&
-        a.id !== aluno.id
-      );
-
-      if (alunoExistente) {
-        setError(
-          `O aluno "${alunoExistente.nome}" já está cadastrado no sistema. Verifique os dados e tente novamente.`
-        );
-        setLoading(false);
-        return;
-      }
-
-      let responseData;
-      if (aluno.id) {
-        responseData = await alunoService.update(aluno);
-      } else {
-        responseData = await alunoService.add(aluno);
-      }
-
-      await loadAlunos();
-
-      setToastMessage(aluno.id ? 'Aluno atualizado com sucesso!' : 'Aluno cadastrado com sucesso!');
-      setOperationType(aluno.id ? 'update' : 'create');
-      setShowSuccessToast(true);
-
-      setShowForm(false);
-      setAlunoToEdit(null);
-      setError(null);
-
-    } catch (error) {
-      console.error('Erro ao salvar aluno:', error);
-
-      // Tratamento específico para erro 401
-      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
-        setError('Sessão expirada. Faça login novamente.');
-        // Opcional: redirecionar para login
-        // navigate('/login');
-      } else {
-        setError(error.message || `Falha ao ${aluno.id ? 'atualizar' : 'cadastrar'} aluno. Tente novamente.`);
-      }
-    } finally {
+    // VERIFICAÇÃO DE DUPLICIDADE ESPECÍFICA COMO NO PROFESSOR
+    const emailExistente = alunos.find(a =>
+      a.email.toLowerCase().trim() === aluno.email.toLowerCase().trim() && a.id !== aluno.id
+    );
+    if (emailExistente) {
+      setError(`Já existe um aluno com o e-mail "${aluno.email}" cadastrado.`);
       setLoading(false);
+      return;
     }
-  };
 
+    const matriculaExistente = alunos.find(a =>
+      a.matricula === aluno.matricula && a.id !== aluno.id
+    );
+    if (matriculaExistente) {
+      setError(`Já existe um aluno com a matrícula "${aluno.matricula}" cadastrado.`);
+      setLoading(false);
+      return;
+    }
+
+    const telefoneExistente = alunos.find(a =>
+      a.telefone === aluno.telefone && a.id !== aluno.id
+    );
+    if (telefoneExistente) {
+      setError(`Já existe um aluno com o telefone "${aluno.telefone}" cadastrado.`);
+      setLoading(false);
+      return;
+    }
+
+    const cpfExistente = alunos.find(a =>
+      a.cpf === aluno.cpf && a.id !== aluno.id
+    );
+    if (cpfExistente) {
+      setError(`Já existe um aluno com o CPF "${aluno.cpf}" cadastrado.`);
+      setLoading(false);
+      return;
+    }
+
+    let responseData;
+    if (aluno.id) {
+      responseData = await alunoService.update(aluno);
+    } else {
+      responseData = await alunoService.add(aluno);
+    }
+
+    await loadAlunos();
+
+    setToastMessage(aluno.id ? 'Aluno atualizado com sucesso!' : 'Aluno cadastrado com sucesso!');
+    setOperationType(aluno.id ? 'update' : 'create');
+    setShowSuccessToast(true);
+
+    setShowForm(false);
+    setAlunoToEdit(null);
+    setError(null);
+
+  } catch (error) {
+    console.error('Erro ao salvar aluno:', error);
+
+    // Tratamento específico para erro 401
+    if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+      setError('Sessão expirada. Faça login novamente.');
+      // Opcional: redirecionar para login
+      // navigate('/login');
+    } else {
+      setError(error.message || `Falha ao ${aluno.id ? 'atualizar' : 'cadastrar'} aluno. Tente novamente.`);
+    }
+  } finally {
+    setLoading(false);
+  }
+};
   const handleEditAluno = async (id) => {
     try {
       setLoading(true)

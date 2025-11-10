@@ -215,11 +215,6 @@ const Saida = () => {
           </Col>
           <Col md={4} className="text-md-end">
             <div className="d-flex justify-content-end flex-wrap gap-2">
-              {livroSelecionado && (
-                <Badge bg="danger" className="px-3 py-2">
-                  Livro Selecionado
-                </Badge>
-              )}
             </div>
           </Col>
         </Row>

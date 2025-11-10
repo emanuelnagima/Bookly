@@ -9,12 +9,22 @@ class Aluno {
         this.telefone = data.telefone || '';
         this.turma = data.turma || '';
         
-        // Turmas permitidas (do 6º ano ao 3º colegial)
+        // Turmas permitidas (do 1º ano ao 3º colegial)
         this.turmasValidas = [
+            // Ensino Fundamental I
+            '1º Ano',
+            '2º Ano',
+            '3º Ano',
+            '4º Ano',
+            '5º Ano',
+            
+            // Ensino Fundamental II
             '6º Ano',
             '7º Ano',
             '8º Ano',
             '9º Ano',
+            
+            // Ensino Médio
             '1º Colegial',
             '2º Colegial',
             '3º Colegial'

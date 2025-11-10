@@ -35,63 +35,79 @@ const Professores = () => {
     loadProfessores()
   }, [])
 
-  const handleSaveProfessor = async (professor) => {
-    try {
-      setLoading(true)
+const handleSaveProfessor = async (professor) => {
+  try {
+    setLoading(true);
+    setError(null);
 
-      // Verificação de duplicidade por e-mail, matrícula e telefone
-      const emailExistente = professores.find(p =>
-        p.email.toLowerCase().trim() === professor.email.toLowerCase().trim() && p.id !== professor.id
-      )
-      if (emailExistente) {
-        setError(`Já existe um professor com o e-mail "${professor.email}" cadastrado.`)
-        setLoading(false)
-        return
-      }
-
-      const matriculaExistente = professores.find(p =>
-        p.matricula === professor.matricula && p.id !== professor.id
-      )
-      if (matriculaExistente) {
-        setError(`Já existe um professor com a matrícula "${professor.matricula}" cadastrado.`)
-        setLoading(false)
-        return
-      }
-
-      const telefoneExistente = professores.find(p =>
-        p.telefone === professor.telefone && p.id !== professor.id
-      )
-      if (telefoneExistente) {
-        setError(`Já existe um professor com o telefone "${professor.telefone}" cadastrado.`)
-        setLoading(false)
-        return
-      }
-
-      if (professor.id) {
-        // Edição
-        await professorService.update(professor)
-        setToastMessage('Professor atualizado com sucesso!')
-        setOperationType('update')
-      } else {
-        // Cadastro
-        await professorService.add(professor)
-        setToastMessage('Professor cadastrado com sucesso!')
-        setOperationType('create')
-      }
-
-      await loadProfessores()
-      setShowSuccessToast(true)
-      setShowForm(false)
-      setProfessorToEdit(null)
-      setError(null)
-    } catch (error) {
-      console.error('Erro ao salvar professor:', error)
-      setError(`Falha ao ${professor.id ? 'atualizar' : 'cadastrar'} professor. Tente novamente.`)
-    } finally {
-      setLoading(false)
+    const emailExistente = professores.find(p =>
+      p.email.toLowerCase().trim() === professor.email.toLowerCase().trim() && p.id !== professor.id
+    );
+    if (emailExistente) {
+      setError(`Já existe um professor com o e-mail "${professor.email}" cadastrado.`);
+      setLoading(false);
+      return;
     }
-  }
 
+    const matriculaExistente = professores.find(p =>
+      p.matricula === professor.matricula && p.id !== professor.id
+    );
+    if (matriculaExistente) {
+      setError(`Já existe um professor com a matrícula "${professor.matricula}" cadastrado.`);
+      setLoading(false);
+      return;
+    }
+
+    const telefoneExistente = professores.find(p =>
+      p.telefone === professor.telefone && p.id !== professor.id
+    );
+    if (telefoneExistente) {
+      setError(`Já existe um professor com o telefone "${professor.telefone}" cadastrado.`);
+      setLoading(false);
+      return;
+    }
+
+    if (professor.cpf) {
+      const cpfExistente = professores.find(p =>
+        p.cpf === professor.cpf && p.id !== professor.id
+      );
+      if (cpfExistente) {
+        setError(`Já existe um professor com o CPF "${professor.cpf}" cadastrado.`);
+        setLoading(false);
+        return;
+      }
+    }
+
+    let responseData;
+    if (professor.id) {
+      responseData = await professorService.update(professor);
+    } else {
+      responseData = await professorService.add(professor);
+    }
+
+    await loadProfessores();
+
+    setToastMessage(professor.id ? 'Professor atualizado com sucesso!' : 'Professor cadastrado com sucesso!');
+    setOperationType(professor.id ? 'update' : 'create');
+    setShowSuccessToast(true);
+
+    setShowForm(false);
+    setProfessorToEdit(null);
+    setError(null);
+
+  } catch (error) {
+    console.error('Erro ao salvar professor:', error);
+    
+    // Tratamento específico para erro 401
+    if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+      setError('Sessão expirada. Faça login novamente.');
+    } else {
+      setError(error.message || `Falha ao ${professor.id ? 'atualizar' : 'cadastrar'} professor. Tente novamente.`);
+    }
+  } finally {
+    setLoading(false);
+  }
+}
   const handleEditProfessor = async (id) => {
     try {
       setLoading(true)

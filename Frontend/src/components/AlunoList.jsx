@@ -351,7 +351,7 @@ const AlunoList = ({ alunos, onDelete, onEdit, loading }) => {
                   <Row>
                     <Col md={6}>
                       <p className="mb-2">
-                        <strong>Matrícula:</strong> 
+                        <strong>Matrícula: </strong> 
                         <span>
                           {alunoSelecionado?.matricula}
                         </span>

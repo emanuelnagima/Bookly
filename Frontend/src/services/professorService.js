@@ -14,7 +14,7 @@ const handleResponse = async (response) => {
 const getAll = async () => {
   try {
     const response = await fetch(API_BASE_URL, {
-      credentials: 'include' // ADICIONAR
+      credentials: 'include' 
     });
     const result = await handleResponse(response);
     return result.data; 
@@ -27,7 +27,7 @@ const getAll = async () => {
 const getById = async (id) => {
   try {
     const response = await fetch(`${API_BASE_URL}/${id}`, {
-      credentials: 'include' // ADICIONAR
+      credentials: 'include' 
     });
     const result = await handleResponse(response);
     return result.data;
@@ -44,7 +44,7 @@ const add = async (professor) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include', // ADICIONAR
+      credentials: 'include', 
       body: JSON.stringify(professor),
     });
 
@@ -63,7 +63,7 @@ const update = async (professor) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include', // ADICIONAR
+      credentials: 'include', 
       body: JSON.stringify(professor),
     });
 
@@ -79,7 +79,7 @@ const remove = async (id) => {
   try {
     const response = await fetch(`${API_BASE_URL}/${id}`, {
       method: 'DELETE',
-      credentials: 'include' // ADICIONAR
+      credentials: 'include' 
     });
     const result = await handleResponse(response);
     return result.message;
