@@ -80,51 +80,62 @@ class EntradaSaidaRepository {
     }
 
     // SAÍDAS
-    async registrarSaida(saidaData) {
-        let connection;
-        try {
-            connection = await db.getConnection();
-            await connection.beginTransaction();
+async registrarSaida(saidaData) {
+    let connection;
+    try {
+        connection = await db.getConnection();
+        await connection.beginTransaction();
 
-            const saida = new Saida(saidaData);
+        const saida = new Saida(saidaData);
 
-            // Verificar se livro existe e tem estoque suficiente
-            const [estoqueRows] = await connection.execute(
-                'SELECT id, estoque FROM livros WHERE id = ? FOR UPDATE',
-                [saida.livro_id]
-            );
+        //  VERIFICAÇÃO CORRIGIDA: Verificar estoque DISPONÍVEL (físico - emprestados)
+        const [estoqueRows] = await connection.execute(
+            'SELECT estoque FROM livros WHERE id = ?',
+            [saida.livro_id]
+        );
 
-
-            if (estoqueRows.length === 0) {
-                throw new Error('Livro não encontrado');
-            }
-
-            if (estoqueRows[0].estoque < saida.quantidade) {
-                throw new Error('Estoque insuficiente');
-            }
-
-            // Registrar saída
-            const [result] = await connection.execute(
-                'INSERT INTO saidas (livro_id, origem, observacoes, quantidade) VALUES (?, ?, ?, ?)',
-                [saida.livro_id, saida.origem, saida.observacoes, saida.quantidade]
-            );
-
-            // Atualizar estoque
-            await connection.execute(
-                'UPDATE livros SET estoque = estoque - ? WHERE id = ?',
-                [saida.quantidade, saida.livro_id]
-            );
-
-            await connection.commit();
-            return result.insertId;
-
-        } catch (error) {
-            if (connection) await connection.rollback();
-            throw new Error(`Erro ao registrar saída: ${error.message}`);
-        } finally {
-            if (connection) connection.release();
+        if (estoqueRows.length === 0) {
+            throw new Error('Livro não encontrado');
         }
+
+        // Calcular estoque REALMENTE disponível
+        const [emprestimosAtivos] = await connection.execute(
+            `SELECT SUM(el.quantidade) as total_emprestado
+             FROM emprestimo_livros el
+             JOIN emprestimos e ON el.emprestimo_id = e.id
+             WHERE el.livro_id = ? AND e.status = 'ativo'`,
+            [saida.livro_id]
+        );
+
+        const totalEmprestado = emprestimosAtivos[0].total_emprestado || 0;
+        const estoqueDisponivel = estoqueRows[0].estoque - totalEmprestado;
+
+        if (estoqueDisponivel < saida.quantidade) {
+            throw new Error(`Estoque disponível insuficiente. Disponível: ${estoqueDisponivel}, Solicitado: ${saida.quantidade}`);
+        }
+
+        // Registrar saída
+        const [result] = await connection.execute(
+            'INSERT INTO saidas (livro_id, origem, observacoes, quantidade) VALUES (?, ?, ?, ?)',
+            [saida.livro_id, saida.origem, saida.observacoes, saida.quantidade]
+        );
+
+        // Atualizar estoque físico
+        await connection.execute(
+            'UPDATE livros SET estoque = estoque - ? WHERE id = ?',
+            [saida.quantidade, saida.livro_id]
+        );
+
+        await connection.commit();
+        return result.insertId;
+
+    } catch (error) {
+        if (connection) await connection.rollback();
+        throw new Error(`Erro ao registrar saída: ${error.message}`);
+    } finally {
+        if (connection) connection.release();
     }
+}
 
     async getSaidasPorLivro(livroId) {
         try {
@@ -247,6 +258,43 @@ class EntradaSaidaRepository {
             throw new Error(`Erro ao verificar estoque: ${error.message}`);
         }
     }
+
+async verificarEstoqueDisponivel(livroId) {
+    try {
+        // 1. Estoque físico
+        const [estoqueRows] = await db.execute(
+            'SELECT estoque, titulo FROM livros WHERE id = ?',
+            [livroId]
+        );
+
+        if (estoqueRows.length === 0) {
+            throw new Error('Livro não encontrado');
+        }
+
+        const estoqueFisico = estoqueRows[0].estoque || 0;
+
+        // 2. Empréstimos ativos - CORREÇÃO: garantir que não seja null
+        const [emprestimosAtivos] = await db.execute(
+            `SELECT COALESCE(SUM(el.quantidade), 0) as total_emprestado
+             FROM emprestimo_livros el
+             JOIN emprestimos e ON el.emprestimo_id = e.id
+             WHERE el.livro_id = ? AND e.status = 'ativo'`,
+            [livroId]
+        );
+
+        const totalEmprestado = Number(emprestimosAtivos[0].total_emprestado) || 0;
+        const estoqueDisponivel = Math.max(0, estoqueFisico - totalEmprestado);
+
+        return {
+            estoqueDisponivel,
+            estoqueFisico,
+            totalEmprestado,
+            livro: estoqueRows[0].titulo
+        };
+    } catch (error) {
+        throw new Error(`Erro ao verificar estoque disponível: ${error.message}`);
+    }
+}
 }
 
 module.exports = new EntradaSaidaRepository();

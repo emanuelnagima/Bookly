@@ -36,7 +36,7 @@ const Sidebar = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
-  
+
   // USE O HOOK DE AUTENTICAÇÃO
   const { user, logout } = useAuth();
 
@@ -253,19 +253,7 @@ const Sidebar = () => {
                     <span>Empréstimos</span>
                   </NavLink>
 
-                  <NavLink to="/renovacoes" className="submenu-link" onClick={closeSidebar}>
-                    <div className="nav-icon small">
-                      <FaSyncAlt />
-                    </div>
-                    <span>Renovações</span>
-                  </NavLink>
 
-                  <NavLink to="/devolucoes" className="submenu-link" onClick={closeSidebar}>
-                    <div className="nav-icon small">
-                      <FaReply />
-                    </div>
-                    <span>Devoluções</span>
-                  </NavLink>
                 </div>
               )}
             </div>
@@ -309,7 +297,6 @@ const Sidebar = () => {
           </Nav>
         </div>
 
-        {/* User Profile - ATUALIZADO COM DADOS REAIS DO USUÁRIO */}
         <div className="user-profile-modern">
           <div className="user-info">
             <div className="avatar-container">
@@ -322,15 +309,16 @@ const Sidebar = () => {
             </div>
             <div className="user-details">
               <h6 className="user-name">
-                {user ? user.email : 'Usuário'}
+                {user ? user.role : 'Usuário'}
               </h6>
-              <p className="user-role">
+              <p className="user-email">
                 <FaUserAlt size={10} />
-                {user ? user.role : 'Carregando...'}
+                {user ? user.email : 'Carregando...'}
               </p>
             </div>
           </div>
         </div>
+
       </div>
     </>
   );

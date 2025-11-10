@@ -336,7 +336,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
           </Row>
 
           <div className='d-flex justify-content-end gap-2'>
-            <Button variant='danger' onClick={onCancel} disabled={loading}>
+            <Button variant='cancelar' onClick={onCancel} disabled={loading}>
               Cancelar
             </Button>
             <Button variant='primary' type='submit' disabled={loading}>

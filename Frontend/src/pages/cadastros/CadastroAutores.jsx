@@ -128,7 +128,7 @@ const CadastroAutores = ({ autor, onSave, onCancel, loading }) => {
 
           <div className='d-flex justify-content-end gap-2'>
             <Button
-              variant='danger'
+              variant='cancelar'
               onClick={onCancel}
               disabled={loading}
             >

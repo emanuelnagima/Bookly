@@ -1,3 +1,5 @@
+import entradaSaidaService from './entradaSaidaService';
+
 const API_BASE_URL = 'http://localhost:3000/api/livros';
 
 const handleResponse = async (response) => {
@@ -115,7 +117,35 @@ const update = async (livro) => {
     throw error;
   }
 };
-
+export const getAllComEstoque = async () => {
+  try {
+    const livros = await getAll();
+    
+    // Buscar estoque atualizado para cada livro
+    const livrosComEstoque = await Promise.all(
+      livros.map(async (livro) => {
+        try {
+          const estoqueData = await entradaSaidaService.verificarEstoque(livro.id);
+          return {
+            ...livro,
+            estoque: estoqueData || 0
+          };
+        } catch (error) {
+          console.error(`Erro ao buscar estoque do livro ${livro.id}:`, error);
+          return {
+            ...livro,
+            estoque: 0
+          };
+        }
+      })
+    );
+    
+    return livrosComEstoque;
+  } catch (error) {
+    console.error('Erro ao carregar livros com estoque:', error);
+    throw error;
+  }
+};
 const remove = async (id) => { 
   try {
     if (!id) throw new Error('ID é obrigatório para exclusão');
@@ -138,7 +168,8 @@ const livroService = {
   getById,
   update,
   add,
-  remove
+  remove,
+  getAllComEstoque
 };
 
 export default livroService;

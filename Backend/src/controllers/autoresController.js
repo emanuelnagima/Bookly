@@ -129,7 +129,6 @@ class AutoresController {
         } catch (error) {
             console.error('Erro ao excluir autor:', error);
 
-            // 💥 Tratamento específico para chave estrangeira (caso a verificação falhe)
             if (
                 error.message?.includes('foreign key') ||
                 error.message?.includes('livros') ||

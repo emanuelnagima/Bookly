@@ -1,4 +1,4 @@
-/* ====== VARIÁVEIS CSS (CUSTOM PROPERTIES) ====== */
+/* ====== VARIÁVEIS CSS  ====== */
 :root {
   /* Cores principais do tema */
   --color-bg: #ffffff;
@@ -85,7 +85,8 @@ body.tema-padrao {
   .content {
     margin-left: 0;
     padding: 1rem 1.5rem;
-    margin-top: 60px; /* Espaço para o botão hamburger */
+    margin-top: 60px;
+    /* Espaço para o botão hamburger */
   }
 }
 
@@ -96,17 +97,59 @@ body.tema-padrao {
   }
 }
 
-/* se quiser o conteúdo centralizado horizontalmente */
-.content > * {
+.content>* {
   margin: 0 auto;
   width: 100%;
 }
 
 /* ====== COMPONENTES ====== */
 /* Botões */
+/* BOTÕES PRINCIPAIS E SALVAR */
+/* botão devolver */
+.btn-devolver {
+  background-color: #0b192c;
+  color: var(--btn-color, #fff) !important;
+  border: none !important;
+  border-radius: 0.6rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.btn-devolver:hover {
+  background-color: #224980;
+  color: var(--btn-color-hover, #fff) !important;
+}
 
-/* BOTÕES PRINCIPAIS E SALVAR - HOVER ORIGINAL */
-.btn-primary {
+
+/* botão renovar */
+.btn-renovar:hover {
+  background-color: #224980;
+  color: var(--btn-color-hover, #fff) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+  
+}
+
+
+.btn-renovar {
+  background-color: #0b192c;
+  color: var(--btn-color, #fff) !important;
+  border: none !important;
+  border-radius: 0.6rem;
+  font-weight: 500;
+  cursor: pointer;
+transition: all 0.25s ease;}
+
+.btn-warning:hover {
+  background-color: rgb(149, 149, 149);
+  /* tom mais escuro no hover */
+  color: var(--btn-color-hover, #fff) !important;
+}
+.linha-atrasada {
+  border-left: 2px solid #ffc107; 
+}
+
+.btn-botao1 {
   background-color: #2119b4;
   color: var(--btn-color) !important;
   border: none !important;
@@ -117,16 +160,35 @@ body.tema-padrao {
   transition: background-color var(--transition-fast), transform 0.2s ease, box-shadow 0.3s ease;
 }
 
+.btn-botao1:hover {
+  background-color: #372ee0;
+  color: var(--btn-color-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+}
+.btn-primary {
+  background-color: #2119b4;
+  color: var(--btn-color) !important;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.25s ease;
+
+}
+
+
 .btn-primary:hover {
   background-color: #372ee0;
   color: var(--btn-color-hover) !important;
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
 }
 
 .btn-sucess:hover {
   background-color: #169976;
   color: var(--btn-color-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
 }
 
 /* BOTÃO CANCELAR E EXCLUIR*/
@@ -135,13 +197,29 @@ body.tema-padrao {
   color: var(--btn-color) !important;
   cursor: pointer;
   font-weight: 500;
-  transition: background-color var(--transition-fast);
+  transition: all 0.25s ease;
+}
+.btn-danger:hover {
+  background-color: rgb(200, 3, 3);
+  color: var(--btn-color-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+}
+.btn-cancelar:hover {
+  background-color: #5c5c5c;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
 }
 
-.btn-danger:hover {
-  background-color: rgb(253, 0, 0);
-  color: var(--btn-color-hover) !important;
+.btn-cancelar {
+  background-color: #646464;
+  color: var(--btn-color) !important;
+  cursor: pointer;
+  font-weight: 500;
+    transition: all 0.25s ease;
+
 }
+
 
 /* BOTÃO ADICIONAR EM CADASTROS*/
 .btn-success {
@@ -150,35 +228,46 @@ body.tema-padrao {
   color: white;
   cursor: pointer;
   font-weight: 500;
-  transition: background-color var(--transition-fast);
+  transition: all 0.25s ease;
 }
 
 .btn-success:hover {
   background-color: #20c412;
   color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+}
+.btn-paginacao {
+  background-color: #4eafae; /* azul grafite */
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.45em 1.1em;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+.badge-outline {
+  background-color: transparent !important;
+  color: #0d6efd; /* Azul padrão Bootstrap */
+  border: 1px solid #0d6efd;
+  font-weight: 500;
+  border-radius: 8px;
 }
 
-/* ====== PAGINAÇÃO HOME ====== */
-.btn-paginacao {
-  background-color: var(--color-sidebar) !important;
-  color: #fff;
-  font-weight: 500;
-  border-radius: 0.375rem;
-  padding: 0.375rem 0.75rem;
-  display: inline-flex;
-  align-items: center;
-  transition: background-color var(--transition-fast)
+.btn-paginacao:hover {
+  background-color: #2119b4; 
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+    color: #fff;
+
 }
 
 .btn-paginacao:disabled {
-  opacity: 0.65;
-  pointer-events: none;
-}
-
-.btn-paginacao:not(:disabled):hover {
-  background-color: #1B6AA8 !important;
-  color: #fff !important;
-  transition: background-color var(--transition-fast)
+  background-color: #e2e8f0;
+  color: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .icone-dinamico {
@@ -189,13 +278,11 @@ body.tema-padrao {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-
   background-color: #0B192C;
   transform: scale(1);
   transition: all 0.3s ease;
 
   position: relative;
-  /* ajuda tooltip */
   z-index: 1;
 }
 
@@ -345,35 +432,51 @@ body.tema-padrao {
   border-radius: 0.25rem;
   min-width: 40px;
 }
+
 /* ===== ESTILOS ESPECÍFICOS PARA O COMPONENTE LIVROLIST ===== */
 .livrolist-livro-imagem {
   width: 120px;
   height: 180px;
   object-fit: cover;
-  border-radius: 8px;
-  border: 1.5px solid rgb(175, 175, 175);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  border: 1px solid #585858;
+  background-color: #141414;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .livrolist-lista-livro-imagem {
-  width: 40px;
+  width: 45px;
   height: 60px;
   object-fit: cover;
-  border-radius: 6px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  border: 1px solid #585858;
+  background-color: #141414;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   transition: all 0.4s ease;
 }
 
-
 .livrolist-sem-imagem {
-  width: 150px;
-  height: 220px;
-  background-color: #f8f9fa;
-  border-radius: 6px;
+  width: 120px;
+  height: 180px;
+  background-color: #141414;
+  border-radius: 4px;
+  border: 1px solid #333;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6c757d;
+  color: #e9ecef;
+}
+
+.livrolist-lista-sem-imagem {
+  width: 45px;
+  height: 60px;
+  background-color: #141414;
+  border-radius: 2px;
+  border: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e9ecef;
 }
 
 .livrolist-livro-card-body {
@@ -387,6 +490,28 @@ body.tema-padrao {
   min-width: 40px;
 }
 
+/* Estilos para o modal */
+.livrolist-modal-imagem {
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: 4px;
+  background-color: #141414;
+  border: 1px solid #333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.livrolist-modal-sem-imagem {
+  width: 180px;
+  height: 230px;
+  background-color: #141414;
+  border-radius: 4px;
+  border: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e9ecef;
+  margin: 0 auto;
+}
 .btn-sm-custom {
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
@@ -576,17 +701,17 @@ body.tema-padrao {
 
 /* Botões pequenos de edição e exclusão personalizados */
 .btn-sm-custom {
+  width: 32px;
+  height: 32px;
+  padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  border-radius: 6px;
-  font-size: 12px;
-  transition: all 0.1s ease;
-  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  transition: all 0.2s;
 }
+
 
 /* Botão de edição */
 .btn-edit {
@@ -654,9 +779,6 @@ body.tema-padrao {
   color: var(--btn-color-hover) !important;
 }
 
-.btn-paginacao {
-  padding: 0.375rem 0.75rem;
-}
 
 .livro-card {
   height: 100%;

@@ -4,7 +4,7 @@ const dbConfig = {
     host: 'localhost',
     user: 'root',
     password: '',  
-    database: 'biblioteca',
+    database: 'biblioteca_teste',
     waitForConnections: true,
     connectionLimit: 10,  
 };

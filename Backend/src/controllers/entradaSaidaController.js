@@ -1,7 +1,8 @@
 const entradaSaidaRepository = require('../repository/entradaSaidaRepository');
 const { Entrada, Saida } = require('../models/entradasaida');
-
+const db = require('../../config/database'); 
 class EntradaSaidaController {
+
     // ENTRADAS
     async registrarEntrada(req, res) {
         try {
@@ -120,18 +121,15 @@ class EntradaSaidaController {
     }
 
     // VERIFICAR ESTOQUE
-    async verificarEstoque(req, res) {
-        try {
-            const { livroId } = req.params;
-            const estoque = await entradaSaidaRepository.verificarEstoque(livroId);
-
-            res.json({ success: true, data: { estoque } });
-
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
-        }
-    }
-
+   async verificarEstoque(req, res) {
+  try {
+    const { livroId } = req.params;
+    const estoque = await entradaSaidaRepository.verificarEstoque(livroId);    
+    res.json({ success: true, data: { estoque } });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
     // OPÇÕES PARA SELECTS
     async getOpcoesEntrada(req, res) {
         try {
@@ -145,7 +143,20 @@ class EntradaSaidaController {
             res.status(500).json({ success: false, message: error.message });
         }
     }
-
+async verificarEstoqueDisponivel(req, res) {
+    try {
+        const { livroId } = req.params;
+        
+        const estoqueInfo = await entradaSaidaRepository.verificarEstoqueDisponivel(livroId);
+        
+        res.json({ 
+            success: true, 
+            data: estoqueInfo 
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
     async getOpcoesSaida(req, res) {
         try {
             const opcoes = {

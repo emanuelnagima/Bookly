@@ -203,9 +203,7 @@ const Livros = () => {
               </div>
               <div>
                 <h4 className="fw-bold text-dark mb-1">Acervo de Livros</h4>
-                <p className="text-muted mb-0">
-                  Total de <strong>{livros.length}</strong> livros cadastrados
-                </p>
+
               </div>
             </div>
           </Col>
@@ -222,12 +220,18 @@ const Livros = () => {
             </Button>
           </Col>
         </Row>
-      </div>  
-       <p className="text-muted mb-4" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
+      </div>
+      <p className="text-muted mb-1" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
         Esta seção permite o <strong>cadastro e gerenciamento de livros</strong>. Você pode adicionar novos livros, atualizar informações existentes ou remover registros, mantendo o sistema sempre atualizado e organizado.
       </p>
 
+      <div className="d-flex flex-wrap justify-content-start align-items-center gap-4 py-3 border-bottom rounded-3">
+        <div className="text-center px-3 py-2">
+          <h6 className="mb-0 text-primary fw-bold">{livros.length}</h6>
+          <small className="text-muted">Livros cadastrados</small>
+        </div>
 
+      </div>
       {showForm && (
         <Row className="mb-4">
           <Col>
@@ -261,7 +265,7 @@ const Livros = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button
-            variant="paginacao"
+            variant="cancelar"
             onClick={() => setShowDeleteModal(false)}
             disabled={isDeleting}
           >

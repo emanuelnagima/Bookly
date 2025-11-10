@@ -159,22 +159,7 @@ const Footer = () => {
                       Empréstimos
                     </a>
                   </li>
-                  <li>
-                    <a
-                      href="/renovacoes"
-                    className="small text-muted hover-underline"
-                    >
-                      Renovações
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="/devolucoes"
-                      className="small text-muted hover-underline"
-                    >
-                      Devoluções
-                    </a>
-                  </li>
+      
                   <li>
                     <a
                       href="/relatorios"
@@ -302,25 +287,25 @@ const Footer = () => {
                 booklysuporte@gmail.com
             </div>
 
-            <div className="feedback-section mt-3">
-              <a
-                href={GOOGLE_FORM_FEEDBACK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-primary d-flex align-items-center justify-content-center gap-2"
-                style={{
-                  fontSize: "12px",
-                  padding: "4px 10px",
-                  borderRadius: "4px",
-                }}
-              >
-                <FaCommentDots size={12} />
-                Ajude-nos a melhorar
-              </a>
-              <p className="small text-muted mt-2 mb-0">
-                Sua opinião é valiosa para nós!
-              </p>
-            </div>
+          <div className="feedback-section mt-3">
+  <a
+    href={GOOGLE_FORM_FEEDBACK}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="btn btn-primary d-inline-flex align-items-center gap-1"
+    style={{
+      fontSize: "14px",       // menor fonte
+      padding: "3px 25px",     // menos padding
+    }}
+  >
+    <FaCommentDots size={12} />
+    Ajude-nos a melhorar
+  </a>
+  <p className="small text-muted mt-1 mb-0">
+    Sua opinião é valiosa para nós!
+  </p>
+</div>
+
           </Col>
         </Row>
 

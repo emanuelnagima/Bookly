@@ -22,7 +22,7 @@ router.get('/opcoes/saida', authenticate, authorize('admin', 'operador'), entrad
 router.get('/estatisticas', authenticate, authorize('admin', 'operador'), entradaSaidaController.getEstatisticas);
 router.get('/historico', authenticate, authorize('admin', 'operador'), entradaSaidaController.getHistoricoCompleto);
 router.get('/estoque/:livroId', authenticate, authorize('admin', 'operador'), entradaSaidaController.verificarEstoque);
-
+router.get('/estoque-disponivel/:livroId', authenticate, authorize('admin', 'operador'), entradaSaidaController.verificarEstoqueDisponivel);
 // NOVA ROTA: Processamento de inventário em lote
 router.post('/inventario', authenticate, authorize('admin'), entradaSaidaController.processarInventario);
 
