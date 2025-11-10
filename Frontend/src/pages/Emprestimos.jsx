@@ -17,7 +17,6 @@ const Emprestimos = () => {
   const [novaDataDevolucao, setNovaDataDevolucao] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const [operationType, setOperationType] = useState('')
@@ -75,6 +74,19 @@ const Emprestimos = () => {
     }
   }
 
+  const handleAtualizarStatus = async () => {
+    try {
+        setLoading(true);
+        const resultado = await emprestimosService.atualizarStatus();
+        setToastMessage(resultado.message || 'Status atualizado com sucesso!');
+        setShowSuccessToast(true);
+        await loadEmprestimos(); // Recarrega a lista
+    } catch (error) {
+        setError(error.message);
+    } finally {
+        setLoading(false);
+    }
+};
   // Editar empréstimo
   const handleEditEmprestimo = async (id) => {
     try {
@@ -119,7 +131,7 @@ const Emprestimos = () => {
       setToastMessage('Empréstimo renovado com sucesso!')
       setOperationType('renovacao')
       setShowSuccessToast(true)
-      
+
       await loadEmprestimos()
     } catch (error) {
       console.error("Falha na renovação:", error)
@@ -149,7 +161,7 @@ const Emprestimos = () => {
       setToastMessage('Empréstimo finalizado com sucesso!')
       setOperationType('finalizacao')
       setShowSuccessToast(true)
-      
+
       await loadEmprestimos()
     } catch (error) {
       console.error("Falha na finalização:", error)
@@ -160,6 +172,40 @@ const Emprestimos = () => {
       setEmprestimoToFinalizar(null)
     }
   }
+  // Estatísticas de status
+// Estatísticas de status - USANDO A MESMA LÓGICA DO EmprestimoList
+const totalAtivos = emprestimos.filter(e => e.status === 'ativo').length;
+
+// Função verificarPrazo igual à do EmprestimoList
+const verificarPrazo = (dataDevolucao, status) => {
+  if (status === 'finalizado') {
+    return { situacao: 'finalizado', classe: 'text-dark', texto: 'Devolvido' };
+  }
+
+  const hoje = new Date();
+  const devolucao = new Date(dataDevolucao);
+
+  if (devolucao < hoje) {
+    return { situacao: 'atrasado', classe: 'text-warning', texto: 'Atrasado' };
+  }
+
+  // Verificar se está próximo do vencimento (3 dias ou menos)
+  const diasRestantes = Math.ceil((devolucao - hoje) / (1000 * 60 * 60 * 24));
+  if (diasRestantes <= 3) {
+    return { situacao: 'proximo_vencimento', classe: 'text-warning', texto: `Vence em ${diasRestantes} dia(s)` };
+  }
+
+  return { situacao: 'no_prazo', classe: '', texto: 'No prazo' };
+};
+
+// Total de atrasados usando a mesma lógica
+const totalAtrasados = emprestimos.filter(e => {
+  const situacao = verificarPrazo(e.data_devolucao_prevista, e.status);
+  return situacao.situacao === 'atrasado';
+}).length;
+
+const totalFinalizados = emprestimos.filter(e => e.status === 'finalizado').length;
+const totalGeral = emprestimos.length;
 
   // Excluir empréstimo
   const [isDeleting, setIsDeleting] = useState(false)
@@ -267,9 +313,7 @@ const Emprestimos = () => {
               </div>
               <div>
                 <h4 className="fw-bold text-dark mb-1">Gestão de Empréstimos</h4>
-               {/*  <p className="text-muted mb-0">
-                  Total de <strong>{emprestimos.length}</strong> empréstimos registrados
-                </p> */}
+
               </div>
             </div>
           </Col>
@@ -288,9 +332,29 @@ const Emprestimos = () => {
         </Row>
       </div>
 
-      <p className="text-muted mb-4" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
+      <p className="text-muted mb-2" style={{ fontSize: '0.9rem', marginLeft: '10px' }}>
         Esta seção permite o <strong>registro e gerenciamento de empréstimos de livros</strong>. Você pode registrar novos empréstimos, renovar prazos, finalizar devoluções e acompanhar o status de cada operação.
       </p>
+
+     <div className="d-flex justify-content-begin align-items-center gap-4 py-3 border-bottom">
+  <div className="text-center px-3 py-2 bg- rounded -sm">
+    <h6 className="mb-0 text-primary fw-bold">{totalGeral}</h6>
+    <small className="text-muted">Total de Empréstimos</small>
+  </div>
+  <div className="text-center px-3 py-2 bg- rounded -sm">
+    <h6 className="mb-0 text-success fw-bold">{totalAtivos}</h6>
+    <small className="text-muted">Ativos</small>
+  </div>
+  <div className="text-center px-3 py-2 bg- rounded -sm">
+    <h6 className="mb-0 text-warning fw-bold">{totalAtrasados}</h6>
+    <small className="text-muted">Atrasados</small>
+  </div>
+  <div className="text-center px-3 py-2 bg- rounded -sm">
+    <h6 className="mb-0 text-secondary fw-bold">{totalFinalizados}</h6>
+    <small className="text-muted">Finalizados</small>
+  </div>
+</div>
+
 
       {showForm && (
         <Row className="mb-4">
@@ -328,7 +392,7 @@ const Emprestimos = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button
-            variant="paginacao"
+            variant="cancelar"
             onClick={() => setShowDeleteModal(false)}
             disabled={isDeleting}
           >
@@ -371,7 +435,7 @@ const Emprestimos = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button
-            variant="paginacao"
+            variant="cancelar"
             onClick={() => setShowRenovarModal(false)}
             disabled={loading}
           >
@@ -402,7 +466,7 @@ const Emprestimos = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button
-            variant="paginacao"
+            variant="cancelar"
             onClick={() => setShowFinalizarModal(false)}
             disabled={loading}
           >

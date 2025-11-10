@@ -49,7 +49,7 @@ const features = [
   {
     icon: <FaRegCalendarCheck className="fa-reg-calendar-check" />,
     title: "Sistema de Reservas",
-    description: "Reserva de livros com notificação quando estiverem disponíveis para retirada"
+    description: "Operação para reserva de livros"
   },
   {
     icon: <FaExchangeAlt className="fa-exchange-alt" />,
@@ -59,7 +59,7 @@ const features = [
   {
     icon: <FaClock className="fa-clock" />,
     title: "Renovações",
-    description: "Prorrogação de prazo quando o livro não está reservado, dentro dos limites permitidos"
+    description: "Prorrogação de prazos de livros emprestados com controle automático"
   },
   {
     icon: <FaSearch className="fa-search" />,
@@ -80,11 +80,6 @@ const features = [
     icon: <FaChartBar className="fa-chart-bar" />,
     title: "Segurança de Dados",
     description: "Proteção contra acessos não autorizados e preservação de informações sensíveis"
-  },
-  {
-    icon: <FaDatabase className="fa-database" />,
-    title: "Controle de Aquisições",
-    description: "Registro de novas aquisições com atualização automática do acervo"
   },
 ];
 

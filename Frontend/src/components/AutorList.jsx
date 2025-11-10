@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Card, Table, Form, InputGroup, Button } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
-import { FaFeatherAlt } from "react-icons/fa";
+import { Card, Table, Form, InputGroup, Button, Row, Col, Modal } from 'react-bootstrap';
+import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaFeatherAlt, FaInfoCircle, FaUser, FaGlobeAmericas, FaCalendarAlt, FaBook } from 'react-icons/fa';
 
-const ITENS_POR_PAGINA = 10;
+const ITENS_POR_PAGINA = 7;
 
 const formatarNome = (nome) =>
   (nome || '')
@@ -14,46 +12,78 @@ const formatarNome = (nome) =>
     .join(' ');
 
 const formatarData = (data) => {
-  if (!data) return '';
-  const d = new Date(data);
-  const dia = String(d.getDate()).padStart(2, '0');
-  const mes = String(d.getMonth() + 1).padStart(2, '0');
-  const ano = d.getFullYear();
-  return `${dia}/${mes}/${ano}`;
+  if (!data) return '-';
+  return new Date(data).toLocaleDateString('pt-BR');
 };
 
-const AutorList = ({ autores, onDelete, onEdit }) => {
+const AutorList = ({ autores, onDelete, onEdit, loading }) => {
   const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
+  const [ordenacao, setOrdenacao] = useState('nome_asc');
+  const [filtroNacionalidade, setFiltroNacionalidade] = useState('todos');
 
+  const [showDetalhesModal, setShowDetalhesModal] = useState(false);
+  const [autorSelecionado, setAutorSelecionado] = useState(null);
+
+  // Resetar página quando filtros mudarem
   useEffect(() => {
     setPaginaAtual(1);
-  }, [termoBusca]);
+  }, [termoBusca, ordenacao, filtroNacionalidade]);
 
-  // Filtra TODOS os autores com base no termo de busca
+  // Função de ordenação
+  const ordenarAutores = (autores) => {
+    return [...autores].sort((a, b) => {
+      switch (ordenacao) {
+        case 'nome_asc':
+          return formatarNome(a.nome).localeCompare(formatarNome(b.nome));
+        case 'nome_desc':
+          return formatarNome(b.nome).localeCompare(formatarNome(a.nome));
+        case 'nacionalidade_asc':
+          return (a.nacionalidade || '').localeCompare(b.nacionalidade || '');
+        case 'nacionalidade_desc':
+          return (b.nacionalidade || '').localeCompare(a.nacionalidade || '');
+        case 'data_nascimento_asc':
+          return new Date(a.data_nascimento) - new Date(b.data_nascimento);
+        case 'data_nascimento_desc':
+          return new Date(b.data_nascimento) - new Date(a.data_nascimento);
+        default:
+          return formatarNome(a.nome).localeCompare(formatarNome(b.nome));
+      }
+    });
+  };
+
+  // Filtrar autores
   const autoresFiltrados = autores.filter(autor => {
-    if (!termoBusca) return true;
+    if (!termoBusca && filtroNacionalidade === 'todos') return true;
 
     const termo = termoBusca.toLowerCase();
-    return (
+    const matchesBusca = !termoBusca || (
       (autor.nome || '').toLowerCase().includes(termo) ||
       (autor.nacionalidade || '').toLowerCase().includes(termo) ||
-      (autor.data_nascimento || '').toLowerCase().includes(termo)
+      (autor.data_nascimento || '').toLowerCase().includes(termo) ||
+      (autor.biografia || '').toLowerCase().includes(termo)
     );
+
+    const matchesNacionalidade = filtroNacionalidade === 'todos' || (autor.nacionalidade || '') === filtroNacionalidade;
+
+    return matchesBusca && matchesNacionalidade;
   });
 
-  const totalPaginas = Math.ceil(autoresFiltrados.length / ITENS_POR_PAGINA);
+  // Aplicar ordenação
+  const autoresOrdenados = ordenarAutores(autoresFiltrados);
 
-  // Ordena por nome
-  const autoresOrdenados = [...autoresFiltrados].sort((a, b) =>
-    formatarNome(a.nome || '').localeCompare(formatarNome(b.nome || ''))
-  );
+  // Calcular paginação
+  const totalPaginas = Math.ceil(autoresOrdenados.length / ITENS_POR_PAGINA);
+  
+  // Garantir que a página atual seja válida
+  const paginaValida = Math.max(1, Math.min(paginaAtual, totalPaginas));
+  if (paginaValida !== paginaAtual) {
+    setPaginaAtual(paginaValida);
+  }
 
-  // Pegar apenas os itens da página atual
-  const autoresPaginaAtual = autoresOrdenados.slice(
-    (paginaAtual - 1) * ITENS_POR_PAGINA,
-    paginaAtual * ITENS_POR_PAGINA
-  );
+  const inicio = (paginaValida - 1) * ITENS_POR_PAGINA;
+  const fim = inicio + ITENS_POR_PAGINA;
+  const autoresPaginaAtual = autoresOrdenados.slice(inicio, fim);
 
   const handlePaginaAnterior = () => {
     if (paginaAtual > 1) setPaginaAtual(paginaAtual - 1);
@@ -63,86 +93,165 @@ const AutorList = ({ autores, onDelete, onEdit }) => {
     if (paginaAtual < totalPaginas) setPaginaAtual(paginaAtual + 1);
   };
 
+  // Função para abrir modal com detalhes do autor
+  const handleVerDetalhes = (autor) => {
+    setAutorSelecionado(autor);
+    setShowDetalhesModal(true);
+  };
+
+  // Fechar modal
+  const handleCloseDetalhesModal = () => {
+    setShowDetalhesModal(false);
+    setAutorSelecionado(null);
+  };
+
+  // Obter nacionalidades únicas para o filtro
+  const nacionalidadesUnicas = [...new Set(autores.map(autor => autor.nacionalidade).filter(Boolean))];
+
   return (
     <Card>
       <Card.Header className="bg-primary text-white d-flex flex-wrap justify-content-between align-items-center">
         <div className="d-flex align-items-center mb-2 mb-md-0">
-          <h5 className="mb-0 d-flex align-items-center">
-            <FaFeatherAlt
-              style={{
-                marginRight: '8px',
-                fontSize: '26px',
-                color: '#ffffff',
-                border: '2px solid #585858',
-                borderRadius: '50%',
-                padding: '4px',
-                display: 'inline-flex',
-                verticalAlign: 'middle'
-              }}
-            />
-            Autores Cadastrados
-          </h5>
-          <span className="badge bg-light text-primary ms-3">
-            {autoresFiltrados.length} {autoresFiltrados.length === 1 ? 'autor' : 'autores'} /
-            Página {paginaAtual} de {totalPaginas || 1}
-          </span>
+          <FaFeatherAlt
+            style={{
+              marginRight: '8px',
+              fontSize: '26px',
+              color: '#ffffff',
+              border: '2px solid #585858',
+              borderRadius: '50%',
+              padding: '4px',
+              display: 'inline-flex',
+              verticalAlign: 'middle'
+            }}
+          />
+          <h5 className="mb-0">Autores</h5>
         </div>
 
-        <div className="flex-grow-1 flex-md-grow-0" style={{ minWidth: '200px', maxWidth: '300px' }}>
-          <InputGroup>
-            <InputGroup.Text className="bg-light text-primary" style={{ fontSize: '1rem' }}>
-              <FaSearch />
-            </InputGroup.Text>
-            <Form.Control
-              type="text"
-              placeholder="Buscar autores..."
-              value={termoBusca}
-              onChange={(e) => setTermoBusca(e.target.value)}
-            />
-          </InputGroup>
+        <div className="d-flex align-items-center gap-3">
+          {/* Filtro de Nacionalidade */}
+          <Form.Select
+            value={filtroNacionalidade}
+            onChange={(e) => setFiltroNacionalidade(e.target.value)}
+            style={{ width: 'auto', minWidth: '150px' }}
+            size="sm"
+          >
+            <option value="todos">Todas as nacionalidades</option>
+            {nacionalidadesUnicas.map(nacionalidade => (
+              <option key={nacionalidade} value={nacionalidade}>{nacionalidade}</option>
+            ))}
+          </Form.Select>
+
+          {/* Seletor de Ordenação */}
+          <Form.Select
+            value={ordenacao}
+            onChange={(e) => setOrdenacao(e.target.value)}
+            style={{ width: 'auto', minWidth: '200px' }}
+            size="sm"
+          >
+            <option value="nome_asc">Nome (A-Z)</option>
+            <option value="nome_desc">Nome (Z-A)</option>
+            <option value="nacionalidade_asc">Nacionalidade (A-Z)</option>
+            <option value="nacionalidade_desc">Nacionalidade (Z-A)</option>
+            <option value="data_nascimento_asc">Data Nasc. (mais antigo)</option>
+            <option value="data_nascimento_desc">Data Nasc. (mais recente)</option>
+          </Form.Select>
+
+          {/* Barra de pesquisa */}
+          <div style={{ minWidth: '200px', maxWidth: '300px' }}>
+            <InputGroup size="sm">
+              <InputGroup.Text className="bg-light text-primary">
+                <FaSearch />
+              </InputGroup.Text>
+              <Form.Control
+                type="text"
+                placeholder="Buscar autores..."
+                value={termoBusca}
+                onChange={(e) => setTermoBusca(e.target.value)}
+              />
+            </InputGroup>
+          </div>
         </div>
       </Card.Header>
 
-
       <Card.Body>
-        {autoresPaginaAtual.length === 0 ? (
+        {loading ? (
+          <p className="text-center text-muted py-4">Carregando autores...</p>
+        ) : autoresPaginaAtual.length === 0 ? (
           <p className="text-muted text-center py-4">
-            {termoBusca ? 'Nenhum autor encontrado' : 'Nenhum autor cadastrado'}
+            {termoBusca || filtroNacionalidade !== 'todos' ? 'Nenhum autor encontrado' : 'Nenhum autor cadastrado'}
           </p>
         ) : (
           <>
-            <Table striped hover responsive>
+            <Table striped hover responsive className="align-middle">
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th width="80px">ID</th>
                   <th>Nome Completo</th>
-                  <th>Nacionalidade</th>
-                  <th>Data de Nascimento</th>
-                  <th>Ações</th>
+                  <th width="120px">Nacionalidade</th>
+                  <th width="140px">Data Nasc.</th>
+                  <th width="200px" className="text-center">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {autoresPaginaAtual.map(autor => (
                   <tr key={autor.id}>
-                    <td>{autor.id}</td>
-                    <td>
-                      <td>{formatarNome(autor.nome)}</td>
+                    <td className="fw-bold">#{autor.id}</td>
 
-                    </td>
-                    <td>{formatarNome(autor.nacionalidade)}</td>
-                    <td>{formatarData(autor.data_nascimento)}</td>
+                    {/* Coluna Nome */}
                     <td>
-                      <div className="d-flex gap-2">
+                      <div className="fw-semibold">{formatarNome(autor.nome)}</div>
+                      {autor.biografia && (
+                        <small className="text-muted" style={{ 
+                          display: 'block',
+                          maxWidth: '300px',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {autor.biografia}
+                        </small>
+                      )}
+                    </td>
+
+                    {/* Coluna Nacionalidade */}
+                    <td>
+                      {autor.nacionalidade ? (
+                        <span>
+                          {formatarNome(autor.nacionalidade)}
+                        </span>
+                      ) : (
+                        <span className="text-muted">-</span>
+                      )}
+                    </td>
+
+                    {/* Coluna Data Nascimento */}
+                    <td className="text-nowrap">
+                      {formatarData(autor.data_nascimento)}
+                    </td>
+
+                    {/* Coluna Ações */}
+                    <td>
+                      <div className="d-flex gap-2 justify-content-center">
+                        <button
+                          className="btn-sm-custom btn-renovar"
+                          onClick={() => handleVerDetalhes(autor)}
+                          title="Ver detalhes do autor"
+                        >
+                          <FaInfoCircle />
+                        </button>
+
                         <button
                           className="btn-sm-custom btn-edit"
                           onClick={() => onEdit(autor.id)}
+                          title="Editar autor"
                         >
                           <FaEdit />
                         </button>
 
                         <button
-                          className="btn-sm-custom btn-delete"
+                          className="btn-sm-custom btn-danger"
                           onClick={() => onDelete(autor.id)}
+                          title="Excluir autor"
                         >
                           <FaTrash />
                         </button>
@@ -153,25 +262,94 @@ const AutorList = ({ autores, onDelete, onEdit }) => {
               </tbody>
             </Table>
 
-            {/* PAGINAÇÃO COM CLASSES btn-paginacao */}
+            {/* Modal para mostrar detalhes do autor */}
+            <Modal show={showDetalhesModal} onHide={handleCloseDetalhesModal} size="lg">
+              <Modal.Header closeButton className="bg-primary text-white">
+                <Modal.Title className="d-flex align-items-center">
+                  <FaUser className="me-2" />
+                  Autor #{autorSelecionado?.id} - Detalhes
+                </Modal.Title>
+              </Modal.Header>
+
+              <Modal.Body className="p-4">
+                {/* SEÇÃO: Informações Pessoais */}
+                <div className="mb-4 p-3 border rounded bg-white">
+                  <h5 className="fw-bold mb-3 text-primary border-bottom pb-2 d-flex align-items-center">
+                    <FaUser className="me-2" />
+                    Informações Pessoais
+                  </h5>
+                  <Row>
+                    <Col md={6}>
+                      <p className="mb-2">
+                        <strong><FaUser className="me-2 text-muted" />Nome:</strong> {formatarNome(autorSelecionado?.nome)}
+                      </p>
+                      <p className="mb-2">
+                        <strong><FaGlobeAmericas className="me-2 text-muted" />Nacionalidade:</strong> {formatarNome(autorSelecionado?.nacionalidade) || 'Não informada'}
+                      </p>
+                    </Col>
+                    <Col md={6}>
+                      <p className="mb-2">
+                        <strong><FaCalendarAlt className="me-2 text-muted" />Data de Nascimento:</strong> {formatarData(autorSelecionado?.data_nascimento)}
+                      </p>
+                    </Col>
+                  </Row>
+                </div>
+
+                {/* SEÇÃO: Biografia */}
+                {autorSelecionado?.biografia && (
+                  <div className="p-3 border rounded bg-white">
+                    <h5 className="fw-bold mb-3 text-primary border-bottom pb-2 d-flex align-items-center">
+                      <FaFeatherAlt className="me-2" />
+                      Biografia
+                    </h5>
+                    <Row>
+                      <Col md={12}>
+                        <p className="mb-0" style={{ textAlign: 'justify', lineHeight: '1.6' }}>
+                          {autorSelecionado.biografia}
+                        </p>
+                      </Col>
+                    </Row>
+                  </div>
+                )}
+              </Modal.Body>
+
+              <Modal.Footer>
+                <Button variant="paginacao" onClick={handleCloseDetalhesModal}>
+                  Fechar
+                </Button>
+              </Modal.Footer>
+            </Modal>
+
+            {/* Paginação Melhorada */}
             {totalPaginas > 1 && (
-              <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
-                <Button
-                  className="btn-paginacao"
-                  onClick={handlePaginaAnterior}
-                  disabled={paginaAtual === 1}
-                >
-                  <FaChevronLeft className="me-1" />
-                  Anterior
-                </Button>
-                <Button
-                  className="btn-paginacao"
-                  onClick={handleProximaPagina}
-                  disabled={paginaAtual === totalPaginas}
-                >
-                  Próxima
-                  <FaChevronRight className="ms-1" />
-                </Button>
+              <div className="d-flex justify-content-between align-items-center mt-4">
+                <div className="text-muted small">
+                  Mostrando {inicio + 1} a {Math.min(fim, autoresOrdenados.length)} de {autoresOrdenados.length} autores
+                </div>
+                
+                <div className="d-flex align-items-center gap-2">
+                  <Button
+                    className="btn-paginacao"
+                    onClick={handlePaginaAnterior}
+                    disabled={paginaAtual === 1}
+                  >
+                    <FaChevronLeft className="me-1" />
+                    Anterior
+                  </Button>
+                  
+                  <span className="mx-3 text-muted">
+                    Página <strong>{paginaAtual}</strong> de <strong>{totalPaginas}</strong>
+                  </span>
+                  
+                  <Button
+                    className="btn-paginacao"
+                    onClick={handleProximaPagina}
+                    disabled={paginaAtual === totalPaginas}
+                  >
+                    Próxima
+                    <FaChevronRight className="ms-1" />
+                  </Button>
+                </div>
               </div>
             )}
           </>

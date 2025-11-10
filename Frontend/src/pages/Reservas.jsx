@@ -20,6 +20,11 @@ const Reservas = () => {
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const [operationType, setOperationType] = useState('')
+  const totalAtivas = reservas.filter(r => r.status === 'ativa').length;
+  const totalCanceladas = reservas.filter(r => r.status === 'cancelada').length;
+  const totalConcluidas = reservas.filter(r => r.status === 'concluida').length;
+  const totalExpiradas = reservas.filter(r => r.status === 'expirada').length;
+  const totalGeral = reservas.length;
 
   // Carregar reservas
   const loadReservas = useCallback(async () => {
@@ -40,40 +45,62 @@ const Reservas = () => {
     loadReservas()
   }, [loadReservas])
 
-  // Salvar reserva
   const handleSaveReserva = async (reserva) => {
     try {
-      setLoading(true)
-      setError('')
+      setLoading(true);
+      setError('');
 
       if (reservaToEdit) {
         // Verificar se pode editar
-        const podeEditar = await reservasService.verificarEdicao(reservaToEdit.id)
+        const podeEditar = await reservasService.verificarEdicao(reservaToEdit.id);
         if (!podeEditar) {
-          throw new Error('Esta reserva não pode ser editada (já cancelada, concluída ou expirada)')
+          throw new Error('Esta reserva não pode ser editada (já cancelada, concluída ou expirada)');
         }
 
-        await reservasService.update(reservaToEdit.id, reserva)
-        setToastMessage('Reserva atualizada com sucesso!')
-        setOperationType('update')
+        await reservasService.update(reservaToEdit.id, reserva);
+        setToastMessage('Reserva atualizada com sucesso!');
+        setOperationType('update');
       } else {
-        await reservasService.add(reserva)
-        setToastMessage('Reserva registrada com sucesso!')
-        setOperationType('create')
+        await reservasService.add(reserva);
+        setToastMessage('Reserva registrada com sucesso!');
+        setOperationType('create');
       }
 
-      await loadReservas()
-      setShowSuccessToast(true)
-      setShowForm(false)
-      setReservaToEdit(null)
+      await loadReservas();
+      setShowSuccessToast(true);
+      setShowForm(false);
+      setReservaToEdit(null);
 
     } catch (err) {
-      setError(`Falha ao ${reservaToEdit ? 'atualizar' : 'registrar'} reserva: ${err.message}`)
-    } finally {
-      setLoading(false)
-    }
-  }
+      console.error('Erro completo:', err);
 
+      // **FORMATAÇÃO DA MENSAGEM DE ERRO**
+      let errorMessage = err.message;
+
+      // Remove a parte "HTTP error status: 500
+      if (errorMessage.includes('HTTP error! status:')) {
+        try {
+          // Tenta extrair o JSON da mensagem
+          const jsonStart = errorMessage.indexOf('{');
+          if (jsonStart !== -1) {
+            const jsonStr = errorMessage.substring(jsonStart);
+            const errorData = JSON.parse(jsonStr);
+            errorMessage = errorData.message || errorMessage;
+          }
+
+          errorMessage = errorMessage.replace(/^Falha ao (?:registrar|atualizar) reserva: HTTP error! status: \d+ - /, '');
+        } catch (parseError) {
+          errorMessage = errorMessage.replace(/^HTTP error! status: \d+ - /, '');
+        }
+      }
+
+      // Formata a mensagem final
+      const operation = reservaToEdit ? 'atualizar' : 'registrar';
+      setError(`Falha ao ${operation} reserva: ${errorMessage}`);
+    } finally {
+      setLoading(false);
+    }
+  };
   // Editar reserva
   const handleEditReserva = async (id) => {
     try {
@@ -114,7 +141,7 @@ const Reservas = () => {
       setToastMessage('Reserva cancelada com sucesso!')
       setOperationType('cancelamento')
       setShowSuccessToast(true)
-      
+
       await loadReservas()
     } catch (error) {
       console.error("Falha no cancelamento:", error)
@@ -143,7 +170,7 @@ const Reservas = () => {
       setToastMessage('Reserva concluída com sucesso!')
       setOperationType('conclusao')
       setShowSuccessToast(true)
-      
+
       await loadReservas()
     } catch (error) {
       console.error("Falha na conclusão:", error)
@@ -259,9 +286,6 @@ const Reservas = () => {
               </div>
               <div>
                 <h4 className="fw-bold text-dark mb-1">Gestão de Reservas</h4>
-               {/*  <p className="text-muted mb-0">
-                  Total de <strong>{reservas.length}</strong> reservas registradas
-                </p> */}
               </div>
             </div>
           </Col>
@@ -280,10 +304,31 @@ const Reservas = () => {
         </Row>
       </div>
 
-      <p className="text-muted mb-4" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
+      <p className="text-muted mb-1" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
         Esta seção permite o <strong>registro e gerenciamento de reservas de livros</strong>. Você pode registrar novas reservas, cancelar, concluir e acompanhar o status de cada operação.
       </p>
-
+      <div className="d-flex justify-content-begin align-items-center gap-4 py-3 border-bottom">
+        <div className="text-center px-3 py-2">
+          <h6 className="mb-0 text-primary fw-bold">{totalGeral}</h6>
+          <small className="text-muted">Total de Reservas</small>
+        </div>
+        <div className="text-center px-3 py-2 ">
+          <h6 className="mb-0 text-success fw-bold">{totalAtivas}</h6>
+          <small className="text-muted">Ativas</small>
+        </div>
+        <div className="text-center px-3 py-2">
+          <h6 className="mb-0 text-danger fw-bold">{totalCanceladas}</h6>
+          <small className="text-muted">Canceladas</small>
+        </div>
+        <div className="text-center px-3 py-2">
+          <h6 className="mb-0 text-secondary fw-bold">{totalConcluidas}</h6>
+          <small className="text-muted">Concluídas</small>
+        </div>
+        <div className="text-center px-3 py-2">
+          <h6 className="mb-0 text-warning fw-bold">{totalExpiradas}</h6>
+          <small className="text-muted">Expiradas</small>
+        </div>
+      </div>
       {showForm && (
         <Row className="mb-4">
           <Col>

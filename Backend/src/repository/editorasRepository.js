@@ -54,15 +54,16 @@ class EditorasRepository {
     // MÉTODO PARA VERIFICAR LIVROS VINCULADOS
     async verificarLivrosVinculados(editoraId) {
         try {
-            console.log(`🔍 Executando query para verificar livros da editora ${editoraId}`);
+            console.log(` Executando query para verificar livros da editora ${editoraId}`);
             const [rows] = await db.execute(
                 'SELECT COUNT(*) as total FROM livros WHERE editora_id = ?',
                 [editoraId]
             );
-            console.log(`📊 Resultado da verificação: ${rows[0].total} livros`);
+            console.log(` Resultado da verificação: ${rows[0].total} livros`);
             return rows[0].total;
         } catch (error) {
-            console.error('❌ Erro ao verificar livros vinculados:', error);
+            console.error(' Erro ao verificar livros vinculados:', error);
+
             throw error;
         }
     }

@@ -171,3 +171,81 @@ CREATE TABLE IF NOT EXISTS saidas (
     KEY fk_livro_saida (livro_id),
     CONSTRAINT fk_livro_saida FOREIGN KEY (livro_id) REFERENCES livros(id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+reserva_livros	CREATE TABLE `reserva_livros` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `reserva_id` int(11) NOT NULL,
+   `livro_id` int(11) NOT NULL,
+   `quantidade` int(11) DEFAULT 1,
+   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `unique_reserva_livro` (`reserva_id`,`livro_id`),
+   KEY `livro_id` (`livro_id`),
+   CONSTRAINT `reserva_livros_ibfk_1` FOREIGN KEY (`reserva_id`) REFERENCES `reservas` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `reserva_livros_ibfk_2` FOREIGN KEY (`livro_id`) REFERENCES `livros` (`id`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+
+
+ reservas	CREATE TABLE `reservas` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `usuario_id` int(11) NOT NULL,
+   `usuario_tipo` enum('aluno','professor','usuario_especial') NOT NULL,
+   `livro_id` int(11) NOT NULL,
+   `data_reserva` datetime NOT NULL DEFAULT current_timestamp(),
+   `data_validade` date NOT NULL,
+   `status` enum('ativa','cancelada','concluida','expirada') NOT NULL DEFAULT 'ativa',
+   `observacoes` text DEFAULT NULL,
+   PRIMARY KEY (`id`),
+   KEY `idx_usuario_reserva` (`usuario_id`,`usuario_tipo`),
+   KEY `idx_livro_reserva` (`livro_id`),
+   KEY `idx_status_reserva` (`status`),
+   CONSTRAINT `fk_livro_reserva` FOREIGN KEY (`livro_id`) REFERENCES `livros` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+ ) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+
+
+ emprestimo_livros	CREATE TABLE `emprestimo_livros` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `emprestimo_id` int(11) NOT NULL,
+   `livro_id` int(11) NOT NULL,
+   `quantidade` int(11) NOT NULL DEFAULT 1,
+   PRIMARY KEY (`id`),
+   KEY `fk_emprestimo` (`emprestimo_id`),
+   KEY `fk_livro_emprestimo` (`livro_id`),
+   CONSTRAINT `fk_emprestimo` FOREIGN KEY (`emprestimo_id`) REFERENCES `emprestimos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+   CONSTRAINT `fk_livro_emprestimo` FOREIGN KEY (`livro_id`) REFERENCES `livros` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+ ) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+
+
+ emprestimos	CREATE TABLE `emprestimos` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `usuario_id` int(11) NOT NULL,
+   `usuario_tipo` enum('aluno','professor','usuario_especial') NOT NULL,
+   `data_emprestimo` datetime NOT NULL DEFAULT current_timestamp(),
+   `data_devolucao_prevista` date NOT NULL,
+   `data_devolucao_real` datetime DEFAULT NULL,
+   `status` enum('ativo','finalizado','atrasado') NOT NULL DEFAULT 'ativo',
+   `observacoes` text DEFAULT NULL,
+   PRIMARY KEY (`id`),
+   KEY `idx_usuario` (`usuario_id`,`usuario_tipo`),
+   KEY `idx_status` (`status`),
+   KEY `idx_data_devolucao` (`data_devolucao_prevista`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+
+
+ -- RESET DE EMPRÉSTIMOS E RESERVAS
+-- ===========================================
+
+-- Desabilitar verificações temporariamente
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Limpar tabelas filhas primeiro (as que dependem de outras)
+TRUNCATE TABLE emprestimo_livros;
+TRUNCATE TABLE reserva_livros;
+
+-- Agora limpar as tabelas principais
+TRUNCATE TABLE emprestimos;
+TRUNCATE TABLE reservas;
+
+-- Reativar verificações
+SET FOREIGN_KEY_CHECKS = 1;

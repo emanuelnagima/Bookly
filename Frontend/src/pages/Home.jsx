@@ -76,7 +76,6 @@ const Home = () => {
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [isButtonActive, setIsButtonActive] = useState(false);
-
   useEffect(() => {
     const options = {
       weekday: "long",
@@ -139,6 +138,7 @@ const Home = () => {
           0
         );
         setEstoqueTotal(total);
+
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
       } finally {
@@ -263,18 +263,6 @@ const Home = () => {
           descricao: "Controle os empréstimos de livros do sistema",
           link: "/emprestimos",
         },
-        {
-          icone: FaSyncAlt,
-          titulo: "Renovações",
-          descricao: "Registre e gerencie as renovações de empréstimos",
-          link: "/renovacoes",
-        },
-        {
-          icone: FaReply,
-          titulo: "Devoluções",
-          descricao: "Registre e acompanhe as devoluções de livros",
-          link: "/devolucoes",
-        },
       ],
     },
     {
@@ -325,139 +313,132 @@ const Home = () => {
                 <p style={{ fontSize: "1rem", margin: 0, color: "#6c757d" }}>
                   <strong>Gestão para Bibliotecas</strong>
                 </p>
-                <p
-                  style={{
-                    fontSize: "10px",
-                    color: "#acacacff",
-                    marginTop: "0.1rem",
-                  }}
-                >
-                  Gerencie todo o acervo da sua biblioteca, controle
-                  empréstimos, reservas e mantenha seu sistema sempre
-                  atualizado.
+                <p className="text-secondary small mb-0">
+                  Gerencie todo o acervo da sua biblioteca, controle empréstimos, reservas e mantenha seu sistema sempre atualizado.
                 </p>
-              </div>
 
-              {/* Estatísticas */}
-              {/* Primeira linha */}
-              <div className="d-flex gap-2 flex-wrap mt-3">
-                <span className="badge bg-primary px-3 py-2 d-flex align-items-center">
-                  <FaBookOpen className="me-1" /> Livros: {livros.length}
-                </span>
-                <span className="badge bg-primary px-3 py-2 d-flex align-items-center">
-                  <FaBook className="me-1" /> Total no acervo: {estoqueTotal}
-                </span>
-                <span className="badge bg-secondary px-3 py-2 d-flex align-items-center">
-                  <FaUserTie className="me-1" /> Professores:{" "}
-                  {professores.length}
-                </span>
-                <span className="badge bg-secondary px-3 py-2 d-flex align-items-center">
-                  <FaGraduationCap className="me-1" /> Alunos: {alunos.length}
-                </span>
-                <span className="badge bg-secondary px-3 py-2 d-flex align-items-center">
-                  <FaUsers className="me-1" /> Usuários: {usuarios.length}
-                </span>
-              </div>
-
-              {/* Segunda linha */}
-              <div className="d-flex gap-2 flex-wrap mt-2">
-                <span className="badge bg-light text-dark px-3 py-2 d-flex align-items-center">
-                  <FaFeatherAlt className="me-1" /> Autores: {autores.length}
-                </span>
-                <span className="badge bg-light text-dark px-3 py-2 d-flex align-items-center">
-                  <FaBuilding className="me-1" /> Editoras: {editoras.length}
-                </span>
+                {/* ESTATÍSTICAS DO SISTEMA */}
+                <div className="mt-3">
+                  <div className="d-flex flex-wrap gap-3">
+                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
+                      {livros.length} Livros
+                    </Badge>
+                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
+                      {estoqueTotal} em Estoque
+                    </Badge>
+                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
+                      {professores.length} Professores
+                    </Badge>
+                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
+                      {alunos.length} Alunos
+                    </Badge>
+                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
+                      {autores.length} Autores
+                    </Badge>
+                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
+                      {usuarios.length} Usuários
+                    </Badge>
+                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
+                      {editoras.length} Editoras
+                    </Badge>
+                  </div>
+                </div>
               </div>
             </div>
+            <div className="d-flex flex-wrap justify-content-start align-items-center">
 
-            {/* Boas-vindas e Data */}
-            <div className="text-end" style={{ padding: "1rem" }}>
-              {showWelcome && (
-                <h3 className="mb-3 fw-bold text-primary">
-                  Bem-vindo ao Bookly!
-                </h3>
-              )}
-              <p className="text-muted mb-2">
-                <FaCalendarAlt className="me-1" /> {currentDate}
-              </p>
 
-              <div
-                className="rounded-3 p-3 mt-3"
-                style={{
-                  border: "1px solid #e6e6e6",
-                  maxWidth: "360px",
-                  backgroundColor: "#f9f9f9",
-                }}
-              >
-                {/* Título / descrição */}
-                <div style={{ marginBottom: "0.5rem" }}>
-                  <small
-                    style={{
-                      fontSize: "0.75rem",
-                      lineHeight: "1.3",
-                      color: "#025fbdff",
-                      display: "block",
-                    }}
-                  >
-                    Conheça as regras e condições do sistema
-                  </small>
-                </div>
+              {/* Boas-vindas e Data */}
+              <div className="text-end" style={{ padding: "1rem" }}>
+                {showWelcome && (
+                  <h3 className="mb-3 fw-bold text-primary">
+                    Bem-vindo ao Bookly!
+                  </h3>
+                )}
+                <p className="text-muted mb-2">
+                  <FaCalendarAlt className="me-1" /> {currentDate}
+                </p>
 
-                {/* Links */}
-                <ul
-                  className="list-unstyled m-0 p-0"
+                <div
+                  className="rounded-3 p-3 mt-3"
                   style={{
-                    fontSize: "0.8rem",
-                    borderTop: "1px solid #e6e6e6",
-                    paddingTop: "0.5rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.25rem",
+                    border: "1px solid #e6e6e6",
+                    maxWidth: "360px",
+                    backgroundColor: "#f9f9f9",
                   }}
                 >
-                  <li>
-                    <a
-                      href="/terms-of-use"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-muted hover-underline"
-                    >
-                      Termos de uso
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="/privacy-policy"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-muted hover-underline"
-                    >
-                      Política de Privacidade
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/sobre" className="text-muted hover-underline">
-                      Sobre
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setShowHelpModal(true);
+                  {/* Título / descrição */}
+                  <div style={{ marginBottom: "0.5rem" }}>
+                    <small
+                      style={{
+                        fontSize: "0.75rem",
+                        lineHeight: "1.3",
+                        color: "#025fbdff",
+                        display: "block",
                       }}
-                      className="text-muted hover-underline"
                     >
-                      Ajuda
-                    </a>
-                  </li>
-                </ul>
+                      Conheça as regras e condições do sistema
+                    </small>
+                  </div>
+
+                  {/* Links */}
+                  <ul
+                    className="list-unstyled m-0 p-0"
+                    style={{
+                      fontSize: "0.8rem",
+                      borderTop: "1px solid #e6e6e6",
+                      paddingTop: "0.5rem",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.25rem",
+                    }}
+                  >
+                    <li>
+                      <a
+                        href="/terms-of-use"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted hover-underline"
+                      >
+                        Termos de uso
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="/privacy-policy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted hover-underline"
+                      >
+                        Política de Privacidade
+                      </a>
+                    </li>
+                    <li>
+                      <a href="/sobre" className="text-muted hover-underline">
+                        Sobre
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowHelpModal(true);
+                        }}
+                        className="text-muted hover-underline"
+                      >
+                        Ajuda
+                      </a>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
         </Col>
       </Row>
+
+
 
       {/* LISTA DE LIVROS COM BARRA DE PESQUISA */}
       <Row className="mb-4">
@@ -508,7 +489,7 @@ const Home = () => {
                             <Image
                               src={`http://localhost:3000${livro.imagem}`}
                               alt={livro.titulo || livro.title || ""}
-                              className="livro-imagem"
+                              className="livrolist-livro-imagem"
                               onError={(e) => {
                                 e.target.style.display = "none";
                               }}
@@ -634,7 +615,7 @@ const Home = () => {
                         <hr className="my-2" />
                       </div>
 
-                      <Link to={card.link} className="btn btn-primary mt-2">
+                      <Link to={card.link} className="btn btn-botao1 mt-2">
                         Acessar
                       </Link>
                     </div>

@@ -22,22 +22,29 @@ class ReservasController {
         }
     }
 
-    async create(req, res) {
-        try {
-            const reserva = new Reserva(req.body);
-            const erros = reserva.validar();
-            
-            if (erros !== true) {
-                return res.status(400).json({ success: false, message: 'Dados inválidos', errors: erros });
-            }
-
-            const novaReserva = await reservasRepository.create(reserva);
-            res.status(201).json({ success: true, data: novaReserva, message: 'Reserva criada com sucesso!' });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
+  async create(req, res) {
+    try {
+        const reserva = new Reserva(req.body);
+        const erros = reserva.validar();
+        
+        if (erros !== true) {
+            return res.status(400).json({ success: false, message: 'Dados inválidos', errors: erros });
         }
-    }
 
+        const novaReserva = await reservasRepository.create(reserva); 
+        res.status(201).json({ success: true, data: novaReserva, message: 'Reserva criada com sucesso!' });
+        
+    } catch (error) {
+        
+        // **Enviar mensagem de erro detalhada**
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+}
+
+    // ** todos os outros métodos inalterados**
     async cancelar(req, res) {
         try {
             const { id } = req.params;
@@ -57,11 +64,11 @@ class ReservasController {
             res.status(500).json({ success: false, message: error.message });
         }
     }
-     async update(req, res) {
+
+    async update(req, res) {
         try {
             const { id } = req.params;
             
-            // Verificar se reserva pode ser editada
             const podeEditar = await reservasRepository.podeEditar(id);
             if (!podeEditar) {
                 return res.status(400).json({ 
@@ -88,7 +95,6 @@ class ReservasController {
         try {
             const { id } = req.params;
             
-            // Verificar se reserva existe
             const reserva = await reservasRepository.findById(id);
             if (!reserva) {
                 return res.status(404).json({ success: false, message: 'Reserva não encontrada' });
@@ -118,6 +124,7 @@ class ReservasController {
             res.status(500).json({ success: false, message: error.message });
         }
     }
+
     async getAtivas(req, res) {
         try {
             const reservas = await reservasRepository.getReservasAtivas();
@@ -136,6 +143,65 @@ class ReservasController {
             res.status(500).json({ success: false, message: error.message });
         }
     }
+    // * Buscar reservas expiradas**
+    async getExpiradas(req, res) {
+        try {
+            const reservas = await reservasRepository.getReservasExpiradas();
+            res.json({ 
+                success: true, 
+                data: reservas, 
+                total: reservas.length,
+                message: `${reservas.length} reservas expiradas encontradas`
+            });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
+    // **Buscar reservas canceladas**
+    async getCanceladas(req, res) {
+        try {
+            const reservas = await reservasRepository.getReservasPorStatus('cancelada');
+            res.json({ 
+                success: true, 
+                data: reservas, 
+                total: reservas.length,
+                message: `${reservas.length} reservas canceladas encontradas`
+            });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
+    // **Buscar reservas concluídas**
+    async getConcluidas(req, res) {
+        try {
+            const reservas = await reservasRepository.getReservasPorStatus('concluida');
+            res.json({ 
+                success: true, 
+                data: reservas, 
+                total: reservas.length,
+                message: `${reservas.length} reservas concluídas encontradas`
+            });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
+    // **Expirar reservas automaticamente**
+    async expirarReservas(req, res) {
+        try {
+            const totalExpiradas = await reservasRepository.expirarReservas();
+            res.json({ 
+                success: true, 
+                message: `${totalExpiradas} reservas expiradas automaticamente`,
+                total: totalExpiradas
+            });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
 }
+
 
 module.exports = new ReservasController();

@@ -180,7 +180,18 @@ const remove = async (id) => {
     throw error;
   }
 };
-
+const verificarDisponibilidade = async (livroId, quantidade = 1) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/disponibilidade/${livroId}?quantidade=${quantidade}`, {
+      credentials: 'include'
+    });
+    const result = await handleResponse(response);
+    return result;
+  } catch (error) {
+    console.error(`Erro ao verificar disponibilidade do livro ${livroId}:`, error);
+    throw error;
+  }
+}
 const verificarEdicao = async (id) => {
   try {
     const response = await fetch(`${API_BASE_URL}/${id}/verificar-edicao`, {
@@ -192,7 +203,30 @@ const verificarEdicao = async (id) => {
     console.error(`Erro ao verificar edição do empréstimo ${id}:`, error);
     throw error;
   }
+  
 };
+// Adicione este método ao seu emprestimosService.js
+const gerarRelatorio = async (filtros) => {
+  try {
+    const response = await fetch('http://localhost:3000/api/emprestimos/relatorios', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(filtros)
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro ao gerar relatório');
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+
 
 const emprestimosService = {
   getAll,
@@ -205,7 +239,9 @@ const emprestimosService = {
   renovar,
   finalizar,
   remove,
-  verificarEdicao
+  verificarEdicao,
+  verificarDisponibilidade,
+  gerarRelatorio
 };
 
 export default emprestimosService;

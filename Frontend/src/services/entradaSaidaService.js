@@ -21,19 +21,18 @@ const handleResponse = async (response) => {
 // ENTRADAS
 const registrarEntrada = async (entradaData) => {
   try {
-    console.log('📤 Enviando entrada:', entradaData);
     const response = await fetch(`${API_BASE_URL}/entradas`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include', // ADICIONAR
+      credentials: 'include', 
       body: JSON.stringify(entradaData),
     });
     const result = await handleResponse(response);
     return result.data;
   } catch (error) {
-    console.error('❌ Erro ao registrar entrada:', error);
+    console.error(' Erro ao registrar entrada:', error);
     throw error;
   }
 };
@@ -41,7 +40,7 @@ const registrarEntrada = async (entradaData) => {
 const getEntradas = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/entradas`, {
-      credentials: 'include' // ADICIONAR
+      credentials: 'include' 
     });
     const result = await handleResponse(response);
     return result.data;
@@ -54,7 +53,7 @@ const getEntradas = async () => {
 const getEntradasPorLivro = async (livroId) => {
   try {
     const response = await fetch(`${API_BASE_URL}/entradas/livro/${livroId}`, {
-      credentials: 'include' // ADICIONAR
+      credentials: 'include' 
     });
     const result = await handleResponse(response);
     return result.data;
@@ -72,7 +71,7 @@ const registrarSaida = async (saidaData) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include', // ADICIONAR
+      credentials: 'include', 
       body: JSON.stringify(saidaData),
     });
     const result = await handleResponse(response);
@@ -86,7 +85,7 @@ const registrarSaida = async (saidaData) => {
 const getSaidas = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/saidas`, {
-      credentials: 'include' // ADICIONAR
+      credentials: 'include' 
     });
     const result = await handleResponse(response);
     return result.data;
@@ -99,7 +98,7 @@ const getSaidas = async () => {
 const getSaidasPorLivro = async (livroId) => {
   try {
     const response = await fetch(`${API_BASE_URL}/saidas/livro/${livroId}`, {
-      credentials: 'include' // ADICIONAR
+      credentials: 'include' 
     });
     const result = await handleResponse(response);
     return result.data;
@@ -113,7 +112,7 @@ const getSaidasPorLivro = async (livroId) => {
 const getOpcoesEntrada = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/opcoes/entrada`, {
-      credentials: 'include' // ADICIONAR
+      credentials: 'include'
     });
     const result = await handleResponse(response);
     return result.data;
@@ -126,7 +125,7 @@ const getOpcoesEntrada = async () => {
 const getOpcoesSaida = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/opcoes/saida`, {
-      credentials: 'include' // ADICIONAR
+      credentials: 'include'
     });
     const result = await handleResponse(response);
     return result.data;
@@ -140,7 +139,7 @@ const getOpcoesSaida = async () => {
 const getEstatisticas = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/estatisticas`, {
-      credentials: 'include' // ADICIONAR
+      credentials: 'include' 
     });
     const result = await handleResponse(response);
     return result.data;
@@ -164,18 +163,6 @@ const getHistorico = async (livroId = null) => {
   }
 };
 
-const verificarEstoque = async (livroId) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/estoque/${livroId}`, {
-      credentials: 'include' // ADICIONAR
-    });
-    const result = await handleResponse(response);
-    return result.data.estoque;
-  } catch (error) {
-    console.error('Erro ao verificar estoque:', error);
-    throw error;
-  }
-};
 
 // INVENTÁRIO
 const processarInventario = async (inventarioData) => {
@@ -192,6 +179,39 @@ const processarInventario = async (inventarioData) => {
     return result.data;
   } catch (error) {
     console.error('Erro ao processar inventário:', error);
+    throw error;
+  }
+};
+
+const verificarEstoque = async (livroId) => {
+  try {
+    
+    const response = await fetch(`${API_BASE_URL}/estoque/${livroId}`, {
+      credentials: 'include'
+    });
+    
+    const result = await handleResponse(response);
+    return result.data.estoque || 0;
+    
+  } catch (error) {
+    console.error(` Erro ao verificar estoque livro ${livroId}:`, error);
+    return 0; 
+  }
+};
+
+
+const verificarEstoqueDisponivel = async (livroId) => {
+  try {
+    
+    const response = await fetch(`${API_BASE_URL}/estoque-disponivel/${livroId}`, {
+      credentials: 'include'
+    });
+    
+    const result = await handleResponse(response);
+    return result.data;
+    
+  } catch (error) {
+    console.error(` Erro ao verificar estoque disponível livro ${livroId}:`, error);
     throw error;
   }
 };
@@ -214,8 +234,8 @@ const entradaSaidaService = {
   // Estatísticas
   getEstatisticas,
   getHistorico,
-  verificarEstoque,
-  
+    verificarEstoque,
+    verificarEstoqueDisponivel, 
   // Inventário
   processarInventario
 };

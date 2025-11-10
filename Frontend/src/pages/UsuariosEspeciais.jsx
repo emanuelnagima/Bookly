@@ -189,9 +189,7 @@ const UsuariosEspeciais = () => {
               </div>
               <div>
                 <h4 className="fw-bold text-dark mb-1">Usuários Especiais</h4>
-                <p className="text-muted mb-0">
-                  Total de <strong>{usuarios.length}</strong> usuários cadastrados
-                </p>
+           
               </div>
             </div>
           </Col>
@@ -214,10 +212,16 @@ const UsuariosEspeciais = () => {
         </Row>
       </div>
             
-       <p className="text-muted mb-4" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
+       <p className="text-muted mb-1" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
         Esta seção permite o <strong>cadastro e gerenciamento de usuários</strong>. Você pode adicionar novos usuários, atualizar informações existentes ou remover registros, mantendo o sistema sempre atualizado e organizado.
       </p>
+      <div className="d-flex flex-wrap justify-content-start align-items-center gap-4 py-3 border-bottom rounded-3">
+        <div className="text-center px-3 py-2">
+          <h6 className="mb-0 text-primary fw-bold">{usuarios.length}</h6>
+          <small className="text-muted">Usuários especiais cadastrados</small>
+        </div>
 
+      </div>
 
       {/* Formulário */}
       {showForm && (
@@ -259,7 +263,7 @@ const UsuariosEspeciais = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button
-            variant="paginacao"
+            variant="cancelar"
             onClick={() => setShowDeleteModal(false)}
             disabled={isDeleting}
           >

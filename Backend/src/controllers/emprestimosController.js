@@ -22,33 +22,64 @@ class EmprestimosController {
         }
     }
 
-    async create(req, res) {
-        try {
-            const emprestimo = new Emprestimo(req.body);
-            const erros = emprestimo.validar();
-            
-            if (erros !== true) {
-                return res.status(400).json({ success: false, message: 'Dados inválidos', errors: erros });
-            }
-
-            // Verificar disponibilidade dos livros
-            for (const livro of emprestimo.livros) {
-                const disponivel = await emprestimosRepository.verificarDisponibilidadeLivro(livro.livro_id);
-                if (!disponivel) {
-                    return res.status(400).json({ 
-                        success: false, 
-                        message: `Livro "${livro.titulo || livro.livro_id}" não está disponível` 
-                    });
+async create(req, res) {
+    try {
+        const emprestimo = new Emprestimo(req.body);
+        const erros = emprestimo.validar();
+        
+        if (erros !== true) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Dados inválidos', 
+                errors: erros,
+                debug: {
+                    data_recebida: req.body,
+                    data_validacao: new Date().toISOString()
                 }
-            }
-
-            const novoEmprestimo = await emprestimosRepository.create(emprestimo);
-            res.status(201).json({ success: true, data: novoEmprestimo, message: 'Empréstimo criado com sucesso!' });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
+            });
         }
-    }
 
+        for (const livro of emprestimo.livros) {
+            const quantidade = livro.quantidade || 1;
+            if (quantidade < 1) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: `Quantidade inválida para o livro "${livro.titulo || livro.livro_id}"` 
+                });
+            }
+        }
+
+        const novoEmprestimo = await emprestimosRepository.create(emprestimo);
+        
+        res.status(201).json({ 
+            success: true, 
+            data: novoEmprestimo, 
+            message: 'Empréstimo criado com sucesso!' 
+        });
+        
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+}
+
+async verificarDisponibilidade(req, res) {
+  try {
+    const { livroId } = req.params;
+    const { quantidade = 1 } = req.query;
+    
+    const disponibilidade = await emprestimosRepository.verificarDisponibilidadeComQuantidade(
+      livroId, 
+      parseInt(quantidade)
+    );
+    
+    res.json({ success: true, data: disponibilidade });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
     async renovar(req, res) {
         try {
             const { id } = req.params;
@@ -125,7 +156,37 @@ class EmprestimosController {
             res.status(500).json({ success: false, message: error.message });
         }
     }
-
+async verificarEstoqueDisponivel(req, res) {
+  try {
+    const { livroId } = req.params;
+    
+    // 1. Estoque físico
+    const estoqueFisico = await entradaSaidaRepository.verificarEstoque(livroId);
+    
+    // 2. Empréstimos ativos
+    const [emprestimosAtivos] = await db.execute(
+      `SELECT SUM(quantidade) as total_emprestado
+       FROM emprestimo_livros el
+       JOIN emprestimos e ON el.emprestimo_id = e.id
+       WHERE el.livro_id = ? AND e.status = 'ativo'`,
+      [livroId]
+    );
+    
+    const totalEmprestado = emprestimosAtivos[0].total_emprestado || 0;
+    const estoqueDisponivel = estoqueFisico - totalEmprestado;
+    
+    res.json({ 
+      success: true, 
+      data: { 
+        estoqueDisponivel,
+        estoqueFisico,
+        totalEmprestado
+      } 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
     async delete(req, res) {
         try {
             const { id } = req.params;
@@ -190,6 +251,24 @@ class EmprestimosController {
             res.status(500).json({ success: false, message: error.message });
         }
     }
+
+async atualizarStatus(req, res) {
+    try {
+        const resultado = await emprestimosRepository.atualizarStatusAtrasados();
+        
+        res.json({ 
+            success: true, 
+            message: 'Status dos empréstimos atualizados com sucesso!',
+            data: resultado 
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+}
+
 }
 
 module.exports = new EmprestimosController();

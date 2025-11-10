@@ -191,9 +191,6 @@ const Alunos = () => {
               </div>
               <div>
                 <h4 className="fw-bold text-dark mb-1">Alunos</h4>
-                <p className="text-muted mb-0">
-                  Total de <strong>{alunos.length}</strong> alunos cadastrados
-                </p>
               </div>
             </div>
           </Col>
@@ -215,10 +212,15 @@ const Alunos = () => {
           </Col>
         </Row>
       </div>
-       <p className="text-muted mb-4" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
+      <p className="text-muted mb-1" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
         Esta seção permite o <strong>cadastro e gerenciamento de alunos</strong>. Você pode adicionar novos alunos, atualizar informações existentes ou remover registros, mantendo o sistema sempre atualizado e organizado.
       </p>
-
+      <div className="d-flex flex-wrap justify-content-start align-items-center gap-4 py-3 border-bottom rounded-3">
+        <div className="text-center px-3 py-2">
+          <h6 className="mb-0 text-primary fw-bold">{alunos.length}</h6>
+          <small className="text-muted">Alunos cadastrados</small>
+        </div>
+      </div>
       {showForm && (
         <Row className="mb-4">
           <Col>
@@ -256,7 +258,7 @@ const Alunos = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button
-            variant="paginacao"
+            variant="cancelar"
             onClick={() => setShowDeleteModal(false)}
             disabled={isDeleting}
           >

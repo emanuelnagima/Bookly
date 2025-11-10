@@ -64,7 +64,7 @@ const getPorLivro = async (livroId) => {
 };
 
 const add = async (reserva) => {
-  try {
+  try {    
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
       headers: {
@@ -73,10 +73,21 @@ const add = async (reserva) => {
       credentials: 'include',
       body: JSON.stringify(reserva),
     });
-    const result = await handleResponse(response);
+        
+    if (!response.ok) {
+      // Tente obter mais detalhes do erro
+      const errorText = await response.text();
+      throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+    }
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.message || 'Erro na requisição');
+    }
     return result.data;
   } catch (error) {
-    console.error('Erro ao adicionar reserva:', error);
+    console.error(' Erro ao adicionar reserva:', error);
     throw error;
   }
 };

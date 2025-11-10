@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Card, Form, Col, Row, Button, Spinner, Alert, Badge } from 'react-bootstrap';
-import { BsCheckCircle } from "react-icons/bs";
+import { Card, Form, Col, Row, Button, Spinner, Alert, Badge, ListGroup } from 'react-bootstrap';
+import { BsCheckCircle, BsPlusCircle, BsTrash } from "react-icons/bs";
 import { FaBook, FaUser, FaExclamationTriangle } from "react-icons/fa";
 import livroService from '../services/livroService';
 import emprestimosService from '../services/emprestimosService';
@@ -9,11 +9,13 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
   const [formData, setFormData] = useState({
     usuario_id: '',
     usuario_tipo: '',
-    livro_id: '',
     data_validade: '',
     observacoes: ''
   });
 
+  const [livrosSelecionados, setLivrosSelecionados] = useState([]);
+  const [livroAtual, setLivroAtual] = useState({ livro_id: '', quantidade: 1 });
+  
   const [opcoesUsuarios, setOpcoesUsuarios] = useState({
     alunos: [],
     professores: [],
@@ -21,7 +23,6 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
   });
   
   const [livrosDisponiveis, setLivrosDisponiveis] = useState([]);
-  const [livroSelecionado, setLivroSelecionado] = useState(null);
   const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
   const [validated, setValidated] = useState(false);
   const [error, setError] = useState('');
@@ -33,12 +34,10 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
       try {
         setOptionsLoading(true);
         
-        // Carregar usuários
         const usuariosData = await emprestimosService.getOpcoesUsuarios();
         setOpcoesUsuarios(usuariosData.data || usuariosData);
         
-        // Carregar livros
-        const livrosData = await livroService.getAll();
+        const livrosData = await livroService.getAllComEstoque();
         setLivrosDisponiveis(livrosData);
         
       } catch (err) {
@@ -52,27 +51,51 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
     carregarOpcoes();
   }, []);
 
+  const recarregarLivrosDisponiveis = async () => {
+    try {
+      const livrosData = await livroService.getAllComEstoque();
+      setLivrosDisponiveis(livrosData);
+    } catch (err) {
+      console.error('Erro ao recarregar livros:', err);
+    }
+  };
+
   // Preencher dados se for edição
   useEffect(() => {
     if (reserva) {
       setFormData({
         usuario_id: reserva.usuario_id?.toString() || '',
         usuario_tipo: reserva.usuario_tipo || '',
-        livro_id: reserva.livro_id?.toString() || '',
         data_validade: reserva.data_validade || '',
         observacoes: reserva.observacoes || ''
       });
       
-      // Buscar dados do usuário e livro selecionados
+      if (reserva.livros && reserva.livros.length > 0) {
+        setLivrosSelecionados(reserva.livros);
+      } else if (reserva.livro_id) {
+        setLivrosSelecionados([{
+          livro_id: reserva.livro_id,
+          quantidade: 1,
+          livro_titulo: reserva.livro_titulo,
+          livro_isbn: reserva.livro_isbn,
+          autor_nome: reserva.autor_nome
+        }]);
+      }
+      
       if (reserva.usuario_id && reserva.usuario_tipo) {
         buscarUsuario(reserva.usuario_id, reserva.usuario_tipo);
       }
-      if (reserva.livro_id) {
-        const livro = livrosDisponiveis.find(l => l.id === parseInt(reserva.livro_id));
-        setLivroSelecionado(livro);
-      }
     }
-  }, [reserva, livrosDisponiveis]);
+  }, [reserva]);
+
+  const formatarNome = (nome) => {
+    if (!nome) return '';
+    return nome
+      .toLowerCase()
+      .split(' ')
+      .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+      .join(' ');
+  };
 
   const buscarUsuario = async (usuarioId, usuarioTipo) => {
     try {
@@ -103,7 +126,6 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
       [name]: value
     }));
 
-    // Quando selecionar usuário, buscar dados
     if (name === 'usuario_id' && formData.usuario_tipo) {
       buscarUsuario(value, formData.usuario_tipo);
     }
@@ -111,29 +133,82 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
     if (name === 'usuario_tipo' && formData.usuario_id) {
       buscarUsuario(formData.usuario_id, value);
     }
+  };
 
-    // Quando selecionar livro, buscar dados
-    if (name === 'livro_id') {
-      const livro = livrosDisponiveis.find(l => l.id === parseInt(value));
-      setLivroSelecionado(livro);
+  const handleLivroChange = (e) => {
+    const { name, value } = e.target;
+    setLivroAtual(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const adicionarLivro = () => {
+    if (!livroAtual.livro_id) {
+      setError('Selecione um livro para adicionar');
+      return;
     }
+
+    const livroExistente = livrosSelecionados.find(l => l.livro_id === parseInt(livroAtual.livro_id));
+    if (livroExistente) {
+      setError('Este livro já foi adicionado à reserva');
+      return;
+    }
+
+    const livroCompleto = livrosDisponiveis.find(l => l.id === parseInt(livroAtual.livro_id));
+    if (!livroCompleto) {
+      setError('Livro não encontrado');
+      return;
+    }
+
+    const novoLivro = {
+      livro_id: parseInt(livroAtual.livro_id),
+      quantidade: parseInt(livroAtual.quantidade) || 1,
+      livro_titulo: livroCompleto.titulo,
+      livro_isbn: livroCompleto.isbn,
+      autor_nome: livroCompleto.autor_nome,
+      livro_imagem: livroCompleto.imagem
+    };
+
+    setLivrosSelecionados(prev => [...prev, novoLivro]);
+    setLivroAtual({ livro_id: '', quantidade: 1 });
+    setError('');
+  };
+
+  const removerLivro = (livroId) => {
+    setLivrosSelecionados(prev => prev.filter(l => l.livro_id !== livroId));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const form = e.currentTarget;
-
-    if (form.checkValidity() === false) {
-      e.stopPropagation();
+    
+    if (!formData.usuario_id || !formData.usuario_tipo || !formData.data_validade) {
       setValidated(true);
+      return;
+    }
+
+    if (livrosSelecionados.length === 0) {
+      setError('Adicione pelo menos um livro à reserva');
       return;
     }
 
     try {
       setError('');
-      await onSave(formData);
+      
+      const dadosReserva = {
+        usuario_id: formData.usuario_id,
+        usuario_tipo: formData.usuario_tipo,
+        data_validade: formData.data_validade,
+        observacoes: formData.observacoes,
+        livros: livrosSelecionados
+      };
+      
+      await onSave(dadosReserva);
+      await recarregarLivrosDisponiveis();
+      
     } catch (err) {
       console.error('Erro no formulário:', err);
+      setError(err.message || 'Erro ao salvar reserva');
     }
   };
 
@@ -148,6 +223,20 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
       default:
         return [];
     }
+  };
+  
+  const formatarTipoUsuario = (tipo) => {
+    if (!tipo) return '';
+    const textoFormatado = tipo.replace('_', ' ');
+    return textoFormatado
+      .split(' ')
+      .map(palavra => palavra.charAt(0).toUpperCase() + palavra.slice(1))
+      .join(' ');
+  };
+
+  const getLivrosDisponiveisParaAdicionar = () => {
+    const livrosAdicionadosIds = livrosSelecionados.map(l => l.livro_id);
+    return livrosDisponiveis.filter(livro => !livrosAdicionadosIds.includes(livro.id));
   };
 
   const hoje = new Date().toISOString().split('T')[0];
@@ -167,11 +256,11 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
         )}
 
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
-          {/* Seleção do Usuário */}
+          {/* 1. SELEÇÃO DO USUÁRIO */}
           <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='usuario_tipo'>
-                <Form.Label>Tipo de Usuário</Form.Label>
+                <Form.Label>Tipo de Usuário:</Form.Label>
                 <Form.Select
                   name="usuario_tipo"
                   value={formData.usuario_tipo}
@@ -191,7 +280,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
             </Col>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='usuario_id'>
-                <Form.Label>Usuário</Form.Label>
+                <Form.Label>Usuário:</Form.Label>
                 <Form.Select
                   name="usuario_id"
                   value={formData.usuario_id}
@@ -202,7 +291,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
                   <option value="">Selecione um usuário</option>
                   {getUsuariosPorTipo().map(usuario => (
                     <option key={usuario.id} value={usuario.id}>
-                      {usuario.nome}
+                      {formatarNome(usuario.nome)}
                     </option>
                   ))}
                 </Form.Select>
@@ -215,86 +304,24 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
 
           {/* Informações do Usuário Selecionado */}
           {usuarioSelecionado && (
-            <Alert variant="info" className="py-2">
+            <Alert variant="info" className="py-2 d-inline-block">
               <div className="d-flex align-items-center">
                 <FaUser className="me-2" />
                 <div>
                   <strong>Usuário selecionado:</strong> {usuarioSelecionado.nome}
-                  <Badge bg="secondary" className="ms-2">
-                    {formData.usuario_tipo}
-                  </Badge>
+                  <span className="ms-2 text-muted fst-italic">
+                    ({formatarTipoUsuario(formData.usuario_tipo)})
+                  </span>
                 </div>
               </div>
             </Alert>
           )}
 
-          {/* Seleção do Livro */}
-          <Row>
-            <Col md={12}>
-              <Form.Group className='mb-3' controlId='livro_id'>
-                <Form.Label>Livro</Form.Label>
-                <Form.Select
-                  name="livro_id"
-                  value={formData.livro_id}
-                  onChange={handleChange}
-                  required
-                  disabled={loading || optionsLoading}
-                >
-                  <option value="">Selecione um livro</option>
-                  {livrosDisponiveis.map(livro => (
-                    <option key={livro.id} value={livro.id}>
-                      {livro.titulo} - {livro.autor_nome} 
-                      {livro.estoque > 0 ? 
-                        ` (Disponível: ${livro.estoque})` : 
-                        ' (Indisponível)'
-                      }
-                    </option>
-                  ))}
-                </Form.Select>
-                <Form.Control.Feedback type='invalid'>
-                  Selecione um livro
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
-          </Row>
-
-          {/* Informações do Livro Selecionado */}
-          {livroSelecionado && (
-            <Alert 
-              variant={livroSelecionado.estoque > 0 ? "success" : "warning"} 
-              className="py-2"
-            >
-              <div className="d-flex align-items-center">
-                <FaBook className="me-2" />
-                <div>
-                  <strong>Livro selecionado:</strong> {livroSelecionado.titulo}
-                  <br />
-                  <small>
-                    <strong>Autor:</strong> {livroSelecionado.autor_nome} | 
-                    <strong> Editora:</strong> {livroSelecionado.editora_nome} | 
-                    <strong> ISBN:</strong> {livroSelecionado.isbn}
-                  </small>
-                  <br />
-                  {livroSelecionado.estoque > 0 ? (
-                    <Badge bg="success">
-                      Disponível: {livroSelecionado.estoque} unidade(s)
-                    </Badge>
-                  ) : (
-                    <Badge bg="warning" text="dark">
-                      <FaExclamationTriangle className="me-1" />
-                      Indisponível para empréstimo
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </Alert>
-          )}
-
-          {/* Data de Validade */}
+          {/* 2. DATA DE VALIDADE */}
           <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='data_validade'>
-                <Form.Label>Data de Validade da Reserva</Form.Label>
+                <Form.Label>Data de Validade da Reserva:</Form.Label>
                 <Form.Control
                   type='date'
                   name='data_validade'
@@ -314,9 +341,105 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
             </Col>
           </Row>
 
-          {/* Observações */}
+          {/* 3. LIVROS DA RESERVA */}
+          <Card className="mb-3">
+            <Card.Header className="bg-primary">
+              <h6 className="mb-0">Livros da Reserva</h6>
+            </Card.Header>
+            <Card.Body>
+              {/* Lista de Livros Selecionados */}
+              {livrosSelecionados.length > 0 && (
+                <ListGroup className="mb-3">
+                  {livrosSelecionados.map((livro, index) => (
+                    <ListGroup.Item key={livro.livro_id} className="d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong>{livro.livro_titulo}</strong>
+                        <br />
+                        <small className="text-muted">
+                          Autor: {livro.autor_nome} | ISBN: {livro.livro_isbn} | 
+                          Quantidade: {livro.quantidade}
+                        </small>
+                      </div>
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={() => removerLivro(livro.livro_id)}
+                        title="Remover livro"
+                      >
+                        <BsTrash />
+                      </Button>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              )}
+
+              {/* Adicionar Novo Livro */}
+              <Card className="border-dashed">
+                <Card.Body>
+                  <Row className="align-items-end">
+                    <Col md={8}>
+                      <Form.Label>Adicionar Livro:</Form.Label>
+                      <Form.Select
+                        name="livro_id"
+                        value={livroAtual.livro_id}
+                        onChange={handleLivroChange}
+                        disabled={loading || optionsLoading}
+                      >
+                        <option value="">Selecione um livro para adicionar</option>
+                        {getLivrosDisponiveisParaAdicionar().map(livro => (
+                          <option 
+                            key={livro.id} 
+                            value={livro.id}
+                            disabled={livro.estoque <= 0}
+                          >
+                            {formatarNome(livro.titulo)} - {formatarNome(livro.autor_nome)} 
+                            {livro.estoque > 0 ? 
+                              ` (Estoque: ${livro.estoque})` : 
+                              ' (Indisponível)'
+                            }
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Col>
+                    <Col md={2}>
+                      <Form.Label>Quantidade:</Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="quantidade"
+                        value={livroAtual.quantidade}
+                        onChange={handleLivroChange}
+                        min="1"
+                        max="10"
+                        disabled={loading}
+                      />
+                    </Col>
+                    <Col md={2}>
+                     <Button
+  variant="primary"
+  onClick={adicionarLivro}
+  disabled={loading || !livroAtual.livro_id}
+  className="w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 custom-add-btn"
+>
+  <BsPlusCircle style={{ fontSize: '1.2rem' }} />
+  Adicionar Livro:
+</Button>
+
+                    </Col>
+                  </Row>
+                </Card.Body>
+              </Card>
+
+              {livrosSelecionados.length === 0 && (
+                <Form.Text className="text-danger">
+                  Adicione pelo menos um livro à reserva
+                </Form.Text>
+              )}
+            </Card.Body>
+          </Card>
+
+          {/* 4. OBSERVAÇÕES */}
           <Form.Group className='mb-3' controlId='observacoes'>
-            <Form.Label>Observações</Form.Label>
+            <Form.Label>Observações:</Form.Label>
             <Form.Control
               as='textarea'
               rows={3}
@@ -329,10 +452,10 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
           </Form.Group>
 
           <div className='d-flex justify-content-end gap-2'>
-            <Button variant='danger' onClick={onCancel} disabled={loading}>
+            <Button variant='cancelar' onClick={onCancel} disabled={loading}>
               Cancelar
             </Button>
-            <Button variant='primary' type='submit' disabled={loading}>
+            <Button variant='primary' type='submit' disabled={loading || livrosSelecionados.length === 0}>
               {loading ? (
                 <>
                   <Spinner as="span" animation="border" size="sm" className="me-2" />
