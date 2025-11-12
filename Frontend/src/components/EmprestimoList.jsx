@@ -35,7 +35,7 @@ const formatarTelefone = (telefone) => {
   return telefone;
 };
 
-const EmprestimoList = ({ emprestimos, onDelete, onEdit, onRenovar, onFinalizar, loading }) => {
+const EmprestimoList = ({ emprestimos, onDelete, onRenovar, onFinalizar, loading }) => {
   const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [filtroStatus, setFiltroStatus] = useState('todos');
@@ -85,7 +85,7 @@ const EmprestimoList = ({ emprestimos, onDelete, onEdit, onRenovar, onFinalizar,
     const hoje = new Date();
     const devolucao = new Date(emprestimo.data_devolucao_prevista);
 
-    // 🔍 Cálculo dinâmico do status
+    //  Cálculo dinâmico do status
     let statusCalculado = emprestimo.status;
     if (emprestimo.status === 'ativo' && devolucao < hoje) {
       statusCalculado = 'atrasado';
@@ -122,46 +122,75 @@ const EmprestimoList = ({ emprestimos, onDelete, onEdit, onRenovar, onFinalizar,
   };
 
   // Função para verificar se está no prazo
-const verificarPrazo = (dataDevolucao, status) => {
+const verificarPrazo = (dataDevolucaoPrevista, dataDevolucaoReal, status) => {
   if (status === 'finalizado') {
-    return { situacao: 'finalizado', classe: 'text-dark', texto: 'Devolvido' };
+    return { 
+      situacao: 'finalizado', 
+      classe: 'text-dark', 
+      texto: 'Devolvido',
+      dataDisplay: dataDevolucaoReal ? formatarData(dataDevolucaoReal) : 'Devolvido',
+      badge: 'dark'
+    };
   }
 
   const hoje = new Date();
-  const devolucao = new Date(dataDevolucao);
+  const devolucao = new Date(dataDevolucaoPrevista);
 
   if (devolucao < hoje) {
-    return { situacao: 'atrasado', classe: 'text-warning', texto: 'Atrasado' };
+    return { 
+      situacao: 'atrasado', 
+      classe: 'text-warning', 
+      texto: 'Atrasado',
+      dataDisplay: formatarData(dataDevolucaoPrevista),
+      badge: 'warning'
+    };
   }
+
 
   // Verificar se está próximo do vencimento (3 dias ou menos)
-  const diasRestantes = Math.ceil((devolucao - hoje) / (1000 * 60 * 60 * 24));
+const diasRestantes = Math.ceil((devolucao - hoje) / (1000 * 60 * 60 * 24));
   if (diasRestantes <= 3) {
-    return { situacao: 'proximo_vencimento', classe: 'text-warning', texto: `Vence em ${diasRestantes} dia(s)` };
+    return { 
+      situacao: 'proximo_vencimento', 
+      classe: 'text-warning', 
+      texto: `Vence em ${diasRestantes} dia(s)`,
+      dataDisplay: formatarData(dataDevolucaoPrevista),
+      badge: 'warning'
+    };
   }
 
-  return { situacao: 'no_prazo', classe: '', texto: 'No prazo' };
+  return { 
+    situacao: 'no_prazo', 
+    classe: '', 
+    texto: 'No prazo',
+    dataDisplay: formatarData(dataDevolucaoPrevista),
+    badge: 'success'
+  };
 };
 
-  const getStatusBadge = (status, dataDevolucao) => {
-    const hoje = new Date();
-    const devolucao = new Date(dataDevolucao);
+const getStatusBadge = (status, dataDevolucao) => {
+  const hoje = new Date();
+  const devolucao = new Date(dataDevolucao);
 
-    if (status === 'finalizado') {
-      return <Badge bg="dark">Finalizado</Badge>;
-    }
-
-    if (status === 'atrasado') {
-      return <Badge bg="badge text-dark bg-warning">Atrasado</Badge>;
-    }
-
-    if (devolucao < hoje) {
-      return <Badge bg="badge text-dark bg-warning">Atrasado</Badge>;
-    }
-
-    return <Badge bg="success">Emprestado</Badge>;
+  // Função para capitalizar (primeira letra maiúscula)
+  const capitalizar = (texto) => {
+    return texto.charAt(0).toUpperCase() + texto.slice(1);
   };
 
+  if (status === 'finalizado') {
+    return <Badge bg="dark">{capitalizar('finalizado')}</Badge>;
+  }
+
+  if (status === 'atrasado') {
+    return <Badge bg="warning" className="text-dark">{capitalizar('atrasado')}</Badge>;
+  }
+
+  if (devolucao < hoje) {
+    return <Badge bg="warning" className="text-dark">{capitalizar('atrasado')}</Badge>;
+  }
+
+  return <Badge bg="success">{capitalizar('emprestado')}</Badge>;
+};
   const isAtrasado = (dataDevolucao, status) => {
     if (status === 'finalizado') return false;
     const hoje = new Date();
@@ -271,31 +300,45 @@ const verificarPrazo = (dataDevolucao, status) => {
                   <th width="200px" className="text-center">Ações</th>
                 </tr>
               </thead>
-              <tbody>
+             <tbody>
                 {emprestimosPaginaAtual.map(emprestimo => {
                   const atrasado = isAtrasado(emprestimo.data_devolucao_prevista, emprestimo.status);
-                  const situacao = verificarPrazo(emprestimo.data_devolucao_prevista, emprestimo.status);
+                  const situacao = verificarPrazo(
+                    emprestimo.data_devolucao_prevista, 
+                    emprestimo.data_devolucao_real,
+                    emprestimo.status
+                  );
 
                   return (
                     <tr key={emprestimo.id} className={atrasado ? 'linha-atrasada' : ''}>
                       <td className="fw-bold">#{emprestimo.id}</td>
 
-                      {/* Coluna Usuário */}
-                      <td>
-                        <div className="fw-semibold">{formatarTexto(emprestimo.usuario)}</div>
-                      </td>
+                     {/* Coluna Usuário */}
+                        <td>
+                          <div className="fw-semibold">{formatarTexto(emprestimo.usuario)}</div>
+                        </td>
 
                       {/* Coluna Tipo */}
-                      <td>
-                        {emprestimo.usuario_tipo
-                          ? (emprestimo.usuario_tipo.split('_')[0].toLowerCase() === 'usuario'
-                            ? 'Usuário'
-                            : emprestimo.usuario_tipo.split('_')[0].charAt(0).toUpperCase() + emprestimo.usuario_tipo.split('_')[0].slice(1))
-                          : ''
-                        }
-                      </td>
+                        <td>
+                          {emprestimo.usuario_tipo
+                            ? (() => {
+                                // Formatar o tipo de usuário
+                                let tipoFormatado = emprestimo.usuario_tipo;
+                                
+                                // Remover underline e capitalizar
+                                if (tipoFormatado === 'usuario_especial') {
+                                  tipoFormatado = 'Usuário Especial';
+                                } else {
+                                  tipoFormatado = tipoFormatado.charAt(0).toUpperCase() + tipoFormatado.slice(1);
+                                }
+                                
+                                return tipoFormatado;
+                              })()
+                            : ''
+                          }
+                        </td>
 
-                      {/* Coluna Livros - COM BOTÃO PARA VER LIVROS */}
+                      {/* Coluna Livros */}
                       <td>
                         <Button
                           variant="paginacao"
@@ -311,22 +354,32 @@ const verificarPrazo = (dataDevolucao, status) => {
 
                       <td className="text-nowrap">{formatarData(emprestimo.data_emprestimo)}</td>
                       
+                      {/* Coluna Data Devolução - CORRIGIDA */}
                       <td className={`text-nowrap ${atrasado ? 'text-warning fw-bold' : ''}`}>
                         {atrasado && <FaExclamationTriangle className="me-1" />}
-                        {formatarData(emprestimo.data_devolucao_prevista)}
+                        {/* EXIBIR DATA CORRETA: real se finalizado, prevista se ativo/atrasado */}
+                        {emprestimo.status === 'finalizado' && emprestimo.data_devolucao_real 
+                          ? formatarData(emprestimo.data_devolucao_real) // DATA REAL
+                          : formatarData(emprestimo.data_devolucao_prevista) // DATA PREVISTA
+                        }
                       </td>
 
                       <td>
                         {getStatusBadge(emprestimo.status, emprestimo.data_devolucao_prevista)}
                       </td>
 
-                      {/* Coluna Situação */}
-                    {/* Coluna Situação */}
-<td>
-  <span className={`small ${situacao.classe}`}>
-    {situacao.texto}
-  </span>
-</td>
+                      {/*  Coluna Situação  */}
+                      <td>
+                        <span className={`small ${situacao.classe}`}>
+                          {situacao.texto}
+                        </span>
+                        {/* Mostrar data de devolução real quando disponível */}
+                        {emprestimo.status === 'finalizado' && emprestimo.data_devolucao_real && (
+                          <div className="text-muted" style={{ fontSize: '0.7rem' }}>
+                            Em {formatarData(emprestimo.data_devolucao_real)}
+                          </div>
+                        )}
+                      </td>
 
                       <td>
                         <div className="d-flex gap-2 justify-content-center">
@@ -421,32 +474,52 @@ const verificarPrazo = (dataDevolucao, status) => {
                 </div>
 
                 {/* SEÇÃO: Informações do Empréstimo */}
-                <div className="mb-4 p-3 border rounded bg-white">
-                  <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
-                    Informações do Empréstimo
-                  </h5>
-                  <Row>
-                    <Col md={6}>
-                      <p className="mb-2">
-                        <strong>Data do Empréstimo:</strong> {formatarData(emprestimoSelecionado?.data_emprestimo)}
-                      </p>
-                      <p className="mb-2">
-                        <strong>Data de Devolução:</strong> {formatarData(emprestimoSelecionado?.data_devolucao_prevista)}
-                      </p>
-                    </Col>
-                    <Col md={6}>
-                      <p className="mb-2">
-                        <strong>Status:</strong> {getStatusBadge(emprestimoSelecionado?.status, emprestimoSelecionado?.data_devolucao_prevista)}
-                      </p>
-                      <p className="mb-2">
-                        <strong>Situação:</strong>
-                        <Badge bg={verificarPrazo(emprestimoSelecionado?.data_devolucao_prevista, emprestimoSelecionado?.status).badge} className="ms-2">
-                          {verificarPrazo(emprestimoSelecionado?.data_devolucao_prevista, emprestimoSelecionado?.status).texto}
-                        </Badge>
-                      </p>
-                    </Col>
-                  </Row>
-                </div>
+                    <div className="mb-4 p-3 border rounded bg-white">
+                      <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
+                        Informações do Empréstimo
+                      </h5>
+                      <Row>
+                        <Col md={6}>
+                          <p className="mb-2">
+                            <strong>Data do Empréstimo:</strong> {formatarData(emprestimoSelecionado?.data_emprestimo)}
+                          </p>
+                          <p className="mb-2">
+                            <strong>Data de Devolução Prevista:</strong> {formatarData(emprestimoSelecionado?.data_devolucao_prevista)}
+                          </p>
+                        </Col>
+                        <Col md={6}>
+                          <p className="mb-2">
+                            <strong>Status:</strong> {getStatusBadge(emprestimoSelecionado?.status, emprestimoSelecionado?.data_devolucao_prevista)}
+                          </p>
+                          
+                          {/* Data de Devolução Real (se disponível) */}
+                          {emprestimoSelecionado?.data_devolucao_real && (
+                            <p className="mb-2">
+                              <strong>Data de Devolução Real:</strong> 
+                              <span className="text-success fw-bold ms-2">
+                                {formatarData(emprestimoSelecionado.data_devolucao_real)}
+                              </span>
+                            </p>
+                          )}
+                          
+                          <p className="mb-2 d-flex align-items-center">
+                            <strong>Situação:</strong>
+                            {(() => {
+                              const situacao = verificarPrazo(
+                                emprestimoSelecionado?.data_devolucao_prevista,
+                                emprestimoSelecionado?.data_devolucao_real,
+                                emprestimoSelecionado?.status
+                              );
+                              return (
+                                <Badge bg={situacao.badge} className="ms-2">
+                                  {situacao.texto}
+                                </Badge>
+                              );
+                            })()}
+                          </p>
+                        </Col>
+                      </Row>
+                    </div>
 
                 {/* SEÇÃO: Livros do Empréstimo */}
                 <div className="p-3 border rounded bg-white">

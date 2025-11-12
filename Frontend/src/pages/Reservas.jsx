@@ -16,16 +16,21 @@ const Reservas = () => {
   const [showConcluirModal, setShowConcluirModal] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const [operationType, setOperationType] = useState('')
   const totalAtivas = reservas.filter(r => r.status === 'ativa').length;
   const totalCanceladas = reservas.filter(r => r.status === 'cancelada').length;
   const totalConcluidas = reservas.filter(r => r.status === 'concluida').length;
-  const totalExpiradas = reservas.filter(r => r.status === 'expirada').length;
-  const totalGeral = reservas.length;
 
+   const totalExpiradas = reservas.filter(r => {
+    if (r.status !== 'ativa') return false;
+    const hoje = new Date();
+    const validade = new Date(r.data_validade);
+    return validade < hoje;
+  }).length;
+
+  const totalGeral = reservas.length;
   // Carregar reservas
   const loadReservas = useCallback(async () => {
     try {
@@ -325,7 +330,7 @@ const Reservas = () => {
           <small className="text-muted">Concluídas</small>
         </div>
         <div className="text-center px-3 py-2">
-          <h6 className="mb-0 text-warning fw-bold">{totalExpiradas}</h6>
+          <h6 className="mb-0 text-warning fw-bold">{totalExpiradas}</h6> {/* ✅ Agora atualizado */}
           <small className="text-muted">Expiradas</small>
         </div>
       </div>

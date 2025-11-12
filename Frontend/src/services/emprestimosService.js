@@ -185,13 +185,37 @@ const verificarDisponibilidade = async (livroId, quantidade = 1) => {
     const response = await fetch(`${API_BASE_URL}/disponibilidade/${livroId}?quantidade=${quantidade}`, {
       credentials: 'include'
     });
-    const result = await handleResponse(response);
+    
+    if (!response.ok) {
+      // Se a rota não existir ainda, usa fallback
+      const livroResponse = await fetch(`http://localhost:3000/api/livros/${livroId}`, {
+        credentials: 'include'
+      });
+      
+      if (livroResponse.ok) {
+        const livroData = await livroResponse.json();
+        return {
+          success: true,
+          data: {
+            podeReservar: (livroData.data.estoque || 0) >= quantidade,
+            disponivelExato: livroData.data.estoque || 0,
+            estoqueFisico: livroData.data.estoque || 0,
+            totalReservado: 0,
+            livro: livroData.data.titulo
+          }
+        };
+      }
+      
+      throw new Error('Erro ao verificar disponibilidade');
+    }
+    
+    const result = await response.json();
     return result;
   } catch (error) {
     console.error(`Erro ao verificar disponibilidade do livro ${livroId}:`, error);
     throw error;
   }
-}
+};
 const verificarEdicao = async (id) => {
   try {
     const response = await fetch(`${API_BASE_URL}/${id}/verificar-edicao`, {

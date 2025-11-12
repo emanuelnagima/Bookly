@@ -8,9 +8,6 @@ class Professor {
         this.email = data.email || '';
         this.telefone = data.telefone || '';
         this.departamento = data.departamento || '';
-
-        console.log('👤 Professor constructor - data_nascimento:', this.data_nascimento); 
-
         this.departamentosPermitidos = [
             'Matemática', 'Ciências', 'Português', 'História', 'Geografia', 
             'Inglês', 'Espanhol', 'Educação Física', 'Artes', 'Música', 

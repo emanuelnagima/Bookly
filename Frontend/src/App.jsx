@@ -26,7 +26,7 @@ import Editoras from './pages/Editoras';
 import UsuariosEspeciais from './pages/UsuariosEspeciais';
 import Entrada from './pages/Entrada';
 import Saida from './pages/Saida';
-
+import RelatoriosGerais from './pages/RelatoriosGerais';
 import Emprestimos from './pages/Emprestimos';
 import Reservas from './pages/Reservas';
 
@@ -108,15 +108,20 @@ function App() {
                         </ProtectedRoute>
                       } />
                       <Route path="/emprestimos" element={
-  <ProtectedRoute roles={['admin', 'operador']}>
-    <Emprestimos />
-  </ProtectedRoute>
-} />
-<Route path="/reservas" element={
-  <ProtectedRoute roles={['admin', 'operador']}>
-    <Reservas />
-  </ProtectedRoute>
-} />
+                        <ProtectedRoute roles={['admin', 'operador']}>
+                          <Emprestimos />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/reservas" element={
+                        <ProtectedRoute roles={['admin', 'operador']}>
+                          <Reservas />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/relatorios" element={
+                        <ProtectedRoute roles={['admin', 'operador']}>
+                          <RelatoriosGerais />
+                        </ProtectedRoute>
+                      } />
                       {/* Cadastros - Apenas admin */}
                       <Route path="/cadastros/livros" element={
                         <ProtectedRoute roles={['admin']}>

@@ -320,43 +320,42 @@ async diagnosticarEstoque(livroId) {
         }
     }
 
-    async finalizar(id) {
-        let connection;
-        try {
-            connection = await db.getConnection();
-            await connection.beginTransaction();
+async finalizar(id) {
+    let connection;
+    try {
+        connection = await db.getConnection();
+        await connection.beginTransaction();
 
-            // Buscar empréstimo e seus livros
-            const emprestimo = await this.findById(id);
-            if (!emprestimo) {
-                throw new Error('Empréstimo não encontrado');
-            }
-
-            // Atualizar status do empréstimo
-            await connection.execute(
-                'UPDATE emprestimos SET status = "finalizado", data_devolucao_real = NOW() WHERE id = ?',
-                [id]
-            );
-
-            // Restaurar estoque dos livros
-            for (const livro of emprestimo.livros) {
-                await connection.execute(
-                    'UPDATE livros SET estoque = estoque + ? WHERE id = ?',
-                    [livro.quantidade || 1, livro.livro_id]
-                );
-            }
-
-            await connection.commit();
-            return this.findById(id);
-
-        } catch (error) {
-            if (connection) await connection.rollback();
-            throw new Error(`Erro ao finalizar empréstimo: ${error.message}`);
-        } finally {
-            if (connection) connection.release();
+        // Buscar empréstimo e seus livros
+        const emprestimo = await this.findById(id);
+        if (!emprestimo) {
+            throw new Error('Empréstimo não encontrado');
         }
+
+        //  CORREÇÃO: Adicionar data_devolucao_real com a data/hora atual
+        await connection.execute(
+            'UPDATE emprestimos SET status = "finalizado", data_devolucao_real = NOW() WHERE id = ?',
+            [id]
+        );
+
+        // Restaurar estoque dos livros
+        for (const livro of emprestimo.livros) {
+            await connection.execute(
+                'UPDATE livros SET estoque = estoque + ? WHERE id = ?',
+                [livro.quantidade || 1, livro.livro_id]
+            );
+        }
+
+        await connection.commit();
+        return this.findById(id);
+
+    } catch (error) {
+        if (connection) await connection.rollback();
+        throw new Error(`Erro ao finalizar empréstimo: ${error.message}`);
+    } finally {
+        if (connection) connection.release();
     }
-    
+}
     async getEmprestimosAtivos() {
         try {
             const [rows] = await db.execute(`

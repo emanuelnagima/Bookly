@@ -18,6 +18,8 @@ const entradaSaidaRoutes = require('./routes/entradaSaidaRoutes');
 const authRoutes = require('./routes/authRoutes');
 const emprestimosRoutes = require('./routes/emprestimosRoutes');
 const reservasRoutes = require('./routes/reservasRoutes');
+const relatoriosRoutes = require('./routes/relatoriosRoutes');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -52,6 +54,7 @@ app.use('/api/usuarios-especiais', usuariosEspeciaisRoutes);
 app.use('/api/entrada-saida', entradaSaidaRoutes);
 app.use('/api/emprestimos', emprestimosRoutes);
 app.use('/api/reservas', reservasRoutes);
+app.use('/api/relatorios', relatoriosRoutes);
 
 app.get('/', (req, res) => {
   res.json({
@@ -67,7 +70,8 @@ app.get('/', (req, res) => {
       entradaSaida: '/api/entrada-saida',
       emprestimos: '/api/emprestimos',
       reservas: '/api/reservas',
-      uploads: '/uploads'
+      uploads: '/uploads',
+      
     }
   });
 });

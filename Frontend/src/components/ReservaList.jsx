@@ -35,7 +35,7 @@ const formatarTelefone = (telefone) => {
   return telefone;
 };
 
-const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loading }) => {
+const ReservaList = ({ reservas, onDelete, onCancelar, onConcluir, loading }) => {
   const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [filtroStatus, setFiltroStatus] = useState('todos');
@@ -86,7 +86,7 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
     const hoje = new Date();
     const validade = new Date(reserva.data_validade);
 
-    // 🔍 Calcula status dinâmico
+    //  Calcula status dinâmico
     let statusCalculado = reserva.status;
     if (reserva.status === 'ativa' && validade < hoje) {
       statusCalculado = 'expirada';

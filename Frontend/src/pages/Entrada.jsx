@@ -23,6 +23,22 @@ const Entrada = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState('');
 
+// FUNÇÃO PARA FORMATAR TEXTO COM PRIMEIRA LETRA MAIÚSCULA
+const formatarTexto = (texto) => {
+  if (!texto || texto === '-') return '-';
+  
+  // Se for número ou elemento React, retorna como está
+  if (typeof texto === 'number' || typeof texto === 'object') return texto;
+  
+  const textoString = texto.toString().trim();
+  
+  return textoString
+    .toLowerCase()
+    .split(' ')
+    .map(palavra => palavra.charAt(0).toUpperCase() + palavra.slice(1))
+    .join(' ');
+};
+
   // Carrega livros com estoque - FUNÇÃO ORIGINAL
   const loadLivros = async () => {
     try {
@@ -314,12 +330,12 @@ const Entrada = () => {
                                 )}
                               </td>
 
-                              <td>
+                             <td>
                                 <div className="fw-semibold" style={{ maxWidth: '200px' }}>
-                                  {livro.titulo}
+                                  {formatarTexto(livro.titulo)} {/* ← ADICIONE formatarTexto AQUI */}
                                 </div>
                                 <small className="text-muted">
-                                  {livro.autor_nome}
+                                  {formatarTexto(livro.autor_nome)} {/* ← ADICIONE formatarTexto AQUI */}
                                 </small>
                               </td>
 
@@ -416,15 +432,15 @@ const Entrada = () => {
                       )}
                     </Col>
                     <Col md={8}>
-                      <h6 className="fw-bold text-primary mb-2">{livroSelecionado.titulo}</h6>
+                      <h6 className="fw-bold text-primary mb-2">{formatarTexto(livroSelecionado.titulo)}</h6> {/* ← ADICIONE AQUI */}
                       <div className="row small">
                         <div className="col-6 mb-1">
                           <strong>Autor:</strong>
-                          <div>{livroSelecionado.autor_nome}</div>
+                          <div>{formatarTexto(livroSelecionado.autor_nome)}</div> {/* ← ADICIONE AQUI */}
                         </div>
                         <div className="col-6 mb-1">
                           <strong>Editora:</strong>
-                          <div>{livroSelecionado.editora_nome}</div>
+                          <div>{formatarTexto(livroSelecionado.editora_nome)}</div> {/* ← ADICIONE AQUI */}
                         </div>
                         <div className="col-6 mb-1">
                           <strong>ISBN:</strong>
@@ -432,7 +448,7 @@ const Entrada = () => {
                         </div>
                         <div className="col-6 mb-1">
                           <strong>Gênero:</strong>
-                          <div>{livroSelecionado.genero}</div>
+                          <div>{formatarTexto(livroSelecionado.genero)}</div> {/* ← ADICIONE AQUI */}
                         </div>
                       </div>
 

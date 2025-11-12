@@ -46,7 +46,29 @@
   --help-size: 48px;
   --devs-grid-min: 280px;
 }
+/* Adicione ao seu CSS */
+.relatorio-estatistica {
+  border-left: 4px solid #007bff;
+  padding-left: 15px;
+}
 
+.relatorio-card {
+  transition: transform 0.2s;
+}
+
+.relatorio-card:hover {
+  transform: translateY(-2px);
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .table {
+    font-size: 12px;
+  }
+}
 /* ====== RESET BÁSICO E ESTILOS GERAIS ====== */
 body.tema-padrao {
   background-color: var(--color-bg);
