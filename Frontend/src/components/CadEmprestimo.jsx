@@ -14,7 +14,7 @@ const CadEmprestimo = ({ onSave, onCancel, emprestimo, loading }) => {
   });
 
   const [livrosSelecionados, setLivrosSelecionados] = useState([]);
-  const [livroAtual, setLivroAtual] = useState({ livro_id: '', quantidade: 1 });
+  const [livroAtual, setLivroAtual] = useState({ livro_id: '' });
   
   const [opcoesUsuarios, setOpcoesUsuarios] = useState({
     alunos: [],
@@ -243,15 +243,15 @@ const CadEmprestimo = ({ onSave, onCancel, emprestimo, loading }) => {
   };
 
   //  FUNÇÃO PARA VERIFICAR SE PODE EMPRESTAR 
-  const podeEmprestarLivro = (livroId, quantidade = 1) => {
-    const info = disponibilidade[livroId] || disponibilidadeGeral[livroId];
-    if (!info) {
-      // Se não tem info, verifica estoque físico como fallback
-      const livro = livrosDisponiveis.find(l => l.id === parseInt(livroId));
-      return livro ? (livro.estoque || 0) >= quantidade : false;
-    }
-    return info.podeEmprestar && info.disponivelExato >= quantidade;
-  };
+const podeEmprestarLivro = (livroId) => {
+  const info = disponibilidade[livroId] || disponibilidadeGeral[livroId];
+  if (!info) {
+    // Se não tem info, verifica estoque 
+    const livro = livrosDisponiveis.find(l => l.id === parseInt(livroId));
+    return livro ? (livro.estoque || 0) >= 1 : false; 
+  }
+  return info.podeEmprestar && info.disponivelExato >= 1; 
+};
 
   // FUNÇÃO PARA OBTER STATUS DE DISPONIBILIDADE (para estilização)
   const getStatusDisponibilidade = (livroId) => {
@@ -295,7 +295,6 @@ const getLivrosOrganizados = () => {
       return a.titulo.localeCompare(b.titulo);
     });
   };
-  // Resto das funções permanecem iguais...
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -312,7 +311,7 @@ const getLivrosOrganizados = () => {
     }
   };
 
-  const handleLivroChange = (e) => {
+const handleLivroChange = (e) => {
     const { name, value } = e.target;
     setLivroAtual(prev => ({
       ...prev,
@@ -338,18 +337,18 @@ const getLivrosOrganizados = () => {
       return;
     }
 
-    // VERIFICAR DISPONIBILIDADE ANTES DE ADICIONAR
-    const podeAdicionar = podeEmprestarLivro(livroAtual.livro_id, livroAtual.quantidade);
+    // VERIFICAR DISPONIBILIDADE ANTES DE ADICIONAR (sempre quantidade = 1)
+    const podeAdicionar = podeEmprestarLivro(livroAtual.livro_id, 1); // Sempre 1
     
     if (!podeAdicionar) {
       const disponivel = calcularDisponibilidade(livroAtual.livro_id);
-      setError(`Quantidade solicitada (${livroAtual.quantidade}) não disponível. Disponível: ${disponivel} unidades`);
+      setError(`Livro não disponível para empréstimo. Disponível: ${disponivel} unidades`);
       return;
     }
 
     const novoLivro = {
       livro_id: parseInt(livroAtual.livro_id),
-      quantidade: parseInt(livroAtual.quantidade) || 1,
+      quantidade: 1, // SEMPRE 1
       livro_titulo: livroCompleto.titulo,
       livro_isbn: livroCompleto.isbn,
       autor_nome: livroCompleto.autor_nome,
@@ -357,9 +356,10 @@ const getLivrosOrganizados = () => {
     };
 
     setLivrosSelecionados(prev => [...prev, novoLivro]);
-    setLivroAtual({ livro_id: '', quantidade: 1 });
+    setLivroAtual({ livro_id: '' }); 
     setError('');
   };
+
 
   const removerLivro = (livroId) => {
     setLivrosSelecionados(prev => prev.filter(l => l.livro_id !== livroId));
@@ -564,142 +564,129 @@ const getLivrosOrganizados = () => {
                 </ListGroup>
               )}
 
-              {/* Adicionar Novo Livro - MODIFICADO */}
-              <Card className="border-dashed">
-                <Card.Body>
-                  <Row className="align-items-end">
-                    <Col md={8}>
-                      <Form.Label>Adicionar Livro:</Form.Label>
-                      <Form.Select
-                        name="livro_id"
-                        value={livroAtual.livro_id}
-                        onChange={handleLivroChange}
-                        disabled={loading || optionsLoading || verificandoDisponibilidade}
-                      >
-                        <option value="">
-                          {verificandoDisponibilidade ? 'Carregando disponibilidade...' : 'Selecione um livro para adicionar'}
-                        </option>
+              {/* Adicionar Novo Livro */}
+                <Card className="border-dashed">
+                  <Card.Body>
+                    <Row className="align-items-end">
+                      <Col md={10}>
+                        <Form.Label>Adicionar Livro:</Form.Label>
+                        <Form.Select
+                          name="livro_id"
+                          value={livroAtual.livro_id}
+                          onChange={handleLivroChange}
+                          disabled={loading || optionsLoading || verificandoDisponibilidade}
+                        >
+                          <option value="">
+                            {verificandoDisponibilidade ? 'Carregando disponibilidade...' : 'Selecione um livro para adicionar'}
+                          </option>
+                          
+                          {/* GRUPO DE LIVROS DISPONÍVEIS */}
+                          <optgroup label=" Livros Disponíveis">
+                            {getLivrosOrganizados()
+                              .filter(livro => podeEmprestarLivro(livro.id))
+                              .map(livro => {
+                                const status = getStatusDisponibilidade(livro.id);
+                                return (
+                                  <option 
+                                    key={livro.id} 
+                                    value={livro.id}
+                                    className={status.classe}
+                                  >
+                                    {formatarNome(livro.titulo)} - {formatarNome(livro.autor_nome)} 
+                                    {' - '}
+                                    <span className={status.classe}>
+                                      {status.icon}
+                                      {status.texto}
+                                    </span>
+                                  </option>
+                                );
+                              })}
+                          </optgroup>
+
+                          {/* GRUPO DE LIVROS INDISPONÍVEIS */}
+                          <optgroup label=" Livros Indisponíveis" className="text-muted">
+                            {getLivrosOrganizados()
+                              .filter(livro => !podeEmprestarLivro(livro.id))
+                              .map(livro => {
+                                const status = getStatusDisponibilidade(livro.id);
+                                return (
+                                  <option 
+                                    key={livro.id} 
+                                    value={livro.id}
+                                    disabled
+                                    className={status.classe}
+                                  >
+                                    {formatarNome(livro.titulo)} - {formatarNome(livro.autor_nome)} 
+                                    {' - '}
+                                    <span className={status.classe}>
+                                      {status.icon}
+                                      {status.texto}
+                                    </span>
+                                  </option>
+                                );
+                              })}
+                          </optgroup>
+                        </Form.Select>
                         
-                        {/*  GRUPO DE LIVROS DISPONÍVEIS */}
-                        <optgroup label=" Livros Disponíveis">
-                          {getLivrosOrganizados()
-                            .filter(livro => podeEmprestarLivro(livro.id, 1))
-                            .map(livro => {
-                              const status = getStatusDisponibilidade(livro.id);
-                              return (
-                                <option 
-                                  key={livro.id} 
-                                  value={livro.id}
-                                  className={status.classe}
-                                >
-                                  {formatarNome(livro.titulo)} - {formatarNome(livro.autor_nome)} 
-                                  {' - '}
-                                  <span className={status.classe}>
-                                    {status.icon}
-                                    {status.texto}
+                        {/* FEEDBACK VISUAL - ATUALIZADO */}
+                        {livroAtual.livro_id && (
+                          <div className="mt-2">
+                            {(disponibilidade[livroAtual.livro_id] || disponibilidadeGeral[livroAtual.livro_id]) && (
+                              <Alert 
+                                variant={podeEmprestarLivro(livroAtual.livro_id) ? "success" : "danger"} 
+                                className="py-2 mb-0"
+                              >
+                                <div className="d-flex align-items-center">
+                                  {podeEmprestarLivro(livroAtual.livro_id) ? (
+                                    <>
+                                      <BsCheckCircle className="me-2" />
+                                      <strong>Disponível para empréstimo</strong>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <BsExclamationTriangle className="me-2" />
+                                      <strong>Indisponível para empréstimo</strong>
+                                    </>
+                                  )}
+                                  <span className="ms-2">
+                                    (Disponível: {calcularDisponibilidade(livroAtual.livro_id)} unidade(s))
                                   </span>
-                                </option>
-                              );
-                            })}
-                        </optgroup>
-
-                        {/*  GRUPO DE LIVROS INDISPONÍVEIS */}
-                        <optgroup label=" Livros Indisponíveis" className="text-muted">
-                          {getLivrosOrganizados()
-                            .filter(livro => !podeEmprestarLivro(livro.id, 1))
-                            .map(livro => {
-                              const status = getStatusDisponibilidade(livro.id);
-                              return (
-                                <option 
-                                  key={livro.id} 
-                                  value={livro.id}
-                                  disabled
-                                  className={status.classe}
-                                >
-                                  {formatarNome(livro.titulo)} - {formatarNome(livro.autor_nome)} 
-                                  {' - '}
-                                  <span className={status.classe}>
-                                    {status.icon}
-                                    {status.texto}
-                                  </span>
-                                </option>
-                              );
-                            })}
-                        </optgroup>
-                      </Form.Select>
-                      
-                      {/* FEEDBACK VISUAL */}
-                      {livroAtual.livro_id && (
-                        <div className="mt-2">
-                          {(disponibilidade[livroAtual.livro_id] || disponibilidadeGeral[livroAtual.livro_id]) && (
-                            <Alert 
-                              variant={podeEmprestarLivro(livroAtual.livro_id, livroAtual.quantidade) ? "success" : "danger"} 
-                              className="py-2 mb-0"
-                            >
-                              <div className="d-flex align-items-center">
-                                {podeEmprestarLivro(livroAtual.livro_id, livroAtual.quantidade) ? (
-                                  <>
-                                    <BsCheckCircle className="me-2" />
-                                    <strong> Disponível para empréstimo</strong>
-                                  </>
-                                ) : (
-                                  <>
-                                    <BsExclamationTriangle className="me-2" />
-                                    <strong> Quantidade não disponível</strong>
-                                  </>
-                                )}
-                                <span className="ms-2">
-                                  (Solicitado: {livroAtual.quantidade} | Disponível: {calcularDisponibilidade(livroAtual.livro_id)})
-                                </span>
-                              </div>
-                            </Alert>
-                          )}
-                        </div>
-                      )}
-                    </Col>
-                    
-                    <Col md={2}>
-                      <Form.Label>Quantidade:</Form.Label>
-                      <Form.Control
-                        type="number"
-                        name="quantidade"
-                        value={livroAtual.quantidade}
-                        onChange={handleLivroChange}
-                        min="1"
-                        max="10"
-                        disabled={loading}
-                      />
-                    </Col>
-                    
-                    <Col md={2}>
-                      <Button
-                        variant="primary"
-                        onClick={adicionarLivro}
-                        disabled={
-                          loading || 
-                          !livroAtual.livro_id || 
-                          !podeEmprestarLivro(livroAtual.livro_id, livroAtual.quantidade) ||
-                          verificandoDisponibilidade
-                        }
-                        className="w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 custom-add-btn"
-                      >
-                        {verificandoDisponibilidade ? (
-                          <Spinner animation="border" size="sm" />
-                        ) : (
-                          <BsPlusCircle style={{ fontSize: '1.2rem' }} />
+                                </div>
+                              </Alert>
+                            )}
+                          </div>
                         )}
-                        {verificandoDisponibilidade ? 'Verificando...' : 'Adicionar Livro'}
-                      </Button>
-                    </Col>
-                  </Row>
-                </Card.Body>
-              </Card>
+                      </Col>
+                      
+                      <Col md={2}>
+                        <Button
+                          variant="primary"
+                          onClick={adicionarLivro}
+                          disabled={
+                            loading || 
+                            !livroAtual.livro_id || 
+                            !podeEmprestarLivro(livroAtual.livro_id) ||
+                            verificandoDisponibilidade
+                          }
+                          className="w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 custom-add-btn mt-4"
+                        >
+                          {verificandoDisponibilidade ? (
+                            <Spinner animation="border" size="sm" />
+                          ) : (
+                            <BsPlusCircle style={{ fontSize: '1.2rem' }} />
+                          )}
+                          {verificandoDisponibilidade ? 'Verificando...' : 'Adicionar'}
+                        </Button>
+                      </Col>
+                    </Row>
+                  </Card.Body>
+                </Card>
 
-            
+                            
             </Card.Body>
           </Card>
 
-          {/* 4. OBSERVAÇÕES - mantém igual */}
+          {/* OBSERVAÇÕES  */}
           <Form.Group className='mb-3' controlId='observacoes'>
             <Form.Label>Observações:</Form.Label>
             <Form.Control

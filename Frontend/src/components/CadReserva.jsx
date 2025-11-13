@@ -14,8 +14,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
   });
 
   const [livrosSelecionados, setLivrosSelecionados] = useState([]);
-  const [livroAtual, setLivroAtual] = useState({ livro_id: '', quantidade: 1 });
-  
+const [livroAtual, setLivroAtual] = useState({ livro_id: '' })  
   const [opcoesUsuarios, setOpcoesUsuarios] = useState({
     alunos: [],
     professores: [],
@@ -136,44 +135,45 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
   };
 
   const handleLivroChange = (e) => {
-    const { name, value } = e.target;
-    setLivroAtual(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const { name, value } = e.target;
+  setLivroAtual(prev => ({
+    ...prev,
+    [name]: value
+  }));
+};
+
+const adicionarLivro = () => {
+  if (!livroAtual.livro_id) {
+    setError('Selecione um livro para adicionar');
+    return;
+  }
+
+  // Verificar se o livro já foi adicionado à reserva atual
+  const livroExistente = livrosSelecionados.find(l => l.livro_id === parseInt(livroAtual.livro_id));
+  if (livroExistente) {
+    setError('Este livro já foi adicionado à reserva');
+    return;
+  }
+
+  const livroCompleto = livrosDisponiveis.find(l => l.id === parseInt(livroAtual.livro_id));
+  if (!livroCompleto) {
+    setError('Livro não encontrado');
+    return;
+  }
+
+  const novoLivro = {
+    livro_id: parseInt(livroAtual.livro_id),
+    quantidade: 1, // ← SEMPRE 1
+    livro_titulo: livroCompleto.titulo,
+    livro_isbn: livroCompleto.isbn,
+    autor_nome: livroCompleto.autor_nome,
+    livro_imagem: livroCompleto.imagem
   };
 
-  const adicionarLivro = () => {
-    if (!livroAtual.livro_id) {
-      setError('Selecione um livro para adicionar');
-      return;
-    }
-
-    const livroExistente = livrosSelecionados.find(l => l.livro_id === parseInt(livroAtual.livro_id));
-    if (livroExistente) {
-      setError('Este livro já foi adicionado à reserva');
-      return;
-    }
-
-    const livroCompleto = livrosDisponiveis.find(l => l.id === parseInt(livroAtual.livro_id));
-    if (!livroCompleto) {
-      setError('Livro não encontrado');
-      return;
-    }
-
-    const novoLivro = {
-      livro_id: parseInt(livroAtual.livro_id),
-      quantidade: parseInt(livroAtual.quantidade) || 1,
-      livro_titulo: livroCompleto.titulo,
-      livro_isbn: livroCompleto.isbn,
-      autor_nome: livroCompleto.autor_nome,
-      livro_imagem: livroCompleto.imagem
-    };
-
-    setLivrosSelecionados(prev => [...prev, novoLivro]);
-    setLivroAtual({ livro_id: '', quantidade: 1 });
-    setError('');
-  };
+  setLivrosSelecionados(prev => [...prev, novoLivro]);
+  setLivroAtual({ livro_id: '' }); // ← Reset sem quantidade
+  setError('');
+};
 
   const removerLivro = (livroId) => {
     setLivrosSelecionados(prev => prev.filter(l => l.livro_id !== livroId));
@@ -356,8 +356,8 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
                         <strong>{livro.livro_titulo}</strong>
                         <br />
                         <small className="text-muted">
-                          Autor: {livro.autor_nome} | ISBN: {livro.livro_isbn} | 
-                          Quantidade: {livro.quantidade}
+                          Autor: {livro.autor_nome} | ISBN: {livro.livro_isbn}
+                          {/* REMOVER a exibição da quantidade */}
                         </small>
                       </div>
                       <Button
@@ -401,29 +401,16 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
                         ))}
                       </Form.Select>
                     </Col>
-                    <Col md={2}>
-                      <Form.Label>Quantidade:</Form.Label>
-                      <Form.Control
-                        type="number"
-                        name="quantidade"
-                        value={livroAtual.quantidade}
-                        onChange={handleLivroChange}
-                        min="1"
-                        max="10"
-                        disabled={loading}
-                      />
-                    </Col>
-                    <Col md={2}>
-                     <Button
-  variant="primary"
-  onClick={adicionarLivro}
-  disabled={loading || !livroAtual.livro_id}
-  className="w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 custom-add-btn"
->
-  <BsPlusCircle style={{ fontSize: '1.2rem' }} />
-  Adicionar Livro:
-</Button>
-
+                    <Col md={4}>
+                      <Button
+                        variant="primary"
+                        onClick={adicionarLivro}
+                        disabled={loading || !livroAtual.livro_id}
+                        className="w-100 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                      >
+                        <BsPlusCircle style={{ fontSize: '1.2rem' }} />
+                        Adicionar Livro
+                      </Button>
                     </Col>
                   </Row>
                 </Card.Body>
