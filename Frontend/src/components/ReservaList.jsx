@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Card, Table, Form, InputGroup, Button, Badge, Row, Col, Modal } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaTimesCircle, FaCheckCircle, FaBook, FaList, FaExclamationTriangle, FaClipboardList } from 'react-icons/fa';
 import { FaCalendarAlt } from "react-icons/fa";
-
+import { FaExchangeAlt } from 'react-icons/fa';
+import disponibilidadeService from '../services/disponibilidadeService';
 const ITENS_POR_PAGINA = 7;
 
 const formatarTexto = texto =>
@@ -35,8 +36,7 @@ const formatarTelefone = (telefone) => {
   return telefone;
 };
 
-const ReservaList = ({ reservas, onDelete, onCancelar, onConcluir, loading }) => {
-  const [termoBusca, setTermoBusca] = useState('');
+const ReservaList = ({ reservas, onDelete, onCancelar, onConcluir, onConverterEmprestimo, loading }) => {  const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [ordenacao, setOrdenacao] = useState('data_reserva_desc');
@@ -346,6 +346,14 @@ const ReservaList = ({ reservas, onDelete, onCancelar, onConcluir, loading }) =>
                         <div className="d-flex gap-2 justify-content-center">
                           {reserva.status === 'ativa' && (
                             <>
+                             <button
+                                className="btn-sm-custom btn-primary"
+                                onClick={() => onConverterEmprestimo(reserva.id)}
+                                title="Converter em empréstimo"
+                                disabled={loading}
+                              >
+                                <FaExchangeAlt />
+                              </button>
                               <button
                                 className="btn-sm-custom btn-renovar"
                                 onClick={() => onCancelar(reserva.id)}

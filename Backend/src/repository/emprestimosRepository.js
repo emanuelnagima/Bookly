@@ -237,21 +237,20 @@ async create(emprestimoData) {
 }
 
 async verificarDisponibilidadeComQuantidade(livroId, quantidade = 1) {
-  try {
-    const diagnostico = await this.diagnosticarEstoque(livroId);
-    
-    return {
-      disponivel: diagnostico.disponivel >= quantidade,
-      estoqueFisico: diagnostico.estoqueFisico,
-      totalEmprestado: diagnostico.totalEmprestado,
-      disponivelExato: diagnostico.disponivel,
-      podeEmprestar: diagnostico.disponivel >= quantidade
-    };
-  } catch (error) {
-    throw new Error(`Erro ao verificar disponibilidade: ${error.message}`);
-  }
+    try {
+        const diagnostico = await this.diagnosticarEstoque(livroId);
+        
+        return {
+            disponivel: diagnostico.disponivel >= quantidade,
+            estoqueFisico: diagnostico.estoqueFisico,
+            totalEmprestado: diagnostico.totalEmprestado,
+            disponivelExato: diagnostico.disponivel,
+            podeEmprestar: diagnostico.disponivel >= quantidade
+        };
+    } catch (error) {
+        throw new Error(`Erro ao verificar disponibilidade: ${error.message}`);
+    }
 }
-
 async diagnosticarEstoque(livroId) {
     try {
         // 1. Estoque físico

@@ -1,8 +1,9 @@
-import { Button, Col, Container, Row, Modal, Spinner, Toast, Alert } from 'react-bootstrap'
+import { Button, Col, Container, Row, Modal, Spinner, Toast, Alert, Form } from 'react-bootstrap'
 import { useState, useEffect, useCallback } from 'react'
 import CadReserva from '../components/CadReserva'
 import ReservaList from '../components/ReservaList'
 import reservasService from '../services/reservasService'
+import disponibilidadeService from '../services/disponibilidadeService';
 
 const Reservas = () => {
   const [showForm, setShowForm] = useState(false)
@@ -22,6 +23,63 @@ const Reservas = () => {
   const totalAtivas = reservas.filter(r => r.status === 'ativa').length;
   const totalCanceladas = reservas.filter(r => r.status === 'cancelada').length;
   const totalConcluidas = reservas.filter(r => r.status === 'concluida').length;
+  const [reservaParaConverter, setReservaParaConverter] = useState(null);
+  const [showConverterModal, setShowConverterModal] = useState(false);
+  const [dataDevolucaoPrevista, setDataDevolucaoPrevista] = useState('');
+
+   const calcularDataPadrao = () => {
+    const data = new Date();
+    data.setDate(data.getDate() + 14);
+    return data.toISOString().split('T')[0];
+  };
+
+  const handleConverterEmprestimo = async (id) => {
+    setReservaParaConverter(id);
+    setDataDevolucaoPrevista(calcularDataPadrao()); // ← DEFINIR DATA PADRÃO
+    setShowConverterModal(true);
+  };
+
+  const handleConfirmarConversao = async () => {
+    if (!reservaParaConverter || !dataDevolucaoPrevista) {
+      setError('Data de devolução é obrigatória');
+      return;
+    }
+
+    // VALIDAR DATA NO FRONTEND TAMBÉM
+    const hoje = new Date();
+    const dataSelecionada = new Date(dataDevolucaoPrevista);
+    if (dataSelecionada <= hoje) {
+      setError('Data de devolução deve ser futura');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+
+      // ← ENVIAR DATA DE DEVOLUÇÃO PARA O SERVICE
+      const resultado = await disponibilidadeService.converterReservaEmEmprestimo(
+        reservaParaConverter, 
+        dataDevolucaoPrevista
+      );
+      
+      setToastMessage('Reserva convertida em empréstimo com sucesso!');
+      setOperationType('conversao');
+      setShowSuccessToast(true);
+
+      await loadReservas();
+    } catch (error) {
+      console.error("Falha na conversão:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+      setShowConverterModal(false);
+      setReservaParaConverter(null);
+      setDataDevolucaoPrevista('');
+    }
+  };
+
+
 
    const totalExpiradas = reservas.filter(r => {
     if (r.status !== 'ativa') return false;
@@ -347,18 +405,19 @@ const Reservas = () => {
         </Row>
       )}
 
-      <Row>
-        <Col>
-          <ReservaList
-            reservas={reservas}
-            onDelete={handleConfirmDelete}
-            onEdit={handleEditReserva}
-            onCancelar={handleCancelarReserva}
-            onConcluir={handleConcluirReserva}
-            loading={loading}
-          />
-        </Col>
-      </Row>
+     <Row>
+      <Col>
+        <ReservaList
+          reservas={reservas}
+          onDelete={handleConfirmDelete}
+          onEdit={handleEditReserva}
+          onCancelar={handleCancelarReserva}
+          onConcluir={handleConcluirReserva}
+          onConverterEmprestimo={handleConverterEmprestimo} 
+          loading={loading}
+        />
+      </Col>
+    </Row>
 
       {/* Modal de confirmação de exclusão */}
       <Modal show={showDeleteModal} onHide={() => !isDeleting && setShowDeleteModal(false)}>
@@ -452,6 +511,56 @@ const Reservas = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+      
+          <Modal show={showConverterModal} onHide={() => setShowConverterModal(false)}>
+            <Modal.Header closeButton>
+              <Modal.Title>Converter Reserva em Empréstimo</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <p>
+                Tem certeza que deseja converter esta reserva em empréstimo? 
+                Esta ação criará um novo empréstimo e marcará a reserva como concluída.
+              </p>
+              
+              {/* FORMULÁRIO PARA DATA DE DEVOLUÇÃO */}
+              <Form.Group className="mb-3">
+                <Form.Label>
+                  <strong>Data de Devolução Prevista:</strong>
+                </Form.Label>
+                <Form.Control
+                  type="date"
+                  value={dataDevolucaoPrevista}
+                  onChange={(e) => setDataDevolucaoPrevista(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]} // Não permite datas passadas
+                  required
+                />
+                <Form.Text className="text-muted">
+                  Informe até quando o usuário deve devolver o livro
+                </Form.Text>
+              </Form.Group>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                variant="secondary"
+                onClick={() => setShowConverterModal(false)}
+                disabled={loading}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="success"
+                onClick={handleConfirmarConversao}
+                disabled={loading || !dataDevolucaoPrevista}
+              >
+                {loading ? (
+                  <>
+                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                    <span className="ms-2">Convertendo...</span>
+                  </>
+                ) : 'Converter'}
+              </Button>
+            </Modal.Footer>
+          </Modal>
     </Container>
   )
 }

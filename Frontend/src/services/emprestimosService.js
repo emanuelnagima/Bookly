@@ -2,13 +2,13 @@ const API_BASE_URL = 'http://localhost:3000/api/emprestimos';
 
 // services/emprestimosService.js - Atualize a função handleResponse
 
+// Função handleResponse melhorada (use em ambos os services)
 const handleResponse = async (response) => {
   const contentType = response.headers.get('content-type');
   
   if (!response.ok) {
     let errorMessage = `HTTP error! status: ${response.status}`;
     
-    // Tenta obter a mensagem de erro do servidor
     try {
       if (contentType && contentType.includes('application/json')) {
         const errorData = await response.json();
@@ -22,6 +22,11 @@ const handleResponse = async (response) => {
     }
     
     throw new Error(errorMessage);
+  }
+  
+  // Para respostas vazias (como em alguns DELETE)
+  if (response.status === 204) {
+    return { success: true };
   }
   
   const data = await response.json();

@@ -4,6 +4,7 @@ import { BsCheckCircle, BsPlusCircle, BsTrash, BsExclamationTriangle } from "rea
 import { FaBook, FaUser, FaExclamationTriangle } from "react-icons/fa";
 import livroService from '../services/livroService';
 import emprestimosService from '../services/emprestimosService';
+import disponibilidadeService from '../services/disponibilidadeService';
 
 const CadEmprestimo = ({ onSave, onCancel, emprestimo, loading }) => {
   const [formData, setFormData] = useState({
@@ -319,84 +320,143 @@ const handleLivroChange = (e) => {
     }));
   };
 
-  const adicionarLivro = async () => {
+const adicionarLivro = async () => {
     if (!livroAtual.livro_id) {
-      setError('Selecione um livro para adicionar');
-      return;
+        setError('Selecione um livro para adicionar');
+        return;
     }
 
     const livroExistente = livrosSelecionados.find(l => l.livro_id === parseInt(livroAtual.livro_id));
     if (livroExistente) {
-      setError('Este livro já foi adicionado ao empréstimo');
-      return;
+        setError('Este livro já foi adicionado ao empréstimo');
+        return;
     }
 
     const livroCompleto = livrosDisponiveis.find(l => l.id === parseInt(livroAtual.livro_id));
     if (!livroCompleto) {
-      setError('Livro não encontrado');
-      return;
+        setError('Livro não encontrado');
+        return;
     }
 
-    // VERIFICAR DISPONIBILIDADE ANTES DE ADICIONAR (sempre quantidade = 1)
-    const podeAdicionar = podeEmprestarLivro(livroAtual.livro_id, 1); // Sempre 1
-    
-    if (!podeAdicionar) {
-      const disponivel = calcularDisponibilidade(livroAtual.livro_id);
-      setError(`Livro não disponível para empréstimo. Disponível: ${disponivel} unidades`);
-      return;
+    // VERIFICAR SE PODE EMPRESTAR COM MENSAGENS ESPECÍFICAS
+    try {
+        const verificacao = await disponibilidadeService.verificarPodeEmprestar(
+            livroAtual.livro_id, 
+            1,
+            formData.usuario_id ? { 
+                id: formData.usuario_id, 
+                tipo: formData.usuario_tipo 
+            } : null
+        );
+        
+        if (!verificacao.podeEmprestar) {
+            // MENSAGENS MAIS ESPECÍFICAS
+            let mensagemErro = '';
+            
+            if (verificacao.motivo?.includes('reserva')) {
+                mensagemErro = `Não é possível emprestar "${livroCompleto.titulo}" - existe uma reserva ativa para este livro.`;
+            } else if (verificacao.motivo?.includes('Estoque')) {
+                mensagemErro = `Estoque insuficiente para "${livroCompleto.titulo}". Disponível: ${verificacao.disponivelExato || 0}`;
+            } else if (verificacao.motivo?.includes('último exemplar')) {
+                mensagemErro = `Último exemplar de "${livroCompleto.titulo}" está reservado para outro usuário.`;
+            } else {
+                mensagemErro = `Não é possível emprestar "${livroCompleto.titulo}": ${verificacao.motivo}`;
+            }
+            
+            setError(mensagemErro);
+            return;
+        }
+    } catch (error) {
+        console.error('Erro na verificação:', error);
+        setError('Erro ao verificar disponibilidade do livro');
+        return;
     }
 
+    // Resto do código permanece igual...
     const novoLivro = {
-      livro_id: parseInt(livroAtual.livro_id),
-      quantidade: 1, // SEMPRE 1
-      livro_titulo: livroCompleto.titulo,
-      livro_isbn: livroCompleto.isbn,
-      autor_nome: livroCompleto.autor_nome,
-      livro_imagem: livroCompleto.imagem
+        livro_id: parseInt(livroAtual.livro_id),
+        quantidade: 1,
+        livro_titulo: livroCompleto.titulo,
+        livro_isbn: livroCompleto.isbn,
+        autor_nome: livroCompleto.autor_nome,
+        livro_imagem: livroCompleto.imagem
     };
 
     setLivrosSelecionados(prev => [...prev, novoLivro]);
-    setLivroAtual({ livro_id: '' }); 
+    setLivroAtual({ livro_id: '' });
     setError('');
-  };
-
+};
 
   const removerLivro = (livroId) => {
     setLivrosSelecionados(prev => prev.filter(l => l.livro_id !== livroId));
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!formData.usuario_id || !formData.usuario_tipo || !formData.data_devolucao_prevista) {
-      setValidated(true);
-      return;
+        setValidated(true);
+        return;
     }
 
     if (livrosSelecionados.length === 0) {
-      setError('Adicione pelo menos um livro ao empréstimo');
-      return;
+        setError('Adicione pelo menos um livro ao empréstimo');
+        return;
     }
 
     try {
-      setError('');
-      
-      const dadosEmprestimo = {
-        usuario_id: formData.usuario_id,
-        usuario_tipo: formData.usuario_tipo,
-        data_devolucao_prevista: formData.data_devolucao_prevista,
-        observacoes: formData.observacoes,
-        livros: livrosSelecionados
-      };      
-      await onSave(dadosEmprestimo);
-      await recarregarLivrosDisponiveis();
-      
+        setError('');
+        
+        // VERIFICAÇÃO FINAL ANTES DE SALVAR
+        for (const livro of livrosSelecionados) {
+            const verificacao = await disponibilidadeService.verificarPodeEmprestar(
+                livro.livro_id, 
+                1,
+                { 
+                    id: formData.usuario_id, 
+                    tipo: formData.usuario_tipo 
+                }
+            );
+            
+            if (!verificacao.podeEmprestar) {
+                let mensagem = '';
+                
+                if (verificacao.tipo === 'reserva_ativa_outro_usuario') {
+                    mensagem = `Não é possível completar o empréstimo. O livro "${livro.livro_titulo}" tem reservas ativas de outros usuários.`;
+                } else if (verificacao.tipo === 'reservas_ativas') {
+                    mensagem = `Não é possível completar o empréstimo. O livro "${livro.livro_titulo}" tem ${verificacao.reservasAtivas.length} reserva(s) ativa(s).`;
+                } else {
+                    mensagem = `Não é possível emprestar "${livro.livro_titulo}": ${verificacao.motivo}`;
+                }
+                
+                setError(mensagem);
+                return;
+            }
+        }
+        
+        const dadosEmprestimo = {
+            usuario_id: formData.usuario_id,
+            usuario_tipo: formData.usuario_tipo,
+            data_devolucao_prevista: formData.data_devolucao_prevista,
+            observacoes: formData.observacoes,
+            livros: livrosSelecionados
+        };      
+        
+        await onSave(dadosEmprestimo);
+        await recarregarLivrosDisponiveis();
+        
     } catch (err) {
-      console.error('Erro no formulário:', err);
-      setError(err.message || 'Erro ao salvar empréstimo');
+        console.error('Erro no formulário:', err);
+        // Mensagens mais amigáveis para erros comuns
+        if (err.message.includes('reserva')) {
+            setError('Não foi possível completar o empréstimo devido a reservas ativas');
+        } else if (err.message.includes('Estoque')) {
+            setError('Estoque insuficiente para completar o empréstimo');
+        } else {
+            setError(err.message || 'Erro ao salvar empréstimo');
+        }
     }
-  };
-
+};
   const getUsuariosPorTipo = () => {
     switch (formData.usuario_tipo) {
       case 'aluno':

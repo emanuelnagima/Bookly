@@ -26,5 +26,5 @@ router.put('/:id', authenticate, authorize('admin', 'operador'), controller.upda
 router.put('/:id/cancelar', authenticate, authorize('admin', 'operador'), controller.cancelar);
 router.put('/:id/concluir', authenticate, authorize('admin', 'operador'), controller.concluir);
 router.delete('/:id', authenticate, authorize('admin', 'operador'), controller.delete);
-
+router.post('/:id/converter-emprestimo', authenticate, authorize('admin', 'operador'), controller.converterEmEmprestimo);
 module.exports = router;
