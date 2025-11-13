@@ -217,9 +217,18 @@ async create(reservaData) {
             const estoqueDisponivel = livroInfo.estoque - totalReservado;
 
             // 3. Verificar se há estoque disponível
-            if (estoqueDisponivel < quantidadeSolicitada) {
-                throw new Error(`Estoque insuficiente para o livro "${livroInfo.titulo}". Disponível: ${estoqueDisponivel}, Solicitado: ${quantidadeSolicitada}`);
-            }
+            // No método create do ReservasRepository
+                if (estoqueDisponivel < quantidadeSolicitada) {
+                throw new Error(`
+                    ESTOQUE INSUFICIENTE
+                    Livro: "${livroInfo.titulo}"
+                    Disponível: ${estoqueDisponivel} exemplar(es)
+                    Solicitado: ${quantidadeSolicitada}
+                    
+                    Todos os exemplares estão atualmente emprestados.
+                    Aguarde a devolução ou escolha outro livro.
+                `);
+                }
 
             // 4. Verificar se já existe reserva ativa para este livro e usuário
             const [reservasExistentes] = await connection.execute(

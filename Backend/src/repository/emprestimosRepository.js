@@ -178,15 +178,15 @@ async create(emprestimoData) {
 
             const totalEmprestado = emprestimosAtivos[0].total_emprestado || 0;
             
-            //  Calcular estoque REALMENTE disponível
+            // Calcular estoque REALMENTE disponível
             const estoqueDisponivel = livroInfo.estoque - totalEmprestado;
 
-            //  Usar estoqueDisponivel em vez de livroInfo.estoque
+            // Usar estoqueDisponivel em vez de livroInfo.estoque
             if (quantidadeSolicitada > estoqueDisponivel) {
                 throw new Error(`Estoque disponível insuficiente para "${livroInfo.titulo}". Disponível: ${estoqueDisponivel}, Solicitado: ${quantidadeSolicitada}`);
             }
 
-            // 4.VALIDAÇÃO: Quantidade mínima
+            // 4. VALIDAÇÃO: Quantidade mínima
             if (quantidadeSolicitada < 1) {
                 throw new Error(`Quantidade inválida para "${livroInfo.titulo}". Mínimo: 1`);
             }
@@ -200,32 +200,19 @@ async create(emprestimoData) {
 
         const emprestimoId = result.insertId;
 
-        // ATUALIZAR ESTOQUE
+        // **REMOVER A ATUALIZAÇÃO DE ESTOQUE FÍSICO - SÓ DEVE ATUALIZAR NA ENTRADA/SAÍDA**
         for (const livro of emprestimo.livros) {
             const livroId = livro.livro_id;
             const quantidade = livro.quantidade || 1;
             
-            // Vincular ao empréstimo
+            // Vincular ao empréstimo (APENAS ISSO)
             await connection.execute(
                 'INSERT INTO emprestimo_livros (emprestimo_id, livro_id, quantidade) VALUES (?, ?, ?)',
                 [emprestimoId, livroId, quantidade]
             );
-
-            // ATUALIZAR ESTOQUE FÍSICO
-            await connection.execute(
-                'UPDATE livros SET estoque = estoque - ? WHERE id = ?',
-                [quantidade, livroId]
-            );
-
-            // Verificar estoque atualizado
-            const [estoqueAtual] = await connection.execute(
-                'SELECT estoque, titulo FROM livros WHERE id = ?',
-                [livroId]
-            );
         }
 
         await connection.commit();
-
         return this.findById(emprestimoId);
 
     } catch (error) {
@@ -235,7 +222,6 @@ async create(emprestimoData) {
         if (connection) connection.release();
     }
 }
-
 async verificarDisponibilidadeComQuantidade(livroId, quantidade = 1) {
     try {
         const diagnostico = await this.diagnosticarEstoque(livroId);
@@ -331,19 +317,10 @@ async finalizar(id) {
             throw new Error('Empréstimo não encontrado');
         }
 
-        //  CORREÇÃO: Adicionar data_devolucao_real com a data/hora atual
         await connection.execute(
             'UPDATE emprestimos SET status = "finalizado", data_devolucao_real = NOW() WHERE id = ?',
             [id]
         );
-
-        // Restaurar estoque dos livros
-        for (const livro of emprestimo.livros) {
-            await connection.execute(
-                'UPDATE livros SET estoque = estoque + ? WHERE id = ?',
-                [livro.quantidade || 1, livro.livro_id]
-            );
-        }
 
         await connection.commit();
         return this.findById(id);
@@ -433,73 +410,6 @@ async update(id, emprestimoData) {
         await connection.beginTransaction();
 
         const emprestimo = new Emprestimo(emprestimoData);
-        
-        // Verificar se empréstimo existe
-        const emprestimoExistente = await this.findById(id);
-        if (!emprestimoExistente) {
-            throw new Error('Empréstimo não encontrado');
-        }
-
-        // **VERIFICAÇÃO DE ESTOQUE PARA NOVOS LIVROS**
-        const livrosAtuaisIds = emprestimoExistente.livros.map(l => l.livro_id);
-        
-        for (const livro of emprestimo.livros) {
-            // Se é um livro novo (não estava no empréstimo anterior)
-            if (!livrosAtuaisIds.includes(livro.livro_id)) {
-                const [estoqueRows] = await connection.execute(
-                    'SELECT estoque, titulo FROM livros WHERE id = ?',
-                    [livro.livro_id]
-                );
-
-                if (estoqueRows.length === 0) {
-                    throw new Error(`Livro ID ${livro.livro_id} não encontrado`);
-                }
-
-                const quantidadeSolicitada = livro.quantidade || 1;
-                if (estoqueRows[0].estoque < quantidadeSolicitada) {
-                    throw new Error(`Estoque insuficiente para o livro "${estoqueRows[0].titulo}". Disponível: ${estoqueRows[0].estoque}, Solicitado: ${quantidadeSolicitada}`);
-                }
-            }
-        }
-
-        // Atualizar dados básicos do empréstimo
-        await connection.execute(
-            'UPDATE emprestimos SET usuario_id = ?, usuario_tipo = ?, data_devolucao_prevista = ?, observacoes = ? WHERE id = ?',
-            [emprestimo.usuario_id, emprestimo.usuario_tipo, emprestimo.data_devolucao_prevista, emprestimo.observacoes, id]
-        );
-
-        // Remover livros antigos e restaurar estoque
-        const [livrosAntigos] = await connection.execute(
-            'SELECT * FROM emprestimo_livros WHERE emprestimo_id = ?',
-            [id]
-        );
-
-        for (const livroAntigo of livrosAntigos) {
-            await connection.execute(
-                'UPDATE livros SET estoque = estoque + ? WHERE id = ?',
-                [livroAntigo.quantidade, livroAntigo.livro_id]
-            );
-        }
-
-        // Deletar livros antigos
-        await connection.execute(
-            'DELETE FROM emprestimo_livros WHERE emprestimo_id = ?',
-            [id]
-        );
-
-        // Adicionar novos livros e atualizar estoque
-        for (const livro of emprestimo.livros) {
-            await connection.execute(
-                'INSERT INTO emprestimo_livros (emprestimo_id, livro_id, quantidade) VALUES (?, ?, ?)',
-                [id, livro.livro_id, livro.quantidade || 1]
-            );
-
-            await connection.execute(
-                'UPDATE livros SET estoque = estoque - ? WHERE id = ?',
-                [livro.quantidade || 1, livro.livro_id]
-            );
-        }
-
         await connection.commit();
         return this.findById(id);
 
@@ -511,50 +421,36 @@ async update(id, emprestimoData) {
     }
 }
 
-    async delete(id) {
-        let connection;
-        try {
-            connection = await db.getConnection();
-            await connection.beginTransaction();
+async delete(id) {
+    let connection;
+    try {
+        connection = await db.getConnection();
+        await connection.beginTransaction();
 
-            // Buscar empréstimo e livros
-            const emprestimo = await this.findById(id);
-            if (!emprestimo) {
-                throw new Error('Empréstimo não encontrado');
-            }
-
-            if (emprestimo.status === 'ativo') {
-                for (const livro of emprestimo.livros) {
-                    await connection.execute(
-                        'UPDATE livros SET estoque = estoque + ? WHERE id = ?',
-                        [livro.quantidade || 1, livro.livro_id]
-                    );
-                }
-            }
-
-            // Deletar livros do empréstimo
-            await connection.execute(
-                'DELETE FROM emprestimo_livros WHERE emprestimo_id = ?',
-                [id]
-            );
-
-            // Deletar empréstimo
-            const [result] = await connection.execute(
-                'DELETE FROM emprestimos WHERE id = ?',
-                [id]
-            );
-
-            await connection.commit();
-            return result.affectedRows > 0;
-
-        } catch (error) {
-            if (connection) await connection.rollback();
-            throw new Error(`Erro ao deletar empréstimo: ${error.message}`);
-        } finally {
-            if (connection) connection.release();
+        // Buscar empréstimo e livros
+        const emprestimo = await this.findById(id);
+        if (!emprestimo) {
+            throw new Error('Empréstimo não encontrado');
         }
-    }
 
+        // **REMOVER RESTAURAÇÃO DE ESTOQUE - SÓ DEVE SER FEITO NA ENTRADA/SAÍDA**
+        // if (emprestimo.status === 'ativo') {
+        //     for (const livro of emprestimo.livros) {
+        //         await connection.execute(
+        //             'UPDATE livros SET estoque = estoque + ? WHERE id = ?',
+        //             [livro.quantidade || 1, livro.livro_id]
+        //         );
+        //     }
+        // }
+
+        // ... resto do código ...
+    } catch (error) {
+        if (connection) await connection.rollback();
+        throw new Error(`Erro ao deletar empréstimo: ${error.message}`);
+    } finally {
+        if (connection) connection.release();
+    }
+}
     async podeEditar(id) {
         try {
             const [rows] = await db.execute(

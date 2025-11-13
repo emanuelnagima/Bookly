@@ -354,7 +354,7 @@ const adicionarLivro = async () => {
             let mensagemErro = '';
             
             if (verificacao.motivo?.includes('reserva')) {
-                mensagemErro = `Não é possível emprestar "${livroCompleto.titulo}" - existe uma reserva ativa para este livro.`;
+                mensagemErro = `Não é possível emprestar "${livroCompleto.titulo}" * existe uma reserva ativa para este livro.*`;
             } else if (verificacao.motivo?.includes('Estoque')) {
                 mensagemErro = `Estoque insuficiente para "${livroCompleto.titulo}". Disponível: ${verificacao.disponivelExato || 0}`;
             } else if (verificacao.motivo?.includes('último exemplar')) {

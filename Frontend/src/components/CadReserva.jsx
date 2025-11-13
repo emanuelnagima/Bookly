@@ -390,12 +390,17 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
         </h5>
       </Card.Header>
       <Card.Body>
-        {error && (
-          <Alert variant="danger" dismissible onClose={() => setError('')}>
-            {error}
-          </Alert>
-        )}
-
+      {error && (
+  <Alert variant="danger" dismissible onClose={() => setError('')}>
+    <div className="d-flex align-items-start">
+      <div>
+        <div style={{ whiteSpace: 'pre-line' }}>
+          {error}
+        </div>
+      </div>
+    </div>
+  </Alert>
+)}
         {verificandoDisponibilidade && (
           <Alert variant="info" className="py-2">
             <Spinner animation="border" size="sm" className="me-2" />

@@ -108,62 +108,47 @@ const Reservas = () => {
     loadReservas()
   }, [loadReservas])
 
-  const handleSaveReserva = async (reserva) => {
-    try {
-      setLoading(true);
-      setError('');
 
-      if (reservaToEdit) {
-        // Verificar se pode editar
-        const podeEditar = await reservasService.verificarEdicao(reservaToEdit.id);
-        if (!podeEditar) {
-          throw new Error('Esta reserva não pode ser editada (já cancelada, concluída ou expirada)');
-        }
+const handleSaveReserva = async (reserva) => {
+  try {
+    setLoading(true);
+    setError('');
 
-        await reservasService.update(reservaToEdit.id, reserva);
-        setToastMessage('Reserva atualizada com sucesso!');
-        setOperationType('update');
-      } else {
-        await reservasService.add(reserva);
-        setToastMessage('Reserva registrada com sucesso!');
-        setOperationType('create');
-      }
-
-      await loadReservas();
-      setShowSuccessToast(true);
-      setShowForm(false);
-      setReservaToEdit(null);
-
-    } catch (err) {
-      console.error('Erro completo:', err);
-
-      // **FORMATAÇÃO DA MENSAGEM DE ERRO**
-      let errorMessage = err.message;
-
-      // Remove a parte "HTTP error status: 500
-      if (errorMessage.includes('HTTP error! status:')) {
-        try {
-          // Tenta extrair o JSON da mensagem
-          const jsonStart = errorMessage.indexOf('{');
-          if (jsonStart !== -1) {
-            const jsonStr = errorMessage.substring(jsonStart);
-            const errorData = JSON.parse(jsonStr);
-            errorMessage = errorData.message || errorMessage;
-          }
-
-          errorMessage = errorMessage.replace(/^Falha ao (?:registrar|atualizar) reserva: HTTP error! status: \d+ - /, '');
-        } catch (parseError) {
-          errorMessage = errorMessage.replace(/^HTTP error! status: \d+ - /, '');
-        }
-      }
-
-      // Formata a mensagem final
-      const operation = reservaToEdit ? 'atualizar' : 'registrar';
-      setError(`Falha ao ${operation} reserva: ${errorMessage}`);
-    } finally {
-      setLoading(false);
+    if (reservaToEdit) {
+      await reservasService.update(reservaToEdit.id, reserva);
+      setToastMessage('Reserva atualizada com sucesso!');
+      setOperationType('update');
+    } else {
+      await reservasService.add(reserva);
+      setToastMessage('Reserva registrada com sucesso!');
+      setOperationType('create');
     }
-  };
+
+    await loadReservas();
+    setShowSuccessToast(true);
+    setShowForm(false);
+    setReservaToEdit(null);
+
+  } catch (err) {
+    console.error('Erro completo:', err);
+
+    let errorMessage = err.message;
+
+    // Remove quebras de linha HTML se existirem
+    errorMessage = errorMessage.replace(/<br\/>/g, '\n');
+
+    // Remove detalhes técnicos
+    errorMessage = errorMessage.replace(/^Falha ao (?:registrar|atualizar) reserva: /, '');
+    errorMessage = errorMessage.replace(/^HTTP error! status: \d+ - /, '');
+    errorMessage = errorMessage.replace(/^Erro ao processar reserva \(\d+\): /, '');
+    errorMessage = errorMessage.replace(/^Não foi possível completar a reserva: /, '');
+
+    setError(errorMessage);
+  } finally {
+    setLoading(false);
+  }
+};
+
   // Editar reserva
   const handleEditReserva = async (id) => {
     try {

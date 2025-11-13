@@ -85,6 +85,7 @@ const getPorLivro = async (livroId) => {
   }
 };
 
+
 const add = async (reserva) => {
   try {    
     const response = await fetch(API_BASE_URL, {
@@ -97,20 +98,58 @@ const add = async (reserva) => {
     });
         
     if (!response.ok) {
-      // Tente obter mais detalhes do erro
-      const errorText = await response.text();
-      throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+      let errorMessage = `Erro ao processar reserva (${response.status})`;
+      
+      try {
+        // Tenta ler a resposta como texto primeiro
+        const errorText = await response.text();
+        console.log('🔴 Resposta de erro do servidor:', errorText);
+        
+        // Tenta parsear como JSON
+        if (errorText) {
+          try {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.message || errorData.error || errorText;
+          } catch (e) {
+            // Se não for JSON, usa o texto direto
+            errorMessage = errorText;
+          }
+        }
+      } catch (e) {
+        console.error('Erro ao ler resposta:', e);
+      }
+      
+      throw new Error(errorMessage);
     }
     
     const result = await response.json();
     
     if (!result.success) {
-      throw new Error(result.message || 'Erro na requisição');
+      throw new Error(result.message || 'Erro ao processar reserva');
     }
     return result.data;
   } catch (error) {
-    console.error(' Erro ao adicionar reserva:', error);
-    throw error;
+    console.error('🔴 Erro ao adicionar reserva:', error);
+    
+    // Mensagens mais amigáveis
+    let friendlyMessage = error.message;
+    
+    if (error.message.includes('Estoque insuficiente') || error.message.includes('ESTOQUE INSUFICIENTE')) {
+      // Extrai o nome do livro da mensagem
+      const livroMatch = error.message.match(/Livro: "([^"]+)"/);
+      const livroNome = livroMatch ? livroMatch[1] : 'o livro selecionado';
+      
+      friendlyMessage = `
+         ESTOQUE INSUFICIENTE
+        - Livro: "${livroNome}"
+        - Situação: Todos os exemplares estão emprestados.
+        * Tente outro livro ou aguarde devolução
+      `;
+    } else if (error.message.includes('já possui reserva ativa')) {
+      friendlyMessage = 'Você já possui uma reserva ativa para este livro';
+    }
+    
+    throw new Error(friendlyMessage);
   }
 };
 
