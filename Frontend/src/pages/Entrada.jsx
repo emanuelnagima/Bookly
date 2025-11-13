@@ -432,15 +432,15 @@ const formatarTexto = (texto) => {
                       )}
                     </Col>
                     <Col md={8}>
-                      <h6 className="fw-bold text-primary mb-2">{formatarTexto(livroSelecionado.titulo)}</h6> {/* ← ADICIONE AQUI */}
+                      <h6 className="fw-bold text-primary mb-2">{formatarTexto(livroSelecionado.titulo)}</h6> 
                       <div className="row small">
                         <div className="col-6 mb-1">
                           <strong>Autor:</strong>
-                          <div>{formatarTexto(livroSelecionado.autor_nome)}</div> {/* ← ADICIONE AQUI */}
+                          <div>{formatarTexto(livroSelecionado.autor_nome)}</div> 
                         </div>
                         <div className="col-6 mb-1">
                           <strong>Editora:</strong>
-                          <div>{formatarTexto(livroSelecionado.editora_nome)}</div> {/* ← ADICIONE AQUI */}
+                          <div>{formatarTexto(livroSelecionado.editora_nome)}</div> 
                         </div>
                         <div className="col-6 mb-1">
                           <strong>ISBN:</strong>
@@ -448,7 +448,7 @@ const formatarTexto = (texto) => {
                         </div>
                         <div className="col-6 mb-1">
                           <strong>Gênero:</strong>
-                          <div>{formatarTexto(livroSelecionado.genero)}</div> {/* ← ADICIONE AQUI */}
+                          <div>{formatarTexto(livroSelecionado.genero)}</div> 
                         </div>
                       </div>
 

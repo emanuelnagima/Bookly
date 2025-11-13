@@ -3,7 +3,6 @@ import { Card, Table, Form, InputGroup, Button, Badge, Row, Col, Modal } from 'r
 import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaTimesCircle, FaCheckCircle, FaBook, FaList, FaExclamationTriangle, FaClipboardList } from 'react-icons/fa';
 import { FaCalendarAlt } from "react-icons/fa";
 import { FaExchangeAlt } from 'react-icons/fa';
-import disponibilidadeService from '../services/disponibilidadeService';
 const ITENS_POR_PAGINA = 7;
 
 const formatarTexto = texto =>

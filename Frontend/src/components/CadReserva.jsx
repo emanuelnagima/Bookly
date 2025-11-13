@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Card, Form, Col, Row, Button, Spinner, Alert, Badge, ListGroup } from 'react-bootstrap';
-import { BsCheckCircle, BsPlusCircle, BsTrash } from "react-icons/bs";
+import { BsCheckCircle, BsPlusCircle, BsTrash, BsExclamationTriangle } from "react-icons/bs";
 import { FaBook, FaUser, FaExclamationTriangle } from "react-icons/fa";
 import livroService from '../services/livroService';
 import emprestimosService from '../services/emprestimosService';
+import disponibilidadeService from '../services/disponibilidadeService';
 
 const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
   const [formData, setFormData] = useState({
@@ -14,7 +15,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
   });
 
   const [livrosSelecionados, setLivrosSelecionados] = useState([]);
-const [livroAtual, setLivroAtual] = useState({ livro_id: '' })  
+  const [livroAtual, setLivroAtual] = useState({ livro_id: '' });
   const [opcoesUsuarios, setOpcoesUsuarios] = useState({
     alunos: [],
     professores: [],
@@ -26,8 +27,10 @@ const [livroAtual, setLivroAtual] = useState({ livro_id: '' })
   const [validated, setValidated] = useState(false);
   const [error, setError] = useState('');
   const [optionsLoading, setOptionsLoading] = useState(false);
+  const [verificandoDisponibilidade, setVerificandoDisponibilidade] = useState(false);
+  const [disponibilidadeGeral, setDisponibilidadeGeral] = useState({});
 
-  // Carregar opções
+  // Carregar opções e disponibilidade
   useEffect(() => {
     const carregarOpcoes = async () => {
       try {
@@ -38,6 +41,9 @@ const [livroAtual, setLivroAtual] = useState({ livro_id: '' })
         
         const livrosData = await livroService.getAllComEstoque();
         setLivrosDisponiveis(livrosData);
+        
+        // Verificar disponibilidade de todos os livros
+        await verificarDisponibilidadeTodosLivros(livrosData);
         
       } catch (err) {
         console.error('Erro ao carregar opções:', err);
@@ -50,10 +56,55 @@ const [livroAtual, setLivroAtual] = useState({ livro_id: '' })
     carregarOpcoes();
   }, []);
 
+  // VERIFICAR DISPONIBILIDADE DE TODOS OS LIVROS 
+  const verificarDisponibilidadeTodosLivros = async (livros) => {
+    try {
+      setVerificandoDisponibilidade(true);
+      const novaDisponibilidade = {};
+      
+      for (const livro of livros) {
+        try {
+          // Verificar disponibilidade básica usando o mesmo método do empréstimo
+          if (emprestimosService.verificarDisponibilidade) {
+            const result = await emprestimosService.verificarDisponibilidade(livro.id, 1);
+            novaDisponibilidade[livro.id] = {
+              ...result.data,
+              podeReservar: result.data.podeEmprestar // Para reservas, usa a mesma lógica de disponibilidade
+            };
+          } else {
+            // Fallback: usar estoque físico
+            novaDisponibilidade[livro.id] = {
+              podeReservar: (livro.estoque || 0) >= 1,
+              disponivelExato: livro.estoque || 0,
+              estoqueFisico: livro.estoque || 0,
+              totalEmprestado: 0
+            };
+          }
+        } catch (error) {
+          console.error(`Erro ao verificar disponibilidade livro ${livro.id}:`, error);
+          // Fallback em caso de erro
+          novaDisponibilidade[livro.id] = {
+            podeReservar: (livro.estoque || 0) >= 1,
+            disponivelExato: livro.estoque || 0,
+            estoqueFisico: livro.estoque || 0,
+            totalEmprestado: 0
+          };
+        }
+      }
+      
+      setDisponibilidadeGeral(novaDisponibilidade);
+    } catch (error) {
+      console.error('Erro ao verificar disponibilidade geral:', error);
+    } finally {
+      setVerificandoDisponibilidade(false);
+    }
+  };
+
   const recarregarLivrosDisponiveis = async () => {
     try {
       const livrosData = await livroService.getAllComEstoque();
       setLivrosDisponiveis(livrosData);
+      await verificarDisponibilidadeTodosLivros(livrosData);
     } catch (err) {
       console.error('Erro ao recarregar livros:', err);
     }
@@ -86,6 +137,13 @@ const [livroAtual, setLivroAtual] = useState({ livro_id: '' })
       }
     }
   }, [reserva]);
+
+  // Re-verificar disponibilidade quando usuário mudar 
+  useEffect(() => {
+    if (livrosDisponiveis.length > 0) {
+      verificarDisponibilidadeTodosLivros(livrosDisponiveis);
+    }
+  }, [formData.usuario_id, formData.usuario_tipo]);
 
   const formatarNome = (nome) => {
     if (!nome) return '';
@@ -135,45 +193,128 @@ const [livroAtual, setLivroAtual] = useState({ livro_id: '' })
   };
 
   const handleLivroChange = (e) => {
-  const { name, value } = e.target;
-  setLivroAtual(prev => ({
-    ...prev,
-    [name]: value
-  }));
-};
-
-const adicionarLivro = () => {
-  if (!livroAtual.livro_id) {
-    setError('Selecione um livro para adicionar');
-    return;
-  }
-
-  // Verificar se o livro já foi adicionado à reserva atual
-  const livroExistente = livrosSelecionados.find(l => l.livro_id === parseInt(livroAtual.livro_id));
-  if (livroExistente) {
-    setError('Este livro já foi adicionado à reserva');
-    return;
-  }
-
-  const livroCompleto = livrosDisponiveis.find(l => l.id === parseInt(livroAtual.livro_id));
-  if (!livroCompleto) {
-    setError('Livro não encontrado');
-    return;
-  }
-
-  const novoLivro = {
-    livro_id: parseInt(livroAtual.livro_id),
-    quantidade: 1, // ← SEMPRE 1
-    livro_titulo: livroCompleto.titulo,
-    livro_isbn: livroCompleto.isbn,
-    autor_nome: livroCompleto.autor_nome,
-    livro_imagem: livroCompleto.imagem
+    const { name, value } = e.target;
+    setLivroAtual(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  setLivrosSelecionados(prev => [...prev, novoLivro]);
-  setLivroAtual({ livro_id: '' }); // ← Reset sem quantidade
-  setError('');
-};
+  const getLivrosOrganizados = () => {
+    const livrosParaAdicionar = getLivrosDisponiveisParaAdicionar();
+    
+    return livrosParaAdicionar.sort((a, b) => {
+      const aDisponivel = podeReservarLivro(a.id);
+      const bDisponivel = podeReservarLivro(b.id);
+      
+      // Disponíveis primeiro (true vem antes de false)
+      if (aDisponivel && !bDisponivel) return -1;
+      if (!aDisponivel && bDisponivel) return 1;
+      
+      // Se ambos têm mesma disponibilidade, ordena por título
+      return a.titulo.localeCompare(b.titulo);
+    });
+  };
+
+  // FUNÇÃO PARA VERIFICAR SE PODE RESERVAR - CORRIGIDA
+  const podeReservarLivro = (livroId) => {
+    const info = disponibilidadeGeral[livroId];
+    if (!info) {
+      // Se não tem info, verifica estoque básico
+      const livro = livrosDisponiveis.find(l => l.id === parseInt(livroId));
+      return livro ? (livro.estoque || 0) >= 1 : false;
+    }
+    return info.podeReservar && info.disponivelExato >= 1;
+  };
+
+  // FUNÇÃO PARA CALCULAR DISPONIBILIDADE - CORRIGIDA
+  const calcularDisponibilidade = (livroId) => {
+    const info = disponibilidadeGeral[livroId];
+    if (!info) {
+      // Se não tem info de disponibilidade, mostra estoque físico
+      const livro = livrosDisponiveis.find(l => l.id === parseInt(livroId));
+      return livro ? (livro.estoque || 0) : '...';
+    }
+    return info.disponivelExato;
+  };
+
+  // FUNÇÃO PARA OBTER STATUS DE DISPONIBILIDADE (para estilização) - CORRIGIDA
+  const getStatusDisponibilidade = (livroId) => {
+    const podeReservar = podeReservarLivro(livroId);
+    const disponivel = calcularDisponibilidade(livroId);
+    
+    if (disponivel === '...' || disponivel === undefined) {
+      return { 
+        texto: 'Carregando...', 
+        classe: 'text-muted', 
+        badge: 'secondary',
+        icon: <Spinner animation="border" size="sm" className="me-1" />
+      };
+    }
+    
+    if (podeReservar) {
+      return { 
+        texto: `Disponível (${disponivel})`, 
+        icon: <BsCheckCircle className="me-1" />
+      };
+    } else {
+      return { 
+        texto: `Indisponível (${disponivel})`, 
+        icon: <BsExclamationTriangle className="me-1" />
+      };
+    }
+  };
+
+  const adicionarLivro = async () => {
+    if (!livroAtual.livro_id) {
+      setError('Selecione um livro para adicionar');
+      return;
+    }
+
+    // Verificar se o livro já foi adicionado
+    const livroExistente = livrosSelecionados.find(l => l.livro_id === parseInt(livroAtual.livro_id));
+    if (livroExistente) {
+      setError('Este livro já foi adicionado à reserva');
+      return;
+    }
+
+    const livroCompleto = livrosDisponiveis.find(l => l.id === parseInt(livroAtual.livro_id));
+    if (!livroCompleto) {
+      setError('Livro não encontrado');
+      return;
+    }
+
+    // VERIFICAÇÃO DE DISPONIBILIDADE - CORRIGIDA
+    try {
+      const verificacao = await disponibilidadeService.verificarPodeReservar(
+        formData.usuario_id, 
+        formData.usuario_tipo,
+        livroAtual.livro_id
+      );
+      
+      if (!verificacao.podeReservar) {
+        setError(`Não é possível reservar "${livroCompleto.titulo}": ${verificacao.motivo}`);
+        return;
+      }
+    } catch (error) {
+      console.error('Erro na verificação:', error);
+      setError('Erro ao verificar disponibilidade do livro');
+      return;
+    }
+
+    const novoLivro = {
+      livro_id: parseInt(livroAtual.livro_id),
+      quantidade: 1, // ← SEMPRE 1 para reservas
+      livro_titulo: livroCompleto.titulo,
+      livro_isbn: livroCompleto.isbn,
+      autor_nome: livroCompleto.autor_nome,
+      livro_imagem: livroCompleto.imagem
+    };
+
+    setLivrosSelecionados(prev => [...prev, novoLivro]);
+    setLivroAtual({ livro_id: '' });
+    setError('');
+  };
 
   const removerLivro = (livroId) => {
     setLivrosSelecionados(prev => prev.filter(l => l.livro_id !== livroId));
@@ -252,6 +393,13 @@ const adicionarLivro = () => {
         {error && (
           <Alert variant="danger" dismissible onClose={() => setError('')}>
             {error}
+          </Alert>
+        )}
+
+        {verificandoDisponibilidade && (
+          <Alert variant="info" className="py-2">
+            <Spinner animation="border" size="sm" className="me-2" />
+            Verificando disponibilidade dos livros...
           </Alert>
         )}
 
@@ -357,7 +505,6 @@ const adicionarLivro = () => {
                         <br />
                         <small className="text-muted">
                           Autor: {livro.autor_nome} | ISBN: {livro.livro_isbn}
-                          {/* REMOVER a exibição da quantidade */}
                         </small>
                       </div>
                       <Button
@@ -377,39 +524,113 @@ const adicionarLivro = () => {
               <Card className="border-dashed">
                 <Card.Body>
                   <Row className="align-items-end">
-                    <Col md={8}>
+                    <Col md={10}>
                       <Form.Label>Adicionar Livro:</Form.Label>
                       <Form.Select
                         name="livro_id"
                         value={livroAtual.livro_id}
                         onChange={handleLivroChange}
-                        disabled={loading || optionsLoading}
+                        disabled={loading || optionsLoading || verificandoDisponibilidade}
                       >
-                        <option value="">Selecione um livro para adicionar</option>
-                        {getLivrosDisponiveisParaAdicionar().map(livro => (
-                          <option 
-                            key={livro.id} 
-                            value={livro.id}
-                            disabled={livro.estoque <= 0}
-                          >
-                            {formatarNome(livro.titulo)} - {formatarNome(livro.autor_nome)} 
-                            {livro.estoque > 0 ? 
-                              ` (Estoque: ${livro.estoque})` : 
-                              ' (Indisponível)'
-                            }
-                          </option>
-                        ))}
+                        <option value="">
+                          {verificandoDisponibilidade ? 'Carregando disponibilidade...' : 'Selecione um livro para adicionar'}
+                        </option>
+                        
+                        {/* GRUPO DE LIVROS DISPONÍVEIS */}
+                        <optgroup label=" Livros Disponíveis">
+                          {getLivrosOrganizados()
+                            .filter(livro => podeReservarLivro(livro.id))
+                            .map(livro => {
+                              const status = getStatusDisponibilidade(livro.id);
+                              return (
+                                <option 
+                                  key={livro.id} 
+                                  value={livro.id}
+                                >
+                                  {formatarNome(livro.titulo)} - {formatarNome(livro.autor_nome)} 
+                                  {' - '}
+                                  <span className={status.classe}>
+                                    {status.icon}
+                                    {status.texto}
+                                  </span>
+                                </option>
+                              );
+                            })}
+                        </optgroup>
+
+                        {/* GRUPO DE LIVROS INDISPONÍVEIS */}
+                        <optgroup label=" Livros Indisponíveis" className="text-muted">
+                          {getLivrosOrganizados()
+                            .filter(livro => !podeReservarLivro(livro.id))
+                            .map(livro => {
+                              const status = getStatusDisponibilidade(livro.id);
+                              return (
+                                <option 
+                                  key={livro.id} 
+                                  value={livro.id}
+                                  disabled
+                                  className={status.classe}
+                                >
+                                  {formatarNome(livro.titulo)} - {formatarNome(livro.autor_nome)} 
+                                  {' - '}
+                                  <span className={status.classe}>
+                                    {status.icon}
+                                    {status.texto}
+                                  </span>
+                                </option>
+                              );
+                            })}
+                        </optgroup>
                       </Form.Select>
+                      
+                      {/* FEEDBACK VISUAL  */}
+                      {livroAtual.livro_id && (
+                        <div className="mt-2">
+                          {disponibilidadeGeral[livroAtual.livro_id] && (
+                            <Alert 
+                              variant={podeReservarLivro(livroAtual.livro_id) ? "success" : "danger"} 
+                              className="py-2 mb-0"
+                            >
+                              <div className="d-flex align-items-center">
+                                {podeReservarLivro(livroAtual.livro_id) ? (
+                                  <>
+                                    <BsCheckCircle className="me-2" />
+                                    <strong>Disponível para reserva</strong>
+                                  </>
+                                ) : (
+                                  <>
+                                    <BsExclamationTriangle className="me-2" />
+                                    <strong>Indisponível para reserva</strong>
+                                  </>
+                                )}
+                                <span className="ms-2">
+                                  (Disponível: {calcularDisponibilidade(livroAtual.livro_id)} unidade(s))
+                                </span>
+                              </div>
+                            </Alert>
+                          )}
+                        </div>
+                      )}
                     </Col>
-                    <Col md={4}>
+                    
+                    <Col md={2}>
                       <Button
                         variant="primary"
                         onClick={adicionarLivro}
-                        disabled={loading || !livroAtual.livro_id}
-                        className="w-100 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                        disabled={
+                          loading || 
+                          !livroAtual.livro_id || 
+                          !podeReservarLivro(livroAtual.livro_id) ||
+                          verificandoDisponibilidade
+                        }
+                        className="w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 custom-add-btn mt-4"
                       >
-                        <BsPlusCircle style={{ fontSize: '1.2rem' }} />
-                        Adicionar Livro
+                        {verificandoDisponibilidade ? (
+                          <Spinner animation="border" size="sm" />
+                        ) : (
+                          <BsPlusCircle style={{ fontSize: '1.2rem' }} />
+                        )}
+                        {verificandoDisponibilidade ? 'Verificando...' : 'Adicionar'}
                       </Button>
                     </Col>
                   </Row>

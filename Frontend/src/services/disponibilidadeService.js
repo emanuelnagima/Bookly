@@ -65,23 +65,23 @@ class DisponibilidadeService {
 
     async verificarPodeReservar(usuarioId, usuarioTipo, livroId) {
         try {
-            // Buscar todas as reservas do usuário
-            const todasReservas = await reservasService.getAll();
-            const reservasUsuario = todasReservas.filter(reserva => 
-                reserva.usuario_id === parseInt(usuarioId) && 
-                reserva.usuario_tipo === usuarioTipo
-            );
-
-            // Verificar se já tem reserva ativa para este livro
-            const reservaExistente = reservasUsuario.find(reserva => 
-                reserva.status === 'ativa' && 
-                reserva.livros.some(livro => livro.livro_id === parseInt(livroId))
-            );
-
-            if (reservaExistente) {
+            // 1. Verificar se usuário já tem reserva ativa para este livro
+            const reservasAtivasUsuario = await this.verificarReservasAtivasPorUsuario(usuarioId, usuarioTipo, livroId);
+            
+            if (reservasAtivasUsuario.length > 0) {
                 return {
                     podeReservar: false,
                     motivo: 'Usuário já possui reserva ativa para este livro'
+                };
+            }
+
+            // 2. Verificar disponibilidade geral do livro
+            const disponibilidade = await emprestimosService.verificarDisponibilidade(livroId, 1);
+            
+            if (!disponibilidade.data.podeEmprestar) {
+                return {
+                    podeReservar: false,
+                    motivo: 'Livro indisponível no momento'
                 };
             }
 
@@ -91,7 +91,26 @@ class DisponibilidadeService {
 
         } catch (error) {
             console.error('Erro ao verificar se pode reservar:', error);
-            return { podeReservar: true }; // Fail open
+            return { 
+                podeReservar: false, 
+                motivo: 'Erro ao verificar disponibilidade' 
+            };
+        }
+    }
+
+    async verificarReservasAtivasPorUsuario(usuarioId, usuarioTipo, livroId) {
+        try {
+            const todasReservas = await reservasService.getAll();
+            
+            return todasReservas.filter(reserva => 
+                reserva.status === 'ativa' && 
+                reserva.usuario_id === parseInt(usuarioId) && 
+                reserva.usuario_tipo === usuarioTipo &&
+                reserva.livros.some(livro => livro.livro_id === parseInt(livroId))
+            );
+        } catch (error) {
+            console.error('Erro ao buscar reservas do usuário:', error);
+            return [];
         }
     }
 
@@ -134,63 +153,63 @@ class DisponibilidadeService {
         }
     }
 
-    // NOVO: Verificação completa para novo empréstimo
-async verificarPodeEmprestar(livroId, quantidade = 1, usuario = null) {
-    try {
-        // 1. Verificar disponibilidade básica
-        const disponibilidadeBasica = await this.verificarDisponibilidadeParaEmprestimo(
-            livroId, 
-            quantidade, 
-            usuario
-        );
+    // Verificação completa para novo empréstimo
+    async verificarPodeEmprestar(livroId, quantidade = 1, usuario = null) {
+        try {
+            // 1. Verificar disponibilidade básica
+            const disponibilidadeBasica = await this.verificarDisponibilidadeParaEmprestimo(
+                livroId, 
+                quantidade, 
+                usuario
+            );
 
-        if (!disponibilidadeBasica.podeEmprestar) {
-            return {
-                podeEmprestar: false,
-                motivo: disponibilidadeBasica.motivo,
-                disponivelExato: disponibilidadeBasica.disponivelExato,
-                tipo: 'estoque_insuficiente'
-            };
-        }
-
-        // 2. Verificar se é o último exemplar e há reservas de outros usuários
-        if (disponibilidadeBasica.disponivelExato === 1) {
-            const reservasAtivas = await this.verificarReservasAtivas(livroId, usuario);
-            
-            if (reservasAtivas.length > 0) {
+            if (!disponibilidadeBasica.podeEmprestar) {
                 return {
                     podeEmprestar: false,
-                    motivo: 'Último exemplar está reservado para outro usuário',
-                    reservasAtivas: reservasAtivas,
-                    disponivelExato: 1,
-                    tipo: 'reserva_ativa_outro_usuario'
+                    motivo: disponibilidadeBasica.motivo,
+                    disponivelExato: disponibilidadeBasica.disponivelExato,
+                    tipo: 'estoque_insuficiente'
                 };
             }
-        }
 
-        // 3. Verificar se há reservas ativas em geral (para qualquer quantidade)
-        const todasReservasAtivas = await this.verificarReservasAtivas(livroId);
-        if (todasReservasAtivas.length > 0 && disponibilidadeBasica.disponivelExato <= todasReservasAtivas.length) {
+            // 2. Verificar se é o último exemplar e há reservas de outros usuários
+            if (disponibilidadeBasica.disponivelExato === 1) {
+                const reservasAtivas = await this.verificarReservasAtivas(livroId, usuario);
+                
+                if (reservasAtivas.length > 0) {
+                    return {
+                        podeEmprestar: false,
+                        motivo: 'Último exemplar está reservado para outro usuário',
+                        reservasAtivas: reservasAtivas,
+                        disponivelExato: 1,
+                        tipo: 'reserva_ativa_outro_usuario'
+                    };
+                }
+            }
+
+            // 3. Verificar se há reservas ativas em geral (para qualquer quantidade)
+            const todasReservasAtivas = await this.verificarReservasAtivas(livroId);
+            if (todasReservasAtivas.length > 0 && disponibilidadeBasica.disponivelExato <= todasReservasAtivas.length) {
+                return {
+                    podeEmprestar: false,
+                    motivo: `Existem ${todasReservasAtivas.length} reserva(s) ativa(s) para este livro`,
+                    reservasAtivas: todasReservasAtivas,
+                    disponivelExato: disponibilidadeBasica.disponivelExato,
+                    tipo: 'reservas_ativas'
+                };
+            }
+
             return {
-                podeEmprestar: false,
-                motivo: `Existem ${todasReservasAtivas.length} reserva(s) ativa(s) para este livro`,
-                reservasAtivas: todasReservasAtivas,
+                podeEmprestar: true,
                 disponivelExato: disponibilidadeBasica.disponivelExato,
-                tipo: 'reservas_ativas'
+                tipo: 'disponivel'
             };
+
+        } catch (error) {
+            console.error('Erro na verificação completa:', error);
+            throw error;
         }
-
-        return {
-            podeEmprestar: true,
-            disponivelExato: disponibilidadeBasica.disponivelExato,
-            tipo: 'disponivel'
-        };
-
-    } catch (error) {
-        console.error('Erro na verificação completa:', error);
-        throw error;
     }
-}
 }
 
 export default new DisponibilidadeService();

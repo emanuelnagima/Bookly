@@ -59,8 +59,6 @@ class RelatoriosRepository {
   }
 
 
-// No arquivo relatoriosRepository.js - MÉTODO getRelatorioEmprestimos
-// No arquivo relatoriosRepository.js - MÉTODO getRelatorioEmprestimos CORRIGIDO
 async getRelatorioEmprestimos(filtros = {}) {
   try {
     
