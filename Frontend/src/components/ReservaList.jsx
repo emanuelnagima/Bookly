@@ -35,9 +35,10 @@ const formatarTelefone = (telefone) => {
   return telefone;
 };
 
-const ReservaList = ({ reservas, onDelete, onCancelar, onConcluir, onConverterEmprestimo, loading }) => {  const [termoBusca, setTermoBusca] = useState('');
+const ReservaList = ({ reservas, onDelete, onCancelar, onConcluir, onConverterEmprestimo, loading }) => {
+  const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
-  const [filtroStatus, setFiltroStatus] = useState('todos');
+  const [filtroStatus, setFiltroStatus] = useState('ativa');
   const [ordenacao, setOrdenacao] = useState('data_reserva_desc');
 
   const [showLivroModal, setShowLivroModal] = useState(false);

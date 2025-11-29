@@ -38,8 +38,9 @@ const formatarTelefone = (telefone) => {
 const EmprestimoList = ({ emprestimos, onDelete, onRenovar, onFinalizar, loading }) => {
   const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
-  const [filtroStatus, setFiltroStatus] = useState('todos');
+  const [filtroStatus, setFiltroStatus] = useState('ativo');
   const [ordenacao, setOrdenacao] = useState('data_emprestimo_desc');
+
 
   const [showLivrosModal, setShowLivrosModal] = useState(false);
   const [livrosSelecionados, setLivrosSelecionados] = useState([]);
