@@ -274,6 +274,53 @@ CREATE TABLE `saidas` (
   CONSTRAINT `fk_livro_saida` FOREIGN KEY (`livro_id`) REFERENCES `livros` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+
+
+DELIMITER $$
+
+CREATE EVENT atualizar_status_emprestimos
+ON SCHEDULE EVERY 1 HOUR
+DO
+BEGIN
+    -- Atualizar para atrasado
+    UPDATE emprestimos 
+    SET status = 'atrasado'
+    WHERE status = 'ativo' 
+    AND DATE(data_devolucao_prevista) < CURDATE();
+    
+    -- Atualizar para ativo (caso tenha renovação)
+    UPDATE emprestimos 
+    SET status = 'ativo'
+    WHERE status = 'atrasado' 
+    AND DATE(data_devolucao_prevista) >= CURDATE();
+END$$
+
+DELIMITER ;
+
+-- Para ativar o evento scheduler
+SET GLOBAL event_scheduler = ON;
+
+
+DELIMITER $$
+
+DROP EVENT IF EXISTS atualizar_status_reservas;
+$$
+
+CREATE EVENT atualizar_status_reservas
+ON SCHEDULE EVERY 1 HOUR
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- 1. Atualizar reservas ativas que passaram da validade para "expirada"
+    UPDATE reservas 
+    SET status = 'expirada'
+    WHERE status = 'ativa' 
+    AND DATE(data_validade) < CURDATE();
+    
+END$$
+
+DELIMITER ;
+
 -- ====================================================
 -- FIM DO SCRIPT
 -- ====================================================

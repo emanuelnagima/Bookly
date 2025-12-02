@@ -2,6 +2,13 @@ const db = require('../../config/database');
 const Aluno = require('../models/aluno');
 
 class AlunosRepository {
+    async getUltimaMatricula() {
+        const [rows] = await db.execute(
+            'SELECT matricula FROM alunos ORDER BY id DESC LIMIT 1'
+        );
+        return rows.length ? rows[0].matricula : null;
+    }
+
     async findAll() {
         const [rows] = await db.execute('SELECT * FROM alunos');
         return rows.map(row => new Aluno(row));
@@ -23,7 +30,7 @@ class AlunosRepository {
             'INSERT INTO alunos (nome, matricula, cpf, data_nascimento, email, telefone, turma) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [
                 aluno.nome,
-                aluno.matricula,
+                aluno.matricula, //  Já vem preenchida do controller
                 aluno.cpf,
                 aluno.data_nascimento,
                 aluno.email,
@@ -58,4 +65,5 @@ class AlunosRepository {
     }
 }
 
+// REMOVA a função gerarNovaMatricula daqui - Ela já está no controller
 module.exports = new AlunosRepository();

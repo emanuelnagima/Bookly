@@ -36,8 +36,6 @@ class RelatoriosController {
         }
       }
 
-      console.log(`Executando query para relatório: ${tipo}`);
-
       // Buscar dados com filtros limpos
       switch (tipo) {
         case 'emprestimos':
@@ -70,14 +68,17 @@ class RelatoriosController {
         case 'autores':
           dados = await relatoriosRepository.getRelatorioAutores(filtrosLimpos);
           break;
+          case 'estoque':
+            const resultadoEstoque = await relatoriosRepository.getRelatorioEstoque(filtrosLimpos);
+            dados = resultadoEstoque.dados || [];
+            estatisticas = resultadoEstoque.estatisticas || {};
+            break;
         default:
           return res.status(400).json({
             success: false,
             message: 'Tipo de relatório inválido'
           });
       }
-
-      console.log(`✅ Relatório ${tipo} retornou ${dados.length} registros`);
 
       // Mensagem quando não há registros
       if (!dados || dados.length === 0) {
@@ -115,12 +116,97 @@ class RelatoriosController {
     }
   }
 
+  async buscarLivros(req, res) {
+    try {
+      const { tipo, termo } = req.query;
+      
+      if (!tipo || !termo) {
+        return res.status(400).json({
+          success: false,
+          message: 'Tipo e termo são obrigatórios'
+        });
+      }
+
+      let resultados = [];
+
+      if (tipo === 'titulo') {
+        resultados = await relatoriosRepository.getLivrosPorTitulo(termo);
+      } else if (tipo === 'autor') {
+        resultados = await relatoriosRepository.getLivrosPorAutor(termo);
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'Tipo de busca inválido. Use "titulo" ou "autor"'
+        });
+      }
+
+      res.json({
+        success: true,
+        data: resultados
+      });
+
+    } catch (error) {
+      console.error('Erro ao buscar livros:', error);
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
+  }
+
+  async getRelatorioEstoque(req, res) {
+    try {
+      const filtros = req.body;
+
+      console.log('=== GERANDO RELATÓRIO DE ESTOQUE ===');
+      console.log('Filtros recebidos:', filtros);
+
+      // 🔧 LIMPEZA DOS FILTROS
+      const filtrosLimpos = {};
+      Object.keys(filtros).forEach(key => {
+        if (filtros[key] !== '' && filtros[key] !== null && filtros[key] !== undefined) {
+          filtrosLimpos[key] = filtros[key];
+        }
+      });
+
+      console.log('Filtros limpos para busca:', filtrosLimpos);
+
+      const resultado = await relatoriosRepository.getRelatorioEstoque(filtrosLimpos);
+
+      if (!resultado.dados || resultado.dados.length === 0) {
+        return res.json({
+          success: true,
+          dados: [],
+          estatisticas: resultado.estatisticas || {},
+          message: 'Nenhum livro encontrado para os filtros selecionados'
+        });
+      }
+
+      res.json({
+        success: true,
+        dados: resultado.dados,
+        estatisticas: resultado.estatisticas,
+        total: resultado.dados.length
+      });
+
+    } catch (error) {
+      console.error('ERRO CRÍTICO ao gerar relatório de estoque:', error);
+      console.error('Stack trace:', error.stack);
+      
+      res.status(500).json({
+        success: false,
+        message: `Erro interno do servidor: ${error.message}`,
+        details: process.env.NODE_ENV === 'development' ? {
+          stack: error.stack,
+          sqlMessage: error.sqlMessage
+        } : undefined
+      });
+    }
+  }
+
   async getFiltrosDisponiveis(req, res) {
     try {
       const { tipo } = req.params;
-      
-      console.log(`Buscando filtros para: ${tipo}`);
-
       let filtros = {};
 
       switch (tipo) {
@@ -154,18 +240,36 @@ class RelatoriosController {
           break;
 
         case 'entrada':
-          filtros.origem = ['Compra', 'Doação', 'Ajuste de Inventário'];
+          filtros.origem = [
+            'Compra',
+            'Doação', 
+            'PNLD/PMD',
+            'Ajuste de Inventário',
+            'Outro'
+          ];
+          filtros.sugestoesLivros = [];
           break;
 
         case 'saida':
-          filtros.origem = ['Venda', 'Descarte', 'Ajuste de Inventário'];
+          filtros.origem = [
+            'Livro danificado',
+            'Livro perdido ou extraviado', 
+            'Doação para terceiros',
+            'Baixa administrativa / descarte',
+            'Ajuste de Inventário',
+            'Outro'
+          ];
+          filtros.sugestoesLivros = [];
+          break;
+
+        case 'estoque':
+          filtros.generos = await relatoriosRepository.getGenerosLivros();
+          filtros.situacoes = ['disponivel', 'zerado', 'baixo'];
           break;
 
         default:
           filtros = {};
       }
-
-      console.log(`Filtros para ${tipo}:`, filtros);
 
       res.json({
         success: true,
@@ -173,7 +277,67 @@ class RelatoriosController {
       });
 
     } catch (error) {
-      console.error(`Erro ao buscar filtros:`, error);
+      console.error(` Erro ao buscar filtros para ${tipo}:`, error);
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
+  }
+
+  async buscarUsuarios(req, res) {
+    try {
+      const { tipo, termo } = req.query;
+      
+      if (!tipo || !termo) {
+        return res.status(400).json({
+          success: false,
+          message: 'Tipo e termo são obrigatórios'
+        });
+      }
+
+      let resultados = [];
+
+      if (tipo === 'aluno') {
+        resultados = await relatoriosRepository.getUsuariosPorNome('alunos', termo);
+      } else if (tipo === 'professor') {
+        resultados = await relatoriosRepository.getUsuariosPorNome('professores', termo);
+      } else if (tipo === 'usuario_especial') {
+        resultados = await relatoriosRepository.getUsuariosPorNome('usuarios_especiais', termo);
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'Tipo de usuário inválido'
+        });
+      }
+
+      res.json({
+        success: true,
+        data: resultados
+      });
+
+    } catch (error) {
+      console.error('Erro ao buscar usuários:', error);
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
+  }
+
+  async getEstatisticasGerais(req, res) {
+    try {
+      console.log('=== BUSCANDO ESTATÍSTICAS GERAIS DO SISTEMA ===');
+      
+      const estatisticas = await relatoriosRepository.getEstatisticasGerais();
+      
+      res.json({
+        success: true,
+        data: estatisticas
+      });
+      
+    } catch (error) {
+      console.error('Erro ao buscar estatísticas gerais:', error);
       res.status(500).json({
         success: false,
         message: error.message

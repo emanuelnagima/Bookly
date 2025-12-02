@@ -300,7 +300,7 @@ const AlunoList = ({ alunos, onDelete, onEdit, loading }) => {
 
             {/* Modal para mostrar detalhes do aluno */}
             <Modal show={showDetalhesModal} onHide={handleCloseDetalhesModal} size="lg">
-              <Modal.Header closeButton className="bg-primary text-white">
+              <Modal.Header closeButton closeVariant="white" className="bg-primary text-white">
                 <Modal.Title className="d-flex align-items-center">
                   <FaUser className="me-2" />
                   Aluno #{alunoSelecionado?.id} - Detalhes

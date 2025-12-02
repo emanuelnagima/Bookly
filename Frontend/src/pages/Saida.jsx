@@ -12,7 +12,6 @@ const Saida = () => {
   const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [ordenacao, setOrdenacao] = useState('titulo_asc');
-
   const [livroSelecionado, setLivroSelecionado] = useState(null);
   const [opcoes, setOpcoes] = useState({ origens: [] });
   const [formData, setFormData] = useState({
@@ -23,6 +22,10 @@ const Saida = () => {
   });
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState('');
+
+ useEffect(() => {
+    document.title = "Bookly - Saída de Livros";
+  }, []);
 
   // Carrega livros com estoque - FUNÇÃO ORIGINAL
   const loadLivros = async () => {
@@ -167,7 +170,7 @@ const Saida = () => {
 
     //  verifica contra estoqueDisponivel, não estoque físico
     if (formData.quantidade > (livroSelecionado.estoque || 0)) {
-      setError(`Quantidade maior que o estoque disponível. Disponível: ${livroSelecionado.estoque || 0}`);
+      setError(`Atenção: Quantidade maior que o estoque disponível. O exemplar está emprestado ou reservado e não está disponível para baixa. Disponível: ${livroSelecionado.estoque || 0}`);
       return;
     }
 
@@ -203,13 +206,16 @@ const Saida = () => {
       {/* HEADER ORIGINAL PRESERVADO - MESMA ESTRUTURA DA ENTRADA */}
       <div className="rounded-3 p-4 mb-4 border">
         <Row className="align-items-center">
-          <Col md={8}>
+           <Col md={8}>
             <div className="d-flex align-items-center">
               <div className="me-3">
                 <i className="fas fa-book-open fa-2x" style={{ color: '#0b192c' }}></i>
               </div>
               <div>
                 <h4 className="fw-bold text-dark mb-1">Saída de Livros</h4>
+                <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
+                  Registro e controle das saídas e baixas do acervo
+                </p>
               </div>
             </div>
           </Col>
@@ -344,7 +350,7 @@ const Saida = () => {
 
                               <td className="text-center">
                                 <Button
-                                  variant={isSelected ? 'danger' : 'btn btn-danger'}
+                                  variant={isSelected ? 'danger' : 'outline-danger'}
                                   size="sm"
                                   onClick={() => selecionarLivro(livro)}
                                   disabled={isSelected}
@@ -448,31 +454,23 @@ const Saida = () => {
                         </div>
                       </div>
 
-                      {/* SEÇÃO DE ESTOQUE ORGANIZADA - ADAPTADA PARA SAÍDA */}
+                      {/* SEÇÃO DE ESTOQUE   */}
                       <div className="mt-3 pt-2 border-top">
                         <div className="row small">
-                          <div className="col-12 mb-2">
+                          <div className="col-12 mb-0">
                             <div className="d-flex justify-content-between align-items-center">
-                              <strong>
-                                Estoque físico total:
-                              </strong>
+                              <strong>Estoque físico total:</strong>
                               <Badge bg="primary">
                                 {livroSelecionado.estoqueInfo?.estoqueFisico || livroSelecionado.estoque || 0} unidades
                               </Badge>
                             </div>
                           </div>
                           <div className="col-12 mb-2">
-                            <div className="d-flex justify-content-between align-items-center">
-                              <strong>Atualmente emprestado:</strong>
-                              <Badge bg="warning" text="dark">
-                                {livroSelecionado.estoqueInfo?.totalEmprestado || 0} unidades
-                              </Badge>
-                            </div>
                           </div>
                           <div className="col-12 mb-2">
                             <div className="d-flex justify-content-between align-items-center">
                               <strong>Disponível para baixa:</strong>
-                              <Badge bg="info">
+                              <Badge bg="success">
                                 {livroSelecionado.estoque || 0} unidades
                               </Badge>
                             </div>
@@ -515,17 +513,18 @@ const Saida = () => {
                           ))}
                         </Form.Select>
                       </Col>
-                      {/* 🟡 ADICIONE O ALERT AQUI - ANTES do campo Quantidade */}
                       {livroSelecionado && livroSelecionado.estoqueInfo && (
                         <Col md={12}>
                           <Alert variant="info" className="small py-2">
-                            <strong> Informações do Livro:</strong><br />
+                            <strong>Informações do Livro:</strong><br />
                             Disponível para baixa: <strong>{livroSelecionado.estoqueInfo.estoqueDisponivel} unidades</strong><br />
-                            Estoque físico total: {livroSelecionado.estoqueInfo.estoqueFisico} unidades<br />
-                            Atualmente emprestado: {livroSelecionado.estoqueInfo.totalEmprestado} unidades
+                            Estoque físico total: <strong>{livroSelecionado.estoqueInfo.estoqueFisico} unidades<br /></strong>
+                            Atualmente emprestado:<strong> {livroSelecionado.estoqueInfo.totalEmprestado} unidades<br /></strong>
+                            Atualmente reservado:  <strong>{livroSelecionado.estoqueInfo.totalReservado} unidades</strong>
                           </Alert>
                         </Col>
                       )}
+
                       <Col md={6}>
                         <Form.Label className="fw-semibold">Quantidade</Form.Label>
                         <Form.Control
@@ -543,15 +542,11 @@ const Saida = () => {
                     </Row>
 
                     <Form.Group className="mb-3">
-                      <Form.Label className="fw-semibold">
-                        Observações
-                        <Badge bg="warning" text="dark" className="ms-2">Obrigatório</Badge>
-                      </Form.Label>
 
-                      <Alert variant="info" className="py-2 mb-2">
+                      <Alert variant="" className="py-2 mb-2">
                         <FaInfoCircle className="me-1" />
                         <small>
-                          <strong>Registro obrigatório:</strong> Informe o motivo desta saída.
+                          <strong>Obrigatório:</strong> Informe o motivo desta saída.
                         </small>
                       </Alert>
 
@@ -564,6 +559,7 @@ const Saida = () => {
                       />
                     </Form.Group>
 
+
                     {error && (
                       <Alert variant="danger" className="mb-3">{error}</Alert>
                     )}
@@ -573,7 +569,6 @@ const Saida = () => {
                         type="submit"
                         variant="danger"
                         disabled={loading || !formData.observacoes.trim()}
-                        className="flex-fill"
                       >
                         {loading ? (
                           <><Spinner animation="border" size="sm" /> Registrando...</>

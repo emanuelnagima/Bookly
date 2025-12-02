@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Card, Form, Col, Row, Button, Spinner } from 'react-bootstrap'
+import { Card, Form, Col, Row, Button, Spinner, InputGroup } from 'react-bootstrap'
 import { BsCheckCircle } from "react-icons/bs";
+import { FaLock } from 'react-icons/fa';
 
 const maskTelefone = (value) => {
   return value
@@ -8,14 +9,6 @@ const maskTelefone = (value) => {
     .replace(/^(\d{2})(\d)/, '($1) $2')
     .replace(/(\d{5})(\d)/, '$1-$2')
     .slice(0, 15)
-}
-
-const maskMatricula = (value) => {
-  return value
-    .replace(/\D/g, '')
-    .replace(/(\d{3})(\d)/, '$1.$2')
-    .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
-    .slice(0, 11)
 }
 
 const maskCPF = (value) => {
@@ -33,7 +26,6 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
     nome: '',
     cpf: '',
     data_nascimento: '',
-    matricula: '',
     email: '',
     telefone: '',
     departamento: ''
@@ -41,43 +33,16 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
 
   const [validated, setValidated] = useState(false)
 
-  const formatarTelefone = (telefone) => {
-    if (!telefone) return ''
-    const nums = telefone.replace(/\D/g, '')
-    if (nums.length === 11) {
-      return nums.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3')
-    }
-    return telefone
-  }
-
-  const formatarMatricula = (matricula) => {
-    if (!matricula) return ''
-    const nums = matricula.replace(/\D/g, '')
-    if (nums.length === 9) {
-      return nums.replace(/(\d{3})(\d{3})(\d{3})/, '$1.$2.$3')
-    }
-    return matricula
-  }
-
-  const formatarCPF = (cpf) => {
-    if (!cpf) return ''
-    const nums = cpf.replace(/\D/g, '')
-    if (nums.length === 11) {
-      return nums.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
-    }
-    return cpf
-  }
-
   useEffect(() => {
     if (professor) {
       setProfessorData({
         id: professor.id,
         nome: professor.nome || '',
-        cpf: formatarCPF(professor.cpf),
+        cpf: maskCPF(professor.cpf),
         data_nascimento: professor.data_nascimento || '',
-        matricula: formatarMatricula(professor.matricula),
+        // NÃO incluir matrícula aqui - ela virá do backend
         email: professor.email || '',
-        telefone: formatarTelefone(professor.telefone),
+        telefone: maskTelefone(professor.telefone),
         departamento: professor.departamento || ''
       })
     } else {
@@ -86,7 +51,6 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
         nome: '',
         cpf: '',
         data_nascimento: '',
-        matricula: '',
         email: '',
         telefone: '',
         departamento: ''
@@ -99,8 +63,8 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
 
     let maskedValue = value
     if (name === 'telefone') maskedValue = maskTelefone(value)
-    if (name === 'matricula') maskedValue = maskMatricula(value)
     if (name === 'cpf') maskedValue = maskCPF(value)
+    // REMOVER tratamento de matrícula
 
     setProfessorData(prev => ({
       ...prev,
@@ -120,9 +84,9 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
 
     const dataToSave = {
       ...professorData,
-      matricula: professorData.matricula.replace(/\D/g, ''),
       telefone: professorData.telefone.replace(/\D/g, ''),
       cpf: professorData.cpf.replace(/\D/g, '')
+      // NÃO enviar matrícula - será gerada no backend
     }
 
     onSave(dataToSave)
@@ -135,6 +99,33 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
       </Card.Header>
       <Card.Body>
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
+          
+          {/* SEÇÃO DE MATRÍCULA (somente leitura para edição) */}
+          {professorData.id && professor?.matricula && (
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId='matricula'>
+                  <Form.Label>Matrícula</Form.Label>
+                  <InputGroup>
+                    <InputGroup.Text>
+                      <FaLock />
+                    </InputGroup.Text>
+                    <Form.Control
+                      type='text'
+                      value={professor.matricula}
+                      readOnly
+                      disabled
+                      className='bg-light'
+                    />
+                  </InputGroup>
+                  <Form.Text className='text-muted'>
+                    Matrícula gerada automaticamente pelo sistema
+                  </Form.Text>
+                </Form.Group>
+              </Col>
+            </Row>
+          )}
+
           <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='nome'>
@@ -164,9 +155,6 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
                   onChange={handleChange}
                   disabled={loading}
                 />
-                <Form.Control.Feedback type='invalid'>
-                  Informe um CPF válido
-                </Form.Control.Feedback>
               </Form.Group>
             </Col>
           </Row>
@@ -182,31 +170,8 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
                   onChange={handleChange}
                   disabled={loading}
                 />
-                <Form.Control.Feedback type='invalid'>
-                  Informe a data de nascimento
-                </Form.Control.Feedback>
               </Form.Group>
             </Col>
-            <Col md={6}>
-              <Form.Group className='mb-3' controlId='matricula'>
-                <Form.Label>Matrícula</Form.Label>
-                <Form.Control
-                  type='text'
-                  name='matricula'
-                  placeholder='Ex: 2025-001'
-                  value={professorData.matricula}
-                  onChange={handleChange}
-                  disabled={loading}
-                  required
-                />
-                <Form.Control.Feedback type='invalid'>
-                  Informe a matrícula no formato 000.000.000
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
-          </Row>
-
-          <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='email'>
                 <Form.Label>E-mail</Form.Label>
@@ -221,10 +186,13 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                 />
                 <Form.Control.Feedback type='invalid'>
-                  Informe um e-mail válido (exemplo: nome@escola.com)
+                  Informe um e-mail válido
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>
+          </Row>
+
+          <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='telefone'>
                 <Form.Label>Telefone</Form.Label>
@@ -235,13 +203,9 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
                   onChange={handleChange}
                   placeholder='(00) 00000-0000'
                   disabled={loading}
-                  required
                 />
               </Form.Group>
             </Col>
-          </Row>
-
-          <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='departamento'>
                 <Form.Label>Departamento</Form.Label>
@@ -272,7 +236,6 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
                   <option value='Informática'>Informática</option>
                   <option value='Programação'>Programação</option>
                   <option value='Administração'>Administração</option>
-                  <option value='Economia'>Economia</option>
                   <option value='Psicologia'>Psicologia</option>
                   <option value='Pedagogia'>Pedagogia</option>
                 </Form.Select>

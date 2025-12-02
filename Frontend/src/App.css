@@ -80,6 +80,11 @@ body.tema-padrao {
   background: linear-gradient(to bottom, #f0f4f8, #ffffff);
 }
 
+.help-modal .modal-header .btn-close {
+  filter: brightness(0) invert(1) !important;
+}
+
+
 /* ====== CONTEÚDO PRINCIPAL ====== */
 .app-container {
   display: flex;
@@ -394,8 +399,8 @@ transition: all 0.25s ease;}
 }
 
 .sem-imagem {
-  width: 150px;
-  height: 220px;
+  width: 80px;
+  height: 120px;
   background-color: #f8f9fa;
   border-radius: 6px;
   display: flex;
@@ -480,25 +485,23 @@ transition: all 0.25s ease;}
 .livrolist-sem-imagem {
   width: 120px;
   height: 180px;
-  background-color: #141414;
-  border-radius: 4px;
-  border: 1px solid #333;
+  background-color: #f8f9fa;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #e9ecef;
+  color: #6c757d;
 }
 
 .livrolist-lista-sem-imagem {
   width: 45px;
   height: 60px;
-  background-color: #141414;
-  border-radius: 2px;
-  border: 1px solid #333;
+  background-color: #f8f9fa;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #e9ecef;
+  color: #6c757d;
 }
 
 .livrolist-livro-card-body {
@@ -512,28 +515,29 @@ transition: all 0.25s ease;}
   min-width: 40px;
 }
 
-/* Estilos para o modal */
 .livrolist-modal-imagem {
-  max-height: 280px;
+  width: 160px;       /* largura menor */
+  height: 240px;      /* altura maior */
   object-fit: cover;
   border-radius: 4px;
   background-color: #141414;
   border: 1px solid #333;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  display: block;
+  margin: 0 auto;
 }
 
 .livrolist-modal-sem-imagem {
-  width: 180px;
-  height: 230px;
-  background-color: #141414;
-  border-radius: 4px;
-  border: 1px solid #333;
+  width: 240px;
+  height: 340px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #e9ecef;
-  margin: 0 auto;
+  color: #6c757d;
 }
+
 .btn-sm-custom {
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;

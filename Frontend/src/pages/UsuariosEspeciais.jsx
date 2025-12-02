@@ -19,6 +19,10 @@ const UsuariosEspeciais = () => {
   const [operationType, setOperationType] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
 
+ useEffect(() => {
+    document.title = "Bookly - Usuários Especiais";
+  }, []);
+
   const loadUsuarios = async () => {
     try {
       setLoading(true)
@@ -180,16 +184,18 @@ const UsuariosEspeciais = () => {
         className="rounded-3 p-4 mb-4"
         style={{
           border: '1px solid #e6e6e6' 
-        }} rgb>
+        }}>
         <Row className="align-items-center">
           <Col md={8}>
             <div className="d-flex align-items-center">
               <div className="me-3">
                 <i className="fas fa-users fa-2x" style={{ color: '#0b192c' }}></i>
               </div>
-              <div>
+             <div>
                 <h4 className="fw-bold text-dark mb-1">Usuários Especiais</h4>
-           
+                <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
+                  Cadastro e gerenciamento de usuários espeicias do sistema
+                </p>
               </div>
             </div>
           </Col>

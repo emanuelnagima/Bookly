@@ -27,6 +27,7 @@ const CadUsuarioEspecial = ({ onSave, onCancel, usuario, loading }) => {
     email: '',
     telefone: '',
     cpf: '',
+    data_nascimento: '', // NOVO CAMPO
     tipo_usuario: ''
   })
 
@@ -40,6 +41,7 @@ const CadUsuarioEspecial = ({ onSave, onCancel, usuario, loading }) => {
         email: usuario.email || '',
         telefone: usuario.telefone || '',
         cpf: usuario.cpf || '',
+        data_nascimento: usuario.data_nascimento || '', // NOVO CAMPO
         tipo_usuario: usuario.tipo_usuario || ''
       })
     } else {
@@ -49,6 +51,7 @@ const CadUsuarioEspecial = ({ onSave, onCancel, usuario, loading }) => {
         email: '',
         telefone: '',
         cpf: '',
+        data_nascimento: '', // NOVO CAMPO
         tipo_usuario: ''
       })
     }
@@ -85,6 +88,12 @@ const CadUsuarioEspecial = ({ onSave, onCancel, usuario, loading }) => {
 
     onSave(cleanedData)
   }
+
+  // Calcular data máxima (hoje) e mínima (100 anos atrás)
+  const hoje = new Date().toISOString().split('T')[0];
+  const dataMinima = new Date();
+  dataMinima.setFullYear(dataMinima.getFullYear() - 100);
+  const dataMinimaFormatada = dataMinima.toISOString().split('T')[0];
 
   return (
     <Card>
@@ -166,11 +175,30 @@ const CadUsuarioEspecial = ({ onSave, onCancel, usuario, loading }) => {
                   Informe o telefone
                 </Form.Control.Feedback>
               </Form.Group>
-
             </Col>
           </Row>
 
           <Row>
+            <Col md={6}>
+              {/* NOVO CAMPO: Data de Nascimento */}
+              <Form.Group className='mb-3' controlId='data_nascimento'>
+                <Form.Label>Data de Nascimento</Form.Label>
+                <Form.Control
+                  type='date'
+                  name='data_nascimento'
+                  value={usuarioData.data_nascimento}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  max={hoje}
+                  min={dataMinimaFormatada}
+                />
+                <Form.Control.Feedback type='invalid'>
+                  Informe a data de nascimento
+                </Form.Control.Feedback>
+
+              </Form.Group>
+            </Col>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='tipo_usuario'>
                 <Form.Label>Tipo de Usuário</Form.Label>
@@ -225,7 +253,6 @@ const CadUsuarioEspecial = ({ onSave, onCancel, usuario, loading }) => {
                 </>
               )}
             </Button>
-
           </div>
         </Form>
       </Card.Body>

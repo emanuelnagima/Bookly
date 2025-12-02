@@ -27,6 +27,11 @@ const Reservas = () => {
   const [showConverterModal, setShowConverterModal] = useState(false);
   const [dataDevolucaoPrevista, setDataDevolucaoPrevista] = useState('');
 
+ useEffect(() => {
+    document.title = "Bookly - Reservas";
+  }, []);
+
+
    const calcularDataPadrao = () => {
     const data = new Date();
     data.setDate(data.getDate() + 14);
@@ -35,7 +40,7 @@ const Reservas = () => {
 
   const handleConverterEmprestimo = async (id) => {
     setReservaParaConverter(id);
-    setDataDevolucaoPrevista(calcularDataPadrao()); // ← DEFINIR DATA PADRÃO
+    setDataDevolucaoPrevista(calcularDataPadrao()); // DEFINIR DATA PADRÃO
     setShowConverterModal(true);
   };
 
@@ -57,7 +62,7 @@ const Reservas = () => {
       setLoading(true);
       setError('');
 
-      // ← ENVIAR DATA DE DEVOLUÇÃO PARA O SERVICE
+      //  DATA DE DEVOLUÇÃO PARA O SERVICE
       const resultado = await disponibilidadeService.converterReservaEmEmprestimo(
         reservaParaConverter, 
         dataDevolucaoPrevista
@@ -327,16 +332,19 @@ const handleSaveReserva = async (reserva) => {
         }}
       >
         <Row className="align-items-center">
-          <Col md={8}>
-            <div className="d-flex align-items-center">
-              <div className="me-3">
-                <i className="fas fa-calendar-alt fa-2x" style={{ color: '#0b192c' }}></i>
+           <Col md={8}>
+              <div className="d-flex align-items-center">
+                <div className="me-3">
+                  <i className="fas fa-calendar-alt fa-2x" style={{ color: '#0b192c' }}></i>
+                </div>
+                <div>
+                  <h4 className="fw-bold text-dark mb-1">Gestão de Reservas</h4>
+                  <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
+                    Registro e acompanhamento de reservas de livros do sistema
+                  </p>
+                </div>
               </div>
-              <div>
-                <h4 className="fw-bold text-dark mb-1">Gestão de Reservas</h4>
-              </div>
-            </div>
-          </Col>
+            </Col>
 
           <Col md={4} className="text-md-end">
             <Button
@@ -373,7 +381,7 @@ const handleSaveReserva = async (reserva) => {
           <small className="text-muted">Concluídas</small>
         </div>
         <div className="text-center px-3 py-2">
-          <h6 className="mb-0 text-warning fw-bold">{totalExpiradas}</h6> {/* ✅ Agora atualizado */}
+          <h6 className="mb-0 text-warning fw-bold">{totalExpiradas}</h6> 
           <small className="text-muted">Expiradas</small>
         </div>
       </div>
@@ -411,10 +419,14 @@ const handleSaveReserva = async (reserva) => {
         </Modal.Header>
         <Modal.Body>
           Tem certeza que deseja excluir esta reserva? Esta ação não pode ser desfeita.
+           <Alert variant="warning" className="mt-2">
+      <strong>Atenção:</strong> Esta ação é permanente e não poderá ser desfeita. 
+      A reserva será <strong>excluída definitivamente</strong>.
+    </Alert>
         </Modal.Body>
         <Modal.Footer>
           <Button
-            variant="paginacao"
+            variant="cancelar"
             onClick={() => setShowDeleteModal(false)}
             disabled={isDeleting}
           >
@@ -442,10 +454,14 @@ const handleSaveReserva = async (reserva) => {
         </Modal.Header>
         <Modal.Body>
           Tem certeza que deseja cancelar esta reserva?
+          <Alert variant="warning" className="mt-2">
+    <strong>Atenção:</strong> O cancelamento é definitivo e não poderá ser desfeito. 
+    A reserva será marcada como cancelada, mas o histórico ficará registrado para controle.
+  </Alert>
         </Modal.Body>
         <Modal.Footer>
           <Button
-            variant="paginacao"
+            variant="cancelar"
             onClick={() => setShowCancelarModal(false)}
             disabled={loading}
           >
@@ -473,10 +489,14 @@ const handleSaveReserva = async (reserva) => {
         </Modal.Header>
         <Modal.Body>
           Tem certeza que deseja concluir esta reserva? Esta ação marca a reserva como finalizada.
+            <Alert variant="info" className="mt-2">
+    <strong>Atenção:</strong> Após concluir a reserva, lembre-se de realizar o empréstimo do livro. 
+    A conclusão não cria automaticamente o empréstimo.
+  </Alert>
         </Modal.Body>
         <Modal.Footer>
           <Button
-            variant="paginacao"
+            variant="cancelar"
             onClick={() => setShowConcluirModal(false)}
             disabled={loading}
           >
@@ -497,31 +517,31 @@ const handleSaveReserva = async (reserva) => {
         </Modal.Footer>
       </Modal>
       
-          <Modal show={showConverterModal} onHide={() => setShowConverterModal(false)}>
-            <Modal.Header closeButton>
-              <Modal.Title>Converter Reserva em Empréstimo</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <p>
-                Tem certeza que deseja converter esta reserva em empréstimo? 
-                Esta ação criará um novo empréstimo e marcará a reserva como concluída.
-              </p>
-              
-              {/* FORMULÁRIO PARA DATA DE DEVOLUÇÃO */}
-              <Form.Group className="mb-3">
-                <Form.Label>
-                  <strong>Data de Devolução Prevista:</strong>
-                </Form.Label>
-                <Form.Control
-                  type="date"
-                  value={dataDevolucaoPrevista}
-                  onChange={(e) => setDataDevolucaoPrevista(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]} // Não permite datas passadas
-                  required
-                />
-                <Form.Text className="text-muted">
-                  Informe até quando o usuário deve devolver o livro
-                </Form.Text>
+        <Modal show={showConverterModal} onHide={() => setShowConverterModal(false)}>
+  <Modal.Header closeButton>
+    <Modal.Title>Transformar Reserva em Empréstimo</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <Form.Group className="mb-3">
+      <Form.Label>
+        <strong>Data de Devolução Prevista:</strong>
+      </Form.Label>
+      <Form.Control
+        type="date"
+        value={dataDevolucaoPrevista}
+        onChange={(e) => setDataDevolucaoPrevista(e.target.value)}
+        min={new Date().toISOString().split('T')[0]} 
+        required
+      />
+      <Form.Text className="text-muted">
+        Informe até quando o usuário deve devolver o livro
+      </Form.Text>
+
+      <Alert variant="info" className="mt-2">
+        <strong>Atenção:</strong> Ao transformar esta reserva, a ação será definitiva:
+        a reserva será marcada como concluída e um empréstimo será criado. 
+        Verifique se a data de devolução está correta antes de confirmar.
+      </Alert>
               </Form.Group>
             </Modal.Body>
             <Modal.Footer>
@@ -542,7 +562,7 @@ const handleSaveReserva = async (reserva) => {
                     <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
                     <span className="ms-2">Convertendo...</span>
                   </>
-                ) : 'Converter'}
+                ) : 'Transformar em Empréstimo'}
               </Button>
             </Modal.Footer>
           </Modal>

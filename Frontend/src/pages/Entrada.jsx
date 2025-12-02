@@ -23,6 +23,10 @@ const Entrada = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState('');
 
+ useEffect(() => {
+    document.title = "Bookly - Entrada de Livros";
+  }, []);
+
 // FUNÇÃO PARA FORMATAR TEXTO COM PRIMEIRA LETRA MAIÚSCULA
 const formatarTexto = (texto) => {
   if (!texto || texto === '-') return '-';
@@ -208,16 +212,19 @@ const formatarTexto = (texto) => {
       {/* HEADER ORIGINAL PRESERVADO */}
       <div className="rounded-3 p-4 mb-4 border">
         <Row className="align-items-center">
-          <Col md={8}>
-            <div className="d-flex align-items-center">
-              <div className="me-3">
-                <i className="fas fa-book-open fa-2x" style={{ color: '#0b192c' }}></i>
+           <Col md={8}>
+              <div className="d-flex align-items-center">
+                <div className="me-3">
+                  <i className="fas fa-book-open fa-2x" style={{ color: '#0b192c' }}></i>
+                </div>
+                <div>
+                  <h4 className="fw-bold text-dark mb-1">Entrada de Livros</h4>
+                  <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
+                    Registro e controle de novas entradas no acervo
+                  </p>
+                </div>
               </div>
-              <div>
-                <h4 className="fw-bold text-dark mb-1">Entrada de Livros</h4>
-              </div>
-            </div>
-          </Col>
+            </Col>
           <Col md={4} className="text-md-end">
             <div className="d-flex justify-content-end flex-wrap gap-2">
           
@@ -332,10 +339,10 @@ const formatarTexto = (texto) => {
 
                              <td>
                                 <div className="fw-semibold" style={{ maxWidth: '200px' }}>
-                                  {formatarTexto(livro.titulo)} {/* ← ADICIONE formatarTexto AQUI */}
+                                  {formatarTexto(livro.titulo)}
                                 </div>
                                 <small className="text-muted">
-                                  {formatarTexto(livro.autor_nome)} {/* ← ADICIONE formatarTexto AQUI */}
+                                  {formatarTexto(livro.autor_nome)} 
                                 </small>
                               </td>
 
@@ -349,7 +356,7 @@ const formatarTexto = (texto) => {
 
                               <td className="text-center">
                                 <Button
-                                  variant={isSelected ? 'success' : 'btn btn-success'}
+                                  variant={isSelected ? 'success' : 'outline-success'}
                                   size="sm"
                                   onClick={() => selecionarLivro(livro)}
                                   disabled={isSelected}
@@ -455,7 +462,7 @@ const formatarTexto = (texto) => {
                       {/* SEÇÃO DE ESTOQUE ORGANIZADA */}
                       <div className="mt-3 pt-2 border-top">
                         <div className="row small">
-                          <div className="col-12 mb-2">
+                          <div className="col-12 mb-0">
                             <div className="d-flex justify-content-between align-items-center">
                               <strong>
                                 Estoque físico total:
@@ -466,12 +473,7 @@ const formatarTexto = (texto) => {
                             </div>
                           </div>
                           <div className="col-12 mb-2">
-                            <div className="d-flex justify-content-between align-items-center">
-                              <strong>Atualmente emprestado:</strong>
-                              <Badge bg="warning" text="dark">
-                                {livroSelecionado.totalEmprestado || 0} unidades
-                              </Badge>
-                            </div>
+
                           </div>
                           <div className="col-12">
                             <div className="d-flex justify-content-between align-items-center">
@@ -525,27 +527,24 @@ const formatarTexto = (texto) => {
                       </Col>
                     </Row>
 
-                    <Form.Group className="mb-3">
-                      <Form.Label className="fw-semibold">
-                        Observações
-                        <Badge bg="warning" text="dark" className="ms-2">Obrigatório</Badge>
-                      </Form.Label>
+                   <Form.Group className="mb-3">
 
-                      <Alert variant="info" className="py-2 mb-2">
-                        <FaInfoCircle className="me-1" />
-                        <small>
-                          <strong>Registro obrigatório:</strong> Informe o motivo desta entrada.
-                        </small>
-                      </Alert>
+                    <Alert variant="" className="py-2 mb-2">
+                      <FaInfoCircle className="me-1" />
+                      <small>
+                        <strong>Obrigatório:</strong> Informe o motivo desta entrada.
+                      </small>
+                    </Alert>
 
-                      <Form.Control
-                        as="textarea"
-                        rows={3}
-                        placeholder="Descreva o motivo da entrada (ex: doação, compra, ajuste de inventário)..."
-                        value={formData.observacoes}
-                        onChange={e => setFormData({ ...formData, observacoes: e.target.value })}
-                      />
-                    </Form.Group>
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      placeholder="Descreva o motivo da entrada (ex: doação, compra, ajuste de inventário)..."
+                      value={formData.observacoes}
+                      onChange={e => setFormData({ ...formData, observacoes: e.target.value })}
+                    />
+                  </Form.Group>
+
 
                     {error && (
                       <Alert variant="danger" className="mb-3">{error}</Alert>
@@ -556,7 +555,6 @@ const formatarTexto = (texto) => {
                         type="submit"
                         variant="success"
                         disabled={loading || !formData.observacoes.trim()}
-                        className="flex-fill"
                       >
                         {loading ? (
                           <><Spinner animation="border" size="sm" /> Registrando...</>

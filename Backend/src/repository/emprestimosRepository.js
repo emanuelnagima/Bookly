@@ -13,7 +13,7 @@ async findAll() {
                     WHEN e.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = e.usuario_id)
                     WHEN e.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = e.usuario_id)
                     WHEN e.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = e.usuario_id)
-                END as usuario,  -- ← MANTENHA COMO 'usuario' PARA COMPATIBILIDADE
+                END as usuario,  
                 CASE 
                     WHEN e.usuario_tipo = 'aluno' THEN (SELECT email FROM alunos WHERE id = e.usuario_id)
                     WHEN e.usuario_tipo = 'professor' THEN (SELECT email FROM professores WHERE id = e.usuario_id)
@@ -63,7 +63,7 @@ async findAll() {
                     total_livros: livros.length,
                     // Adicionar dados completos do usuário
                     usuario_detalhes: {
-                        nome: row.usuario,  // ← AGORA USA O CAMPO 'usuario'
+                        nome: row.usuario,  
                         email: row.usuario_email,
                         telefone: row.usuario_telefone,
                         turma: row.usuario_turma,
@@ -90,7 +90,7 @@ async findById(id) {
                        WHEN e.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = e.usuario_id)
                        WHEN e.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = e.usuario_id)
                        WHEN e.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = e.usuario_id)
-                   END as usuario,  -- ← MANTENHA COMO 'usuario'
+                   END as usuario,  
                    CASE 
                        WHEN e.usuario_tipo = 'aluno' THEN (SELECT email FROM alunos WHERE id = e.usuario_id)
                        WHEN e.usuario_tipo = 'professor' THEN (SELECT email FROM professores WHERE id = e.usuario_id)
@@ -128,7 +128,7 @@ async findById(id) {
         const emprestimo = new Emprestimo(emprestimoRows[0]);
         emprestimo.livros = livrosRows;
         emprestimo.usuario_detalhes = {
-            nome: emprestimoRows[0].usuario,  // ← USA O CAMPO 'usuario'
+            nome: emprestimoRows[0].usuario,  
             email: emprestimoRows[0].usuario_email,
             telefone: emprestimoRows[0].usuario_telefone,
             turma: emprestimoRows[0].usuario_turma,
@@ -393,7 +393,7 @@ async getEmprestimosAtrasados() {
                 END as usuario_nome
             FROM emprestimos e
             LEFT JOIN emprestimo_livros el ON e.id = el.emprestimo_id
-            WHERE e.status = 'atrasado'  // ← CORRIGIDO: buscar por 'atrasado'
+            WHERE e.status = 'atrasado'  
             GROUP BY e.id
             ORDER BY e.data_devolucao_prevista ASC
         `);
@@ -507,22 +507,22 @@ async atualizarStatusAtrasados() {
         connection = await db.getConnection();
         await connection.beginTransaction();
 
-
-        // 1. Atualizar para 'atrasado' onde está ativo e data passou
+        // 1. Marcar como ATIVOS -> ATRASADOS
         const [resultAtrasados] = await connection.execute(
             `UPDATE emprestimos 
              SET status = 'atrasado' 
              WHERE status = 'ativo' 
-             AND data_devolucao_prevista < CURDATE()`
+             AND DATE(data_devolucao_prevista) < CURDATE()`
         );
 
-        // 2. Reverter para 'ativo' onde está atrasado mas data foi renovada
+        // 2. Marcar como ATRASADOS -> ATIVOS (se renovados)
         const [resultAtivos] = await connection.execute(
             `UPDATE emprestimos 
              SET status = 'ativo' 
              WHERE status = 'atrasado' 
-             AND data_devolucao_prevista >= CURDATE()`
+             AND DATE(data_devolucao_prevista) >= CURDATE()`
         );
+
         await connection.commit();
         
         return {
@@ -534,11 +534,13 @@ async atualizarStatusAtrasados() {
 
     } catch (error) {
         if (connection) await connection.rollback();
+        console.error(' Erro no repositório:', error.message);
         throw new Error(`Erro ao atualizar status: ${error.message}`);
     } finally {
         if (connection) connection.release();
     }
 }
+
 }
 
 module.exports = new EmprestimosRepository();

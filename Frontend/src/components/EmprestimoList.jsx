@@ -73,31 +73,43 @@ const EmprestimoList = ({ emprestimos, onDelete, onRenovar, onFinalizar, loading
     });
   };
 
-  // Filtrar empréstimos
-  const emprestimosFiltrados = emprestimos.filter(emprestimo => {
-    if (!termoBusca && filtroStatus === 'todos') return true;
+const normalizarTexto = texto =>
+  (texto || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+    .trim(); // Filtrar empréstimos
+    
+const emprestimosFiltrados = emprestimos.filter(emprestimo => {
+  if (!termoBusca && filtroStatus === 'todos') return true;
 
-    const termo = termoBusca.toLowerCase();
-    const matchesBusca = !termoBusca || (
-      (emprestimo.usuario || '').toLowerCase().includes(termo) ||
-      (emprestimo.id || '').toString().toLowerCase().includes(termo)
-    );
+  const termo = normalizarTexto(termoBusca);
+  
+  // Busca no usuário e ID
+  const buscaUsuario = normalizarTexto(emprestimo.usuario || '').includes(termo);
+  const buscaId = (emprestimo.id || '').toString().includes(termo);
+  
+  // Busca nos títulos dos livros
+  const buscaLivros = (emprestimo.livros || []).some(livro => 
+    normalizarTexto(livro.livro_titulo || '').includes(termo)
+  );
+  
+  const matchesBusca = !termoBusca || buscaUsuario || buscaId || buscaLivros;
 
-    const hoje = new Date();
-    const devolucao = new Date(emprestimo.data_devolucao_prevista);
+  const hoje = new Date();
+  const devolucao = new Date(emprestimo.data_devolucao_prevista);
 
-    //  Cálculo dinâmico do status
-    let statusCalculado = emprestimo.status;
-    if (emprestimo.status === 'ativo' && devolucao < hoje) {
-      statusCalculado = 'atrasado';
-    }
+  // Cálculo dinâmico do status
+  let statusCalculado = emprestimo.status;
+  if (emprestimo.status === 'ativo' && devolucao < hoje) {
+    statusCalculado = 'atrasado';
+  }
 
-    const matchesStatus =
-      filtroStatus === 'todos' || statusCalculado === filtroStatus;
+  const matchesStatus =
+    filtroStatus === 'todos' || statusCalculado === filtroStatus;
 
-    return matchesBusca && matchesStatus;
-  });
-
+  return matchesBusca && matchesStatus;
+});
   // Aplicar ordenação
   const emprestimosOrdenados = ordenarEmprestimos(emprestimosFiltrados);
 
@@ -426,7 +438,7 @@ const getStatusBadge = (status, dataDevolucao) => {
 
             {/* Modal para mostrar os livros */}
             <Modal show={showLivrosModal} onHide={handleCloseLivrosModal} size="lg">
-              <Modal.Header closeButton className="bg-primary text-white">
+              <Modal.Header closeButton closeVariant="white" className="bg-primary text-white">
                 <Modal.Title className="d-flex align-items-center">
                   <FaBook className="me-2" />
                   Empréstimo #{emprestimoSelecionado?.id} - Detalhes

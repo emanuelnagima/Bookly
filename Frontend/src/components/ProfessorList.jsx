@@ -233,83 +233,83 @@ const ProfessorList = ({ professores, onDelete, onEdit, loading }) => {
                 </tr>
               </thead>
               <tbody>
-  {professoresPaginaAtual.map(professor => (
-    <tr key={professor.id}>
-      <td className="fw-bold">#{professor.id}</td>
+                {professoresPaginaAtual.map(professor => (
+                  <tr key={professor.id}>
+                    <td className="fw-bold">#{professor.id}</td>
 
-      {/* Coluna Nome */}
-      <td>
-        <div className="fw-semibold">{formatarTexto(professor.nome)}</div>
-        <small className="text-muted">{professor.email}</small>
-      </td>
+                    {/* Coluna Nome */}
+                    <td>
+                      <div className="fw-semibold">{formatarTexto(professor.nome)}</div>
+                      <small className="text-muted">{professor.email}</small>
+                    </td>
 
-      {/* Coluna Matrícula */}
-      <td>
-        <span>
-          {professor.matricula}
-        </span>
-      </td>
+                    {/* Coluna Matrícula */}
+                    <td>
+                      <span>
+                        {professor.matricula}
+                      </span>
+                    </td>
 
-      {/* Coluna Data de Nascimento - ADICIONE ESTE BLOCO */}
-      <td className="text-nowrap">
-  {professor.data_nascimento || professor.dataNascimento ? 
-    formatarData(professor.data_nascimento || professor.dataNascimento) : 
-    '-'
-  }
-</td>
+                    {/* Coluna Data de Nascimento */}
+                    <td className="text-nowrap">
+                {professor.data_nascimento || professor.dataNascimento ? 
+                  formatarData(professor.data_nascimento || professor.dataNascimento) : 
+                  '-'
+                }
+              </td>
 
-      {/* Coluna Departamento */}
-      <td>
-        {professor.departamento ? (
-          <span>
-            {professor.departamento}
-          </span>
-        ) : (
-          <span className="text-muted">-</span>
-        )}
-      </td>
+                    {/* Coluna Departamento */}
+                    <td>
+                      {professor.departamento ? (
+                        <span>
+                          {professor.departamento}
+                        </span>
+                      ) : (
+                        <span className="text-muted">-</span>
+                      )}
+                    </td>
 
-      {/* Coluna Telefone */}
-      <td className="text-nowrap">
-        {formatarTelefone(professor.telefone)}
-      </td>
+                    {/* Coluna Telefone */}
+                    <td className="text-nowrap">
+                      {formatarTelefone(professor.telefone)}
+                    </td>
 
-      {/* Coluna Ações */}
-      <td>
-        <div className="d-flex gap-2 justify-content-center">
-          <button
-            className="btn-sm-custom btn-renovar"
-            onClick={() => handleVerDetalhes(professor)}
-            title="Ver detalhes do professor"
-          >
-            <FaInfoCircle />
-          </button>
+                    {/* Coluna Ações */}
+                    <td>
+                      <div className="d-flex gap-2 justify-content-center">
+                        <button
+                          className="btn-sm-custom btn-renovar"
+                          onClick={() => handleVerDetalhes(professor)}
+                          title="Ver detalhes do professor"
+                        >
+                          <FaInfoCircle />
+                        </button>
 
-          <button
-            className="btn-sm-custom btn-edit"
-            onClick={() => onEdit(professor.id)}
-            title="Editar professor"
-          >
-            <FaEdit />
-          </button>
+                        <button
+                          className="btn-sm-custom btn-edit"
+                          onClick={() => onEdit(professor.id)}
+                          title="Editar professor"
+                        >
+                          <FaEdit />
+                        </button>
 
-          <button
-            className="btn-sm-custom btn-danger"
-            onClick={() => onDelete(professor.id)}
-            title="Excluir professor"
-          >
-            <FaTrash />
-          </button>
-        </div>
-      </td>
-    </tr>
-  ))}
-</tbody>
+                        <button
+                          className="btn-sm-custom btn-danger"
+                          onClick={() => onDelete(professor.id)}
+                          title="Excluir professor"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </Table>
 
             {/* Modal para mostrar detalhes do professor */}
             <Modal show={showDetalhesModal} onHide={handleCloseDetalhesModal} size="lg">
-              <Modal.Header closeButton className="bg-primary text-white">
+              <Modal.Header closeButton closeVariant="white" className="bg-primary text-white">
                 <Modal.Title className="d-flex align-items-center">
                   <FaUserTie className="me-2" />
                   Professor #{professorSelecionado?.id} - Detalhes

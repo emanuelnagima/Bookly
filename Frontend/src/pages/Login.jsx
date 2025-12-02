@@ -97,12 +97,6 @@ const Login = () => {
           </button>
         </form>
 
-        <div className="mt-3 text-muted small">
-          <p><strong>Usuários de teste:</strong></p>
-          <p>Admin: admin@biblioteca.com / 123</p>
-          <p>Operador: operador@biblioteca.com / 123</p>
-        </div>
-
         <div className="privacy-links">
           <div className="privacy-link">
             <a

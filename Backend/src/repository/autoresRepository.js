@@ -36,7 +36,7 @@ class AutoresRepository {
         return result.affectedRows > 0;
     }
 
-    // NOVO MÉTODO: Verificar se existem livros vinculados
+    // NOVO : Verificar se existem livros vinculados
     async verificarLivrosVinculados(autorId) {
         try {
             const [rows] = await db.execute(

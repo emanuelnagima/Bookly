@@ -1,9 +1,8 @@
 const jwt = require('jsonwebtoken');
 
-// Dados temporários 
 const USERS = [
-    { id: 1, email: 'admin@biblioteca.com', password: '123', role: 'admin' },
-    { id: 2, email: 'operador@biblioteca.com', password: '123', role: 'operador' },
+    { id: 1, email: 'admin@bookly.com', password: 'aDmin@&909086', role: 'admin' },
+    { id: 2, email: 'operador@bookly.com', password: 'oPerador@98!o7', role: 'operador' },
 ];
 
 async function login(req, res) {

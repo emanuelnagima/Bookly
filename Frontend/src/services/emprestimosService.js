@@ -234,7 +234,7 @@ const verificarEdicao = async (id) => {
   }
   
 };
-// Adicione este método ao seu emprestimosService.js
+
 const gerarRelatorio = async (filtros) => {
   try {
     const response = await fetch('http://localhost:3000/api/emprestimos/relatorios', {

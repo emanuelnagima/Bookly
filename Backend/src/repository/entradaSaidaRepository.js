@@ -88,30 +88,11 @@ async registrarSaida(saidaData) {
 
         const saida = new Saida(saidaData);
 
-        //  VERIFICAÇÃO CORRIGIDA: Verificar estoque DISPONÍVEL (físico - emprestados)
-        const [estoqueRows] = await connection.execute(
-            'SELECT estoque FROM livros WHERE id = ?',
-            [saida.livro_id]
-        );
-
-        if (estoqueRows.length === 0) {
-            throw new Error('Livro não encontrado');
-        }
-
-        // Calcular estoque REALMENTE disponível
-        const [emprestimosAtivos] = await connection.execute(
-            `SELECT SUM(el.quantidade) as total_emprestado
-             FROM emprestimo_livros el
-             JOIN emprestimos e ON el.emprestimo_id = e.id
-             WHERE el.livro_id = ? AND e.status = 'ativo'`,
-            [saida.livro_id]
-        );
-
-        const totalEmprestado = emprestimosAtivos[0].total_emprestado || 0;
-        const estoqueDisponivel = estoqueRows[0].estoque - totalEmprestado;
-
-        if (estoqueDisponivel < saida.quantidade) {
-            throw new Error(`Estoque disponível insuficiente. Disponível: ${estoqueDisponivel}, Solicitado: ${saida.quantidade}`);
+        // ✅ VERIFICAÇÃO COMPLETA: Considera estoque físico, empréstimos E reservas
+        const estoqueInfo = await this.verificarEstoqueDisponivel(saida.livro_id);
+        
+        if (estoqueInfo.estoqueDisponivel < saida.quantidade) {
+            throw new Error(`Estoque disponível insuficiente. Disponível: ${estoqueInfo.estoqueDisponivel}, Solicitado: ${saida.quantidade}. Livro: "${estoqueInfo.livro}"`);
         }
 
         // Registrar saída
@@ -136,7 +117,6 @@ async registrarSaida(saidaData) {
         if (connection) connection.release();
     }
 }
-
     async getSaidasPorLivro(livroId) {
         try {
             const [rows] = await db.execute(`
@@ -273,7 +253,7 @@ async verificarEstoqueDisponivel(livroId) {
 
         const estoqueFisico = estoqueRows[0].estoque || 0;
 
-        // 2. Empréstimos ativos - CORREÇÃO: garantir que não seja null
+        // 2. Empréstimos ativos
         const [emprestimosAtivos] = await db.execute(
             `SELECT COALESCE(SUM(el.quantidade), 0) as total_emprestado
              FROM emprestimo_livros el
@@ -282,13 +262,26 @@ async verificarEstoqueDisponivel(livroId) {
             [livroId]
         );
 
+        // 3. RESERVAS ATIVAS - NOVA VERIFICAÇÃO
+        const [reservasAtivas] = await db.execute(
+            `SELECT COALESCE(COUNT(*), 0) as total_reservado
+             FROM reservas r
+             JOIN reserva_livros rl ON r.id = rl.reserva_id
+             WHERE rl.livro_id = ? AND r.status = 'ativa'`,
+            [livroId]
+        );
+
         const totalEmprestado = Number(emprestimosAtivos[0].total_emprestado) || 0;
-        const estoqueDisponivel = Math.max(0, estoqueFisico - totalEmprestado);
+        const totalReservado = Number(reservasAtivas[0].total_reservado) || 0;
+        
+        // Estoque disponível = físico - emprestados - reservados
+        const estoqueDisponivel = Math.max(0, estoqueFisico - totalEmprestado - totalReservado);
 
         return {
             estoqueDisponivel,
             estoqueFisico,
             totalEmprestado,
+            totalReservado, 
             livro: estoqueRows[0].titulo
         };
     } catch (error) {

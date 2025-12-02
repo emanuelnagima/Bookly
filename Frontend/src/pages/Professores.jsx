@@ -17,6 +17,10 @@ const Professores = () => {
   const [operationType, setOperationType] = useState('') // 'create', 'update', 'delete'
   const [isDeleting, setIsDeleting] = useState(false)
 
+ useEffect(() => {
+    document.title = "Bookly - Professores";
+  }, []);
+
   const loadProfessores = async () => {
     try {
       setLoading(true)
@@ -206,14 +210,16 @@ const handleSaveProfessor = async (professor) => {
         }}
       >
         <Row className="align-items-center">
-          <Col md={8}>
+         <Col md={8}>
             <div className="d-flex align-items-center">
               <div className="me-3">
                 <i className="fas fa-chalkboard-teacher fa-2x" style={{ color: '#0b192c' }}></i>
               </div>
               <div>
                 <h4 className="fw-bold text-dark mb-1">Professores</h4>
-
+                <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
+                  Cadastro e gerenciamento de professores do sistema
+                </p>
               </div>
             </div>
           </Col>

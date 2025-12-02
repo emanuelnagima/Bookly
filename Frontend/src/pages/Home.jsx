@@ -16,33 +16,23 @@ import { Tooltip, OverlayTrigger } from "react-bootstrap";
 import entradaSaidaService from "../services/entradaSaidaService";
 
 import {
-  FaBookOpen,
   FaCalendarAlt,
   FaSearch,
   FaImage,
   FaChevronLeft,
   FaChevronRight,
   FaUserTie,
-  FaUserCircle,
-  FaUserGraduate,
   FaBook,
-  FaPenFancy,
   FaBuilding,
   FaDoorOpen,
   FaSignOutAlt,
   FaHandshake,
-  FaSyncAlt,
-  FaReply,
-  FaBox,
   FaChartBar,
   FaInfoCircle,
   FaEnvelope,
-  FaBriefcase,
   FaUsers,
-  FaChalkboardTeacher,
   FaGraduationCap,
   FaFeatherAlt,
-  FaUniversity,
 } from "react-icons/fa";
 import livroService from "../services/livroService";
 import professorService from "../services/professorService";
@@ -241,13 +231,13 @@ const Home = () => {
       cards: [
         {
           icone: FaDoorOpen,
-          titulo: "Entrada",
+          titulo: "Entradas",
           descricao: "Registre a entrada de novos livros no acervo",
           link: "/entrada",
         },
         {
           icone: FaSignOutAlt,
-          titulo: "Saída",
+          titulo: "Saídas",
           descricao: "Registre a saída de livros do acervo do sistema",
           link: "/saida",
         },
@@ -265,14 +255,21 @@ const Home = () => {
         },
       ],
     },
+
     {
       titulo: "Relatórios",
       cards: [
         {
           icone: FaChartBar,
-          titulo: "Relatórios",
-          descricao: "Veja estatísticas e relatórios do acervo",
+          titulo: " Relatórios Gerais",
+          descricao: "Gere relatórios detalhados do sistema",
           link: "/relatorios",
+        },
+        {
+          icone: FaHandshake,
+          titulo: "Estatísticas e Dashboards",
+          descricao: "Acompanhe as estatísticas do sistema",
+          link: "/estatisticas",
         },
       ],
     },
@@ -310,39 +307,17 @@ const Home = () => {
                 >
                   Bookly
                 </h1>
-                <p style={{ fontSize: "1rem", margin: 0, color: "#6c757d" }}>
+                <p style={{ fontSize: "1rem", margin: 0, color: "#6c757d", textIndent: "0rem" }}>
                   <strong>Gestão para Bibliotecas</strong>
                 </p>
-                <p className="text-secondary small mb-0">
+
+                <p className="text-secondary small mb-0" style={{ textIndent: "1rem", marginTop: "0.25rem" }}>
                   Gerencie todo o acervo da sua biblioteca, controle empréstimos, reservas e mantenha seu sistema sempre atualizado.
                 </p>
 
-                {/* ESTATÍSTICAS DO SISTEMA */}
-                <div className="mt-3">
-                  <div className="d-flex flex-wrap gap-3">
-                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
-                      {livros.length} Livros
-                    </Badge>
-                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
-                      {estoqueTotal} em Estoque
-                    </Badge>
-                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
-                      {professores.length} Professores
-                    </Badge>
-                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
-                      {alunos.length} Alunos
-                    </Badge>
-                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
-                      {autores.length} Autores
-                    </Badge>
-                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
-                      {usuarios.length} Usuários
-                    </Badge>
-                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
-                      {editoras.length} Editoras
-                    </Badge>
-                  </div>
-                </div>
+                <p className="text-secondary small mb-0" style={{ textIndent: "2rem", marginTop: "0.25rem" }}>
+                  <span className="me-0"><FaEnvelope /></span> booklysuporte@gmail.com
+                </p>
               </div>
             </div>
             <div className="d-flex flex-wrap justify-content-start align-items-center">
@@ -657,6 +632,7 @@ const Home = () => {
             Precisa de ajuda?
           </Modal.Title>
         </Modal.Header>
+
         <Modal.Body className="modal-body-help">
           <div className="contact-options">
             <div className="contact-method">
@@ -674,13 +650,6 @@ const Home = () => {
               </div>
             </div>
             <div className="contact-method">
-              <div className="method-icon hours-icon">
-                <FaBriefcase size={32} />
-              </div>
-              <div className="method-info">
-                <h5>Horário de atendimento</h5>
-                <p>Segunda a sexta, das 8h às 18h</p>
-              </div>
             </div>
           </div>
         </Modal.Body>

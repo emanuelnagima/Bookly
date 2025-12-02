@@ -304,7 +304,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
 
     const novoLivro = {
       livro_id: parseInt(livroAtual.livro_id),
-      quantidade: 1, // ← SEMPRE 1 para reservas
+      quantidade: 1, // SEMPRE 1 para reservas
       livro_titulo: livroCompleto.titulo,
       livro_isbn: livroCompleto.isbn,
       autor_nome: livroCompleto.autor_nome,

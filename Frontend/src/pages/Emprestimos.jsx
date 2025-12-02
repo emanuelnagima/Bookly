@@ -21,6 +21,11 @@ const Emprestimos = () => {
   const [toastMessage, setToastMessage] = useState('')
   const [operationType, setOperationType] = useState('')
 
+ useEffect(() => {
+    document.title = "Bookly - Empréstimos";
+  }, []);
+
+
   // Carregar empréstimos
   const loadEmprestimos = useCallback(async () => {
     try {
@@ -145,33 +150,52 @@ const Emprestimos = () => {
   }
 
   // Finalizar empréstimo
-  const handleFinalizarEmprestimo = async (id) => {
-    setEmprestimoToFinalizar(id)
-    setShowFinalizarModal(true)
-  }
-
-  const handleConfirmarFinalizacao = async () => {
-    if (!emprestimoToFinalizar) return
-
-    try {
-      setLoading(true)
-      setError('')
-
-      await emprestimosService.finalizar(emprestimoToFinalizar)
-      setToastMessage('Empréstimo finalizado com sucesso!')
-      setOperationType('finalizacao')
-      setShowSuccessToast(true)
-
-      await loadEmprestimos()
-    } catch (error) {
-      console.error("Falha na finalização:", error)
-      setError(error.message)
-    } finally {
-      setLoading(false)
-      setShowFinalizarModal(false)
-      setEmprestimoToFinalizar(null)
+// Dentro da função handleFinalizarEmprestimo, adicione:
+const handleFinalizarEmprestimo = async (id) => {
+  try {
+    const emprestimoCompleto = emprestimos.find(emp => emp.id === id);
+    console.log('Empréstimo encontrado:', emprestimoCompleto); //  ADICIONE ESTA LINHA
+    
+    if (emprestimoCompleto) {
+      setEmprestimoToFinalizar(emprestimoCompleto);
+      setShowFinalizarModal(true);
+    } else {
+      const emprestimoDoServico = await emprestimosService.getById(id);
+      console.log('Empréstimo do serviço:', emprestimoDoServico); 
+      setEmprestimoToFinalizar(emprestimoDoServico);
+      setShowFinalizarModal(true);
     }
+  } catch (error) {
+    console.error('Erro ao buscar dados do empréstimo:', error);
+    setError('Erro ao carregar informações do empréstimo');
   }
+}
+
+// Modifique a função handleConfirmarFinalizacao:
+const handleConfirmarFinalizacao = async () => {
+  if (!emprestimoToFinalizar?.id) return;
+
+  try {
+    setLoading(true);
+    setError('');
+
+    await emprestimosService.finalizar(emprestimoToFinalizar.id);
+    setToastMessage('Empréstimo finalizado com sucesso!');
+    setOperationType('finalizacao');
+    setShowSuccessToast(true);
+
+    await loadEmprestimos();
+  } catch (error) {
+    console.error("Falha na finalização:", error);
+    setError(error.message);
+  } finally {
+    setLoading(false);
+    setShowFinalizarModal(false);
+    setEmprestimoToFinalizar(null);
+  }
+}
+  
+
   // Estatísticas de status
 // Estatísticas de status - USANDO A MESMA LÓGICA DO EmprestimoList
 const totalAtivos = emprestimos.filter(e => e.status === 'ativo').length;
@@ -326,14 +350,16 @@ const totalGeral = emprestimos.length;
         }}
       >
         <Row className="align-items-center">
-          <Col md={8}>
+         <Col md={8}>
             <div className="d-flex align-items-center">
               <div className="me-3">
                 <i className="fas fa-handshake fa-2x" style={{ color: '#0b192c' }}></i>
               </div>
               <div>
                 <h4 className="fw-bold text-dark mb-1">Gestão de Empréstimos</h4>
-
+                <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
+                  Registro e controle completo de empréstimos,  renovações e devoluções 
+                </p>
               </div>
             </div>
           </Col>
@@ -408,7 +434,11 @@ const totalGeral = emprestimos.length;
           <Modal.Title>Confirmar exclusão</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Tem certeza que deseja excluir este empréstimo? Esta ação não pode ser desfeita.
+          Tem certeza que deseja excluir este empréstimo?
+            <Alert variant="warning" className="mt-2">
+      <strong>Atenção:</strong> Esta ação é permanente e não poderá ser desfeita. 
+      O empréstimo será <strong>excluído definitivamente</strong>.
+    </Alert>
         </Modal.Body>
         <Modal.Footer>
           <Button
@@ -439,19 +469,27 @@ const totalGeral = emprestimos.length;
           <Modal.Title>Renovar Empréstimo</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form.Group>
-            <Form.Label>Nova Data de Devolução</Form.Label>
-            <Form.Control
-              type="date"
-              value={novaDataDevolucao}
-              onChange={(e) => setNovaDataDevolucao(e.target.value)}
-              min={hoje}
-              required
-            />
-            <Form.Text className="text-muted">
-              Selecione a nova data limite para devolução
-            </Form.Text>
-          </Form.Group>
+        <Form.Group>
+  <Form.Label>Nova Data de Devolução</Form.Label>
+  <Form.Control
+    type="date"
+    value={novaDataDevolucao}
+    onChange={(e) => setNovaDataDevolucao(e.target.value)}
+    min={hoje}
+    required
+  />
+  <Form.Text className="text-muted">
+    Selecione a nova data limite para devolução
+  </Form.Text>
+
+  {/* Mensagem de aviso */}
+   <Alert variant="warning" className="mt-2">
+  <strong>Atenção:</strong> A renovação <strong>é definitiva</strong> e não poderá ser desfeita.
+  Certifique-se de que a nova data de devolução está correta antes de confirmar.
+</Alert>
+
+  </Form.Group>
+
         </Modal.Body>
         <Modal.Footer>
           <Button
@@ -476,36 +514,218 @@ const totalGeral = emprestimos.length;
         </Modal.Footer>
       </Modal>
 
-      {/* Modal de finalização */}
-      <Modal show={showFinalizarModal} onHide={() => setShowFinalizarModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Finalizar Empréstimo</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Tem certeza que deseja finalizar este empréstimo? Esta ação registrará a devolução dos livros.
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="cancelar"
-            onClick={() => setShowFinalizarModal(false)}
-            disabled={loading}
-          >
-            Cancelar
-          </Button>
-          <Button
-            variant="success"
-            onClick={handleConfirmarFinalizacao}
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-                <span className="ms-2">Finalizando...</span>
-              </>
-            ) : 'Finalizar'}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+{/* Modal de finalização - PADRONIZADO */}
+    <Modal show={showFinalizarModal} onHide={() => setShowFinalizarModal(false)} size="lg">
+      <Modal.Header closeButton>
+      <Modal.Title className="d-flex align-items-center">
+        <i className="fas fa-check-circle me-2"></i>
+        Finalizar Empréstimo #{emprestimoToFinalizar?.id}
+      </Modal.Title>
+    </Modal.Header>
+
+
+  <Modal.Body className="p-4">
+    {/* SEÇÃO: Informações do Usuário */}
+    <div className="mb-4 p-3 border rounded bg-white">
+      <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
+        Informações do Usuário
+      </h5>
+      <Row>
+        <Col md={6}>
+          <p className="mb-2">
+            <strong>Nome:</strong> {emprestimoToFinalizar?.usuario_detalhes?.nome || emprestimoToFinalizar?.usuario || 'N/A'}
+          </p>
+          <p className="mb-2">
+            <strong>Email:</strong> {emprestimoToFinalizar?.usuario_detalhes?.email || 'Não informado'}
+          </p>
+          <p className="mb-2">
+            <strong>Telefone:</strong> {emprestimoToFinalizar?.usuario_detalhes?.telefone || 'Não informado'}
+          </p>
+        </Col>
+        <Col md={6}>
+          <p className="mb-2">
+            <strong>Tipo:</strong> {emprestimoToFinalizar?.usuario_tipo ? emprestimoToFinalizar.usuario_tipo.charAt(0).toUpperCase() + emprestimoToFinalizar.usuario_tipo.slice(1) : 'N/A'}
+          </p>
+          {emprestimoToFinalizar?.usuario_detalhes?.turma && (
+            <p className="mb-2">
+              <strong>Turma:</strong> {emprestimoToFinalizar.usuario_detalhes.turma}
+            </p>
+          )}
+          {emprestimoToFinalizar?.usuario_detalhes?.departamento && (
+            <p className="mb-2">
+              <strong>Departamento:</strong> {emprestimoToFinalizar.usuario_detalhes.departamento}
+            </p>
+          )}
+        </Col>
+      </Row>
+    </div>
+
+    {/* SEÇÃO: Informações do Empréstimo */}
+    <div className="mb-4 p-3 border rounded bg-white">
+      <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
+        Informações do Empréstimo
+      </h5>
+      <Row>
+        <Col md={6}>
+          <p className="mb-2">
+            <strong>Data do Empréstimo:</strong> {new Date(emprestimoToFinalizar?.data_emprestimo).toLocaleDateString('pt-BR')}
+          </p>
+          <p className="mb-2">
+            <strong>Data de Devolução Prevista:</strong> {new Date(emprestimoToFinalizar?.data_devolucao_prevista).toLocaleDateString('pt-BR')}
+          </p>
+        </Col>
+        <Col md={6}>
+          <p className="mb-2">
+            <strong>Status:</strong> 
+            <span className={`badge ${emprestimoToFinalizar?.status === 'ativo' ? 'bg-success' : 'bg-secondary'} ms-2`}>
+              {emprestimoToFinalizar?.status === 'ativo' ? 'Ativo' : 'Finalizado'}
+            </span>
+          </p>
+          
+          <p className="mb-2 d-flex align-items-center">
+            <strong>Situação:</strong>
+            {(() => {
+              const situacao = verificarPrazo(
+                emprestimoToFinalizar?.data_devolucao_prevista,
+                emprestimoToFinalizar?.data_devolucao_real,
+                emprestimoToFinalizar?.status
+              );
+              return (
+                <span className={`badge bg-${situacao.badge} ms-2`}>
+                  {situacao.texto}
+                </span>
+              );
+            })()}
+          </p>
+        </Col>
+      </Row>
+    </div>
+
+    {/* SEÇÃO: Livros do Empréstimo */}
+    <div className="p-3 border rounded bg-white">
+      <div className="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+        <h5 className="fw-bold text-primary mb-0">Livros para Devolução</h5>
+        <small className="text-muted">
+          <strong>Total de livros:</strong> {emprestimoToFinalizar?.livros?.length || 0}
+        </small>
+      </div>
+
+      {emprestimoToFinalizar?.livros && emprestimoToFinalizar.livros.length > 0 ? (
+        <div className="row">
+          {emprestimoToFinalizar.livros.map((livro, index) => (
+            <div key={livro.livro_id || index} className="col-12 mb-3">
+              <div className="card border-0 bg-light rounded-3 p-3">
+                <div className="d-flex align-items-start">
+                  {/* Imagem do livro */}
+                  <div
+                    className="me-3 rounded overflow-hidden border bg-white d-flex align-items-center justify-content-center"
+                    style={{
+                      width: '70px',
+                      height: '100px',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {livro.livro_imagem ? (
+                      <img
+                        src={`http://localhost:3000${livro.livro_imagem}`}
+                        alt={livro.livro_titulo}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          const placeholder = e.target.parentNode.querySelector('.livro-placeholder');
+                          if (placeholder) placeholder.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className="livro-placeholder d-flex align-items-center justify-content-center text-muted"
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: '#f8f9fa',
+                        display: livro.livro_imagem ? 'none' : 'flex',
+                      }}
+                    >
+                      <i className="fas fa-book" style={{ fontSize: '22px' }}></i>
+                    </div>
+                  </div>
+
+                  {/* Informações do livro */}
+                  <div className="flex-grow-1">
+                    <h6 className="fw-bold text-primary mb-2">
+                      {livro.livro_titulo || 'Livro sem título'}
+                    </h6>
+                    <div className="row small text-muted">
+                      <div className="col-md-6">
+                        <p className="mb-1"><strong>Autor:</strong> {livro.autor_nome || 'Não informado'}</p>
+                        <p className="mb-1"><strong>ISBN:</strong> {livro.livro_isbn || 'Não informado'}</p>
+                      </div>
+                      <div className="col-md-6">
+                        <p className="mb-1"><strong>Quantidade:</strong> {livro.quantidade || 1}</p>
+                        <p className="mb-0"><strong>ID do Livro:</strong> {livro.livro_id}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-muted text-center py-3">Nenhum livro encontrado neste empréstimo</p>
+      )}
+    </div>
+
+    {/* Mensagem de confirmação */}
+    <div className="alert alert-warning mt-4 mb-0">
+      <div className="d-flex align-items-center">
+        <i className="fas fa-exclamation-triangle text-warning me-3 fs-5"></i>
+        <div>
+          <strong>Atenção: Esta ação não pode ser desfeita.</strong>
+          <ul className="mb-0 mt-2">
+            <li>O empréstimo será marcado como <strong>Finalizado</strong></li>
+            <li>Os livros serão liberados para novos empréstimos</li>
+            <li>O acervo será atualizado</li>
+            <li>A data de devolução real será registrada automaticamente</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </Modal.Body>
+
+  <Modal.Footer className="border-top">
+    <Button
+      variant="cancelar"
+      onClick={() => setShowFinalizarModal(false)}
+      disabled={loading}
+      className="px-4"
+    >
+      Cancelar
+    </Button>
+    <Button
+      variant="success"
+      onClick={handleConfirmarFinalizacao}
+      disabled={loading || !emprestimoToFinalizar}
+      className="px-4"
+    >
+      {loading ? (
+        <>
+          <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+          <span className="ms-2">Finalizando...</span>
+        </>
+      ) : (
+        <>
+          <i className="fas fa-check-circle me-2"></i>
+          Confirmar Devolução
+        </>
+      )}
+    </Button>
+  </Modal.Footer>
+</Modal>
     </Container>
   )
 }

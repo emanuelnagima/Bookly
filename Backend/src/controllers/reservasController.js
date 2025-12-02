@@ -205,7 +205,7 @@ class ReservasController {
         let connection;
         try {
             const { id } = req.params;
-            const { data_devolucao_prevista } = req.body; // ← RECEBER DATA DO FRONTEND
+            const { data_devolucao_prevista } = req.body; 
             
             console.log(`=== INICIANDO CONVERSÃO DA RESERVA ${id} ===`);
             
@@ -265,7 +265,7 @@ class ReservasController {
             const emprestimoData = {
                 usuario_id: reserva.usuario_id,
                 usuario_tipo: reserva.usuario_tipo,
-                data_devolucao_prevista: data_devolucao_prevista, // ← USAR DATA DO FRONTEND
+                data_devolucao_prevista: data_devolucao_prevista, //  USAR DATA DO FRONTEND
                 observacoes: `Convertido da reserva #${reserva.id}` + (reserva.observacoes ? ` - ${reserva.observacoes}` : ''),
                 livros: reserva.livros.map(livro => ({
                     livro_id: livro.livro_id,
@@ -292,7 +292,7 @@ class ReservasController {
             });
 
         } catch (error) {
-            console.error('Erro detalhado ao converter reserva em empréstimo:', error);
+            console.error('Erro detalhado ao transformar reserva em empréstimo:', error);
             if (connection) await connection.rollback();
             res.status(500).json({ 
                 success: false, 

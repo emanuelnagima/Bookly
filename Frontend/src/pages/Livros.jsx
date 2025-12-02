@@ -12,10 +12,13 @@ const Livros = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const [operationType, setOperationType] = useState('')
+
+ useEffect(() => {
+    document.title = "Bookly - Livros";
+  }, []);
 
   // Carregar livros com useCallback para evitar loops
   const loadLivros = useCallback(async () => {
@@ -201,9 +204,11 @@ const Livros = () => {
               <div className="me-3">
                 <i className="fas fa-book-open fa-2x" style={{ color: '#0b192c' }}></i>
               </div>
-              <div>
-                <h4 className="fw-bold text-dark mb-1">Acervo de Livros</h4>
-
+            <div>
+                <h4 className="fw-bold text-dark mb-1">Acervo de livros</h4>
+                <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
+                  Cadastro e gerenciamento de livros do sistema
+                </p>
               </div>
             </div>
           </Col>

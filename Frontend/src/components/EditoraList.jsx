@@ -251,7 +251,7 @@ const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
 
             {/* Modal para mostrar detalhes da editora */}
             <Modal show={showDetalhesModal} onHide={handleCloseDetalhesModal} size="lg">
-              <Modal.Header closeButton className="bg-primary text-white">
+              <Modal.Header closeButton closeVariant="white" className="bg-primary text-white">
                 <Modal.Title className="d-flex align-items-center">
                   <FaBuilding className="me-2" />
                   Editora #{editoraSelecionada?.id} - Detalhes

@@ -4,7 +4,7 @@ class Professor {
         this.nome = data.nome || '';
         this.cpf = data.cpf || '';
         this.data_nascimento = data.data_nascimento || null;
-        this.matricula = data.matricula || '';
+        this.matricula = data.matricula || ''; // Será gerada automaticamente
         this.email = data.email || '';
         this.telefone = data.telefone || '';
         this.departamento = data.departamento || '';
@@ -13,7 +13,7 @@ class Professor {
             'Inglês', 'Espanhol', 'Educação Física', 'Artes', 'Música', 
             'Teatro', 'Filosofia', 'Sociologia', 'Biologia', 'Física', 
             'Química', 'Informática', 'Programação', 'Administração', 
-            'Economia', 'Psicologia', 'Pedagogia'
+            , 'Psicologia', 'Pedagogia'
         ];
     }
 
@@ -22,7 +22,7 @@ class Professor {
         
         // Validações obrigatórias
         if (!this.nome || this.nome.trim() === '') erros.push('Nome é obrigatório');
-        if (!this.matricula || this.matricula.trim() === '') erros.push('Matrícula é obrigatória');
+        // REMOVER: if (!this.matricula || this.matricula.trim() === '') erros.push('Matrícula é obrigatória');
         if (!this.email || this.email.trim() === '') erros.push('Email é obrigatório');
         if (!this.departamento || this.departamento.trim() === '') erros.push('Departamento é obrigatório');
         
@@ -41,7 +41,7 @@ class Professor {
             nome: this.nome,
             cpf: this.cpf,
             data_nascimento: this.data_nascimento, 
-            matricula: this.matricula,
+            matricula: this.matricula, // Incluir matrícula no JSON
             email: this.email,
             telefone: this.telefone,
             departamento: this.departamentosPermitidos.includes(this.departamento) 

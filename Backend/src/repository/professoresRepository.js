@@ -2,11 +2,19 @@ const db = require('../../config/database');
 const Professor = require('../models/professor');
 
 class ProfessoresRepository {
-async findAll() {
-    const [rows] = await db.execute('SELECT * FROM professores');    
-    const professores = rows.map(row => new Professor(row));    
-    return professores;
-}
+    // NOVO : Buscar última matrícula
+    async getUltimaMatricula() {
+        const [rows] = await db.execute(
+            'SELECT matricula FROM professores ORDER BY id DESC LIMIT 1'
+        );
+        return rows.length ? rows[0].matricula : null;
+    }
+
+    async findAll() {
+        const [rows] = await db.execute('SELECT * FROM professores');    
+        const professores = rows.map(row => new Professor(row));    
+        return professores;
+    }
 
     async findById(id) {
         const [rows] = await db.execute('SELECT * FROM professores WHERE id = ?', [id]);
@@ -31,7 +39,7 @@ async findAll() {
                 professor.nome,
                 professor.cpf,
                 professor.data_nascimento, 
-                professor.matricula,
+                professor.matricula, //  Já vem preenchida do controller
                 professor.email,
                 professor.telefone,
                 professor.departamento

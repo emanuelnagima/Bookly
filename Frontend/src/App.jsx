@@ -5,6 +5,7 @@ import './App.css';
 import AuthProvider from './components/AuthProvider';
 import ProtectedRoute from './components/ProtectedRoute';
 
+
 // Layout
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
@@ -16,6 +17,7 @@ import Login from './pages/Login'; // JÁ ATUALIZADO
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import FAQ from './pages/FAQ';
 import TermsOfUse from './pages/TermsOfUse';
+import Estatisticas from './pages/Estatisticas';
 
 // Listagens
 import Livros from './pages/Livros';
@@ -183,7 +185,11 @@ function App() {
                           <CadastroUsuariosEspeciais />
                         </ProtectedRoute>
                       } />
-
+                      <Route path="/estatisticas" element={
+                        <ProtectedRoute roles={['admin', 'operador']}>
+                          <Estatisticas />
+                        </ProtectedRoute>
+                      } />
 
                       
                       {/* Redireciona rotas desconhecidas para home */}

@@ -6,6 +6,7 @@ import {
   FaChartBar,
   FaCalendarAlt,
   FaSyncAlt,
+  FaChartPie,
   FaTasks,
   FaDoorOpen,
   FaSignOutAlt,
@@ -27,8 +28,9 @@ import {
 } from "react-icons/fa";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useAuth } from "../hooks/useAuth"; // IMPORTE O USE AUTH
+import { useAuth } from "../hooks/useAuth"; 
 import "../css/Sidebar.css";
+
 
 const Sidebar = () => {
   const [showCadastros, setShowCadastros] = useState(false);
@@ -75,6 +77,12 @@ const Sidebar = () => {
     }
   };
 
+const capitalize = (text) => {
+  if (!text) return "";
+  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+};
+
+
   return (
     <>
       {/* Overlay para mobile */}
@@ -99,7 +107,7 @@ const Sidebar = () => {
               <div className="logo-text">
                 <h4 className="logo-title">Bookly</h4>
                 <p className="system-description">Sistema de Gestão Bibliotecária</p>
-                <p className="system-version">v1.0.0 em desenvolvimento</p>
+                <p className="system-version">v1.0.0</p>
               </div>
             </div>
           </div>
@@ -154,7 +162,7 @@ const Sidebar = () => {
                     <div className="nav-icon small">
                       <FaUsers />
                     </div>
-                    <span>Usuários</span>
+                    <span>Usuários Especiais</span>
                   </NavLink>
 
                   <NavLink to="/professores" className="submenu-link" onClick={closeSidebar}>
@@ -229,14 +237,14 @@ const Sidebar = () => {
                     <div className="nav-icon small">
                       <FaDoorOpen />
                     </div>
-                    <span>Entrada</span>
+                    <span>Entradas</span>
                   </NavLink>
 
                   <NavLink to="/saida" className="submenu-link" onClick={closeSidebar}>
                     <div className="nav-icon small">
                       <FaSignOutAlt />
                     </div>
-                    <span>Saída</span>
+                    <span>Saídas</span>
                   </NavLink>
 
                   <NavLink to="/reservas" className="submenu-link" onClick={closeSidebar}>
@@ -261,8 +269,14 @@ const Sidebar = () => {
             {/* Seção Relatórios */}
             <div className="menu-section">
               <div className="section-divider"></div>
-              <span className="section-title">Relatórios</span>
+              <span className="section-title">Relatórios e Estatísticas</span>
             </div>
+              <NavLink to="/estatisticas" className="nav-link-modern" onClick={closeSidebar}>
+  <div className="nav-icon">
+    <FaChartPie />  {/* Ou use FaChartBar se preferir */}
+  </div>
+  <span className="nav-text">Dashboard</span>
+</NavLink>
 
             <NavLink to="/relatorios" className="nav-link-modern" onClick={closeSidebar}>
               <div className="nav-icon">
@@ -309,10 +323,9 @@ const Sidebar = () => {
             </div>
             <div className="user-details">
               <h6 className="user-name">
-                {user ? user.role : 'Usuário'}
+                {user ? capitalize(user.role) : 'Usuário'}
               </h6>
               <p className="user-email">
-                <FaUserAlt size={10} />
                 {user ? user.email : 'Carregando...'}
               </p>
             </div>

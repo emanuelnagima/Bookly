@@ -148,28 +148,30 @@ const LivroList = ({ livros, loading, onDelete, onEdit }) => {
         </div>
 
         <div className="d-flex align-items-center gap-3">
-          {/* Seletor de Visualização */}
-          <div className="btn-group" role="group">
-            <Button
-              className={visualizacao === 'lista' ? 'btn-light active' : 'btn-outline-light'}
-              size="sm"
-              onClick={() => setVisualizacao('lista')}
-              title="Visualização em lista"
-            >
-              <FaList className="me-1" />
-              Lista
-            </Button>
+  <div className="btn-group" role="group">
 
-            <Button
-              className={visualizacao === 'cards' ? 'btn-light active' : 'btn-outline-light'}
-              size="sm"
-              onClick={() => setVisualizacao('cards')}
-              title="Visualização em cards"
-            >
-              <FaTh className="me-1" />
-              Cards
-            </Button>
-          </div>
+    <Button
+      className={visualizacao === 'lista' ? 'btn-paginacao' : 'btn-outline'}
+      size="sm"
+      onClick={() => setVisualizacao('lista')}
+      title="Visualização em lista"
+    >
+      <FaList className="me-1" />
+      Lista
+    </Button>
+
+    <Button
+      className={visualizacao === 'cards' ? 'btn-paginacao' : 'btn-outline'}
+      size="sm"
+      onClick={() => setVisualizacao('cards')}
+      title="Visualização em cards"
+    >
+      <FaTh className="me-1" />
+      Cards
+    </Button>
+
+  </div>
+
 
           {/* Filtro de Gênero */}
           <Form.Select
@@ -392,7 +394,7 @@ const LivroList = ({ livros, loading, onDelete, onEdit }) => {
 
         {/* Modal para mostrar detalhes do livro */}
         <Modal show={showDetalhesModal} onHide={handleCloseDetalhesModal} size="lg">
-          <Modal.Header closeButton className="bg-primary text-white">
+          <Modal.Header closeButton closeVariant="white" className="bg-primary text-white">
             <Modal.Title className="d-flex align-items-center">
               <FaBook className="me-2" />
               Livro #{livroSelecionado?.id} - Detalhes
@@ -426,7 +428,7 @@ const LivroList = ({ livros, loading, onDelete, onEdit }) => {
                   <Row>
                     <Col md={6}>
                       <p className="mb-2">
-                        <strong><FaHashtag className="me-2 text-muted" />ID:</strong> {livroSelecionado?.id}
+                        <strong>#ID:</strong> {livroSelecionado?.id}
                       </p>
                       <p className="mb-2">
                         <strong>Título:</strong> {formatarTexto(livroSelecionado?.titulo || livroSelecionado?.title || '')}

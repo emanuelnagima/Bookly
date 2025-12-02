@@ -1,18 +1,17 @@
-// components/RelatoriosGerais.js - VERSÃO FINAL LIMPA
 import { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Row, 
-  Col, 
-  Form, 
-  Button, 
-  Table, 
-  Badge, 
+import {
+  Card,
+  Row,
+  Col,
+  Form,
+  Button,
+  Table,
+  Badge,
   Spinner,
   Container,
   Alert
 } from 'react-bootstrap';
-import { 
+import {
   FaSearch,
   FaChartBar,
   FaSyncAlt,
@@ -21,7 +20,8 @@ import {
   FaUsers,
   FaBuilding,
   FaUserEdit,
-  FaBook
+  FaBook,
+  FaBox
 } from 'react-icons/fa';
 import relatoriosService from '../services/relatoriosService';
 
@@ -58,19 +58,42 @@ const formatarCNPJ = (cnpj) => {
 // Função universal para formatar textos
 const formatarTexto = (texto) => {
   if (!texto || texto === '-') return '-';
-  
+
   // Se for número ou elemento React, retorna como está
   if (typeof texto === 'number' || typeof texto === 'object') return texto;
-  
+
   const textoString = texto.toString().trim();
-  
+
   // Casos especiais que precisam de tratamento específico
   if (textoString.toLowerCase() === 'usuario_especial') {
     return 'Usuário Especial';
   }
-  
-  return textoString.charAt(0).toUpperCase() + textoString.slice(1);
+
+  // Para nomes próprios, converter para formato de nome (cada palavra capitalizada)
+  if (textoString.includes(' ')) {
+    return textoString
+      .toLowerCase()
+      .split(' ')
+      .map(palavra => {
+        // Manter siglas em maiúsculo (ex: CPF, ISBN, etc)
+        if (palavra.length <= 4 && /^[A-Z]+$/.test(palavra.toUpperCase())) {
+          return palavra.toUpperCase();
+        }
+        return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+      })
+      .join(' ');
+  }
+
+  // Para textos sem espaços, verificar se é um nome próprio ou sigla
+  if (textoString.length <= 4 && /^[A-Z]+$/.test(textoString)) {
+    // É uma sigla, manter em maiúsculo
+    return textoString.toUpperCase();
+  }
+
+  // Para textos simples, capitalizar apenas a primeira letra
+  return textoString.charAt(0).toUpperCase() + textoString.slice(1).toLowerCase();
 };
+
 const RelatoriosGerais = () => {
   const [tipoRelatorio, setTipoRelatorio] = useState('emprestimos');
   const [dataInicio, setDataInicio] = useState('');
@@ -82,70 +105,171 @@ const RelatoriosGerais = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [estatisticas, setEstatisticas] = useState({});
+  const [sugestoesLivros, setSugestoesLivros] = useState([]);
+  const [carregandoSugestoes, setCarregandoSugestoes] = useState(false);
+  const [buscaTitulo, setBuscaTitulo] = useState('');
+  const [buscaAutor, setBuscaAutor] = useState('');
+  const [timeoutId, setTimeoutId] = useState(null);
+  const [sugestoesUsuarios, setSugestoesUsuarios] = useState([]);
+  const [carregandoSugestoesUsuarios, setCarregandoSugestoesUsuarios] = useState(false);
+  const [buscaUsuario, setBuscaUsuario] = useState('');
 
-// Configurações completas para todos os relatórios 
-const configRelatorios = {
-  emprestimos: {
-    titulo: 'Relatório de Empréstimos',
-    colunas: ['ID', 'Usuário', 'Tipo', 'Livro', 'Data Empréstimo', 'Data Devolução', 'Status'], 
-    icone: FaBook
-  },
-  entrada: {
-    titulo: 'Relatório de Entradas',
-    colunas: ['ID', 'Livro', 'Origem', 'Quantidade', 'Data Aquisição'],
-    icone: FaBook
-  },
-  saida: {
-    titulo: 'Relatório de Saídas',
-    colunas: ['ID', 'Livro', 'Origem', 'Quantidade', 'Data Saída' ],
-    icone: FaBook
-  },
-  cadastros: {
-    titulo: 'Relatório de Cadastros de Livros',
-    colunas: ['ID', 'Título', 'Autor', 'Editora', 'ISBN', 'Gênero', 'Ano', 'Estoque'],
-    icone: FaBook
-  },
-  reservas: {
-    titulo: 'Relatório de Reservas',
-    colunas: ['ID', 'Usuário', 'Livro', 'Data Reserva', 'Data Validade', 'Status'],
-    icone: FaBook
-  },
-  professores: {
-    titulo: 'Relatório de Professores',
-    colunas: ['ID', 'Nome', 'Departamento', 'Email', 'Telefone', 'Data Cadastro'],
-    icone: FaUserTie
-  },
-  alunos: {
-    titulo: 'Relatório de Alunos',
-    colunas: ['ID', 'Nome', 'Matrícula', 'Turma', 'Email', 'Telefone', 'Data Cadastro'],
-    icone: FaGraduationCap
-  },
-  'usuarios-especiais': {
-    titulo: 'Relatório de Usuários Especiais',
-    colunas: ['ID', 'Nome', 'Tipo', 'CPF', 'Email', 'Telefone', 'Data Cadastro'],
-    icone: FaUserEdit
-  },
-  editoras: {
-    titulo: 'Relatório de Editoras',
-    colunas: ['ID', 'Nome', 'CNPJ', 'Email', 'Telefone', 'Data Cadastro'],
-    icone: FaBuilding
-  },
-  autores: {
-    titulo: 'Relatório de Autores',
-    colunas: ['ID', 'Nome', 'Nacionalidade', 'Data Nascimento', 'Data Cadastro'],
-    icone: FaUsers
-  }
-};
-  // Buscar filtros disponíveis quando o tipo mudar
+  useEffect(() => {
+    document.title = "Bookly - Relatórios Gerais";
+  }, []);
+
+  // Função para buscar sugestões de usuários
+  const buscarSugestoesUsuarios = async (termo) => {
+    if (!termo || termo.length < 2) {
+      setSugestoesUsuarios([]);
+      return;
+    }
+
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    const newTimeoutId = setTimeout(async () => {
+      setCarregandoSugestoesUsuarios(true);
+      try {
+        // Busca em todos os tipos de usuário
+        const [alunos, professores, usuariosEspeciais] = await Promise.all([
+          relatoriosService.buscarUsuarios('aluno', termo),
+          relatoriosService.buscarUsuarios('professor', termo),
+          relatoriosService.buscarUsuarios('usuario_especial', termo)
+        ]);
+
+        const todosUsuarios = [
+          ...(alunos.success ? alunos.data.map(u => ({ ...u, tipo: 'Aluno' })) : []),
+          ...(professores.success ? professores.data.map(u => ({ ...u, tipo: 'Professor' })) : []),
+          ...(usuariosEspeciais.success ? usuariosEspeciais.data.map(u => ({ ...u, tipo: 'Usuário Especial' })) : [])
+        ];
+
+        setSugestoesUsuarios(todosUsuarios);
+      } catch (error) {
+        console.error('Erro ao buscar sugestões de usuários:', error);
+        setSugestoesUsuarios([]);
+      } finally {
+        setCarregandoSugestoesUsuarios(false);
+      }
+    }, 300);
+
+    setTimeoutId(newTimeoutId);
+  };
+
+  // Função para buscar sugestões de livros
+  const buscarSugestoesLivros = async (tipo, termo) => {
+    if (!termo || termo.length < 2) {
+      setSugestoesLivros([]);
+      return;
+    }
+
+    // Limpa o timeout anterior para evitar múltiplas chamadas
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    // Cria um novo timeout para fazer a busca após 300ms
+    const newTimeoutId = setTimeout(async () => {
+      setCarregandoSugestoes(true);
+      try {
+        const response = await relatoriosService.buscarLivros(tipo, termo);
+        if (response.success) {
+          setSugestoesLivros(response.data || []);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar sugestões:', error);
+        setSugestoesLivros([]);
+      } finally {
+        setCarregandoSugestoes(false);
+      }
+    }, 300);
+
+    setTimeoutId(newTimeoutId);
+  };
+
+  // Cleanup dos timeouts
+  useEffect(() => {
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [timeoutId]);
+
+  // Configurações completas para todos os relatórios 
+  const configRelatorios = {
+    emprestimos: {
+      titulo: 'Relatório de Empréstimos',
+      colunas: ['ID', 'Usuário', 'Tipo', 'Livro', 'Data Empréstimo', 'Data Devolução', 'Status'],
+      icone: FaBook
+    },
+    entrada: {
+      titulo: 'Relatório de Entradas',
+      colunas: ['ID', 'Livro', 'Autor', 'Origem', 'Quantidade', 'Data Aquisição', 'Observações'],
+      icone: FaBook
+    },
+    saida: {
+      titulo: 'Relatório de Saídas',
+      colunas: ['ID', 'Livro', 'Autor', 'Origem', 'Quantidade', 'Data Saída', 'Observações'],
+      icone: FaBook
+    },
+    cadastros: {
+      titulo: 'Relatório de Cadastros de Livros',
+      colunas: ['ID', 'Título', 'Autor', 'Editora', 'ISBN', 'Gênero', 'Ano', 'Estoque'],
+      icone: FaBook
+    },
+    reservas: {
+      titulo: 'Relatório de Reservas',
+      colunas: ['ID', 'Usuário', 'Livro', 'Data Reserva', 'Data Validade', 'Status'],
+      icone: FaBook
+    },
+    professores: {
+      titulo: 'Relatório de Professores',
+      colunas: ['ID', 'Nome', 'Departamento', 'Email', 'Telefone', 'Data Cadastro'],
+      icone: FaUserTie
+    },
+    alunos: {
+      titulo: 'Relatório de Alunos',
+      colunas: ['ID', 'Nome', 'Matrícula', 'Turma', 'Email', 'Telefone', 'Data Cadastro'],
+      icone: FaGraduationCap
+    },
+    'usuarios-especiais': {
+      titulo: 'Relatório de Usuários Especiais',
+      colunas: ['ID', 'Nome', 'Tipo', 'CPF', 'Email', 'Telefone', 'Data Cadastro'],
+      icone: FaUserEdit
+    },
+    editoras: {
+      titulo: 'Relatório de Editoras',
+      colunas: ['ID', 'Nome', 'CNPJ', 'Email', 'Telefone', 'Data Cadastro'],
+      icone: FaBuilding
+    },
+    autores: {
+      titulo: 'Relatório de Autores',
+      colunas: ['ID', 'Nome', 'Nacionalidade', 'Data Nascimento', 'Data Cadastro'],
+      icone: FaUsers
+    },
+    estoque: {
+      titulo: 'Relatório de Estoque Atual',
+      colunas: ['ID', 'Título', 'Autor', 'Editora', 'ISBN', 'Gênero', 'Ano', 'Estoque', 'Situação'],
+      icone: FaBox
+    },
+  };
+
+  // Buscar filtros disponíveis
   useEffect(() => {
     const carregarFiltros = async () => {
       try {
         const response = await relatoriosService.getFiltrosDisponiveis(tipoRelatorio);
+
         if (response.success) {
           setFiltrosDisponiveis(response.data || {});
+        } else {
+          console.error(`Erro na resposta dos filtros para ${tipoRelatorio}`);
+          setFiltrosDisponiveis({});
         }
       } catch (error) {
-        console.error('Erro ao carregar filtros:', error);
+        console.error(`Erro ao carregar filtros para ${tipoRelatorio}:`, error);
         setFiltrosDisponiveis({});
       }
     };
@@ -159,58 +283,90 @@ const configRelatorios = {
   }, [tipoRelatorio]);
 
   // Buscar dados do relatório
-// components/RelatoriosGerais.js - ADICIONAR DEBUG
-const buscarRelatorio = async () => {
-  try {
-    setLoading(true);
-    setError('');
-    setSuccess('');
+  const buscarRelatorio = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      setSuccess('');
 
-    // CORREÇÃO: Criar objeto de filtros sem datas vazias
-    const filtros = {
-      ...filtrosAdicionais
-    };
+      const filtros = {
+        ...filtrosAdicionais
+      };
 
-    // Só adiciona dataInicio se não estiver vazia
-    if (dataInicio) {
-      filtros.dataInicio = dataInicio;
-    }
+      let filtrosCount = 0;
 
-    // Só adiciona dataFim se não estiver vazia
-    if (dataFim) {
-      filtros.dataFim = dataFim;
-    }
-
-
-    const response = await relatoriosService.gerarRelatorio(tipoRelatorio, filtros);
-    
-    
-    if (response.success) {
-      setDadosRelatorio(response.relatorio || []);
-      setEstatisticas(response.estatisticas || {});
-      
-      if (response.relatorio && response.relatorio.length === 0) {
-        setSuccess(response.message || 'Nenhum registro encontrado para os filtros selecionados');
-      } else {
-        setSuccess('Relatório gerado com sucesso!');
+      if (dataInicio) {
+        filtros.dataInicio = dataInicio;
+        filtrosCount++;
       }
-    } else {
-      setError(response.message || 'Erro ao gerar relatório');
-    }
-    
-  } catch (err) {
-    console.error(' ERRO COMPLETO:', err);
-    setError(`Erro ao gerar relatório: ${err.message}`);
-  } finally {
-    setLoading(false);
-  }
-};
 
-  // Limpar filtros
+      if (dataFim) {
+        filtros.dataFim = dataFim;
+        filtrosCount++;
+      }
+
+      if (buscaTitulo) {
+        filtros.titulo_livro = buscaTitulo;
+        filtrosCount++;
+      }
+
+      if (buscaAutor) {
+        filtros.autor_livro = buscaAutor;
+        filtrosCount++;
+      }
+
+      filtrosCount += Object.keys(filtrosAdicionais).filter(key =>
+        filtrosAdicionais[key] !== '' && filtrosAdicionais[key] !== null
+      ).length;
+
+      let response;
+
+      if (tipoRelatorio === 'estoque') {
+        console.log('Gerando relatório de estoque com filtros:', filtros);
+        response = await relatoriosService.getRelatorioEstoque(filtros);
+      } else {
+        console.log(`Gerando relatório de ${tipoRelatorio} com ${filtrosCount} filtros:`, filtros);
+        response = await relatoriosService.gerarRelatorio(tipoRelatorio, filtros);
+      }
+
+      if (response.success) {
+        setDadosRelatorio(response.relatorio || response.dados || []);
+        setEstatisticas(response.estatisticas || {});
+
+        const totalRegistros = response.relatorio?.length || response.dados?.length || 0;
+
+        if (totalRegistros === 0) {
+          setSuccess(response.message || 'Nenhum registro encontrado para os filtros selecionados');
+        } else {
+          setSuccess(`Relatório gerado com sucesso! ${totalRegistros} registros encontrados.`);
+        }
+      } else {
+        setError(response.message || 'Erro ao gerar relatório');
+      }
+
+    } catch (err) {
+      console.error('ERRO COMPLETO:', err);
+      setError(`Erro ao gerar relatório: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const limparFiltros = () => {
     setDataInicio('');
     setDataFim('');
     setFiltrosAdicionais({});
+    setBuscaTitulo('');
+    setBuscaAutor('');
+    setBuscaUsuario('');
+    setSugestoesLivros([]);
+    setSugestoesUsuarios([]);
+
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      setTimeoutId(null);
+    }
+
     setDadosRelatorio([]);
     setEstatisticas({});
     setError('');
@@ -257,28 +413,34 @@ const buscarRelatorio = async () => {
                 </Form.Select>
               </Form.Group>
             </Col>
-          </Row>
-        );
 
-      case 'entrada':
-      case 'saida':
-        return (
-          <Row className="mb-3">
+            {/* Filtro por Nome do Usuário */}
             <Col md={4}>
               <Form.Group>
-                <Form.Label>Origem</Form.Label>
-                <Form.Select
-                  value={filtrosAdicionais.origem || ''}
-                  onChange={(e) => setFiltrosAdicionais({
-                    ...filtrosAdicionais,
-                    origem: e.target.value
-                  })}
-                >
-                  <option value="">Todas</option>
-                  <option value="Compra">Compra</option>
-                  <option value="Doação">Doação</option>
-                  <option value="Ajuste de Inventário">Ajuste de Inventário</option>
-                </Form.Select>
+                <Form.Label>Nome do Usuário</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Digite o nome do usuário..."
+                  value={buscaUsuario}
+                  onChange={(e) => {
+                    setBuscaUsuario(e.target.value);
+                    buscarSugestoesUsuarios(e.target.value);
+                  }}
+                  list="sugestoesUsuario"
+                />
+                <datalist id="sugestoesUsuario">
+                  {sugestoesUsuarios.map((usuario, index) => (
+                    <option key={index} value={usuario.nome}>
+                      {usuario.nome} ({usuario.tipo})
+                    </option>
+                  ))}
+                </datalist>
+                {carregandoSugestoesUsuarios && (
+                  <Form.Text className="text-muted">
+                    <Spinner size="sm" className="me-1" />
+                    Buscando usuários...
+                  </Form.Text>
+                )}
               </Form.Group>
             </Col>
           </Row>
@@ -305,6 +467,115 @@ const buscarRelatorio = async () => {
                 </Form.Select>
               </Form.Group>
             </Col>
+            {/* Filtro por Nome do Usuário */}
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Nome do Usuário</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Digite o nome do usuário..."
+                  value={buscaUsuario}
+                  onChange={(e) => {
+                    setBuscaUsuario(e.target.value);
+                    buscarSugestoesUsuarios(e.target.value);
+                  }}
+                  list="sugestoesUsuario"
+                />
+                <datalist id="sugestoesUsuario">
+                  {sugestoesUsuarios.map((usuario, index) => (
+                    <option key={index} value={usuario.nome}>
+                      {usuario.nome} ({usuario.tipo})
+                    </option>
+                  ))}
+                </datalist>
+                {carregandoSugestoesUsuarios && (
+                  <Form.Text className="text-muted">
+                    <Spinner size="sm" className="me-1" />
+                    Buscando usuários...
+                  </Form.Text>
+                )}
+              </Form.Group>
+            </Col>
+          </Row>
+        );
+
+      case 'entrada':
+      case 'saida':
+        return (
+          <Row className="mb-3">
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Origem</Form.Label>
+                <Form.Select
+                  value={filtrosAdicionais.origem || ''}
+                  onChange={(e) => setFiltrosAdicionais({
+                    ...filtrosAdicionais,
+                    origem: e.target.value
+                  })}
+                >
+                  <option value="">Todas as origens</option>
+                  {filtrosDisponiveis.origem?.map((origem, index) => (
+                    <option key={index} value={origem}>{origem}</option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+
+            {/* Filtro por Título do Livro */}
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Título do Livro</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Digite o título..."
+                  value={buscaTitulo}
+                  onChange={(e) => {
+                    setBuscaTitulo(e.target.value);
+                    buscarSugestoesLivros('titulo', e.target.value);
+                  }}
+                  list="sugestoesTitulo"
+                />
+                <datalist id="sugestoesTitulo">
+                  {sugestoesLivros.map((livro, index) => (
+                    <option key={index} value={livro.titulo} />
+                  ))}
+                </datalist>
+                {carregandoSugestoes && (
+                  <Form.Text className="text-muted">
+                    <Spinner size="sm" className="me-1" />
+                    Buscando...
+                  </Form.Text>
+                )}
+              </Form.Group>
+            </Col>
+
+            {/* Filtro por Autor */}
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Autor do Livro</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Digite o autor..."
+                  value={buscaAutor}
+                  onChange={(e) => {
+                    setBuscaAutor(e.target.value);
+                    buscarSugestoesLivros('autor', e.target.value);
+                  }}
+                  list="sugestoesAutor"
+                />
+                <datalist id="sugestoesAutor">
+                  {sugestoesLivros.map((livro, index) => (
+                    <option key={index} value={livro.autor_nome || livro.autor} />
+                  ))}
+                </datalist>
+                {carregandoSugestoes && (
+                  <Form.Text className="text-muted">
+                    <Spinner size="sm" className="me-1" />
+                    Buscando...
+                  </Form.Text>
+                )}
+              </Form.Group>
+            </Col>
           </Row>
         );
 
@@ -326,6 +597,9 @@ const buscarRelatorio = async () => {
                     <option key={index} value={depto}>{depto}</option>
                   ))}
                 </Form.Select>
+                <Form.Text className="text-muted">
+                  {filtrosDisponiveis.departamentos?.length || 0} departamentos disponíveis
+                </Form.Text>
               </Form.Group>
             </Col>
           </Row>
@@ -400,226 +674,400 @@ const buscarRelatorio = async () => {
           </Row>
         );
 
+      case 'cadastros':
+        return (
+          <Row className="mb-3">
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Gênero</Form.Label>
+                <Form.Select
+                  value={filtrosAdicionais.genero || ''}
+                  onChange={(e) => setFiltrosAdicionais({
+                    ...filtrosAdicionais,
+                    genero: e.target.value
+                  })}
+                >
+                  <option value="">Todos os gêneros</option>
+                  {filtrosDisponiveis.generos?.map((genero, index) => (
+                    <option key={index} value={genero}>{genero}</option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+
+            {/* Filtro por Título do Livro */}
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Título do Livro</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Digite o título..."
+                  value={buscaTitulo}
+                  onChange={(e) => {
+                    setBuscaTitulo(e.target.value);
+                    buscarSugestoesLivros('titulo', e.target.value);
+                  }}
+                  list="sugestoesTitulo"
+                />
+                <datalist id="sugestoesTitulo">
+                  {sugestoesLivros.map((livro, index) => (
+                    <option key={index} value={livro.titulo} />
+                  ))}
+                </datalist>
+                {carregandoSugestoes && (
+                  <Form.Text className="text-muted">
+                    <Spinner size="sm" className="me-1" />
+                    Buscando...
+                  </Form.Text>
+                )}
+              </Form.Group>
+            </Col>
+
+            {/* Filtro por Autor */}
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Autor do Livro</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Digite o autor..."
+                  value={buscaAutor}
+                  onChange={(e) => {
+                    setBuscaAutor(e.target.value);
+                    buscarSugestoesLivros('autor', e.target.value);
+                  }}
+                  list="sugestoesAutor"
+                />
+                <datalist id="sugestoesAutor">
+                  {sugestoesLivros.map((livro, index) => (
+                    <option key={index} value={livro.autor_nome || livro.autor} />
+                  ))}
+                </datalist>
+                {carregandoSugestoes && (
+                  <Form.Text className="text-muted">
+                    <Spinner size="sm" className="me-1" />
+                    Buscando...
+                  </Form.Text>
+                )}
+              </Form.Group>
+            </Col>
+          </Row>
+        );
+
+      case 'estoque':
+        return (
+          <Row className="mb-3">
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Situação do Estoque</Form.Label>
+                <Form.Select
+                  value={filtrosAdicionais.situacao || ''}
+                  onChange={(e) => setFiltrosAdicionais({
+                    ...filtrosAdicionais,
+                    situacao: e.target.value
+                  })}
+                >
+                  <option value="">Todas as situações</option>
+                  <option value="disponivel">Disponível (estoque > 0)</option>
+                  <option value="zerado">Estoque zerado (estoque = 0)</option>
+                  <option value="baixo">Estoque baixo (estoque ≤ 5)</option>
+                </Form.Select>
+              </Form.Group>
+            </Col>
+
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Gênero</Form.Label>
+                <Form.Select
+                  value={filtrosAdicionais.genero || ''}
+                  onChange={(e) => setFiltrosAdicionais({
+                    ...filtrosAdicionais,
+                    genero: e.target.value
+                  })}
+                >
+                  <option value="">Todos os gêneros</option>
+                  {filtrosDisponiveis.generos?.map((genero, index) => (
+                    <option key={index} value={genero}>{genero}</option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+
+            {/* Filtro por Título do Livro */}
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Título do Livro</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Digite o título..."
+                  value={buscaTitulo}
+                  onChange={(e) => {
+                    setBuscaTitulo(e.target.value);
+                    buscarSugestoesLivros('titulo', e.target.value);
+                  }}
+                  list="sugestoesTitulo"
+                />
+                <datalist id="sugestoesTitulo">
+                  {sugestoesLivros.map((livro, index) => (
+                    <option key={index} value={livro.titulo} />
+                  ))}
+                </datalist>
+                {carregandoSugestoes && (
+                  <Form.Text className="text-muted">
+                    <Spinner size="sm" className="me-1" />
+                    Buscando...
+                  </Form.Text>
+                )}
+              </Form.Group>
+            </Col>
+          </Row>
+        );
+
       default:
         return null;
     }
   };
 
   // Formatar dados para exibição na tabela
-const formatarDadosTabela = (dados) => {
-  return dados.map(item => {
-    //  FUNÇÃO AUXILIAR PARA DATA DE CADASTRO 
-    const formatarDataCadastro = (item) => {
-      return item.data_cadastro ? new Date(item.data_cadastro).toLocaleDateString('pt-BR') : '-';
+  const formatarDadosTabela = (dados) => {
+    return dados.map(item => {
+
+      // FUNÇÃO AUXILIAR PARA DATA DE CADASTRO 
+      const formatarDataCadastro = (item) => {
+        return item.data_cadastro ? new Date(item.data_cadastro).toLocaleDateString('pt-BR') : '-';
+      };
+
+      switch (tipoRelatorio) {
+        case 'emprestimos':
+          return {
+            id: item.id,
+            usuario: item.usuario || 'Não informado',
+            tipo: (() => {
+              if (!item.usuario_tipo) return 'Não informado';
+
+              let tipoFormatado = item.usuario_tipo;
+
+              if (tipoFormatado === 'usuario_especial') {
+                tipoFormatado = 'Usuário Especial';
+              } else {
+                tipoFormatado = tipoFormatado.charAt(0).toUpperCase() + tipoFormatado.slice(1);
+              }
+
+              return tipoFormatado;
+            })(),
+            livro: item.livro || 'Não informado',
+            data_emprestimo: item.data_emprestimo ? new Date(item.data_emprestimo).toLocaleDateString('pt-BR') : '-',
+            data_devolucao: item.data_devolucao_real
+              ? new Date(item.data_devolucao_real).toLocaleDateString('pt-BR')
+              : item.data_devolucao_prevista
+                ? new Date(item.data_devolucao_prevista).toLocaleDateString('pt-BR')
+                : '-',
+            status: (
+              <Badge bg={
+                item.status === 'ativo' ? 'success' :
+                  item.status === 'atrasado' ? 'warning' : 'dark'
+              } className={item.status === 'atrasado' ? 'text-dark' : ''}>
+                {item.status === 'ativo' ? 'Emprestado' :
+                  item.status === 'atrasado' ? 'Atrasado' :
+                    item.status === 'finalizado' ? 'Finalizado' : item.status}
+              </Badge>
+            )
+          };
+
+        case 'entrada':
+          return {
+            id: item.id,
+            livro: item.titulo || 'Não informado',
+            autor: item.autor_nome || 'Não informado',
+            origem: item.origem || 'Não informado',
+            quantidade: item.quantidade || 0,
+            data_aquisicao: item.data_aquisicao ? new Date(item.data_aquisicao).toLocaleDateString('pt-BR') : '-',
+            observacoes: item.observacoes || 'Sem observações'
+          };
+
+        case 'saida':
+          return {
+            id: item.id,
+            livro: item.titulo || 'Não informado',
+            autor: item.autor_nome || 'Não informado',
+            origem: item.origem || 'Não informado',
+            quantidade: item.quantidade || 0,
+            data_saida: item.data_saida ? new Date(item.data_saida).toLocaleDateString('pt-BR') : '-',
+            observacoes: item.observacoes || 'Sem observações'
+          };
+
+        case 'cadastros':
+          return {
+            id: item.id,
+            titulo: item.titulo || 'Não informado',
+            autor: item.autor || 'Não informado',
+            editora: item.editora || 'Não informado',
+            isbn: item.isbn || 'Não informado',
+            genero: item.genero || 'Não informado',
+            ano: item.ano || 'Não informado',
+            estoque: item.estoque || 0,
+            data_cadastro: formatarDataCadastro(item)
+          };
+
+        case 'reservas':
+          return {
+            id: item.id,
+            usuario: item.usuario || 'Não informado',
+            livro: item.livro || 'Não informado',
+            data_reserva: item.data_reserva ? new Date(item.data_reserva).toLocaleDateString('pt-BR') : '-',
+            data_validade: item.data_validade ? new Date(item.data_validade).toLocaleDateString('pt-BR') : '-',
+            status: (
+              <Badge bg={
+                item.status === 'ativa' ? 'success' :
+                  item.status === 'expirada' ? 'warning' : 'dark'
+              } className={item.status === 'expirada' ? 'text-dark' : ''}>
+                {item.status === 'ativa' ? 'Ativa' :
+                  item.status === 'cancelada' ? 'Cancelada' :
+                    item.status === 'concluida' ? 'Concluída' :
+                      item.status === 'expirada' ? 'Expirada' : item.status}
+              </Badge>
+            )
+          };
+
+        case 'professores':
+          return {
+            id: item.id,
+            nome: item.nome || 'Não informado',
+            departamento: item.departamento || 'Não informado',
+            email: item.email || 'Não informado',
+            telefone: formatarTelefone(item.telefone) || 'Não informado',
+            data_cadastro: formatarDataCadastro(item)
+          };
+
+        case 'alunos':
+          return {
+            id: item.id,
+            nome: item.nome || 'Não informado',
+            matricula: item.matricula || 'Não informado',
+            turma: item.turma || 'Não informado',
+            email: item.email || 'Não informado',
+            telefone: formatarTelefone(item.telefone) || 'Não informado',
+            data_cadastro: formatarDataCadastro(item)
+          };
+
+        case 'usuarios-especiais':
+          return {
+            id: item.id,
+            nome: item.nome || 'Não informado',
+            tipo: item.tipo || 'Não informado',
+            cpf: formatarCPF(item.cpf) || 'Não informado',
+            email: item.email || 'Não informado',
+            telefone: formatarTelefone(item.telefone) || 'Não informado',
+            data_cadastro: formatarDataCadastro(item)
+          };
+
+        case 'editoras':
+          return {
+            id: item.id,
+            nome: item.nome || 'Não informado',
+            cnpj: formatarCNPJ(item.cnpj) || 'Não informado',
+            email: item.email || 'Não informado',
+            telefone: formatarTelefone(item.telefone) || 'Não informado',
+            data_cadastro: formatarDataCadastro(item)
+          };
+
+        case 'autores':
+          return {
+            id: item.id,
+            nome: item.nome || 'Não informado',
+            nacionalidade: item.nacionalidade || 'Não informado',
+            data_nascimento: item.data_nascimento ?
+              new Date(item.data_nascimento).toLocaleDateString('pt-BR') : '-',
+            data_cadastro: formatarDataCadastro(item)
+          };
+
+        case 'estoque':
+          return {
+            id: item.id,
+            titulo: item.titulo || 'Não informado',
+            autor: item.autor || 'Não informado',
+            editora: item.editora || 'Não informado',
+            isbn: item.isbn || 'Não informado',
+            genero: item.genero || 'Não informado',
+            ano: item.ano || 'Não informado',
+            estoque: item.estoque || 0,
+            situacao: item.estoque === 0 ? (
+              <Badge bg="danger" className="text-white">Indisponível</Badge>
+            ) : item.estoque <= 5 ? (
+              <Badge bg="warning" className="text-dark">Baixo Estoque</Badge>
+            ) : (
+              <Badge bg="success" className="text-white">Disponível</Badge>
+            ),
+            data_cadastro: item.data_cadastro ? new Date(item.data_cadastro).toLocaleDateString('pt-BR') : '-'
+          };
+
+        default:
+          return {
+            ...item,
+            data_cadastro: formatarDataCadastro(item)
+          };
+      }
+    });
+  };
+
+  // Função auxiliar para mapear colunas para propriedade
+  const getValorPorColuna = (linha, coluna) => {
+    const mapeamento = {
+      'ID': 'id',
+      'Usuário': 'usuario',
+      'Tipo': 'tipo',
+      'Data Empréstimo': 'data_emprestimo',
+      'Data Devolução': 'data_devolucao',
+      'Status': 'status',
+      'Data Cadastro': 'data_cadastro',
+      'Livros': 'livros',
+      'Livro': 'livro',
+      'Origem': 'origem',
+      'Quantidade': 'quantidade',
+      'Data Aquisição': 'data_aquisicao',
+      'Data Saída': 'data_saida',
+      'Data': 'data',
+      'Título': 'titulo',
+      'Autor': 'autor',
+      'Editora': 'editora',
+      'Gênero': 'genero',
+      'ISBN': 'isbn',
+      'Ano': 'ano',
+      'Estoque': 'estoque',
+      'Data Reserva': 'data_reserva',
+      'Data Validade': 'data_validade',
+      'Nome': 'nome',
+      'Departamento': 'departamento',
+      'Email': 'email',
+      'Telefone': 'telefone',
+      'Empréstimos': 'emprestimos',
+      'Reservas': 'reservas',
+      'Matrícula': 'matricula',
+      'Turma': 'turma',
+      'CPF': 'cpf',
+      'CNPJ': 'cnpj',
+      'Total Livros': 'total_livros',
+      'Estoque Total': 'estoque_total',
+      'Nacionalidade': 'nacionalidade',
+      'Situação': 'situacao',
+      'Data Nascimento': 'data_nascimento',
+      'Observações': 'observacoes',
     };
 
-    switch (tipoRelatorio) {
-      case 'emprestimos':
-        return {
-          id: item.id,
-          usuario: item.usuario || 'Não informado',
-          tipo: (() => {
-            if (!item.usuario_tipo) return 'Não informado';
-            
-            let tipoFormatado = item.usuario_tipo;
-            
-            if (tipoFormatado === 'usuario_especial') {
-              tipoFormatado = 'Usuário Especial';
-            } else {
-              tipoFormatado = tipoFormatado.charAt(0).toUpperCase() + tipoFormatado.slice(1);
-            }
-            
-            return tipoFormatado;
-          })(),
-          livro: item.livro || 'Não informado', 
-          data_emprestimo: item.data_emprestimo ? new Date(item.data_emprestimo).toLocaleDateString('pt-BR') : '-',
-          data_devolucao: item.data_devolucao_real 
-            ? new Date(item.data_devolucao_real).toLocaleDateString('pt-BR')
-            : item.data_devolucao_prevista 
-              ? new Date(item.data_devolucao_prevista).toLocaleDateString('pt-BR')
-              : '-',
-          status: (
-            <Badge bg={
-              item.status === 'ativo' ? 'success' : 
-              item.status === 'atrasado' ? 'warning' : 'dark'
-            } className={item.status === 'atrasado' ? 'text-dark' : ''}>
-              {item.status === 'ativo' ? 'Emprestado' : 
-              item.status === 'atrasado' ? 'Atrasado' : 
-              item.status === 'finalizado' ? 'Finalizado' : item.status}
-            </Badge>
-          )
-        };
+    const propriedade = mapeamento[coluna];
+    const valor = linha[propriedade];
 
-      case 'entrada':
-        return {
-          id: item.id,
-          livro: item.titulo || 'Não informado',
-          origem: item.origem || 'Não informado',
-          quantidade: item.quantidade || 0,
-          data_aquisicao: item.data_aquisicao ? new Date(item.data_aquisicao).toLocaleDateString('pt-BR') : '-',
-          data_cadastro: formatarDataCadastro(item) 
-        };
-
-      case 'saida':
-        return {
-          id: item.id,
-          livro: item.titulo || 'Não informado',
-          origem: item.origem || 'Não informado',
-          quantidade: item.quantidade || 0,
-          data_saida: item.data_saida ? new Date(item.data_saida).toLocaleDateString('pt-BR') : '-',
-          data_cadastro: formatarDataCadastro(item) 
-        };
-
-      case 'cadastros':
-        return {
-          id: item.id,
-          titulo: item.titulo || 'Não informado',
-          autor: item.autor || 'Não informado',
-          editora: item.editora || 'Não informado',
-          isbn: item.isbn || 'Não informado',
-          genero: item.genero || 'Não informado',
-          ano: item.ano || 'Não informado',
-          estoque: item.estoque || 0,
-          data_cadastro: formatarDataCadastro(item) 
-        };
-
-    case 'reservas':
-  return {
-    id: item.id,
-    usuario: item.usuario || 'Não informado',
-    livro: item.livro || 'Não informado',
-    data_reserva: item.data_reserva ? new Date(item.data_reserva).toLocaleDateString('pt-BR') : '-',
-    data_validade: item.data_validade ? new Date(item.data_validade).toLocaleDateString('pt-BR') : '-',
-    status: (
-      <Badge bg={
-        item.status === 'ativa' ? 'success' : 
-        item.status === 'expirada' ? 'warning' : 'dark'
-      } className={item.status === 'expirada' ? 'text-dark' : ''}>
-        {item.status === 'ativa' ? 'Ativa' : 
-         item.status === 'cancelada' ? 'Cancelada' : 
-         item.status === 'concluida' ? 'Concluída' : 
-         item.status === 'expirada' ? 'Expirada' : item.status}
-      </Badge>
-    )
-  };
-      
-      case 'professores':
-        return {
-          id: item.id,
-          nome: item.nome || 'Não informado',
-          departamento: item.departamento || 'Não informado',
-          email: item.email || 'Não informado',
-          telefone: formatarTelefone(item.telefone) || 'Não informado',
-          data_cadastro: formatarDataCadastro(item) 
-        };
-
-      case 'alunos':
-        return {
-          id: item.id,
-          nome: item.nome || 'Não informado',
-          matricula: item.matricula || 'Não informado',
-          turma: item.turma || 'Não informado',
-          email: item.email || 'Não informado',
-          telefone: formatarTelefone(item.telefone) || 'Não informado',
-          data_cadastro: formatarDataCadastro(item) 
-        };
-
-      case 'usuarios-especiais':
-        return {
-          id: item.id,
-          nome: item.nome || 'Não informado',
-          tipo: item.tipo || 'Não informado',
-          cpf: formatarCPF(item.cpf) || 'Não informado',
-          email: item.email || 'Não informado',
-          telefone: formatarTelefone(item.telefone) || 'Não informado',
-          data_cadastro: formatarDataCadastro(item) 
-        };
-
-      case 'editoras':
-        return {
-          id: item.id,
-          nome: item.nome || 'Não informado',
-          cnpj: formatarCNPJ(item.cnpj) || 'Não informado',
-          email: item.email || 'Não informado',
-          telefone: formatarTelefone(item.telefone) || 'Não informado',
-          data_cadastro: formatarDataCadastro(item) 
-        };
-
-      case 'autores':
-        return {
-          id: item.id,
-          nome: item.nome || 'Não informado',
-          nacionalidade: item.nacionalidade || 'Não informado',
-          data_nascimento: item.data_nascimento ? 
-            new Date(item.data_nascimento).toLocaleDateString('pt-BR') : '-',
-          data_cadastro: formatarDataCadastro(item) 
-        };
-
-      default:
-        return {
-          ...item,
-          data_cadastro: formatarDataCadastro(item) 
-        };
+    // Aplicar formatação universal a todos os valores de texto
+    if (valor !== undefined && valor !== null && valor !== '-') {
+      return formatarTexto(valor);
     }
-  });
-};
-// Função auxiliar para mapear colunas para propriedade
-const getValorPorColuna = (linha, coluna) => {
-  const mapeamento = {
-    'ID': 'id',
-    'Usuário': 'usuario',
-    'Tipo': 'tipo',
-    'Data Empréstimo': 'data_emprestimo',
-    'Data Devolução': 'data_devolucao',
-    'Status': 'status',
-    'Data Cadastro': 'data_cadastro',
-    'Livros': 'livros',
-    'Livro': 'livro',
-    'Origem': 'origem',
-    'Quantidade': 'quantidade',
-    'Data Aquisição': 'data_aquisicao',
-    'Data Saída': 'data_saida',
-    'Data': 'data',
-    'Título': 'titulo',
-    'Autor': 'autor',
-    'Editora': 'editora',
-    'Gênero': 'genero',
-    'ISBN': 'isbn',
-    'Ano': 'ano',
-    'Estoque': 'estoque',
-    'Data Reserva': 'data_reserva',
-    'Data Validade': 'data_validade',
-    'Nome': 'nome',
-    'Departamento': 'departamento',
-    'Email': 'email',
-    'Telefone': 'telefone',
-    'Empréstimos': 'emprestimos',
-    'Reservas': 'reservas',
-    'Matrícula': 'matricula',
-    'Turma': 'turma',
-    'CPF': 'cpf',
-    'CNPJ': 'cnpj',
-    'Total Livros': 'total_livros',
-    'Estoque Total': 'estoque_total',
-    'Nacionalidade': 'nacionalidade',
-    'Data Nascimento': 'data_nascimento'
+
+    return '-';
   };
 
-  const propriedade = mapeamento[coluna];
-  const valor = linha[propriedade];
-  
-  // Aplicar formatação universal a todos os valores de texto
-  if (valor !== undefined && valor !== null && valor !== '-') {
-    return formatarTexto(valor);
-  }
-  
-  return '-';
-};
   const IconeRelatorio = configRelatorios[tipoRelatorio]?.icone || FaChartBar;
 
   return (
-     <Container className="py-4">
-      {/* NOVO CABEÇALHO ADICIONADO AQUI */}
+    <Container className="py-4">
       <div className="rounded-3 p-4 mb-4 border">
         <Row className="align-items-center">
           <Col md={8}>
@@ -629,26 +1077,36 @@ const getValorPorColuna = (linha, coluna) => {
               </div>
               <div>
                 <h4 className="fw-bold text-dark mb-1">Relatórios Gerais</h4>
+                <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
+                  Geração de relatórios específicos do sistema
+                </p>
               </div>
             </div>
           </Col>
           <Col md={4} className="text-md-end">
             <div className="d-flex justify-content-end flex-wrap gap-2">
-              {/* Você pode adicionar botões extras aqui se quiser */}
+              <Button 
+                variant="paginacao" 
+                size="sm"
+                onClick={() => window.location.href = '/estatisticas'}
+              >
+                <FaChartBar className="me-1" />
+                Ver Dashboard
+              </Button>
             </div>
           </Col>
         </Row>
       </div>
 
       <p className="text-muted mb-4" style={{ fontSize: '0.9rem' }}>
-        Esta seção permite a <strong>geração de relatórios do sistema</strong>. Você pode filtrar por período, e obter estatísticas detalhadas sobre empréstimos, reservas, cadastros e movimentações.
+        Esta seção permite a <strong>geração de relatórios específicos</strong> do sistema. 
+        Selecione o tipo de relatório, aplique filtros por período e obtenha dados detalhados sobre empréstimos, reservas, cadastros e movimentações.
       </p>
 
-      {/* CARD PRINCIPAL DO RELATÓRIO (mantém o código existente) */}
+      {/* CARD PRINCIPAL DO RELATÓRIO */}
       <Card>
         <Card.Header className="bg-primary text-white">
           <div className="d-flex align-items-center">
-            <IconeRelatorio className="me-2" />
             <h5 className="mb-0">Gerador de Relatórios</h5>
           </div>
         </Card.Header>
@@ -672,6 +1130,7 @@ const getValorPorColuna = (linha, coluna) => {
                   <option value="saida">Saídas</option>
                   <option value="reservas">Reservas</option>
                   <option value="cadastros">Livros</option>
+                  <option value="estoque">Estoque Atual</option>
                   <option value="professores">Professores</option>
                   <option value="alunos">Alunos</option>
                   <option value="usuarios-especiais">Usuários Especiais</option>
@@ -731,13 +1190,13 @@ const getValorPorColuna = (linha, coluna) => {
             </div>
           )}
 
-          {/* Estatísticas */}
+          {/* Estatísticas do Relatório */}
           {Object.keys(estatisticas).length > 0 && (
             <Row className="mb-4">
               <Col>
                 <Card className="bg-light">
                   <Card.Body>
-                    <h6 className="mb-3"> Estatísticas do Relatório</h6>
+                    <h6 className="mb-3">Estatísticas do Relatório</h6>
                     <Row>
                       {Object.entries(estatisticas).map(([key, value]) => (
                         <Col key={key} md={3} className="text-center mb-2">
