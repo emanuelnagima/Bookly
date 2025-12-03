@@ -148,17 +148,34 @@ class ReservasRepository {
         }
     }
 
-    async cancelar(id) {
-        try {
-            await db.execute(
-                'UPDATE reservas SET status = "cancelada" WHERE id = ?',
-                [id]
-            );
-            return this.findById(id);
-        } catch (error) {
-            throw new Error(`Erro ao cancelar reserva: ${error.message}`);
+async cancelar(id, motivo = '') {
+    try {
+        console.log(`Cancelando reserva ${id} com motivo:`, motivo);
+        
+        const query = `
+            UPDATE reservas 
+            SET 
+                status = 'cancelada',
+                data_cancelamento = NOW(),
+                motivo_cancelamento = ?
+            WHERE id = ? AND status = 'ativa'
+        `;
+        
+        const [result] = await db.execute(query, [motivo || null, id]);
+        
+        if (result.affectedRows === 0) {
+            console.log(`Reserva ${id} não encontrada ou já não está ativa`);
+            return null;
         }
+        
+        console.log(`Reserva ${id} cancelada com sucesso`);
+        return await this.findById(id);
+        
+    } catch (error) {
+        console.error(`Erro ao cancelar reserva ${id}:`, error);
+        throw new Error(`Erro ao cancelar reserva: ${error.message}`);
     }
+}
 
     async concluir(id) {
         try {
@@ -331,21 +348,6 @@ async create(reservaData) {
         throw new Error(`Erro ao buscar reservas ativas: ${error.message}`);
     }
 }
-
-    // **MANTENHA os outros métodos (cancelar, concluir, update, delete, etc) como estão**
-    // Eles vão continuar funcionando porque usam o findById que agora busca da nova tabela
-
-    async cancelar(id) {
-        try {
-            await db.execute(
-                'UPDATE reservas SET status = "cancelada" WHERE id = ?',
-                [id]
-            );
-            return this.findById(id);
-        } catch (error) {
-            throw new Error(`Erro ao cancelar reserva: ${error.message}`);
-        }
-    }
 
     async concluir(id) {
         try {

@@ -172,20 +172,22 @@ CREATE TABLE `livros` (
 -- -----------------------------
 -- Tabela: EMPRÉSTIMOS
 -- -----------------------------
-CREATE TABLE `emprestimos` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `usuario_id` int(11) NOT NULL,
-  `usuario_tipo` enum('aluno','professor','usuario_especial') NOT NULL,
-  `data_emprestimo` datetime NOT NULL DEFAULT current_timestamp(),
-  `data_devolucao_prevista` date NOT NULL,
-  `data_devolucao_real` datetime DEFAULT NULL,
-  `status` enum('ativo','finalizado','atrasado') NOT NULL DEFAULT 'ativo',
-  `observacoes` text DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_usuario` (`usuario_id`,`usuario_tipo`),
-  KEY `idx_status` (`status`),
-  KEY `idx_data_devolucao` (`data_devolucao_prevista`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+	CREATE TABLE `emprestimos` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `usuario_id` int(11) NOT NULL,
+   `usuario_tipo` enum('aluno','professor','usuario_especial') NOT NULL,
+   `data_emprestimo` datetime NOT NULL DEFAULT current_timestamp(),
+   `data_devolucao_prevista` date NOT NULL,
+   `data_devolucao_real` datetime DEFAULT NULL,
+   `status` enum('ativo','finalizado','atrasado','cancelado') NOT NULL DEFAULT 'ativo',
+   `observacoes` text DEFAULT NULL,
+   `data_cancelamento` datetime DEFAULT NULL,
+   `motivo_cancelamento` text DEFAULT NULL,
+   PRIMARY KEY (`id`),
+   KEY `idx_usuario` (`usuario_id`,`usuario_tipo`),
+   KEY `idx_status` (`status`),
+   KEY `idx_data_devolucao` (`data_devolucao_prevista`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 
 -- -----------------------------
 -- Tabela: EMPRÉSTIMO_LIVROS
@@ -276,13 +278,18 @@ CREATE TABLE `saidas` (
 
 
 
+-- ALTERAR: Atualizar o evento para considerar status cancelado
 DELIMITER $$
+
+DROP EVENT IF EXISTS atualizar_status_emprestimos;
+$$
 
 CREATE EVENT atualizar_status_emprestimos
 ON SCHEDULE EVERY 1 HOUR
+STARTS CURRENT_TIMESTAMP
 DO
 BEGIN
-    -- Atualizar para atrasado
+    -- Atualizar para atrasado (apenas se não estiver finalizado ou cancelado)
     UPDATE emprestimos 
     SET status = 'atrasado'
     WHERE status = 'ativo' 
@@ -296,31 +303,6 @@ BEGIN
 END$$
 
 DELIMITER ;
-
--- Para ativar o evento scheduler
-SET GLOBAL event_scheduler = ON;
-
-
-DELIMITER $$
-
-DROP EVENT IF EXISTS atualizar_status_reservas;
-$$
-
-CREATE EVENT atualizar_status_reservas
-ON SCHEDULE EVERY 1 HOUR
-STARTS CURRENT_TIMESTAMP
-DO
-BEGIN
-    -- 1. Atualizar reservas ativas que passaram da validade para "expirada"
-    UPDATE reservas 
-    SET status = 'expirada'
-    WHERE status = 'ativa' 
-    AND DATE(data_validade) < CURDATE();
-    
-END$$
-
-DELIMITER ;
-
 -- ====================================================
 -- FIM DO SCRIPT
 -- ====================================================

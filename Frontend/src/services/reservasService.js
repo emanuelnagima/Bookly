@@ -88,20 +88,6 @@ const getPorLivro = async (livroId) => {
 
 const add = async (reserva) => {
     try {    
-        // ❌ REMOVER esta parte - a verificação já é feita no backend
-        // for (const livro of reserva.livros) {
-        //     const disponibilidade = await disponibilidadeService.verificarPodeReservar(
-        //         reserva.usuario_id, 
-        //         reserva.usuario_tipo,
-        //         livro.livro_id
-        //     );
-            
-        //     if (!disponibilidade.podeReservar) {
-        //         throw new Error(`Não é possível reservar o livro: ${disponibilidade.motivo}`);
-        //     }
-        // }
-
-        // ✅ MANTER apenas o envio para o backend
         const response = await fetch(API_BASE_URL, {
             method: 'POST',
             headers: {
@@ -116,7 +102,7 @@ const add = async (reserva) => {
             
             try {
                 const errorText = await response.text();
-                console.log('🔴 Resposta de erro do servidor:', errorText);
+                console.log(' Resposta de erro do servidor:', errorText);
                 
                 if (errorText) {
                     try {
@@ -141,7 +127,7 @@ const add = async (reserva) => {
         return result.data;
         
     } catch (error) {
-        console.error('🔴 Erro ao adicionar reserva:', error);
+        console.error(' Erro ao adicionar reserva:', error);
         
         let friendlyMessage = error.message;
         
@@ -150,10 +136,10 @@ const add = async (reserva) => {
             const livroNome = livroMatch ? livroMatch[1] : 'o livro selecionado';
             
             friendlyMessage = `
-               ESTOQUE INSUFICIENTE
-              - Livro: "${livroNome}"
-              - Situação: Todos os exemplares estão emprestados ou reservados.
-              * Tente outro livro ou aguarde devolução
+               Estoque insuficiente para reservar o
+               Livro: "${livroNome}"
+               Situação: Todos os exemplares estão emprestados ou reservados.
+              * Tente outro livro ou aguarde devolução *
             `;
         } else if (error.message.includes('já possui reserva ativa')) {
             friendlyMessage = 'Você já possui uma reserva ativa para este livro';

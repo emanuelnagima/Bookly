@@ -7,18 +7,12 @@ class RelatoriosController {
       const { tipo } = req.params;
       const filtros = req.body;
 
-      console.log(`=== GERANDO RELATÓRIO: ${tipo} ===`);
-      console.log('Filtros recebidos:', filtros);
-
-      // 🔧 LIMPEZA DOS FILTROS - remover valores vazios
       const filtrosLimpos = {};
       Object.keys(filtros).forEach(key => {
         if (filtros[key] !== '' && filtros[key] !== null && filtros[key] !== undefined) {
           filtrosLimpos[key] = filtros[key];
         }
       });
-
-      console.log('Filtros limpos para busca:', filtrosLimpos);
 
       let dados = [];
       let estatisticas = {};
@@ -231,7 +225,7 @@ class RelatoriosController {
           break;
 
         case 'emprestimos':
-          filtros.status = ['ativo', 'atrasado', 'finalizado'];
+          filtros.status = ['ativo', 'atrasado', 'finalizado','cancelado'];
           filtros.usuario_tipo = ['aluno', 'professor', 'usuario_especial'];
           break;
 

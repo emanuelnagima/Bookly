@@ -88,7 +88,7 @@ async registrarSaida(saidaData) {
 
         const saida = new Saida(saidaData);
 
-        // ✅ VERIFICAÇÃO COMPLETA: Considera estoque físico, empréstimos E reservas
+        //  VERIFICAÇÃO COMPLETA: Considera estoque físico, empréstimos E reservas
         const estoqueInfo = await this.verificarEstoqueDisponivel(saida.livro_id);
         
         if (estoqueInfo.estoqueDisponivel < saida.quantidade) {

@@ -74,7 +74,7 @@ const Home = () => {
       year: "numeric",
     };
     setCurrentDate(new Date().toLocaleDateString("pt-BR", options));
-    const timer = setTimeout(() => setShowWelcome(false), 10000);
+    const timer = setTimeout(() => setShowWelcome(false), 7000); // 7 segundos
     return () => clearTimeout(timer);
   }, []);
 
@@ -276,145 +276,70 @@ const Home = () => {
   ];
 
   return (
-    <Container className="py-4">
+    <Container className="py-0">
       {/* CABEÇALHO */}
-      <Row className="mb-4">
-        <Col>
-          <div
+     <Row className="mb-0">
+  <Col>
+    <div
+      style={{
+        padding: "1rem",
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "space-between",
+        gap: "2rem",
+        flexWrap: "wrap",
+      }}
+    >
+      <div style={{ padding: "1rem" }} className="animate-fade-in-left">
+        {/* Logo e Nome do Sistema */}
+        <div>
+          <h1
             style={{
-              padding: "1rem",
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              gap: "2rem",
-              flexWrap: "wrap",
+              fontFamily: '"Montserrat", sans-serif',
+              fontWeight: "700",
+              fontSize: "3.8rem",
+              background: "linear-gradient(90deg, #2119b4, #5b2cff)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              marginBottom: "0.1rem",
+              letterSpacing: "-10px",
             }}
+            className="animate-fade-in-up"
           >
-            <div style={{ padding: "1rem" }}>
-              {/* Logo e Nome do Sistema */}
-              <div>
-                <h1
-                  style={{
-                    fontFamily: '"Montserrat", sans-serif',
-                    fontWeight: "700",
-                    fontSize: "3.8rem",
-                    background: "linear-gradient(90deg, #2119b4, #5b2cff)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    marginBottom: "0.1rem",
-                    letterSpacing: "-10px",
-                  }}
-                >
-                  Bookly
-                </h1>
-                <p style={{ fontSize: "1rem", margin: 0, color: "#6c757d", textIndent: "0rem" }}>
-                  <strong>Gestão para Bibliotecas</strong>
-                </p>
+            Bookly
+          </h1>
 
-                <p className="text-secondary small mb-0" style={{ textIndent: "1rem", marginTop: "0.25rem" }}>
-                  Gerencie todo o acervo da sua biblioteca, controle empréstimos, reservas e mantenha seu sistema sempre atualizado.
-                </p>
+          <p 
+            className="text-secondary small mb-0 animate-fade-in-up animate-delay-1" 
+            style={{ marginTop: "0.25rem", opacity: 0 }}
+          >
+            Gerencie todo o acervo da sua biblioteca...
+          </p>
 
-                <p className="text-secondary small mb-0" style={{ textIndent: "2rem", marginTop: "0.25rem" }}>
-                  <span className="me-0"><FaEnvelope /></span> booklysuporte@gmail.com
-                </p>
-              </div>
-            </div>
-            <div className="d-flex flex-wrap justify-content-start align-items-center">
-
-
-              {/* Boas-vindas e Data */}
-              <div className="text-end" style={{ padding: "1rem" }}>
-                {showWelcome && (
-                  <h3 className="mb-3 fw-bold text-primary">
-                    Bem-vindo ao Bookly!
-                  </h3>
-                )}
-                <p className="text-muted mb-2">
-                  <FaCalendarAlt className="me-1" /> {currentDate}
-                </p>
-
-                <div
-                  className="rounded-3 p-3 mt-3"
-                  style={{
-                    border: "1px solid #e6e6e6",
-                    maxWidth: "360px",
-                    backgroundColor: "#f9f9f9",
-                  }}
-                >
-                  {/* Título / descrição */}
-                  <div style={{ marginBottom: "0.5rem" }}>
-                    <small
-                      style={{
-                        fontSize: "0.75rem",
-                        lineHeight: "1.3",
-                        color: "#025fbdff",
-                        display: "block",
-                      }}
-                    >
-                      Conheça as regras e condições do sistema
-                    </small>
-                  </div>
-
-                  {/* Links */}
-                  <ul
-                    className="list-unstyled m-0 p-0"
-                    style={{
-                      fontSize: "0.8rem",
-                      borderTop: "1px solid #e6e6e6",
-                      paddingTop: "0.5rem",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "0.25rem",
-                    }}
-                  >
-                    <li>
-                      <a
-                        href="/terms-of-use"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-muted hover-underline"
-                      >
-                        Termos de uso
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="/privacy-policy"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-muted hover-underline"
-                      >
-                        Política de Privacidade
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/sobre" className="text-muted hover-underline">
-                        Sobre
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setShowHelpModal(true);
-                        }}
-                        className="text-muted hover-underline"
-                      >
-                        Ajuda
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Col>
-      </Row>
-
-
-
+          <p 
+            className="text-secondary small mb-0 animate-fade-in-up animate-delay-2" 
+            style={{ marginTop: "0.25rem", opacity: 0 }}
+          >
+            <span className="me-1"><FaEnvelope /></span> booklysuporte@gmail.com
+          </p>
+        </div>
+      </div>
+      <div className="d-flex flex-wrap justify-content-start align-items-center animate-fade-in-right">
+        {/* Boas-vindas e Data */}
+        <div className="text-end" style={{ padding: "1rem" }}>
+          {showWelcome && (
+            <h3 className="mb-3 fw-bold text-info animate-fade-in-up">
+              Bem-vindo ao Bookly!
+            </h3>
+          )}
+          <p className="text-muted mb-2 animate-fade-in-up animate-delay-1">
+            <FaCalendarAlt className="me-1" /> {currentDate}
+          </p>
+        </div>
+      </div>
+    </div>
+  </Col>
+</Row>
       {/* LISTA DE LIVROS COM BARRA DE PESQUISA */}
       <Row className="mb-4">
         <Col>

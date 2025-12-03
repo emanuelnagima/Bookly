@@ -68,6 +68,8 @@ async getRelatorioEmprestimos(filtros = {}) {
                 e.data_devolucao_real,
                 e.status,
                 e.usuario_tipo,
+                e.data_cancelamento,  -- NOVO: Data do cancelamento
+                e.motivo_cancelamento,  -- NOVO: Motivo do cancelamento
                 l.titulo as livro, 
                 CASE 
                     WHEN e.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = e.usuario_id)
@@ -103,11 +105,14 @@ async getRelatorioEmprestimos(filtros = {}) {
             params.push(filtros.dataFim);
         }
 
-        // MODIFICAÇÃO AQUI: Filtrar por status_calculado também
+        // MODIFICAÇÃO AQUI: Incluir status 'cancelado' no filtro
         if (filtros.status) {
             if (filtros.status === 'atrasado') {
                 // Incluir tanto os marcados como 'atrasado' quanto os 'ativos' com data vencida
                 query += ' AND (e.status = "atrasado" OR (e.status = "ativo" AND e.data_devolucao_prevista < CURDATE()))';
+            } else if (filtros.status === 'cancelado') {
+                // Filtro específico para cancelados
+                query += ' AND e.status = "cancelado"';
             } else {
                 query += ' AND e.status = ?';
                 params.push(filtros.status);
@@ -119,7 +124,7 @@ async getRelatorioEmprestimos(filtros = {}) {
             params.push(filtros.usuario_tipo);
         }
 
-        // NOVO: Filtro por nome do usuário
+        // Filtro por nome do usuário
         if (filtros.nome_usuario) {
             query += ` AND (
                 (e.usuario_tipo = 'aluno' AND EXISTS (SELECT 1 FROM alunos WHERE id = e.usuario_id AND nome LIKE ?)) OR
@@ -129,7 +134,7 @@ async getRelatorioEmprestimos(filtros = {}) {
             params.push(`%${filtros.nome_usuario}%`, `%${filtros.nome_usuario}%`, `%${filtros.nome_usuario}%`);
         }
 
-        query += ' ORDER BY e.data_devolucao_prevista ASC LIMIT 1000';
+        query += ' ORDER BY e.data_emprestimo DESC LIMIT 1000';
         
         const [rows] = await db.execute(query, params);
         
@@ -144,7 +149,6 @@ async getRelatorioEmprestimos(filtros = {}) {
         throw new Error(`Erro ao buscar relatório de empréstimos: ${error.message}`);
     }
 }
-
   async getRelatorioEntradas(filtros = {}) {
     try {
       let query = `
@@ -701,6 +705,7 @@ async getRelatorioReservas(filtros = {}) {
     }
   }
 
+
 async getEstatisticasGerais() {
   try {
     const [
@@ -709,6 +714,7 @@ async getEstatisticasGerais() {
       [totalEmprestimosAtivos],
       [totalEmprestimosAtrasados],
       [totalEmprestimosFinalizados],
+      [totalEmprestimosCancelados],
       [totalEmprestimos],
       [totalReservasAtivas],
       [totalReservasCanceladas],
@@ -717,12 +723,11 @@ async getEstatisticasGerais() {
       [totalEditoras],
       [totalAutores],
       [livrosDisponiveis],
-      [livrosEmprestados],
+      [totalEstoque],
       [totalEntradas],
-      [totalSaidas],
-      [totalEstoque] 
+      [totalSaidas]
     ] = await Promise.all([
-      // Total de usuários (alunos + professores + usuários especiais)
+      // Total de usuários
       db.execute(`
         SELECT 
           (SELECT COUNT(*) FROM alunos) as total_alunos,
@@ -730,13 +735,13 @@ async getEstatisticasGerais() {
           (SELECT COUNT(*) FROM usuarios_especiais) as total_usuarios_especiais
       `),
       
-      // Total de livros cadastrados
+      // Total de livros cadastrados (títulos)
       db.execute(`SELECT COUNT(*) as total FROM livros`),
       
       // Empréstimos ativos
       db.execute(`SELECT COUNT(*) as total FROM emprestimos WHERE status = 'ativo'`),
       
-      // Empréstimos atrasados (incluindo cálculo automático)
+      // Empréstimos atrasados
       db.execute(`
         SELECT COUNT(*) as total 
         FROM emprestimos 
@@ -747,6 +752,9 @@ async getEstatisticasGerais() {
       // Empréstimos finalizados
       db.execute(`SELECT COUNT(*) as total FROM emprestimos WHERE status = 'finalizado'`),
       
+      // NOVO: Empréstimos cancelados
+      db.execute(`SELECT COUNT(*) as total FROM emprestimos WHERE status = 'cancelado'`),
+      
       // Total de empréstimos
       db.execute(`SELECT COUNT(*) as total FROM emprestimos`),
       
@@ -756,7 +764,7 @@ async getEstatisticasGerais() {
       // Reservas canceladas
       db.execute(`SELECT COUNT(*) as total FROM reservas WHERE status = 'cancelada'`),
       
-      // Reservas expiradas (incluindo cálculo automático)
+      // Reservas expiradas
       db.execute(`
         SELECT COUNT(*) as total 
         FROM reservas 
@@ -773,20 +781,17 @@ async getEstatisticasGerais() {
       // Total de autores
       db.execute(`SELECT COUNT(*) as total FROM autores`),
       
-      // Livros disponíveis (estoque > 0)
+      // Livros disponíveis (títulos com estoque > 0)
       db.execute(`SELECT COUNT(*) as total FROM livros WHERE estoque > 0`),
       
-      // Livros emprestados (estoque = 0)
-      db.execute(`SELECT COUNT(*) as total FROM livros WHERE estoque = 0`),
+      // Total do estoque (soma de todos os exemplares)
+      db.execute(`SELECT COALESCE(SUM(estoque), 0) as total_estoque FROM livros`),
       
       // Total de entradas
       db.execute(`SELECT COUNT(*) as total FROM entradas`),
       
       // Total de saídas
-      db.execute(`SELECT COUNT(*) as total FROM saidas`),
-      
-      // Total do estoque (soma de todos os exemplares)
-      db.execute(`SELECT COALESCE(SUM(estoque), 0) as total_estoque FROM livros`)
+      db.execute(`SELECT COUNT(*) as total FROM saidas`)
     ]);
 
     const estatisticas = {
@@ -803,16 +808,16 @@ async getEstatisticasGerais() {
       // Estatísticas de livros
       total_livros: totalLivros[0].total || 0,
       livros_disponiveis: livrosDisponiveis[0].total || 0,
-      livros_emprestados: livrosEmprestados[0].total || 0,
-      total_estoque: totalEstoque[0].total_estoque || 0, 
+      total_estoque: totalEstoque[0].total_estoque || 0,
       
-      // Estatísticas de empréstimos (NOVOS)
+      // Estatísticas de empréstimos (COM CANCELADOS)
       emprestimos_ativos: totalEmprestimosAtivos[0].total || 0,
       emprestimos_atrasados: totalEmprestimosAtrasados[0].total || 0,
       emprestimos_finalizados: totalEmprestimosFinalizados[0].total || 0,
+      emprestimos_cancelados: totalEmprestimosCancelados[0].total || 0, 
       emprestimos_totais: totalEmprestimos[0].total || 0,
       
-      // Estatísticas de reservas (NOVOS)
+      // Estatísticas de reservas
       reservas_ativas: totalReservasAtivas[0].total || 0,
       reservas_canceladas: totalReservasCanceladas[0].total || 0,
       reservas_expiradas: totalReservasExpiradas[0].total || 0,
@@ -822,7 +827,7 @@ async getEstatisticasGerais() {
       total_editoras: totalEditoras[0].total || 0,
       total_autores: totalAutores[0].total || 0,
       
-      // Estatísticas de movimentação de estoque
+      // Estatísticas de movimentação
       total_entradas: totalEntradas[0].total || 0,
       total_saidas: totalSaidas[0].total || 0,
       
@@ -837,7 +842,6 @@ async getEstatisticasGerais() {
     throw new Error(`Erro ao buscar estatísticas: ${error.message}`);
   }
 }
-
   async getRelatorioEstoque(filtros = {}) {
     try {
       let query = `

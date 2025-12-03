@@ -43,7 +43,7 @@ const formatarTexto = (texto) => {
     .join(' ');
 };
 
-  // Carrega livros com estoque - FUNÇÃO ORIGINAL
+  // Carrega livros com estoque 
   const loadLivros = async () => {
     try {
       setLoading(true);
@@ -68,7 +68,7 @@ const formatarTexto = (texto) => {
     }
   };
 
-  // Carrega opções de entrada - FUNÇÃO ORIGINAL
+  // Carrega opções de entrada
   const loadOpcoes = async () => {
     try {
       const data = await entradaSaidaService.getOpcoesEntrada();
@@ -111,7 +111,7 @@ const formatarTexto = (texto) => {
     });
   };
 
-  // Filtrar livros - MANTIDO ORIGINAL
+  // Filtrar livros 
   const livrosFiltrados = livros.filter(livro => {
     const termo = termoBusca.toLowerCase();
     return (
@@ -144,7 +144,7 @@ const formatarTexto = (texto) => {
     if (paginaAtual < totalPaginas) setPaginaAtual(paginaAtual + 1);
   };
 
-  // Selecionar livro - FUNÇÃO ORIGINAL
+  // Selecionar livro
   // Atualize a função selecionarLivro
   const selecionarLivro = async (livro) => {
     setLivroSelecionado(livro);
@@ -169,7 +169,6 @@ const formatarTexto = (texto) => {
     }
   };
 
-  // Handle submit - FUNÇÃO ORIGINAL
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -197,7 +196,7 @@ const formatarTexto = (texto) => {
 
   return (
     <Container className="py-4">
-      {/* Toast de sucesso - ORIGINAL */}
+      {/* Toast de sucesso */}
       <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
         <Toast show={showSuccess} onClose={() => setShowSuccess(false)} delay={4000} autohide bg="success">
           <Toast.Header>
@@ -209,7 +208,6 @@ const formatarTexto = (texto) => {
         </Toast>
       </div>
 
-      {/* HEADER ORIGINAL PRESERVADO */}
       <div className="rounded-3 p-4 mb-4 border">
         <Row className="align-items-center">
            <Col md={8}>
@@ -356,7 +354,7 @@ const formatarTexto = (texto) => {
 
                               <td className="text-center">
                                 <Button
-                                  variant={isSelected ? 'success' : 'outline-success'}
+                                  variant={isSelected ? 'success' : 'paginacao'}
                                   size="sm"
                                   onClick={() => selecionarLivro(livro)}
                                   disabled={isSelected}
@@ -409,13 +407,13 @@ const formatarTexto = (texto) => {
           </Card>
         </Col>
 
-        {/* Formulário de Entrada - MANTIDO ORIGINAL (apenas estrutura visual) */}
+        {/* Formulário de Entrada*/}
         <Col lg={6}>
           {livroSelecionado ? (
             <>
               {/* Card do Livro Selecionado */}
               <Card className="mb-3">
-                <Card.Header className="bg-warning text-white d-flex justify-content-between align-items-center">
+                <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
                   <h6 className="mb-0">
                     Livro Selecionado
                   </h6>
@@ -491,11 +489,10 @@ const formatarTexto = (texto) => {
               </Card>
 
 
-              {/* Formulário de Registro - ORIGINAL */}
+              {/* Formulário de Registro */}
               <Card>
                 <Card.Header className="bg-primary text-white">
                   <h6 className="mb-0">
-                    <FaPlus className="me-2" />
                     Registrar Entrada
                   </h6>
                 </Card.Header>
@@ -530,16 +527,32 @@ const formatarTexto = (texto) => {
                    <Form.Group className="mb-3">
 
                     <Alert variant="" className="py-2 mb-2">
-                      <FaInfoCircle className="me-1" />
-                      <small>
-                        <strong>Obrigatório:</strong> Informe o motivo desta entrada.
-                      </small>
-                    </Alert>
+                      <FaInfoCircle
+                        className="me-1"
+                        style={{ color: "var(--color-accent)" }}
+                      />
 
+                      <small style={{ opacity: 0.9 }}>
+                        <strong style={{ color: "var(--color-accent)" }}>Obrigatório:</strong>{" "}
+                        Informe o motivo desta entrada.
+                      </small>
+
+                      <p
+                        style={{
+                          fontSize: "0.7rem",
+                          marginTop: "2px",
+                          opacity: 0.7,
+                          lineHeight: "1.2",
+                        }}
+                      >
+                        O motivo da entrada deve ser informado para assegurar o registro rastreável da
+                        movimentação e manter o histórico do acervo atualizado.
+                      </p>
+                    </Alert>
                     <Form.Control
                       as="textarea"
                       rows={3}
-                      placeholder="Descreva o motivo da entrada (ex: doação, compra, ajuste de inventário)..."
+                      placeholder="(ex: comprado da loja X, recebido por doação, reposição, ajuste de inventário...)"
                       value={formData.observacoes}
                       onChange={e => setFormData({ ...formData, observacoes: e.target.value })}
                     />

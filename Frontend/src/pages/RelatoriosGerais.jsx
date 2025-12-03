@@ -201,7 +201,7 @@ const RelatoriosGerais = () => {
   const configRelatorios = {
     emprestimos: {
       titulo: 'Relatório de Empréstimos',
-      colunas: ['ID', 'Usuário', 'Tipo', 'Livro', 'Data Empréstimo', 'Data Devolução', 'Status'],
+      colunas: ['ID', 'Usuário', 'Tipo', 'Livro', 'Data Empréstimo', 'Data Devolução', 'Status','Data Cancelamento', 'Motivo'],
       icone: FaBook
     },
     entrada: {
@@ -309,7 +309,10 @@ const RelatoriosGerais = () => {
         filtros.titulo_livro = buscaTitulo;
         filtrosCount++;
       }
-
+       if (buscaUsuario) {
+      filtros.nome_usuario = buscaUsuario;
+      filtrosCount++;
+    }
       if (buscaAutor) {
         filtros.autor_livro = buscaAutor;
         filtrosCount++;
@@ -377,74 +380,75 @@ const RelatoriosGerais = () => {
   const renderFiltrosEspecificos = () => {
     switch (tipoRelatorio) {
       case 'emprestimos':
-        return (
-          <Row className="mb-3">
-            <Col md={4}>
-              <Form.Group>
-                <Form.Label>Status</Form.Label>
-                <Form.Select
-                  value={filtrosAdicionais.status || ''}
-                  onChange={(e) => setFiltrosAdicionais({
-                    ...filtrosAdicionais,
-                    status: e.target.value
-                  })}
-                >
-                  <option value="">Todos</option>
-                  <option value="ativo">Ativos</option>
-                  <option value="atrasado">Atrasados</option>
-                  <option value="finalizado">Finalizados</option>
-                </Form.Select>
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group>
-                <Form.Label>Tipo de Usuário</Form.Label>
-                <Form.Select
-                  value={filtrosAdicionais.usuario_tipo || ''}
-                  onChange={(e) => setFiltrosAdicionais({
-                    ...filtrosAdicionais,
-                    usuario_tipo: e.target.value
-                  })}
-                >
-                  <option value="">Todos</option>
-                  <option value="aluno">Aluno</option>
-                  <option value="professor">Professor</option>
-                  <option value="usuario_especial">Usuário Especial</option>
-                </Form.Select>
-              </Form.Group>
-            </Col>
+  return (
+    <Row className="mb-3">
+      <Col md={4}>
+        <Form.Group>
+          <Form.Label>Status</Form.Label>
+          <Form.Select
+            value={filtrosAdicionais.status || ''}
+            onChange={(e) => setFiltrosAdicionais({
+              ...filtrosAdicionais,
+              status: e.target.value
+            })}
+          >
+            <option value="">Todos</option>
+            <option value="ativo">Ativos</option>
+            <option value="atrasado">Atrasados</option>
+            <option value="finalizado">Finalizados</option>
+            <option value="cancelado">Cancelados</option> {/* ADICIONE ESTA LINHA */}
+          </Form.Select>
+        </Form.Group>
+      </Col>
+      <Col md={4}>
+        <Form.Group>
+          <Form.Label>Tipo de Usuário</Form.Label>
+          <Form.Select
+            value={filtrosAdicionais.usuario_tipo || ''}
+            onChange={(e) => setFiltrosAdicionais({
+              ...filtrosAdicionais,
+              usuario_tipo: e.target.value
+            })}
+          >
+            <option value="">Todos</option>
+            <option value="aluno">Aluno</option>
+            <option value="professor">Professor</option>
+            <option value="usuario_especial">Usuário Especial</option>
+          </Form.Select>
+        </Form.Group>
+      </Col>
 
-            {/* Filtro por Nome do Usuário */}
-            <Col md={4}>
-              <Form.Group>
-                <Form.Label>Nome do Usuário</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Digite o nome do usuário..."
-                  value={buscaUsuario}
-                  onChange={(e) => {
-                    setBuscaUsuario(e.target.value);
-                    buscarSugestoesUsuarios(e.target.value);
-                  }}
-                  list="sugestoesUsuario"
-                />
-                <datalist id="sugestoesUsuario">
-                  {sugestoesUsuarios.map((usuario, index) => (
-                    <option key={index} value={usuario.nome}>
-                      {usuario.nome} ({usuario.tipo})
-                    </option>
-                  ))}
-                </datalist>
-                {carregandoSugestoesUsuarios && (
-                  <Form.Text className="text-muted">
-                    <Spinner size="sm" className="me-1" />
-                    Buscando usuários...
-                  </Form.Text>
-                )}
-              </Form.Group>
-            </Col>
-          </Row>
-        );
+      {/* Filtro por Nome do Usuário */}
+      <Col md={4}>
+        <Form.Group>
+          <Form.Label>Nome do Usuário</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Digite o nome do usuário..."
+            value={buscaUsuario}
+            onChange={(e) => {
+              setBuscaUsuario(e.target.value);
+              buscarSugestoesUsuarios(e.target.value);
+            }}
+            list="sugestoesUsuario"
+          />
+          <datalist id="sugestoesUsuario">
+            {sugestoesUsuarios.map((usuario, index) => (
+              <option key={index} value={usuario.nome}>
+                {usuario.nome} ({usuario.tipo})
+              </option>
+            ))}
+          </datalist>
+          {carregandoSugestoesUsuarios && (
+            <Form.Text className="text-muted">
+              <Spinner size="sm" className="me-1" />
+              Buscando usuários...
+            </Form.Text>
+          )}
+        </Form.Group>
+      </Col>
+    </Row>
+  );
 
       case 'reservas':
         return (
@@ -837,42 +841,48 @@ const RelatoriosGerais = () => {
       };
 
       switch (tipoRelatorio) {
-        case 'emprestimos':
-          return {
-            id: item.id,
-            usuario: item.usuario || 'Não informado',
-            tipo: (() => {
-              if (!item.usuario_tipo) return 'Não informado';
+    case 'emprestimos':
+  return {
+    id: item.id,
+    usuario: item.usuario || 'Não informado',
+    tipo: (() => {
+      if (!item.usuario_tipo) return 'Não informado';
 
-              let tipoFormatado = item.usuario_tipo;
+      let tipoFormatado = item.usuario_tipo;
 
-              if (tipoFormatado === 'usuario_especial') {
-                tipoFormatado = 'Usuário Especial';
-              } else {
-                tipoFormatado = tipoFormatado.charAt(0).toUpperCase() + tipoFormatado.slice(1);
-              }
+      if (tipoFormatado === 'usuario_especial') {
+        tipoFormatado = 'Usuário Especial';
+      } else {
+        tipoFormatado = tipoFormatado.charAt(0).toUpperCase() + tipoFormatado.slice(1);
+      }
 
-              return tipoFormatado;
-            })(),
-            livro: item.livro || 'Não informado',
-            data_emprestimo: item.data_emprestimo ? new Date(item.data_emprestimo).toLocaleDateString('pt-BR') : '-',
-            data_devolucao: item.data_devolucao_real
-              ? new Date(item.data_devolucao_real).toLocaleDateString('pt-BR')
-              : item.data_devolucao_prevista
-                ? new Date(item.data_devolucao_prevista).toLocaleDateString('pt-BR')
-                : '-',
-            status: (
-              <Badge bg={
-                item.status === 'ativo' ? 'success' :
-                  item.status === 'atrasado' ? 'warning' : 'dark'
-              } className={item.status === 'atrasado' ? 'text-dark' : ''}>
-                {item.status === 'ativo' ? 'Emprestado' :
-                  item.status === 'atrasado' ? 'Atrasado' :
-                    item.status === 'finalizado' ? 'Finalizado' : item.status}
-              </Badge>
-            )
-          };
-
+      return tipoFormatado;
+    })(),
+    livro: item.livro || 'Não informado',
+    data_emprestimo: item.data_emprestimo ? new Date(item.data_emprestimo).toLocaleDateString('pt-BR') : '-',
+    data_devolucao: item.data_devolucao_real
+      ? new Date(item.data_devolucao_real).toLocaleDateString('pt-BR')
+      : item.data_devolucao_prevista
+        ? new Date(item.data_devolucao_prevista).toLocaleDateString('pt-BR')
+        : '-',
+    data_cancelamento: item.data_cancelamento ? new Date(item.data_cancelamento).toLocaleDateString('pt-BR') : '-',
+    motivo_cancelamento: item.motivo_cancelamento || '-',
+    status: (
+      <Badge bg={
+        item.status === 'ativo' ? 'success' :
+        item.status === 'atrasado' ? 'warning' :
+        item.status === 'finalizado' ? 'dark' :
+        item.status === 'cancelado' ? 'danger' : 'secondary'
+      } className={
+        item.status === 'atrasado' ? 'text-dark' : ''
+      }>
+        {item.status === 'ativo' ? 'Emprestado' :
+         item.status === 'atrasado' ? 'Atrasado' :
+         item.status === 'finalizado' ? 'Finalizado' :
+         item.status === 'cancelado' ? 'Cancelado' : item.status}
+      </Badge>
+    )
+  };
         case 'entrada':
           return {
             id: item.id,
@@ -909,24 +919,35 @@ const RelatoriosGerais = () => {
           };
 
         case 'reservas':
-          return {
-            id: item.id,
-            usuario: item.usuario || 'Não informado',
-            livro: item.livro || 'Não informado',
-            data_reserva: item.data_reserva ? new Date(item.data_reserva).toLocaleDateString('pt-BR') : '-',
-            data_validade: item.data_validade ? new Date(item.data_validade).toLocaleDateString('pt-BR') : '-',
-            status: (
-              <Badge bg={
-                item.status === 'ativa' ? 'success' :
-                  item.status === 'expirada' ? 'warning' : 'dark'
-              } className={item.status === 'expirada' ? 'text-dark' : ''}>
-                {item.status === 'ativa' ? 'Ativa' :
-                  item.status === 'cancelada' ? 'Cancelada' :
-                    item.status === 'concluida' ? 'Concluída' :
-                      item.status === 'expirada' ? 'Expirada' : item.status}
-              </Badge>
-            )
-          };
+  return {
+    id: item.id,
+    usuario: item.usuario || 'Não informado',
+    livro: item.livro || 'Não informado',
+    data_reserva: item.data_reserva ? new Date(item.data_reserva).toLocaleDateString('pt-BR') : '-',
+    data_validade: item.data_validade ? new Date(item.data_validade).toLocaleDateString('pt-BR') : '-',
+    data_cancelamento: item.data_cancelamento ? new Date(item.data_cancelamento).toLocaleDateString('pt-BR') : '-',
+    motivo_cancelamento: item.motivo_cancelamento || '-',
+    status: (
+      <div>
+        <Badge bg={
+          item.status === 'ativa' ? 'success' :
+          item.status === 'expirada' ? 'warning' :
+          item.status === 'cancelada' ? 'danger' :
+          item.status === 'concluida' ? 'dark' : 'secondary'
+        } className={item.status === 'expirada' ? 'text-dark' : ''}>
+          {item.status === 'ativa' ? 'Ativa' :
+           item.status === 'cancelada' ? 'Cancelada' :
+           item.status === 'concluida' ? 'Concluída' :
+           item.status === 'expirada' ? 'Expirada' : item.status}
+        </Badge>
+        {item.status === 'cancelada' && item.motivo_cancelamento && (
+          <div className="mt-1 small text-muted">
+            <strong>Motivo:</strong> {item.motivo_cancelamento}
+          </div>
+        )}
+      </div>
+    )
+  };
 
         case 'professores':
           return {
@@ -1017,6 +1038,8 @@ const RelatoriosGerais = () => {
       'Tipo': 'tipo',
       'Data Empréstimo': 'data_emprestimo',
       'Data Devolução': 'data_devolucao',
+      'Data Cancelamento': 'data_cancelamento',
+      'Motivo': 'motivo_cancelamento',
       'Status': 'status',
       'Data Cadastro': 'data_cadastro',
       'Livros': 'livros',

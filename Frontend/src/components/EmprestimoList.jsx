@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Table, Form, InputGroup, Button, Badge, Row, Col, Modal } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaSyncAlt, FaCheckCircle, FaBook, FaList, FaInfoCircle, FaExclamationTriangle, FaClipboardList } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaSyncAlt, FaCheckCircle, FaBook, FaList,FaTimesCircle , FaInfoCircle, FaExclamationTriangle, FaClipboardList } from 'react-icons/fa';
 import { FaHandshake } from "react-icons/fa";
 
 const ITENS_POR_PAGINA = 7;
@@ -35,10 +35,10 @@ const formatarTelefone = (telefone) => {
   return telefone;
 };
 
-const EmprestimoList = ({ emprestimos, onDelete, onRenovar, onFinalizar, loading }) => {
+const EmprestimoList = ({ emprestimos, onCancelar, onRenovar, onFinalizar, loading }) => {
   const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
-  const [filtroStatus, setFiltroStatus] = useState('ativo');
+  const [filtroStatus, setFiltroStatus] = useState('todos');
   const [ordenacao, setOrdenacao] = useState('data_emprestimo_desc');
 
 
@@ -256,6 +256,8 @@ const getStatusBadge = (status, dataDevolucao) => {
             <option value="ativo">Ativos</option>
             <option value="atrasado">Atrasados</option>
             <option value="finalizado">Finalizados</option>
+             <option value="cancelado">Cancelados</option> 
+
           </Form.Select>
 
           {/* Seletor de Ordenação */}
@@ -399,13 +401,19 @@ const getStatusBadge = (status, dataDevolucao) => {
                           {emprestimo.status === 'ativo' && (
                             <>
                               <button
-                                className="btn-sm-custom btn-renovar"
+                                className="btn-sm-custom btn-primary"
                                 onClick={() => onRenovar(emprestimo.id)}
                                 title="Renovar empréstimo"
                               >
                                 <FaSyncAlt />
                               </button>
-
+                               <button
+                                  className="btn-sm-custom btn-renovar"
+                                  onClick={() => onCancelar(emprestimo.id)}
+                                  title="Cancelar empréstimo"
+                                >
+                                  <FaTimesCircle /> {/* Ícone de cancelar */}
+                                </button>
                               <button
                                 className="btn-sm-custom btn-success"
                                 onClick={() => onFinalizar(emprestimo.id)}
@@ -414,13 +422,7 @@ const getStatusBadge = (status, dataDevolucao) => {
                                 <FaCheckCircle />
                               </button>
 
-                              <button
-                                className="btn-sm-custom btn-danger"
-                                onClick={() => onDelete(emprestimo.id)}
-                                title="Excluir empréstimo"
-                              >
-                                <FaTrash />
-                              </button>
+              
                             </>
                           )}
                           {emprestimo.status !== 'ativo' && (

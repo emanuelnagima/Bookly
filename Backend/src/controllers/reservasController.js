@@ -44,16 +44,31 @@ class ReservasController {
     }
 }
 
-    // ** todos os outros métodos inalterados**
-    async cancelar(req, res) {
-        try {
-            const { id } = req.params;
-            const reservaCancelada = await reservasRepository.cancelar(id);
-            res.json({ success: true, data: reservaCancelada, message: 'Reserva cancelada com sucesso!' });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
+async cancelar(req, res) {
+    try {
+        const { id } = req.params;
+        const { motivo } = req.body; // Receber motivo do frontend
+        
+        console.log(`Cancelando reserva ${id} com motivo:`, motivo);
+        
+        const reservaCancelada = await reservasRepository.cancelar(id, motivo);
+        
+        if (!reservaCancelada) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Reserva não encontrada ou já não está ativa' 
+            });
         }
+        
+        res.json({ 
+            success: true, 
+            data: reservaCancelada, 
+            message: 'Reserva cancelada com sucesso!' 
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
+}
 
     async concluir(req, res) {
         try {

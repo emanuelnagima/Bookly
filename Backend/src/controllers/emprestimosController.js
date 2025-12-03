@@ -187,26 +187,16 @@ async verificarEstoqueDisponivel(req, res) {
     res.status(500).json({ success: false, message: error.message });
   }
 }
+
     async delete(req, res) {
         try {
-            const { id } = req.params;
-            
-            // Verificar se empréstimo existe
-            const emprestimo = await emprestimosRepository.findById(id);
-            if (!emprestimo) {
-                return res.status(404).json({ success: false, message: 'Empréstimo não encontrado' });
-            }
-
-            const deleted = await emprestimosRepository.delete(id);
-            if (deleted) {
-                res.json({ success: true, message: 'Empréstimo excluído com sucesso!' });
-            } else {
-                res.status(500).json({ success: false, message: 'Erro ao excluir empréstimo' });
-            }
+            // Redirecionar para cancelamento em vez de exclusão
+            return this.cancelar(req, res);
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
     }
+
 
     async verificarEdicao(req, res) {
         try {
@@ -229,6 +219,36 @@ async verificarEstoqueDisponivel(req, res) {
             res.status(500).json({ success: false, message: error.message });
         }
     }
+
+
+async cancelar(req, res) {
+    try {
+        const { id } = req.params;
+        const { motivo_cancelamento } = req.body;
+        
+        const emprestimoCancelado = await emprestimosRepository.cancelar(id, motivo_cancelamento);
+        res.json({ 
+            success: true, 
+            data: emprestimoCancelado, 
+            message: 'Empréstimo cancelado com sucesso!' 
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+async getCancelados(req, res) {
+    try {
+        const emprestimos = await emprestimosRepository.getEmprestimosCancelados();
+        res.json({ 
+            success: true, 
+            data: emprestimos, 
+            total: emprestimos.length 
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
 
     async getOpcoesUsuarios(req, res) {
         try {

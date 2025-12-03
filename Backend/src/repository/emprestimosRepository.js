@@ -443,7 +443,22 @@ async delete(id) {
         //     }
         // }
 
-        // ... resto do código ...
+        // Excluir registros da tabela emprestimo_livros primeiro (chave estrangeira)
+        await connection.execute(
+            'DELETE FROM emprestimo_livros WHERE emprestimo_id = ?',
+            [id]
+        );
+
+        // Excluir o empréstimo
+        const [result] = await connection.execute(
+            'DELETE FROM emprestimos WHERE id = ?',
+            [id]
+        );
+
+        await connection.commit();
+        
+        return result.affectedRows > 0;
+
     } catch (error) {
         if (connection) await connection.rollback();
         throw new Error(`Erro ao deletar empréstimo: ${error.message}`);
@@ -451,6 +466,7 @@ async delete(id) {
         if (connection) connection.release();
     }
 }
+
     async podeEditar(id) {
         try {
             const [rows] = await db.execute(
@@ -538,6 +554,109 @@ async atualizarStatusAtrasados() {
         throw new Error(`Erro ao atualizar status: ${error.message}`);
     } finally {
         if (connection) connection.release();
+    }
+}
+
+async cancelar(id, motivo_cancelamento = 'Cancelado pelo usuário') {
+        let connection;
+        try {
+            connection = await db.getConnection();
+            await connection.beginTransaction();
+
+            // Verificar se empréstimo existe e pode ser cancelado
+            const [emprestimoRows] = await connection.execute(
+                'SELECT * FROM emprestimos WHERE id = ? AND status != "finalizado"',
+                [id]
+            );
+
+            if (emprestimoRows.length === 0) {
+                throw new Error('Empréstimo não encontrado ou já finalizado');
+            }
+
+            // Atualizar status para cancelado
+            await connection.execute(
+                'UPDATE emprestimos SET status = "cancelado", data_cancelamento = NOW(), motivo_cancelamento = ? WHERE id = ?',
+                [motivo_cancelamento, id]
+            );
+
+            // **RESTAURAR ESTOQUE** (se necessário, dependendo da sua lógica)
+            const emprestimo = await this.findById(id);
+            if (emprestimo.status === 'ativo') {
+                for (const livro of emprestimo.livros) {
+                    await connection.execute(
+                        'UPDATE livros SET estoque = estoque + ? WHERE id = ?',
+                        [livro.quantidade || 1, livro.livro_id]
+                    );
+                }
+            }
+
+            await connection.commit();
+            return this.findById(id);
+
+        } catch (error) {
+            if (connection) await connection.rollback();
+            throw new Error(`Erro ao cancelar empréstimo: ${error.message}`);
+        } finally {
+            if (connection) connection.release();
+        }
+    }
+
+async getEmprestimosCancelados() {
+    try {
+        const [rows] = await db.execute(`
+            SELECT 
+                e.*,
+                COUNT(el.livro_id) as total_livros,
+                CASE 
+                    WHEN e.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = e.usuario_id)
+                    WHEN e.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = e.usuario_id)
+                    WHEN e.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = e.usuario_id)
+                END as usuario
+            FROM emprestimos e
+            LEFT JOIN emprestimo_livros el ON e.id = el.emprestimo_id
+            WHERE e.status = 'cancelado'
+            GROUP BY e.id
+            ORDER BY e.data_cancelamento DESC
+        `);
+        
+        // Para cada empréstimo, buscar os livros
+        const emprestimosComLivros = await Promise.all(
+            rows.map(async (row) => {
+                const [livros] = await db.execute(`
+                    SELECT 
+                        l.titulo as livro_titulo, 
+                        l.imagem as livro_imagem, 
+                        l.isbn as livro_isbn,
+                        a.nome as autor_nome,
+                        el.quantidade,
+                        el.livro_id
+                    FROM emprestimo_livros el
+                    JOIN livros l ON el.livro_id = l.id
+                    LEFT JOIN autores a ON l.autor_id = a.id
+                    WHERE el.emprestimo_id = ?
+                `, [row.id]);
+
+                const resultado = {
+                    ...new Emprestimo(row),
+                    livros: livros,
+                    total_livros: livros.length,
+                    usuario_detalhes: {
+                        nome: row.usuario,
+                        email: row.usuario_email,
+                        telefone: row.usuario_telefone,
+                        turma: row.usuario_turma,
+                        departamento: row.usuario_departamento,
+                        tipo_especial: row.usuario_tipo_especial
+                    }
+                };
+
+                return resultado;
+            })
+        );
+
+        return emprestimosComLivros;
+    } catch (error) {
+        throw new Error(`Erro ao buscar empréstimos cancelados: ${error.message}`);
     }
 }
 

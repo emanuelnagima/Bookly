@@ -255,18 +255,49 @@ const gerarRelatorio = async (filtros) => {
   }
 };
 
+const cancelar = async (id, motivo) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/${id}/cancelar`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ motivo_cancelamento: motivo }),
+    });
+    const result = await handleResponse(response);
+    return result.data;
+  } catch (error) {
+    console.error(`Erro ao cancelar empréstimo ${id}:`, error);
+    throw error;
+  }
+};
 
+const getCancelados = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/cancelados`, {
+      credentials: 'include'
+    });
+    const result = await handleResponse(response);
+    return result.data || [];
+  } catch (error) {
+    console.error('Erro ao buscar empréstimos cancelados:', error);
+    throw error;
+  }
+};
 
 const emprestimosService = {
   getAll,
   getById,
   getAtivos,
   getAtrasados,
+  getCancelados,
   getOpcoesUsuarios,
   add,
   update,
   renovar,
   finalizar,
+  cancelar,
   remove,
   verificarEdicao,
   verificarDisponibilidade,

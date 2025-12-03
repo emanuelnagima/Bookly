@@ -20,6 +20,8 @@ const Reservas = () => {
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const [operationType, setOperationType] = useState('')
+  const [motivoCancelamento, setMotivoCancelamento] = useState('')
+  
   const totalAtivas = reservas.filter(r => r.status === 'ativa').length;
   const totalCanceladas = reservas.filter(r => r.status === 'cancelada').length;
   const totalConcluidas = reservas.filter(r => r.status === 'concluida').length;
@@ -27,12 +29,11 @@ const Reservas = () => {
   const [showConverterModal, setShowConverterModal] = useState(false);
   const [dataDevolucaoPrevista, setDataDevolucaoPrevista] = useState('');
 
- useEffect(() => {
+  useEffect(() => {
     document.title = "Bookly - Reservas";
   }, []);
 
-
-   const calcularDataPadrao = () => {
+  const calcularDataPadrao = () => {
     const data = new Date();
     data.setDate(data.getDate() + 14);
     return data.toISOString().split('T')[0];
@@ -40,7 +41,7 @@ const Reservas = () => {
 
   const handleConverterEmprestimo = async (id) => {
     setReservaParaConverter(id);
-    setDataDevolucaoPrevista(calcularDataPadrao()); // DEFINIR DATA PADRÃO
+    setDataDevolucaoPrevista(calcularDataPadrao());
     setShowConverterModal(true);
   };
 
@@ -50,7 +51,6 @@ const Reservas = () => {
       return;
     }
 
-    // VALIDAR DATA NO FRONTEND TAMBÉM
     const hoje = new Date();
     const dataSelecionada = new Date(dataDevolucaoPrevista);
     if (dataSelecionada <= hoje) {
@@ -62,7 +62,6 @@ const Reservas = () => {
       setLoading(true);
       setError('');
 
-      //  DATA DE DEVOLUÇÃO PARA O SERVICE
       const resultado = await disponibilidadeService.converterReservaEmEmprestimo(
         reservaParaConverter, 
         dataDevolucaoPrevista
@@ -84,9 +83,7 @@ const Reservas = () => {
     }
   };
 
-
-
-   const totalExpiradas = reservas.filter(r => {
+  const totalExpiradas = reservas.filter(r => {
     if (r.status !== 'ativa') return false;
     const hoje = new Date();
     const validade = new Date(r.data_validade);
@@ -94,7 +91,7 @@ const Reservas = () => {
   }).length;
 
   const totalGeral = reservas.length;
-  // Carregar reservas
+
   const loadReservas = useCallback(async () => {
     try {
       setLoading(true)
@@ -113,54 +110,45 @@ const Reservas = () => {
     loadReservas()
   }, [loadReservas])
 
+  const handleSaveReserva = async (reserva) => {
+    try {
+      setLoading(true);
+      setError('');
 
-const handleSaveReserva = async (reserva) => {
-  try {
-    setLoading(true);
-    setError('');
+      if (reservaToEdit) {
+        await reservasService.update(reservaToEdit.id, reserva);
+        setToastMessage('Reserva atualizada com sucesso!');
+        setOperationType('update');
+      } else {
+        await reservasService.add(reserva);
+        setToastMessage('Reserva registrada com sucesso!');
+        setOperationType('create');
+      }
 
-    if (reservaToEdit) {
-      await reservasService.update(reservaToEdit.id, reserva);
-      setToastMessage('Reserva atualizada com sucesso!');
-      setOperationType('update');
-    } else {
-      await reservasService.add(reserva);
-      setToastMessage('Reserva registrada com sucesso!');
-      setOperationType('create');
+      await loadReservas();
+      setShowSuccessToast(true);
+      setShowForm(false);
+      setReservaToEdit(null);
+
+    } catch (err) {
+      console.error('Erro completo:', err);
+      let errorMessage = err.message;
+      errorMessage = errorMessage.replace(/<br\/>/g, '\n');
+      errorMessage = errorMessage.replace(/^Falha ao (?:registrar|atualizar) reserva: /, '');
+      errorMessage = errorMessage.replace(/^HTTP error! status: \d+ - /, '');
+      errorMessage = errorMessage.replace(/^Erro ao processar reserva \(\d+\): /, '');
+      errorMessage = errorMessage.replace(/^Não foi possível completar a reserva: /, '');
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    await loadReservas();
-    setShowSuccessToast(true);
-    setShowForm(false);
-    setReservaToEdit(null);
-
-  } catch (err) {
-    console.error('Erro completo:', err);
-
-    let errorMessage = err.message;
-
-    // Remove quebras de linha HTML se existirem
-    errorMessage = errorMessage.replace(/<br\/>/g, '\n');
-
-    // Remove detalhes técnicos
-    errorMessage = errorMessage.replace(/^Falha ao (?:registrar|atualizar) reserva: /, '');
-    errorMessage = errorMessage.replace(/^HTTP error! status: \d+ - /, '');
-    errorMessage = errorMessage.replace(/^Erro ao processar reserva \(\d+\): /, '');
-    errorMessage = errorMessage.replace(/^Não foi possível completar a reserva: /, '');
-
-    setError(errorMessage);
-  } finally {
-    setLoading(false);
-  }
-};
-
-  // Editar reserva
   const handleEditReserva = async (id) => {
     try {
       setLoading(true)
       setError('')
 
-      // Verificar se pode editar
       const podeEditar = await reservasService.verificarEdicao(id)
       if (!podeEditar) {
         throw new Error('Esta reserva não pode ser editada (já cancelada, concluída ou expirada)')
@@ -177,20 +165,25 @@ const handleSaveReserva = async (reserva) => {
     }
   }
 
-  // Cancelar reserva
   const handleCancelarReserva = async (id) => {
     setReservaToCancelar(id)
+    setMotivoCancelamento('')
     setShowCancelarModal(true)
   }
 
   const handleConfirmarCancelamento = async () => {
     if (!reservaToCancelar) return
 
+    if (!motivoCancelamento.trim()) {
+      setError('Por favor, informe o motivo do cancelamento');
+      return;
+    }
+
     try {
       setLoading(true)
       setError('')
 
-      await reservasService.cancelar(reservaToCancelar)
+      await reservasService.cancelar(reservaToCancelar, motivoCancelamento)
       setToastMessage('Reserva cancelada com sucesso!')
       setOperationType('cancelamento')
       setShowSuccessToast(true)
@@ -203,10 +196,10 @@ const handleSaveReserva = async (reserva) => {
       setLoading(false)
       setShowCancelarModal(false)
       setReservaToCancelar(null)
+      setMotivoCancelamento('')
     }
   }
 
-  // Concluir reserva
   const handleConcluirReserva = async (id) => {
     setReservaToConcluir(id)
     setShowConcluirModal(true)
@@ -235,7 +228,6 @@ const handleSaveReserva = async (reserva) => {
     }
   }
 
-  // Excluir reserva
   const [isDeleting, setIsDeleting] = useState(false)
 
   const handleConfirmDelete = (id) => {
@@ -286,7 +278,8 @@ const handleSaveReserva = async (reserva) => {
           onClose={() => setShowSuccessToast(false)}
           delay={3000}
           autohide
-          bg={operationType === 'delete' ? 'danger' : 'success'}
+          bg={operationType === 'delete' ? 'danger' : 
+              operationType === 'cancelamento' ? 'warning' : 'success'}
         >
           <Toast.Header>
             <strong className="me-auto">
@@ -294,6 +287,7 @@ const handleSaveReserva = async (reserva) => {
               {operationType === 'update' && 'Atualização realizada'}
               {operationType === 'cancelamento' && 'Cancelamento realizado'}
               {operationType === 'conclusao' && 'Conclusão realizada'}
+              {operationType === 'conversao' && 'Conversão realizada'}
               {operationType === 'delete' && 'Exclusão realizada'}
             </strong>
           </Toast.Header>
@@ -332,19 +326,19 @@ const handleSaveReserva = async (reserva) => {
         }}
       >
         <Row className="align-items-center">
-           <Col md={8}>
-              <div className="d-flex align-items-center">
-                <div className="me-3">
-                  <i className="fas fa-calendar-alt fa-2x" style={{ color: '#0b192c' }}></i>
-                </div>
-                <div>
-                  <h4 className="fw-bold text-dark mb-1">Gestão de Reservas</h4>
-                  <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
-                    Registro e acompanhamento de reservas de livros do sistema
-                  </p>
-                </div>
+          <Col md={8}>
+            <div className="d-flex align-items-center">
+              <div className="me-3">
+                <i className="fas fa-calendar-alt fa-2x" style={{ color: '#0b192c' }}></i>
               </div>
-            </Col>
+              <div>
+                <h4 className="fw-bold text-dark mb-1">Gestão de Reservas</h4>
+                <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
+                  Registro e acompanhamento de reservas de livros do sistema
+                </p>
+              </div>
+            </div>
+          </Col>
 
           <Col md={4} className="text-md-end">
             <Button
@@ -363,12 +357,13 @@ const handleSaveReserva = async (reserva) => {
       <p className="text-muted mb-1" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
         Esta seção permite o <strong>registro e gerenciamento de reservas de livros</strong>. Você pode registrar novas reservas, cancelar, concluir e acompanhar o status de cada operação.
       </p>
+      
       <div className="d-flex justify-content-begin align-items-center gap-4 py-3 border-bottom">
         <div className="text-center px-3 py-2">
           <h6 className="mb-0 text-primary fw-bold">{totalGeral}</h6>
           <small className="text-muted">Total de Reservas</small>
         </div>
-        <div className="text-center px-3 py-2 ">
+        <div className="text-center px-3 py-2">
           <h6 className="mb-0 text-success fw-bold">{totalAtivas}</h6>
           <small className="text-muted">Ativas</small>
         </div>
@@ -385,6 +380,7 @@ const handleSaveReserva = async (reserva) => {
           <small className="text-muted">Expiradas</small>
         </div>
       </div>
+      
       {showForm && (
         <Row className="mb-4">
           <Col>
@@ -398,19 +394,19 @@ const handleSaveReserva = async (reserva) => {
         </Row>
       )}
 
-     <Row>
-      <Col>
-        <ReservaList
-          reservas={reservas}
-          onDelete={handleConfirmDelete}
-          onEdit={handleEditReserva}
-          onCancelar={handleCancelarReserva}
-          onConcluir={handleConcluirReserva}
-          onConverterEmprestimo={handleConverterEmprestimo} 
-          loading={loading}
-        />
-      </Col>
-    </Row>
+      <Row>
+        <Col>
+          <ReservaList
+            reservas={reservas}
+            onDelete={handleConfirmDelete}
+            onEdit={handleEditReserva}
+            onCancelar={handleCancelarReserva}
+            onConcluir={handleConcluirReserva}
+            onConverterEmprestimo={handleConverterEmprestimo}
+            loading={loading}
+          />
+        </Col>
+      </Row>
 
       {/* Modal de confirmação de exclusão */}
       <Modal show={showDeleteModal} onHide={() => !isDeleting && setShowDeleteModal(false)}>
@@ -419,10 +415,10 @@ const handleSaveReserva = async (reserva) => {
         </Modal.Header>
         <Modal.Body>
           Tem certeza que deseja excluir esta reserva? Esta ação não pode ser desfeita.
-           <Alert variant="warning" className="mt-2">
-      <strong>Atenção:</strong> Esta ação é permanente e não poderá ser desfeita. 
-      A reserva será <strong>excluída definitivamente</strong>.
-    </Alert>
+          <Alert variant="warning" className="mt-2">
+            <strong>Atenção:</strong> Esta ação é permanente e não poderá ser desfeita. 
+            A reserva será <strong>excluída definitivamente</strong>.
+          </Alert>
         </Modal.Body>
         <Modal.Footer>
           <Button
@@ -447,17 +443,33 @@ const handleSaveReserva = async (reserva) => {
         </Modal.Footer>
       </Modal>
 
-      {/* Modal de cancelamento */}
+      {/* Modal de cancelamento com motivo */}
       <Modal show={showCancelarModal} onHide={() => setShowCancelarModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Cancelar Reserva</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Tem certeza que deseja cancelar esta reserva?
-          <Alert variant="warning" className="mt-2">
-    <strong>Atenção:</strong> O cancelamento é definitivo e não poderá ser desfeito. 
-    A reserva será marcada como cancelada, mas o histórico ficará registrado para controle.
-  </Alert>
+          <Form.Group className="mb-3">
+            <Form.Label>
+              <strong>Motivo do Cancelamento:</strong>
+            </Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={motivoCancelamento}
+              onChange={(e) => setMotivoCancelamento(e.target.value)}
+              placeholder="Informe o motivo do cancelamento..."
+              required
+            />
+            <Form.Text className="text-muted">
+              Este motivo será registrado no histórico da reserva.
+            </Form.Text>
+          </Form.Group>
+          
+          <Alert variant="warning" className="mt-3">
+            <strong>Atenção:</strong> O cancelamento é definitivo e não poderá ser desfeito. 
+            O motivo será registrado para controle.
+          </Alert>
         </Modal.Body>
         <Modal.Footer>
           <Button
@@ -468,16 +480,16 @@ const handleSaveReserva = async (reserva) => {
             Cancelar
           </Button>
           <Button
-            variant="success"
+            variant="danger"
             onClick={handleConfirmarCancelamento}
-            disabled={loading}
+            disabled={loading || !motivoCancelamento.trim()}
           >
             {loading ? (
               <>
                 <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
                 <span className="ms-2">Cancelando...</span>
               </>
-            ) : 'Cancelar Reserva'}
+            ) : 'Confirmar Cancelamento'}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -489,10 +501,10 @@ const handleSaveReserva = async (reserva) => {
         </Modal.Header>
         <Modal.Body>
           Tem certeza que deseja concluir esta reserva? Esta ação marca a reserva como finalizada.
-            <Alert variant="info" className="mt-2">
-    <strong>Atenção:</strong> Após concluir a reserva, lembre-se de realizar o empréstimo do livro. 
-    A conclusão não cria automaticamente o empréstimo.
-  </Alert>
+          <Alert variant="info" className="mt-2">
+            <strong>Atenção:</strong> Após concluir a reserva, lembre-se de realizar o empréstimo do livro. 
+            A conclusão não cria automaticamente o empréstimo.
+          </Alert>
         </Modal.Body>
         <Modal.Footer>
           <Button
@@ -516,56 +528,57 @@ const handleSaveReserva = async (reserva) => {
           </Button>
         </Modal.Footer>
       </Modal>
-      
-        <Modal show={showConverterModal} onHide={() => setShowConverterModal(false)}>
-  <Modal.Header closeButton>
-    <Modal.Title>Transformar Reserva em Empréstimo</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    <Form.Group className="mb-3">
-      <Form.Label>
-        <strong>Data de Devolução Prevista:</strong>
-      </Form.Label>
-      <Form.Control
-        type="date"
-        value={dataDevolucaoPrevista}
-        onChange={(e) => setDataDevolucaoPrevista(e.target.value)}
-        min={new Date().toISOString().split('T')[0]} 
-        required
-      />
-      <Form.Text className="text-muted">
-        Informe até quando o usuário deve devolver o livro
-      </Form.Text>
 
-      <Alert variant="info" className="mt-2">
-        <strong>Atenção:</strong> Ao transformar esta reserva, a ação será definitiva:
-        a reserva será marcada como concluída e um empréstimo será criado. 
-        Verifique se a data de devolução está correta antes de confirmar.
-      </Alert>
-              </Form.Group>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button
-                variant="secondary"
-                onClick={() => setShowConverterModal(false)}
-                disabled={loading}
-              >
-                Cancelar
-              </Button>
-              <Button
-                variant="success"
-                onClick={handleConfirmarConversao}
-                disabled={loading || !dataDevolucaoPrevista}
-              >
-                {loading ? (
-                  <>
-                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-                    <span className="ms-2">Convertendo...</span>
-                  </>
-                ) : 'Transformar em Empréstimo'}
-              </Button>
-            </Modal.Footer>
-          </Modal>
+      {/* Modal de conversão para empréstimo */}
+      <Modal show={showConverterModal} onHide={() => setShowConverterModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Transformar Reserva em Empréstimo</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group className="mb-3">
+            <Form.Label>
+              <strong>Data de Devolução Prevista:</strong>
+            </Form.Label>
+            <Form.Control
+              type="date"
+              value={dataDevolucaoPrevista}
+              onChange={(e) => setDataDevolucaoPrevista(e.target.value)}
+              min={new Date().toISOString().split('T')[0]}
+              required
+            />
+            <Form.Text className="text-muted">
+              Informe até quando o usuário deve devolver o livro
+            </Form.Text>
+
+            <Alert variant="info" className="mt-2">
+              <strong>Atenção:</strong> Ao transformar esta reserva, a ação será definitiva:
+              a reserva será marcada como concluída e um empréstimo será criado. 
+              Verifique se a data de devolução está correta antes de confirmar.
+            </Alert>
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowConverterModal(false)}
+            disabled={loading}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="success"
+            onClick={handleConfirmarConversao}
+            disabled={loading || !dataDevolucaoPrevista}
+          >
+            {loading ? (
+              <>
+                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                <span className="ms-2">Transformando...</span>
+              </>
+            ) : 'Transformar em Empréstimo'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   )
 }

@@ -13,6 +13,8 @@ import {
   FaSyncAlt,
   FaClock,
   FaUserTie,
+  FaBox ,
+  FaBook ,
   FaGraduationCap,
   FaUsers,
   FaBuilding,
@@ -103,29 +105,32 @@ const Estatisticas = () => {
 
         <Row>
           {/* CARD 1: LIVROS */}
-          <Col md={6} lg={4} className="mb-4">
-            <Card>
-              <Card.Header className="bg-primary text-white d-flex align-items-center">
-                <h6 className="mb-0">Livros</h6>
-              </Card.Header>
-              <Card.Body className="p-3">
-                <div className="d-flex flex-column gap-2">
-                  <div className="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                    <span className="text-muted">Total de Cadastrados</span>
-                    <span className="fw-bold text-primary fs-5">{stats.total_livros || 0}</span>
-                  </div>
-                  <div className="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                    <span className="text-muted">Disponíveis</span>
-                    <span className="fw-bold text-primary fs-5">{stats.livros_disponiveis || 0}</span>
-                  </div>
-                  <div className="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                    <span className="text-muted">Total Estoque/Acervo</span>
-                    <span className="fw-bold text-primary fs-5">{stats.total_estoque || 0}</span>
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
+{/* CARD 1: LIVROS - COM DADOS CORRETOS */}
+<Col md={6} lg={4} className="mb-4">
+  <Card>
+    <Card.Header className="bg-primary text-white d-flex align-items-center">
+      <h6 className="mb-0">Livros</h6>
+    </Card.Header>
+    <Card.Body className="p-3">
+      <div className="d-flex flex-column gap-2">
+        {/* Total de títulos cadastrados */}
+        <div className="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+          <span className="text-muted">Títulos Cadastrados</span>
+          <span className="fw-bold text-primary fs-5">{stats.total_livros || 0}</span>
+        </div>
+        
+        {/* Total de exemplares no acervo */}
+        <div className="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+          <span className="text-muted">Exemplares no Acervo</span>
+          <span className="fw-bold text-primary fs-5">{stats.total_estoque || 0}</span>
+        </div>
+        
+    
+        
+      </div>
+    </Card.Body>
+  </Card>
+</Col>
 
           {/* CARD 2: EMPRÉSTIMOS */}
           <Col md={6} lg={4} className="mb-4">

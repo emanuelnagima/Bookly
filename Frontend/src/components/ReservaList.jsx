@@ -35,10 +35,10 @@ const formatarTelefone = (telefone) => {
   return telefone;
 };
 
-const ReservaList = ({ reservas, onDelete, onCancelar, onConcluir, onConverterEmprestimo, loading }) => {
+const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, loading }) => {
   const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
-  const [filtroStatus, setFiltroStatus] = useState('ativa');
+  const [filtroStatus, setFiltroStatus] = useState('todos');
   const [ordenacao, setOrdenacao] = useState('data_reserva_desc');
 
   const [showLivroModal, setShowLivroModal] = useState(false);
@@ -384,14 +384,6 @@ const reservasFiltradas = reservas.filter(reserva => {
                                 title="Concluir reserva"
                               >
                                 <FaCheckCircle />
-                              </button>
-
-                              <button
-                                className="btn-sm-custom btn-danger"
-                                onClick={() => onDelete(reserva.id)}
-                                title="Excluir reserva"
-                              >
-                                <FaTrash />
                               </button>
                             </>
                           )}

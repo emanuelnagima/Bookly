@@ -79,9 +79,18 @@ const Sidebar = () => {
 
 const capitalize = (text) => {
   if (!text) return "";
+  
+  // Convertendo a role para minúsculas para comparação
+  const roleLower = text.toLowerCase();
+  
+  // Mapeamento das roles para exibição
+  if (roleLower === 'operator' || roleLower === 'operador') {
+    return 'Bibliotecário';
+  }
+  
+  // Para outras roles, mantém o comportamento original
   return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 };
-
 
   return (
     <>
@@ -272,11 +281,11 @@ const capitalize = (text) => {
               <span className="section-title">Relatórios e Estatísticas</span>
             </div>
               <NavLink to="/estatisticas" className="nav-link-modern" onClick={closeSidebar}>
-  <div className="nav-icon">
-    <FaChartPie />  {/* Ou use FaChartBar se preferir */}
-  </div>
-  <span className="nav-text">Dashboard</span>
-</NavLink>
+                  <div className="nav-icon">
+                    <FaChartPie /> 
+                  </div>
+                  <span className="nav-text">Dashboard</span>
+                </NavLink>
 
             <NavLink to="/relatorios" className="nav-link-modern" onClick={closeSidebar}>
               <div className="nav-icon">

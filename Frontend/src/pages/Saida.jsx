@@ -27,7 +27,7 @@ const Saida = () => {
     document.title = "Bookly - Saída de Livros";
   }, []);
 
-  // Carrega livros com estoque - FUNÇÃO ORIGINAL
+  // Carrega livros com estoque 
   const loadLivros = async () => {
     try {
       setLoading(true);
@@ -52,7 +52,7 @@ const Saida = () => {
   };
 
 
-  // Carrega opções de saída - FUNÇÃO ORIGINAL
+  // Carrega opções de saída 
   const loadOpcoes = async () => {
     try {
       const data = await entradaSaidaService.getOpcoesSaida();
@@ -95,7 +95,7 @@ const Saida = () => {
     });
   };
 
-  // Filtrar livros - MANTIDO ORIGINAL
+  // Filtrar livros
   const livrosFiltrados = livros.filter(livro => {
     const termo = termoBusca.toLowerCase();
     return (
@@ -191,7 +191,7 @@ const Saida = () => {
 
   return (
     <Container className="py-4">
-      {/* Toast de sucesso - ORIGINAL */}
+      {/* Toast de sucesso */}
       <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
         <Toast show={showSuccess} onClose={() => setShowSuccess(false)} delay={4000} autohide bg="success">
           <Toast.Header>
@@ -350,7 +350,7 @@ const Saida = () => {
 
                               <td className="text-center">
                                 <Button
-                                  variant={isSelected ? 'danger' : 'outline-danger'}
+                                  variant={isSelected ? 'danger' : 'paginacao'}
                                   size="sm"
                                   onClick={() => selecionarLivro(livro)}
                                   disabled={isSelected}
@@ -403,14 +403,12 @@ const Saida = () => {
           </Card>
         </Col>
 
-        {/* Formulário de Saída - MANTIDO ORIGINAL (apenas estrutura visual) */}
         <Col lg={6}>
           {livroSelecionado ? (
             <>
-              {/* Card do Livro Selecionado */}
               {/* Card do Livro Selecionado - SAÍDA */}
               <Card className="mb-3">
-                <Card.Header className="bg-danger text-white d-flex justify-content-between align-items-center">
+                <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
                   <h6 className="mb-0">
                     Livro Selecionado
                   </h6>
@@ -490,7 +488,7 @@ const Saida = () => {
                 </Card.Body>
               </Card>
 
-              {/* Formulário de Registro - ORIGINAL */}
+              {/* Formulário de Registro */}
               <Card>
                 <Card.Header className="bg-primary text-white">
                   <h6 className="mb-0">
@@ -543,20 +541,38 @@ const Saida = () => {
 
                     <Form.Group className="mb-3">
 
-                      <Alert variant="" className="py-2 mb-2">
-                        <FaInfoCircle className="me-1" />
-                        <small>
-                          <strong>Obrigatório:</strong> Informe o motivo desta saída.
-                        </small>
-                      </Alert>
-
-                      <Form.Control
-                        as="textarea"
-                        rows={3}
-                        placeholder="Descreva o motivo da saída (ex: livro extraviado, danificado, empréstimo externo)..."
-                        value={formData.observacoes}
-                        onChange={e => setFormData({ ...formData, observacoes: e.target.value })}
+                     <Alert variant="" className="py-2 mb-2">
+                      <FaInfoCircle
+                        className="me-1"
+                        style={{ color: "var(--color-accent)" }}
                       />
+
+                      <small style={{ opacity: 0.9 }}>
+                        <strong style={{ color: "var(--color-accent)" }}>Obrigatório:</strong>{" "}
+                        Informe o motivo desta saída.
+                      </small>
+
+                      <p
+                        style={{
+                          fontSize: "0.7rem",
+                          marginTop: "2px",
+                          opacity: 0.7,
+                          lineHeight: "1.2",
+                        }}
+                      >
+                        O motivo da saída deve ser informado para manter rastreabilidade,
+                        garantir o controle histórico do acervo e registrar corretamente
+                        a movimentação do exemplar.
+                      </p>
+                    </Alert>
+
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      placeholder="(ex: adquirido em loja X, nota fiscal nº..., recebimento por doação, reposição de exemplar...)"
+                      value={formData.observacoes}
+                      onChange={e => setFormData({ ...formData, observacoes: e.target.value })}
+                    />
                     </Form.Group>
 
 
