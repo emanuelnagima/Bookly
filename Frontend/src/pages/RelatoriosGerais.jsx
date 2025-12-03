@@ -1051,63 +1051,67 @@ const configRelatorios = {
     });
   };
 
-  // Função auxiliar para mapear colunas para propriedade
-  const getValorPorColuna = (linha, coluna) => {
-    const mapeamento = {
-      'ID': 'id',
-      'Usuário': 'usuario',
-      'Tipo': 'tipo',
-      'Data Empréstimo': 'data_emprestimo',
-      'Data Devolução': 'data_devolucao',
-      'Data Cancelamento': 'data_cancelamento',
-      'Motivo': 'motivo_cancelamento',
-      'Status': 'status',
-      'Data Cadastro': 'data_cadastro',
-      'Livros': 'livros',
-      'Livro': 'livro',
-      'Origem': 'origem',
-      'Quantidade': 'quantidade',
-      'Data Aquisição': 'data_aquisicao',
-      'Data Saída': 'data_saida',
-      'Data': 'data',
-      'Título': 'titulo',
-      'Autor': 'autor',
-      'Editora': 'editora',
-      'Gênero': 'genero',
-      'ISBN': 'isbn',
-      'Ano': 'ano',
-      'Estoque': 'estoque',
-      'Data Reserva': 'data_reserva',
-      'Data Validade': 'data_validade',
-      'Nome': 'nome',
-      'Departamento': 'departamento',
-      'Email': 'email',
-      'Telefone': 'telefone',
-      'Empréstimos': 'emprestimos',
-      'Reservas': 'reservas',
-      'Matrícula': 'matricula',
-      'Turma': 'turma',
-      'CPF': 'cpf',
-      'CNPJ': 'cnpj',
-      'Total Livros': 'total_livros',
-      'Estoque Total': 'estoque_total',
-      'Nacionalidade': 'nacionalidade',
-      'Situação': 'situacao',
-      'Data Nascimento': 'data_nascimento',
-      'Observações': 'observacoes',
-    };
-
-    const propriedade = mapeamento[coluna];
-    const valor = linha[propriedade];
-
-    // Aplicar formatação universal a todos os valores de texto
-    if (valor !== undefined && valor !== null && valor !== '-') {
-      return formatarTexto(valor);
-    }
-
-    return '-';
+// função getValorPorColuna para tratar títulos de livros separadamente:
+const getValorPorColuna = (linha, coluna) => {
+  const mapeamento = {
+    'ID': 'id',
+    'Usuário': 'usuario',
+    'Tipo': 'tipo',
+    'Data Empréstimo': 'data_emprestimo',
+    'Data Devolução': 'data_devolucao',
+    'Data Cancelamento': 'data_cancelamento',
+    'Motivo': 'motivo_cancelamento',
+    'Status': 'status',
+    'Data Cadastro': 'data_cadastro',
+    'Livros': 'livros',
+    'Livro': 'livro',
+    'Origem': 'origem',
+    'Quantidade': 'quantidade',
+    'Data Aquisição': 'data_aquisicao',
+    'Data Saída': 'data_saida',
+    'Data': 'data',
+    'Título': 'titulo',
+    'Autor': 'autor',
+    'Editora': 'editora',
+    'Gênero': 'genero',
+    'ISBN': 'isbn',
+    'Ano': 'ano',
+    'Estoque': 'estoque',
+    'Data Reserva': 'data_reserva',
+    'Data Validade': 'data_validade',
+    'Nome': 'nome',
+    'Departamento': 'departamento',
+    'Email': 'email',
+    'Telefone': 'telefone',
+    'Empréstimos': 'emprestimos',
+    'Reservas': 'reservas',
+    'Matrícula': 'matricula',
+    'Turma': 'turma',
+    'CPF': 'cpf',
+    'CNPJ': 'cnpj',
+    'Total Livros': 'total_livros',
+    'Estoque Total': 'estoque_total',
+    'Nacionalidade': 'nacionalidade',
+    'Situação': 'situacao',
+    'Data Nascimento': 'data_nascimento',
+    'Observações': 'observacoes',
   };
 
+  const propriedade = mapeamento[coluna];
+  const valor = linha[propriedade];
+
+  // Aplicar formatação universal a todos os valores de texto
+  if (valor !== undefined && valor !== null && valor !== '-') {
+    // Se for a coluna de título de livro, não aplicar formatação
+    if (coluna === 'Livro' || coluna === 'Título') {
+      // Para títulos de livros, apenas retornar o valor como está
+      return valor;
+    }
+    return formatarTexto(valor);
+  }
+
+  return '-';
+};
   const IconeRelatorio = configRelatorios[tipoRelatorio]?.icone || FaChartBar;
 
   return (

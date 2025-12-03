@@ -474,7 +474,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
           <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='data_validade'>
-                <Form.Label>Data de Validade da Reserva:</Form.Label>
+                <Form.Label>Data de Expiração da Reserva:</Form.Label>
                 <Form.Control
                   type='date'
                   name='data_validade'

@@ -483,7 +483,7 @@ const LivroList = ({ livros, loading, onDelete, onEdit }) => {
           </Modal.Footer>
         </Modal>
 
-        {/* Paginação Melhorada */}
+        {/* Paginação  */}
         {totalPaginas > 1 && (
           <div className="d-flex justify-content-between align-items-center mt-4">
             <div className="text-muted small">

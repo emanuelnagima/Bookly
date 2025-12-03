@@ -3,6 +3,14 @@ import { Card, Form, Col, Row, Button, Spinner, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import { BsCheckCircle } from "react-icons/bs";
 
+// Função de formatação de texto (capitalização)
+const formatarTexto = texto =>
+  (texto || '')
+    .toLowerCase()
+    .split(' ')
+    .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+    .join(' ');
+
 const CadLivro = ({ onSave, onCancel, livro, loading }) => {
   const [formData, setFormData] = useState({
     titulo: '',
@@ -27,8 +35,20 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
       try {
         setOptionsLoading(true);
         const response = await axios.get('http://localhost:3000/api/livros/options');
-        setEditoras(response.data.data.editoras || []);
-        setAutores(response.data.data.autores || []);
+        
+        // Formatar os nomes das editoras e autores
+        const editorasFormatadas = (response.data.data.editoras || []).map(editora => ({
+          ...editora,
+          nome: formatarTexto(editora.nome)
+        }));
+        
+        const autoresFormatados = (response.data.data.autores || []).map(autor => ({
+          ...autor,
+          nome: formatarTexto(autor.nome)
+        }));
+        
+        setEditoras(editorasFormatadas);
+        setAutores(autoresFormatados);
       } catch (err) {
         console.error('Erro ao carregar opções:', err);
         setError('Erro ao carregar editoras e autores');
@@ -74,10 +94,19 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // Formatar o título automaticamente quando digitar
+    if (name === 'titulo') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleImagemChange = (e) => {
@@ -119,20 +148,21 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
 
       console.log('Dados do formulário:', formData);
 
-      // Prepara os dados para envio
-      const livroParaEnviar = {
+      // Formatar o título antes de enviar
+      const dadosFormatados = {
         ...formData,
+        titulo: formatarTexto(formData.titulo),
         autor_id: parseInt(formData.autor_id),
         editora_id: parseInt(formData.editora_id),
         ano_publicacao: parseInt(formData.ano_publicacao),
         imagem: formData.imagem
       };
 
-      console.log('Enviando livro:', livroParaEnviar);
+      console.log('Enviando livro:', dadosFormatados);
 
       // Chama a função de salvamento do componente pai
       if (typeof onSave === 'function') {
-        await onSave(livroParaEnviar);
+        await onSave(dadosFormatados);
       } else {
         throw new Error('Função de salvamento não disponível');
       }
@@ -302,7 +332,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
                   disabled={loading}
                 />
                 <Form.Text className="text-muted">
-                  Formatos suportados: JPG, PNG, GIF. Tamanho máximo: 5MB
+                  Formatos suportados: JPG, PNG. 
                 </Form.Text>
               </Form.Group>
             </Col>

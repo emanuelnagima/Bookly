@@ -41,6 +41,26 @@ const formatarTelefone = (telefone) => {
   return telefone;
 };
 
+const formatarEndereco = (endereco) => {
+  if (!endereco) return '';
+  
+  // Remove múltiplos espaços e formata
+  return endereco
+    .trim()
+    .replace(/\s+/g, ' ') // Remove múltiplos espaços
+    .split(', ')
+    .map((parte, index) => {
+      // Se for o número ou complemento (última parte ou parte com número), mantém como está
+      if (index > 0 && /\d/.test(parte)) {
+        return parte;
+      }
+      
+      // Formata cada palavra do endereço (exceto números)
+      return formatarTexto(parte);
+    })
+    .join(', ');
+};
+
 const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
   const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
@@ -201,7 +221,9 @@ const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
                     {/* Coluna Nome */}
                     <td>
                       <div className="fw-semibold">{formatarTexto(editora.nome)}</div>
-                      <small className="text-muted">{editora.email || 'Sem email'}</small>
+                      <small className="text-muted">
+                        {editora.endereco ? formatarEndereco(editora.endereco) : 'Sem endereço'}
+                      </small>
                     </td>
 
                     {/* Coluna CNPJ */}
@@ -294,8 +316,8 @@ const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
                     </h5>
                     <Row>
                       <Col md={12}>
-                        <p className="mb-0">
-                          {editoraSelecionada.endereco}
+                        <p className="mb-0" style={{ fontSize: '1.1rem', lineHeight: '1.6' }}>
+                          {formatarEndereco(editoraSelecionada.endereco)}
                         </p>
                       </Col>
                     </Row>
@@ -310,7 +332,7 @@ const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
               </Modal.Footer>
             </Modal>
 
-            {/* Paginação Melhorada */}
+            {/* Paginação */}
             {totalPaginas > 1 && (
               <div className="d-flex justify-content-between align-items-center mt-4">
                 <div className="text-muted small">

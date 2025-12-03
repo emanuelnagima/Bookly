@@ -67,7 +67,7 @@ const Reservas = () => {
         dataDevolucaoPrevista
       );
       
-      setToastMessage('Reserva convertida em empréstimo com sucesso!');
+      setToastMessage('Reserva transformada em empréstimo com sucesso!');
       setOperationType('conversao');
       setShowSuccessToast(true);
 

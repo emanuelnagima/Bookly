@@ -279,49 +279,56 @@ const Home = () => {
     <Container className="py-0">
       {/* CABEÇALHO */}
      <Row className="mb-0">
-  <Col>
-    <div
-      style={{
-        padding: "1rem",
-        display: "flex",
-        alignItems: "flex-start",
-        justifyContent: "space-between",
-        gap: "2rem",
-        flexWrap: "wrap",
-      }}
-    >
-      <div style={{ padding: "1rem" }} className="animate-fade-in-left">
-        {/* Logo e Nome do Sistema */}
-        <div>
-          <h1
+        <Col>
+          <div
             style={{
-              fontFamily: '"Montserrat", sans-serif',
-              fontWeight: "700",
-              fontSize: "3.8rem",
-              background: "linear-gradient(90deg, #2119b4, #5b2cff)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              marginBottom: "0.1rem",
-              letterSpacing: "-10px",
+              padding: "1rem",
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              gap: "2rem",
+              flexWrap: "wrap",
             }}
-            className="animate-fade-in-up"
           >
-            Bookly
-          </h1>
+            <div className="login-brand">
+        <h1
+          style={{
+            fontFamily: '"Montserrat", sans-serif',
+            fontWeight: "700",
+            fontSize: "3.8rem",
+            background: "linear-gradient(90deg, #2119b4, #5b2cff)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            marginBottom: "0.1rem",
+            letterSpacing: "-10px",
+          }}
+          className="animate-fade-in-up"
+        >
+          Bookly
+        </h1>
 
+        <div className="login-subtitles animate-fade-in-up animate-delay-1" style={{ opacity: 0 }}>
           <p 
-            className="text-secondary small mb-0 animate-fade-in-up animate-delay-1" 
-            style={{ marginTop: "0.25rem", opacity: 0 }}
+            className="text-secondary mb-0" 
+            style={{ 
+              fontSize: "0.9rem",
+              fontWeight: "500",
+              marginBottom: "0.15rem"
+            }}
           >
-            Gerencie todo o acervo da sua biblioteca
+            Sistema de Gestão Bibliotecária
           </p>
-
-          <p 
-            className="text-secondary small mb-0 animate-fade-in-up animate-delay-2" 
-            style={{ marginTop: "0.25rem", opacity: 0 }}
+          <small 
+            className="text-secondary d-block" 
+            style={{ 
+              fontSize: "0.75rem",
+              fontWeight: "400",
+              opacity: 0.8,
+              lineHeight: 1.3
+            }}
           >
-            <span className="me-1"><FaEnvelope /></span> booklysuporte@gmail.com
-          </p>
+            Gerencie o acervo de sua biblioteca
+          </small>
         </div>
       </div>
       <div className="d-flex flex-wrap justify-content-start align-items-center animate-fade-in-right">

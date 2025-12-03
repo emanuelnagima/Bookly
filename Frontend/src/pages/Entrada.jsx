@@ -28,21 +28,82 @@ const Entrada = () => {
   }, []);
 
 // FUNÇÃO PARA FORMATAR TEXTO COM PRIMEIRA LETRA MAIÚSCULA
+// Função universal para formatar textos
 const formatarTexto = (texto) => {
   if (!texto || texto === '-') return '-';
-  
+
   // Se for número ou elemento React, retorna como está
   if (typeof texto === 'number' || typeof texto === 'object') return texto;
-  
-  const textoString = texto.toString().trim();
-  
-  return textoString
-    .toLowerCase()
-    .split(' ')
-    .map(palavra => palavra.charAt(0).toUpperCase() + palavra.slice(1))
-    .join(' ');
-};
 
+  const textoString = texto.toString().trim();
+
+  // Casos especiais que precisam de tratamento específico
+  if (textoString.toLowerCase() === 'usuario_especial') {
+    return 'Usuário Especial';
+  }
+
+  // Para nomes próprios (pessoas), converter para formato de nome
+  if (textoString.includes(' ')) {
+    // Verificar se é um nome de pessoa (usuário) ou título de livro
+    // Para nomes de usuários, aplicar capitalização normal
+    if (
+      textoString.toLowerCase().includes('harry') ||
+      textoString.toLowerCase().includes('potter') ||
+      // Aqui você pode adicionar outras pistas de que é um título de livro
+      textoString.toLowerCase().includes('o ') ||
+      textoString.toLowerCase().includes('a ') ||
+      textoString.toLowerCase().includes('de ') ||
+      textoString.toLowerCase().includes('da ') ||
+      textoString.toLowerCase().includes('do ') ||
+      textoString.toLowerCase().includes('dos ') ||
+      textoString.toLowerCase().includes('das ') ||
+      textoString.toLowerCase().includes('e ')
+    ) {
+      // É provavelmente um título de livro - manter como está ou aplicar regras específicas
+      return textoString
+        .split(' ')
+        .map(palavra => {
+          // Palavras que devem ser mantidas em letra minúscula (artigos, preposições, conjunções)
+          const palavrasMinusculas = ['o', 'a', 'os', 'as', 'de', 'da', 'do', 'dos', 'das', 'e', 'em', 'para', 'por', 'com', 'sem'];
+          
+          if (palavrasMinusculas.includes(palavra.toLowerCase())) {
+            return palavra.toLowerCase();
+          }
+          
+          // Manter siglas em maiúsculo (ex: ISBN, CPF, etc)
+          if (palavra.length <= 4 && /^[A-Z]+$/.test(palavra.toUpperCase())) {
+            return palavra.toUpperCase();
+          }
+          
+          // Capitalizar outras palavras
+          return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
+        })
+        .join(' ');
+    } else {
+      // É um nome de pessoa - aplicar formatação normal
+      return textoString
+        .toLowerCase()
+        .split(' ')
+        .map(palavra => {
+          // Manter siglas em maiúsculo (ex: CPF, ISBN, etc)
+          if (palavra.length <= 4 && /^[A-Z]+$/.test(palavra.toUpperCase())) {
+            return palavra.toUpperCase();
+          }
+          return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+        })
+        .join(' ');
+    }
+  }
+
+  // Para textos sem espaços, verificar se é um nome próprio ou sigla
+  if (textoString.length <= 4 && /^[A-Z]+$/.test(textoString)) {
+    // É uma sigla, manter em maiúsculo
+    return textoString.toUpperCase();
+  }
+
+  // Para textos simples, capitalizar apenas a primeira letra
+  return textoString.charAt(0).toUpperCase() + textoString.slice(1).toLowerCase();
+};
   // Carrega livros com estoque 
   const loadLivros = async () => {
     try {
