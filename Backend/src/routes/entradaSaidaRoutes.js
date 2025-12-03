@@ -24,6 +24,6 @@ router.get('/historico', authenticate, authorize('admin', 'operador'), entradaSa
 router.get('/estoque/:livroId', authenticate, authorize('admin', 'operador'), entradaSaidaController.verificarEstoque);
 router.get('/estoque-disponivel/:livroId', authenticate, authorize('admin', 'operador'), entradaSaidaController.verificarEstoqueDisponivel);
 // NOVA ROTA: Processamento de inventário em lote
-router.post('/inventario', authenticate, authorize('admin'), entradaSaidaController.processarInventario);
+router.post('/inventario', authenticate, authorize('admin','operador'), entradaSaidaController.processarInventario);
 
 module.exports = router;

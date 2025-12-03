@@ -14,7 +14,7 @@ const handleResponse = async (response) => {
 const getAll = async () => {
   try {
     const response = await fetch(API_BASE_URL, {
-      credentials: 'include' // ADICIONAR
+      credentials: 'include' 
     });
     const result = await handleResponse(response);
     return result.data; 
@@ -27,7 +27,7 @@ const getAll = async () => {
 const getById = async (id) => {
   try {
     const response = await fetch(`${API_BASE_URL}/${id}`, {
-      credentials: 'include' // ADICIONAR
+      credentials: 'include' 
     });
     const result = await handleResponse(response);
     return result.data;
@@ -39,13 +39,23 @@ const getById = async (id) => {
 
 const add = async (professor) => {
   try {
+    // NÃO enviar matrícula - será gerada no backend
+    const dadosParaEnviar = {
+      nome: professor.nome,
+      cpf: professor.cpf,
+      data_nascimento: professor.data_nascimento,
+      email: professor.email,
+      telefone: professor.telefone,
+      departamento: professor.departamento
+    };
+    
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include', // ADICIONAR
-      body: JSON.stringify(professor),
+      credentials: 'include', 
+      body: JSON.stringify(dadosParaEnviar),
     });
 
     const result = await handleResponse(response);
@@ -58,13 +68,23 @@ const add = async (professor) => {
 
 const update = async (professor) => {
   try {
+    // NÃO enviar matrícula na atualização
+    const dadosParaEnviar = {
+      nome: professor.nome,
+      cpf: professor.cpf,
+      data_nascimento: professor.data_nascimento,
+      email: professor.email,
+      telefone: professor.telefone,
+      departamento: professor.departamento
+    };
+    
     const response = await fetch(`${API_BASE_URL}/${professor.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include', // ADICIONAR
-      body: JSON.stringify(professor),
+      credentials: 'include', 
+      body: JSON.stringify(dadosParaEnviar),
     });
 
     const result = await handleResponse(response);
@@ -79,7 +99,7 @@ const remove = async (id) => {
   try {
     const response = await fetch(`${API_BASE_URL}/${id}`, {
       method: 'DELETE',
-      credentials: 'include' // ADICIONAR
+      credentials: 'include' 
     });
     const result = await handleResponse(response);
     return result.message;

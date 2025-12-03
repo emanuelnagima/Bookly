@@ -1,10 +1,43 @@
 const professoresRepository = require('../repository/professoresRepository');
 const Professor = require('../models/professor');
 
+// FUNÇÃO PARA GERAR MATRÍCULA DE PROFESSOR
+function gerarMatriculaProfessor(ultimaMatriculaProfessor) {
+    const anoAtual = new Date().getFullYear();
+    const prefixo = 'P'; // Prefixo único para professores
+    
+    if (!ultimaMatriculaProfessor) {
+        return `${prefixo}${anoAtual}001`;
+    }
+    
+    // Formato esperado: "P2025001"
+    // Verificar se começa com "P" e tem pelo menos 8 caracteres
+    if (!ultimaMatriculaProfessor.startsWith('P') || ultimaMatriculaProfessor.length < 8) {
+        return `${prefixo}${anoAtual}001`;
+    }
+    
+    // Extrair ano e número da última matrícula
+    const ultimoAno = parseInt(ultimaMatriculaProfessor.substring(1, 5));
+    const ultimoNumeroStr = ultimaMatriculaProfessor.substring(5);
+    const ultimoNumero = parseInt(ultimoNumeroStr);
+    
+    if (isNaN(ultimoAno) || isNaN(ultimoNumero)) {
+        return `${prefixo}${anoAtual}001`;
+    }
+    
+    if (ultimoAno === anoAtual) {
+        // Mesmo ano, incrementa número
+        const novoNumero = ultimoNumero + 1;
+        return `${prefixo}${anoAtual}${novoNumero.toString().padStart(3, '0')}`;
+    } else {
+        // Novo ano, reinicia contagem
+        return `${prefixo}${anoAtual}001`;
+    }
+}
 class ProfessoresController {
     async getAll(req, res) {
         try {
-            const professores = await professoresRepository.findAll();
+            const professores = await professoresRepository.findAll();        
             res.json({ success: true, data: professores, total: professores.length });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
@@ -28,11 +61,32 @@ class ProfessoresController {
             const erros = professor.validar();
 
             if (erros !== true) {
-                return res.status(400).json({ success: false, message: 'Dados inválidos', errors: erros });
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Dados inválidos', 
+                    errors: erros 
+                });
+            }
+
+            // GERAR MATRÍCULA AUTOMÁTICA PARA PROFESSOR
+            const ultimaMatricula = await professoresRepository.getUltimaMatricula();
+            professor.matricula = gerarMatriculaProfessor(ultimaMatricula);
+            
+            // Validar se matrícula já existe (segurança adicional)
+            const matriculaExistente = await professoresRepository.findByMatricula(professor.matricula);
+            if (matriculaExistente) {
+                // Se por acaso já existir, incrementa
+                const partes = professor.matricula.split('-');
+                const novoNumero = parseInt(partes[2]) + 1;
+                professor.matricula = `${partes[0]}-${partes[1]}-${novoNumero.toString().padStart(3, '0')}`;
             }
 
             const novoProfessor = await professoresRepository.create(professor);
-            res.status(201).json({ success: true, data: novoProfessor, message: 'Professor criado!' });
+            res.status(201).json({ 
+                success: true, 
+                data: novoProfessor, 
+                message: `Professor criado com matrícula ${novoProfessor.matricula}` 
+            });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
@@ -45,7 +99,13 @@ class ProfessoresController {
                 return res.status(404).json({ success: false, message: 'Professor não encontrado' });
             }
 
-            const professor = new Professor({ ...req.body, id: req.params.id });
+            // Manter a matrícula original na edição
+            const professor = new Professor({ 
+                ...req.body, 
+                id: req.params.id,
+                matricula: professorExistente.matricula 
+            });
+            
             const erros = professor.validar();
 
             if (erros !== true) {
@@ -53,7 +113,11 @@ class ProfessoresController {
             }
 
             const professorAtualizado = await professoresRepository.update(req.params.id, professor);
-            res.json({ success: true, data: professorAtualizado, message: 'Professor atualizado!' });
+            res.json({ 
+                success: true, 
+                data: professorAtualizado, 
+                message: 'Professor atualizado!' 
+            });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }

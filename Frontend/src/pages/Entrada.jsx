@@ -23,7 +23,27 @@ const Entrada = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  // Carrega livros com estoque - FUNÇÃO ORIGINAL
+ useEffect(() => {
+    document.title = "Bookly - Entrada de Livros";
+  }, []);
+
+// FUNÇÃO PARA FORMATAR TEXTO COM PRIMEIRA LETRA MAIÚSCULA
+const formatarTexto = (texto) => {
+  if (!texto || texto === '-') return '-';
+  
+  // Se for número ou elemento React, retorna como está
+  if (typeof texto === 'number' || typeof texto === 'object') return texto;
+  
+  const textoString = texto.toString().trim();
+  
+  return textoString
+    .toLowerCase()
+    .split(' ')
+    .map(palavra => palavra.charAt(0).toUpperCase() + palavra.slice(1))
+    .join(' ');
+};
+
+  // Carrega livros com estoque 
   const loadLivros = async () => {
     try {
       setLoading(true);
@@ -48,7 +68,7 @@ const Entrada = () => {
     }
   };
 
-  // Carrega opções de entrada - FUNÇÃO ORIGINAL
+  // Carrega opções de entrada
   const loadOpcoes = async () => {
     try {
       const data = await entradaSaidaService.getOpcoesEntrada();
@@ -91,7 +111,7 @@ const Entrada = () => {
     });
   };
 
-  // Filtrar livros - MANTIDO ORIGINAL
+  // Filtrar livros 
   const livrosFiltrados = livros.filter(livro => {
     const termo = termoBusca.toLowerCase();
     return (
@@ -124,7 +144,7 @@ const Entrada = () => {
     if (paginaAtual < totalPaginas) setPaginaAtual(paginaAtual + 1);
   };
 
-  // Selecionar livro - FUNÇÃO ORIGINAL
+  // Selecionar livro
   // Atualize a função selecionarLivro
   const selecionarLivro = async (livro) => {
     setLivroSelecionado(livro);
@@ -149,7 +169,6 @@ const Entrada = () => {
     }
   };
 
-  // Handle submit - FUNÇÃO ORIGINAL
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -177,7 +196,7 @@ const Entrada = () => {
 
   return (
     <Container className="py-4">
-      {/* Toast de sucesso - ORIGINAL */}
+      {/* Toast de sucesso */}
       <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
         <Toast show={showSuccess} onClose={() => setShowSuccess(false)} delay={4000} autohide bg="success">
           <Toast.Header>
@@ -189,26 +208,24 @@ const Entrada = () => {
         </Toast>
       </div>
 
-      {/* HEADER ORIGINAL PRESERVADO */}
       <div className="rounded-3 p-4 mb-4 border">
         <Row className="align-items-center">
-          <Col md={8}>
-            <div className="d-flex align-items-center">
-              <div className="me-3">
-                <i className="fas fa-book-open fa-2x" style={{ color: '#0b192c' }}></i>
+           <Col md={8}>
+              <div className="d-flex align-items-center">
+                <div className="me-3">
+                  <i className="fas fa-book-open fa-2x" style={{ color: '#0b192c' }}></i>
+                </div>
+                <div>
+                  <h4 className="fw-bold text-dark mb-1">Entrada de Livros</h4>
+                  <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
+                    Registro e controle de novas entradas no acervo
+                  </p>
+                </div>
               </div>
-              <div>
-                <h4 className="fw-bold text-dark mb-1">Entrada de Livros</h4>
-              </div>
-            </div>
-          </Col>
+            </Col>
           <Col md={4} className="text-md-end">
             <div className="d-flex justify-content-end flex-wrap gap-2">
-              {livroSelecionado && (
-                <Badge bg="success" className="px-3 py-2">
-                  Livro Selecionado
-                </Badge>
-              )}
+          
             </div>
           </Col>
         </Row>
@@ -318,12 +335,12 @@ const Entrada = () => {
                                 )}
                               </td>
 
-                              <td>
+                             <td>
                                 <div className="fw-semibold" style={{ maxWidth: '200px' }}>
-                                  {livro.titulo}
+                                  {formatarTexto(livro.titulo)}
                                 </div>
                                 <small className="text-muted">
-                                  {livro.autor_nome}
+                                  {formatarTexto(livro.autor_nome)} 
                                 </small>
                               </td>
 
@@ -337,7 +354,7 @@ const Entrada = () => {
 
                               <td className="text-center">
                                 <Button
-                                  variant={isSelected ? 'success' : 'btn btn-success'}
+                                  variant={isSelected ? 'success' : 'paginacao'}
                                   size="sm"
                                   onClick={() => selecionarLivro(livro)}
                                   disabled={isSelected}
@@ -390,13 +407,13 @@ const Entrada = () => {
           </Card>
         </Col>
 
-        {/* Formulário de Entrada - MANTIDO ORIGINAL (apenas estrutura visual) */}
+        {/* Formulário de Entrada*/}
         <Col lg={6}>
           {livroSelecionado ? (
             <>
               {/* Card do Livro Selecionado */}
               <Card className="mb-3">
-                <Card.Header className="bg-warning text-white d-flex justify-content-between align-items-center">
+                <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
                   <h6 className="mb-0">
                     Livro Selecionado
                   </h6>
@@ -420,15 +437,15 @@ const Entrada = () => {
                       )}
                     </Col>
                     <Col md={8}>
-                      <h6 className="fw-bold text-primary mb-2">{livroSelecionado.titulo}</h6>
+                      <h6 className="fw-bold text-primary mb-2">{formatarTexto(livroSelecionado.titulo)}</h6> 
                       <div className="row small">
                         <div className="col-6 mb-1">
                           <strong>Autor:</strong>
-                          <div>{livroSelecionado.autor_nome}</div>
+                          <div>{formatarTexto(livroSelecionado.autor_nome)}</div> 
                         </div>
                         <div className="col-6 mb-1">
                           <strong>Editora:</strong>
-                          <div>{livroSelecionado.editora_nome}</div>
+                          <div>{formatarTexto(livroSelecionado.editora_nome)}</div> 
                         </div>
                         <div className="col-6 mb-1">
                           <strong>ISBN:</strong>
@@ -436,14 +453,14 @@ const Entrada = () => {
                         </div>
                         <div className="col-6 mb-1">
                           <strong>Gênero:</strong>
-                          <div>{livroSelecionado.genero}</div>
+                          <div>{formatarTexto(livroSelecionado.genero)}</div> 
                         </div>
                       </div>
 
                       {/* SEÇÃO DE ESTOQUE ORGANIZADA */}
                       <div className="mt-3 pt-2 border-top">
                         <div className="row small">
-                          <div className="col-12 mb-2">
+                          <div className="col-12 mb-0">
                             <div className="d-flex justify-content-between align-items-center">
                               <strong>
                                 Estoque físico total:
@@ -454,12 +471,7 @@ const Entrada = () => {
                             </div>
                           </div>
                           <div className="col-12 mb-2">
-                            <div className="d-flex justify-content-between align-items-center">
-                              <strong>Atualmente emprestado:</strong>
-                              <Badge bg="warning" text="dark">
-                                {livroSelecionado.totalEmprestado || 0} unidades
-                              </Badge>
-                            </div>
+
                           </div>
                           <div className="col-12">
                             <div className="d-flex justify-content-between align-items-center">
@@ -477,11 +489,10 @@ const Entrada = () => {
               </Card>
 
 
-              {/* Formulário de Registro - ORIGINAL */}
+              {/* Formulário de Registro */}
               <Card>
                 <Card.Header className="bg-primary text-white">
                   <h6 className="mb-0">
-                    <FaPlus className="me-2" />
                     Registrar Entrada
                   </h6>
                 </Card.Header>
@@ -513,27 +524,40 @@ const Entrada = () => {
                       </Col>
                     </Row>
 
-                    <Form.Group className="mb-3">
-                      <Form.Label className="fw-semibold">
-                        Observações
-                        <Badge bg="warning" text="dark" className="ms-2">Obrigatório</Badge>
-                      </Form.Label>
+                   <Form.Group className="mb-3">
 
-                      <Alert variant="info" className="py-2 mb-2">
-                        <FaInfoCircle className="me-1" />
-                        <small>
-                          <strong>Registro obrigatório:</strong> Informe o motivo desta entrada.
-                        </small>
-                      </Alert>
-
-                      <Form.Control
-                        as="textarea"
-                        rows={3}
-                        placeholder="Descreva o motivo da entrada (ex: doação, compra, ajuste de inventário)..."
-                        value={formData.observacoes}
-                        onChange={e => setFormData({ ...formData, observacoes: e.target.value })}
+                    <Alert variant="" className="py-2 mb-2">
+                      <FaInfoCircle
+                        className="me-1"
+                        style={{ color: "var(--color-accent)" }}
                       />
-                    </Form.Group>
+
+                      <small style={{ opacity: 0.9 }}>
+                        <strong style={{ color: "var(--color-accent)" }}>Obrigatório:</strong>{" "}
+                        Informe o motivo desta entrada.
+                      </small>
+
+                      <p
+                        style={{
+                          fontSize: "0.7rem",
+                          marginTop: "2px",
+                          opacity: 0.7,
+                          lineHeight: "1.2",
+                        }}
+                      >
+                        O motivo da entrada deve ser informado para assegurar o registro rastreável da
+                        movimentação e manter o histórico do acervo atualizado.
+                      </p>
+                    </Alert>
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      placeholder="(ex: comprado da loja X, recebido por doação, reposição, ajuste de inventário...)"
+                      value={formData.observacoes}
+                      onChange={e => setFormData({ ...formData, observacoes: e.target.value })}
+                    />
+                  </Form.Group>
+
 
                     {error && (
                       <Alert variant="danger" className="mb-3">{error}</Alert>
@@ -544,7 +568,6 @@ const Entrada = () => {
                         type="submit"
                         variant="success"
                         disabled={loading || !formData.observacoes.trim()}
-                        className="flex-fill"
                       >
                         {loading ? (
                           <><Spinner animation="border" size="sm" /> Registrando...</>

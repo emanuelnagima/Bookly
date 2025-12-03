@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Table, Form, InputGroup, Button, Row, Col, Modal } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaUserTie, FaInfoCircle, FaUser, FaEnvelope, FaPhone, FaIdCard, FaBuilding, FaBook } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaUserTie, FaInfoCircle, FaUser, FaEnvelope, FaPhone, FaIdCard, FaBuilding, FaBook, FaCalendarAlt } from 'react-icons/fa';
 
 const ITENS_POR_PAGINA = 7;
 
@@ -51,7 +51,6 @@ const ProfessorList = ({ professores, onDelete, onEdit, loading }) => {
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [ordenacao, setOrdenacao] = useState('nome_asc');
   const [filtroDepartamento, setFiltroDepartamento] = useState('todos');
-
   const [showDetalhesModal, setShowDetalhesModal] = useState(false);
   const [professorSelecionado, setProfessorSelecionado] = useState(null);
 
@@ -131,6 +130,7 @@ const ProfessorList = ({ professores, onDelete, onEdit, loading }) => {
 
   // Função para abrir modal com detalhes do professor
   const handleVerDetalhes = (professor) => {
+    console.log('Dados do professor:', professor);
     setProfessorSelecionado(professor);
     setShowDetalhesModal(true);
   };
@@ -226,6 +226,7 @@ const ProfessorList = ({ professores, onDelete, onEdit, loading }) => {
                   <th width="80px">ID</th>
                   <th>Nome Completo</th>
                   <th width="120px">Matrícula</th>
+                   <th width="140px">Data Nasc.</th>
                   <th width="120px">Departamento</th>
                   <th width="140px">Telefone</th>
                   <th width="200px" className="text-center">Ações</th>
@@ -248,6 +249,14 @@ const ProfessorList = ({ professores, onDelete, onEdit, loading }) => {
                         {professor.matricula}
                       </span>
                     </td>
+
+                    {/* Coluna Data de Nascimento */}
+                    <td className="text-nowrap">
+                {professor.data_nascimento || professor.dataNascimento ? 
+                  formatarData(professor.data_nascimento || professor.dataNascimento) : 
+                  '-'
+                }
+              </td>
 
                     {/* Coluna Departamento */}
                     <td>
@@ -300,7 +309,7 @@ const ProfessorList = ({ professores, onDelete, onEdit, loading }) => {
 
             {/* Modal para mostrar detalhes do professor */}
             <Modal show={showDetalhesModal} onHide={handleCloseDetalhesModal} size="lg">
-              <Modal.Header closeButton className="bg-primary text-white">
+              <Modal.Header closeButton closeVariant="white" className="bg-primary text-white">
                 <Modal.Title className="d-flex align-items-center">
                   <FaUserTie className="me-2" />
                   Professor #{professorSelecionado?.id} - Detalhes
@@ -320,7 +329,8 @@ const ProfessorList = ({ professores, onDelete, onEdit, loading }) => {
                         <strong><FaUser className="me-2 text-muted" />Nome:</strong> {formatarTexto(professorSelecionado?.nome)}
                       </p>
                       <p className="mb-2">
-                        <strong><FaIdCard className="me-2 text-muted" />CPF:</strong> {formatarCPF(professorSelecionado?.cpf) || 'Não informado'}
+                        <strong><FaIdCard className="me-2 text-muted" />CPF:</strong> 
+                        {professorSelecionado?.cpf ? formatarCPF(professorSelecionado.cpf) : 'Não informado'}
                       </p>
                       {professorSelecionado?.data_nascimento && (
                         <p className="mb-2">

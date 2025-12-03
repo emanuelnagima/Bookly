@@ -15,8 +15,9 @@ class UsuariosEspeciaisRepository {
     async create(data) {
         const usuario = new UsuarioEspecial(data);
         const [result] = await db.execute(
-            'INSERT INTO usuarios_especiais (nome_completo, email, telefone, cpf, tipo_usuario) VALUES (?, ?, ?, ?, ?)',
-            [usuario.nome_completo, usuario.email, usuario.telefone, usuario.cpf, usuario.tipo_usuario]
+            // ADICIONE data_nascimento AQUI
+            'INSERT INTO usuarios_especiais (nome_completo, email, telefone, cpf, data_nascimento, tipo_usuario) VALUES (?, ?, ?, ?, ?, ?)',
+            [usuario.nome_completo, usuario.email, usuario.telefone, usuario.cpf, usuario.data_nascimento, usuario.tipo_usuario]
         );
         return this.findById(result.insertId);
     }
@@ -24,8 +25,9 @@ class UsuariosEspeciaisRepository {
     async update(id, data) {
         const usuario = new UsuarioEspecial(data);
         await db.execute(
-            'UPDATE usuarios_especiais SET nome_completo=?, email=?, telefone=?, cpf=?, tipo_usuario=? WHERE id=?',
-            [usuario.nome_completo, usuario.email, usuario.telefone, usuario.cpf, usuario.tipo_usuario, id]
+            // ADICIONE data_nascimento AQUI
+            'UPDATE usuarios_especiais SET nome_completo=?, email=?, telefone=?, cpf=?, data_nascimento=?, tipo_usuario=? WHERE id=?',
+            [usuario.nome_completo, usuario.email, usuario.telefone, usuario.cpf, usuario.data_nascimento, usuario.tipo_usuario, id]
         );
         return this.findById(id);
     }

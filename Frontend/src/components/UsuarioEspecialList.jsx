@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Table, Form, InputGroup, Button, Row, Col, Modal, Badge } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaUsers, FaInfoCircle, FaUser, FaEnvelope, FaPhone, FaIdCard, FaUserTag } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaUsers, FaInfoCircle, FaUser, FaEnvelope, FaPhone, FaIdCard, FaUserTag, FaCalendarAlt  } from 'react-icons/fa';
 
 const ITENS_POR_PAGINA = 7;
 
@@ -66,31 +66,30 @@ const UsuarioEspecialList = ({ usuarios, onDelete, onEdit, loading }) => {
   }, [termoBusca, ordenacao, filtroTipo]);
 
   // Função de ordenação
-  const ordenarUsuarios = (usuarios) => {
-    return [...usuarios].sort((a, b) => {
-      switch (ordenacao) {
-        case 'nome_asc':
-          return formatarNome(a.nome_completo).localeCompare(formatarNome(b.nome_completo));
-        case 'nome_desc':
-          return formatarNome(b.nome_completo).localeCompare(formatarNome(a.nome_completo));
-        case 'email_asc':
-          return (a.email || '').localeCompare(b.email || '');
-        case 'email_desc':
-          return (b.email || '').localeCompare(a.email || '');
-        case 'tipo_asc':
-          return (a.tipo_usuario || '').localeCompare(b.tipo_usuario || '');
-        case 'tipo_desc':
-          return (b.tipo_usuario || '').localeCompare(a.tipo_usuario || '');
-        case 'data_cadastro_asc':
-          return new Date(a.data_cadastro || a.createdAt) - new Date(b.data_cadastro || b.createdAt);
-        case 'data_cadastro_desc':
-          return new Date(b.data_cadastro || b.createdAt) - new Date(a.data_cadastro || a.createdAt);
-        default:
-          return formatarNome(a.nome_completo).localeCompare(formatarNome(b.nome_completo));
-      }
-    });
-  };
-
+const ordenarUsuarios = (usuarios) => {
+  return [...usuarios].sort((a, b) => {
+    switch (ordenacao) {
+      case 'nome_asc':
+        return formatarNome(a.nome_completo).localeCompare(formatarNome(b.nome_completo));
+      case 'nome_desc':
+        return formatarNome(b.nome_completo).localeCompare(formatarNome(a.nome_completo));
+      case 'tipo_asc':
+        return (a.tipo_usuario || '').localeCompare(b.tipo_usuario || '');
+      case 'tipo_desc':
+        return (b.tipo_usuario || '').localeCompare(a.tipo_usuario || '');
+      case 'data_nascimento_asc':
+        return new Date(a.data_nascimento || 0) - new Date(b.data_nascimento || 0);
+      case 'data_nascimento_desc':
+        return new Date(b.data_nascimento || 0) - new Date(a.data_nascimento || 0);
+      case 'data_cadastro_asc':
+        return new Date(a.data_cadastro || a.createdAt) - new Date(b.data_cadastro || b.createdAt);
+      case 'data_cadastro_desc':
+        return new Date(b.data_cadastro || b.createdAt) - new Date(a.data_cadastro || a.createdAt);
+      default:
+        return formatarNome(a.nome_completo).localeCompare(formatarNome(b.nome_completo));
+    }
+  });
+};
   // Filtrar usuários
   const usuariosFiltrados = usuarios.filter(usuario => {
     if (!termoBusca && filtroTipo === 'todos') return true;
@@ -183,7 +182,7 @@ const UsuarioEspecialList = ({ usuarios, onDelete, onEdit, loading }) => {
           </Form.Select>
 
           {/* Seletor de Ordenação */}
-          <Form.Select
+         <Form.Select
             value={ordenacao}
             onChange={(e) => setOrdenacao(e.target.value)}
             style={{ width: 'auto', minWidth: '200px' }}
@@ -191,10 +190,10 @@ const UsuarioEspecialList = ({ usuarios, onDelete, onEdit, loading }) => {
           >
             <option value="nome_asc">Nome (A-Z)</option>
             <option value="nome_desc">Nome (Z-A)</option>
-            <option value="email_asc">Email (A-Z)</option>
-            <option value="email_desc">Email (Z-A)</option>
             <option value="tipo_asc">Tipo (A-Z)</option>
             <option value="tipo_desc">Tipo (Z-A)</option>
+            <option value="data_nascimento_asc">Data Nasc. (mais antigo)</option>
+            <option value="data_nascimento_desc">Data Nasc. (mais recente)</option>
             <option value="data_cadastro_asc">Data Cad. (mais antigo)</option>
             <option value="data_cadastro_desc">Data Cad. (mais recente)</option>
           </Form.Select>
@@ -227,79 +226,98 @@ const UsuarioEspecialList = ({ usuarios, onDelete, onEdit, loading }) => {
           <>
             <Table striped hover responsive className="align-middle">
               <thead>
-                <tr>
-                  <th width="80px">ID</th>
-                  <th>Nome Completo</th>
-                  <th width="120px">Tipo</th>
-                  <th width="140px">CPF</th>
-                  <th width="200px" className="text-center">Ações</th>
-                </tr>
-              </thead>
+                  <tr>
+                    <th width="80px">ID</th>
+                    <th>Nome Completo</th>
+                    <th width="120px">CPF</th>
+                    <th width="140px">Data Nasc.</th>
+                    <th width="120px">Tipo</th>
+                    <th width="140px">Telefone</th>
+                    <th width="200px" className="text-center">Ações</th>
+                  </tr>
+                </thead>
               <tbody>
                 {usuariosPaginaAtual.map(usuario => (
-                  <tr key={usuario.id}>
-                    <td className="fw-bold">#{usuario.id}</td>
+               <tr key={usuario.id}>
+                  <td className="fw-bold">#{usuario.id}</td>
 
-                    {/* Coluna Nome */}
-                    <td>
-                      <div className="fw-semibold">{formatarNome(usuario.nome_completo)}</div>
-                      <small className="text-muted">{usuario.email}</small>
-                      {usuario.departamento && (
-                        <small className="text-muted d-block">{usuario.departamento}</small>
-                      )}
-                    </td>
+                  {/* Coluna Nome */}
+                  <td>
+                    <div className="fw-semibold">{formatarNome(usuario.nome_completo)}</div>
+                    <small className="text-muted">{usuario.email}</small>
+                  </td>
 
-                    {/* Coluna Tipo */}
-                    <td>
-                      {getTipoUsuarioBadge(usuario.tipo_usuario)}
-                    </td>
+                  {/* Coluna CPF */}
+                  <td className="text-nowrap">
+                    {usuario.cpf ? formatarCPF(usuario.cpf) : (
+                      <span className="text-muted">-</span>
+                    )}
+                  </td>
 
-                    {/* Coluna CPF */}
-                    <td className="text-nowrap">
-                      {formatarCPF(usuario.cpf)}
-                    </td>
+                  {/* Coluna Data de Nascimento */}
+                  <td className="text-nowrap">
+                    {usuario.data_nascimento ? formatarData(usuario.data_nascimento) : (
+                      <span className="text-muted">-</span>
+                    )}
+                  </td>
 
-                    {/* Coluna Ações */}
-                    <td>
-                      <div className="d-flex gap-2 justify-content-center">
-                        <button
-                          className="btn-sm-custom btn-renovar"
-                          onClick={() => handleVerDetalhes(usuario)}
-                          title="Ver detalhes do usuário"
-                        >
-                          <FaInfoCircle />
-                        </button>
+                  {/* Coluna Tipo */}
+                  <td>
+                    {usuario.tipo_usuario ? (
+                      <span>
+                        {usuario.tipo_usuario}
+                      </span>
+                    ) : (
+                      <span className="text-muted">-</span>
+                    )}
+                  </td>
 
-                        <button
-                          className="btn-sm-custom btn-edit"
-                          onClick={() => onEdit(usuario.id)}
-                          title="Editar usuário"
-                        >
-                          <FaEdit />
-                        </button>
+                  {/* Coluna Telefone */}
+                  <td className="text-nowrap">
+                    {formatarTelefone(usuario.telefone)}
+                  </td>
 
-                        <button
-                          className="btn-sm-custom btn-danger"
-                          onClick={() => onDelete(usuario.id)}
-                          title="Excluir usuário"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                  {/* Coluna Ações */}
+                  <td>
+                    <div className="d-flex gap-2 justify-content-center">
+                      <button
+                        className="btn-sm-custom btn-renovar"
+                        onClick={() => handleVerDetalhes(usuario)}
+                        title="Ver detalhes do usuário"
+                      >
+                        <FaInfoCircle />
+                      </button>
+
+                      <button
+                        className="btn-sm-custom btn-edit"
+                        onClick={() => onEdit(usuario.id)}
+                        title="Editar usuário"
+                      >
+                        <FaEdit />
+                      </button>
+
+                      <button
+                        className="btn-sm-custom btn-danger"
+                        onClick={() => onDelete(usuario.id)}
+                        title="Excluir usuário"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
                 ))}
               </tbody>
             </Table>
 
             {/* Modal para mostrar detalhes do usuário */}
             <Modal show={showDetalhesModal} onHide={handleCloseDetalhesModal} size="lg">
-              <Modal.Header closeButton className="bg-primary text-white">
-                <Modal.Title className="d-flex align-items-center">
-                  <FaUser className="me-2" />
-                  Usuário #{usuarioSelecionado?.id} - Detalhes
-                </Modal.Title>
-              </Modal.Header>
+              <Modal.Header closeButton closeVariant="white" className="bg-primary text-white">
+  <Modal.Title className="d-flex align-items-center">
+    <FaUser className="me-2" />
+    Usuário #{usuarioSelecionado?.id} - Detalhes
+  </Modal.Title>
+</Modal.Header>
 
               <Modal.Body className="p-4">
                 {/* SEÇÃO: Informações Pessoais */}
@@ -309,28 +327,29 @@ const UsuarioEspecialList = ({ usuarios, onDelete, onEdit, loading }) => {
                     Informações Pessoais
                   </h5>
                   <Row>
-                    <Col md={6}>
+                  <Col md={6}>
+                    <p className="mb-2">
+                      <strong><FaUser className="me-2 text-muted" />Nome:</strong> {formatarNome(usuarioSelecionado?.nome_completo)}
+                    </p>
+                    <p className="mb-2">
+                      <strong><FaIdCard className="me-2 text-muted" />CPF: </strong> 
+                      {usuarioSelecionado?.cpf ? formatarCPF(usuarioSelecionado.cpf) : 'Não informado'}
+                    </p>
+                    {usuarioSelecionado?.data_nascimento && (
                       <p className="mb-2">
-                        <strong><FaUser className="me-2 text-muted" />Nome:</strong> {formatarNome(usuarioSelecionado?.nome_completo)}
+                        <strong><FaCalendarAlt className="me-2 text-muted" />Data de Nascimento:</strong> {formatarData(usuarioSelecionado.data_nascimento)}
                       </p>
-                      <p className="mb-2">
-                        <strong><FaIdCard className="me-2 text-muted" />CPF:</strong> {formatarCPF(usuarioSelecionado?.cpf)}
-                      </p>
-                      {usuarioSelecionado?.data_nascimento && (
-                        <p className="mb-2">
-                          <strong>Data de Nascimento:</strong> {formatarData(usuarioSelecionado.data_nascimento)}
-                        </p>
-                      )}
-                    </Col>
-                    <Col md={6}>
-                      <p className="mb-2">
-                        <strong><FaEnvelope className="me-2 text-muted" />Email:</strong> {usuarioSelecionado?.email || 'Não informado'}
-                      </p>
-                      <p className="mb-2">
-                        <strong><FaPhone className="me-2 text-muted" />Telefone:</strong> {formatarTelefone(usuarioSelecionado?.telefone) || 'Não informado'}
-                      </p>
-                    </Col>
-                  </Row>
+                    )}
+                  </Col>
+                  <Col md={6}>
+                    <p className="mb-2">
+                      <strong><FaEnvelope className="me-2 text-muted" />Email:</strong> {usuarioSelecionado?.email || 'Não informado'}
+                    </p>
+                    <p className="mb-2">
+                      <strong><FaPhone className="me-2 text-muted" />Telefone:</strong> {formatarTelefone(usuarioSelecionado?.telefone) || 'Não informado'}
+                    </p>
+                  </Col>
+                </Row>
                 </div>
 
                 {/* SEÇÃO: Informações do Usuário */}

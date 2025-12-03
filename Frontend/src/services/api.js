@@ -44,7 +44,6 @@ class ApiService {
         return this.request('/auth/me')
     }
 
-    // ... resto dos métodos igual ao anterior
 }
 
 export default new ApiService();

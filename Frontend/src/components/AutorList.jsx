@@ -264,7 +264,7 @@ const AutorList = ({ autores, onDelete, onEdit, loading }) => {
 
             {/* Modal para mostrar detalhes do autor */}
             <Modal show={showDetalhesModal} onHide={handleCloseDetalhesModal} size="lg">
-              <Modal.Header closeButton className="bg-primary text-white">
+              <Modal.Header closeButton closeVariant="white" className="bg-primary text-white">
                 <Modal.Title className="d-flex align-items-center">
                   <FaUser className="me-2" />
                   Autor #{autorSelecionado?.id} - Detalhes

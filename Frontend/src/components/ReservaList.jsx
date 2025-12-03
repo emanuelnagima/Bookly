@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, Table, Form, InputGroup, Button, Badge, Row, Col, Modal } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaTimesCircle, FaCheckCircle, FaBook, FaList, FaExclamationTriangle, FaClipboardList } from 'react-icons/fa';
 import { FaCalendarAlt } from "react-icons/fa";
-
+import { FaExchangeAlt } from 'react-icons/fa';
 const ITENS_POR_PAGINA = 7;
 
 const formatarTexto = texto =>
@@ -35,7 +35,7 @@ const formatarTelefone = (telefone) => {
   return telefone;
 };
 
-const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loading }) => {
+const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, loading }) => {
   const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [filtroStatus, setFiltroStatus] = useState('todos');
@@ -72,31 +72,48 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
     });
   };
 
+  // Normalização para busca
+const normalizarTexto = texto =>
+  (texto || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+    .trim();
+
   // Filtrar reservas
-  const reservasFiltradas = reservas.filter(reserva => {
-    if (!termoBusca && filtroStatus === 'todos') return true;
+// Filtrar reservas
+const reservasFiltradas = reservas.filter(reserva => {
+  if (!termoBusca && filtroStatus === 'todos') return true;
 
-    const termo = termoBusca.toLowerCase();
-    const matchesBusca = !termoBusca || (
-      (reserva.usuario || '').toLowerCase().includes(termo) ||
-      (reserva.livro_titulo || '').toLowerCase().includes(termo) ||
-      (reserva.id || '').toString().toLowerCase().includes(termo)
-    );
+  const termo = normalizarTexto(termoBusca);
+  
+  // Busca no usuário, ID e título do livro principal
+  const buscaUsuario = normalizarTexto(reserva.usuario || '').includes(termo);
+  const buscaId = (reserva.id || '').toString().includes(termo);
+  const buscaLivroPrincipal = normalizarTexto(reserva.livro_titulo || '').includes(termo);
+  
+  // Busca nos títulos dos livros da lista de livros (se houver múltiplos)
+  const buscaLivros = (reserva.livros || []).some(livro => 
+    normalizarTexto(livro.livro_titulo || '').includes(termo)
+  );
+  
+  // Combina todas as buscas
+  const matchesBusca = !termoBusca || buscaUsuario || buscaId || buscaLivroPrincipal || buscaLivros;
 
-    const hoje = new Date();
-    const validade = new Date(reserva.data_validade);
+  const hoje = new Date();
+  const validade = new Date(reserva.data_validade);
 
-    // 🔍 Calcula status dinâmico
-    let statusCalculado = reserva.status;
-    if (reserva.status === 'ativa' && validade < hoje) {
-      statusCalculado = 'expirada';
-    }
+  // Calcula status dinâmico
+  let statusCalculado = reserva.status;
+  if (reserva.status === 'ativa' && validade < hoje) {
+    statusCalculado = 'expirada';
+  }
 
-    const matchesStatus =
-      filtroStatus === 'todos' || statusCalculado === filtroStatus;
+  const matchesStatus =
+    filtroStatus === 'todos' || statusCalculado === filtroStatus;
 
-    return matchesBusca && matchesStatus;
-  });
+  return matchesBusca && matchesStatus;
+});
 
   // Aplicar ordenação
   const reservasOrdenadas = ordenarReservas(reservasFiltradas);
@@ -122,7 +139,7 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
     if (paginaAtual < totalPaginas) setPaginaAtual(paginaAtual + 1);
   };
 
-  // Função para verificar situação da reserva - ATUALIZADA
+  // Função para verificar situação da reserva 
   const verificarSituacao = (dataValidade, status) => {
     if (status === 'concluida') {
       return { situacao: 'concluida', classe: 'text-dark', texto: 'Concluída' };
@@ -159,7 +176,7 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
         }
         return <Badge bg="success">Reservado</Badge>;
       case 'cancelada':
-        return <Badge bg="secondary">Cancelada</Badge>;
+        return <Badge bg="secondary">Cancelado</Badge>;
       case 'concluida':
         return <Badge bg="dark">Finalizado</Badge>;
       default:
@@ -230,7 +247,7 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
             <option value="ativa">Ativas</option>
             <option value="expirada">Expiradas</option>
             <option value="cancelada">Canceladas</option>
-            <option value="concluida">Finalizados</option>
+            <option value="concluida">Finalizadas</option>
           </Form.Select>
 
           {/* Seletor de Ordenação Melhorado */}
@@ -334,18 +351,25 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
                         {getStatusBadge(reserva.status, reserva.data_validade)}
                       </td>
 
-                      {/* Coluna Situação - ATUALIZADA */}
-                     {/* Coluna Situação - ATUALIZADA */}
-<td>
-  <span className={`small ${situacao.classe}`}>
-    {situacao.texto}
-  </span>
-</td>
+                     {/* Coluna Situação */}
+                      <td>
+                        <span className={`small ${situacao.classe}`}>
+                          {situacao.texto}
+                        </span>
+                      </td>
 
                       <td>
                         <div className="d-flex gap-2 justify-content-center">
                           {reserva.status === 'ativa' && (
                             <>
+                             <button
+                                className="btn-sm-custom btn-primary"
+                                onClick={() => onConverterEmprestimo(reserva.id)}
+                                title="Transformar em empréstimo"
+                                disabled={loading}
+                              >
+                                <FaExchangeAlt />
+                              </button>
                               <button
                                 className="btn-sm-custom btn-renovar"
                                 onClick={() => onCancelar(reserva.id)}
@@ -360,14 +384,6 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
                                 title="Concluir reserva"
                               >
                                 <FaCheckCircle />
-                              </button>
-
-                              <button
-                                className="btn-sm-custom btn-danger"
-                                onClick={() => onDelete(reserva.id)}
-                                title="Excluir reserva"
-                              >
-                                <FaTrash />
                               </button>
                             </>
                           )}
@@ -386,7 +402,7 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
 
             {/* Modal para mostrar detalhes do livro */}
             <Modal show={showLivroModal} onHide={handleCloseLivroModal} size="lg">
-              <Modal.Header closeButton className="bg-primary text-white">
+              <Modal.Header closeButton closeVariant="white" className="bg-primary text-white">
                 <Modal.Title className="d-flex align-items-center">
                   <FaBook className="me-2" />
                   Reserva #{reservaSelecionada?.id} - Detalhes
@@ -434,7 +450,7 @@ const ReservaList = ({ reservas, onDelete, onEdit, onCancelar, onConcluir, loadi
                   </Row>
                 </div>
 
-                {/* SEÇÃO: Informações da Reserva - ATUALIZADA */}
+                {/* SEÇÃO: Informações da Reserva */}
                 <div className="mb-4 p-3 border rounded bg-white">
                   <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
                     Informações da Reserva

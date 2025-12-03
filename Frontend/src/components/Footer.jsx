@@ -13,6 +13,11 @@ import {
   FaBriefcase,
 } from "react-icons/fa";
 
+import { useNavigate } from "react-router-dom"; 
+import { useAuth } from "../hooks/useAuth"; 
+
+
+
 const Footer = () => {
   const GOOGLE_FORM_FEEDBACK =
     "https://docs.google.com/forms/d/e/1FAIpQLSdile2sE5o6hre6OHWinb7Vi8WS_ZsXP0FseoYQ85MVEhaJDA/viewform?usp=pp_url";
@@ -24,6 +29,18 @@ const Footer = () => {
   const [showHelpModal, setShowHelpModal] = useState(false);
   const handleCloseHelpModal = () => setShowHelpModal(false);
 
+const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  // FUNÇÃO PARA LOGOUT (igual à da sidebar)
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    }
+  };
   return (
     <footer className="rodape-principal">
       <Container>
@@ -132,7 +149,7 @@ const Footer = () => {
                       href="/entrada"
                     className="small text-muted hover-underline"
                     >
-                      Entrada
+                      Entradas
                     </a>
                   </li>
                   <li>
@@ -140,7 +157,7 @@ const Footer = () => {
                       href="/saida"
                     className="small text-muted hover-underline"
                     >
-                      Saída
+                      Saídas
                     </a>
                   </li>
                   <li>
@@ -159,7 +176,14 @@ const Footer = () => {
                       Empréstimos
                     </a>
                   </li>
-      
+                  <li>
+                    <a
+                      href="/Estatisticas "
+                      className="small text-muted hover-underline"
+                    >
+                      Dashboard
+                    </a>
+                  </li>
                   <li>
                     <a
                       href="/relatorios"
@@ -195,14 +219,18 @@ const Footer = () => {
                       Ajuda
                     </a>
                   </li>
-                  <li>
-                    <a
-                      href="/login"
-                      className="small text-muted hover-underline"
-                    >
-                      Sair do sistema
-                    </a>
-                  </li>
+               <li>
+  <a
+    href="#"
+    onClick={(e) => {
+      e.preventDefault();
+      handleLogout();
+    }}
+    className="small text-muted hover-underline"
+  >
+    Sair do sistema
+  </a>
+</li>
                   <li>
                     <a
                       href={GOOGLE_FORM_FEEDBACK}
@@ -325,7 +353,7 @@ const Footer = () => {
           <p className="mb-0 small text-muted">
             &copy; {new Date().getFullYear()} Bookly. Todos os direitos
             reservados. <br />
-            Versão 1.0.0 em desenvolvimento 
+            Versão 1.0.0
           </p>
         </div>
 
@@ -338,9 +366,11 @@ const Footer = () => {
         >
           <Modal.Header closeButton className="modal-header-help">
             <Modal.Title className="text-white">
-              <FaInfoCircle className="me-2" /> Precisa de ajuda?
+              <FaInfoCircle className="me-2" />
+              Precisa de ajuda?
             </Modal.Title>
           </Modal.Header>
+
           <Modal.Body className="modal-body-help">
             <div className="contact-options">
               <div className="contact-method">
@@ -358,13 +388,6 @@ const Footer = () => {
                 </div>
               </div>
               <div className="contact-method mt-3">
-                <div className="method-icon hours-icon">
-                  <FaBriefcase size={32} />
-                </div>
-                <div className="method-info">
-                  <h5>Horário de atendimento</h5>
-                  <p>Segunda a sexta, das 8h às 18h</p>
-                </div>
               </div>
             </div>
           </Modal.Body>

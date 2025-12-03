@@ -148,17 +148,34 @@ class ReservasRepository {
         }
     }
 
-    async cancelar(id) {
-        try {
-            await db.execute(
-                'UPDATE reservas SET status = "cancelada" WHERE id = ?',
-                [id]
-            );
-            return this.findById(id);
-        } catch (error) {
-            throw new Error(`Erro ao cancelar reserva: ${error.message}`);
+async cancelar(id, motivo = '') {
+    try {
+        console.log(`Cancelando reserva ${id} com motivo:`, motivo);
+        
+        const query = `
+            UPDATE reservas 
+            SET 
+                status = 'cancelada',
+                data_cancelamento = NOW(),
+                motivo_cancelamento = ?
+            WHERE id = ? AND status = 'ativa'
+        `;
+        
+        const [result] = await db.execute(query, [motivo || null, id]);
+        
+        if (result.affectedRows === 0) {
+            console.log(`Reserva ${id} não encontrada ou já não está ativa`);
+            return null;
         }
+        
+        console.log(`Reserva ${id} cancelada com sucesso`);
+        return await this.findById(id);
+        
+    } catch (error) {
+        console.error(`Erro ao cancelar reserva ${id}:`, error);
+        throw new Error(`Erro ao cancelar reserva: ${error.message}`);
     }
+}
 
     async concluir(id) {
         try {
@@ -217,9 +234,18 @@ async create(reservaData) {
             const estoqueDisponivel = livroInfo.estoque - totalReservado;
 
             // 3. Verificar se há estoque disponível
-            if (estoqueDisponivel < quantidadeSolicitada) {
-                throw new Error(`Estoque insuficiente para o livro "${livroInfo.titulo}". Disponível: ${estoqueDisponivel}, Solicitado: ${quantidadeSolicitada}`);
-            }
+            // No método create do ReservasRepository
+                if (estoqueDisponivel < quantidadeSolicitada) {
+                throw new Error(`
+                    ESTOQUE INSUFICIENTE
+                    Livro: "${livroInfo.titulo}"
+                    Disponível: ${estoqueDisponivel} exemplar(es)
+                    Solicitado: ${quantidadeSolicitada}
+                    
+                    Todos os exemplares estão atualmente emprestados.
+                    Aguarde a devolução ou escolha outro livro.
+                `);
+                }
 
             // 4. Verificar se já existe reserva ativa para este livro e usuário
             const [reservasExistentes] = await connection.execute(
@@ -322,21 +348,6 @@ async create(reservaData) {
         throw new Error(`Erro ao buscar reservas ativas: ${error.message}`);
     }
 }
-
-    // **MANTENHA os outros métodos (cancelar, concluir, update, delete, etc) como estão**
-    // Eles vão continuar funcionando porque usam o findById que agora busca da nova tabela
-
-    async cancelar(id) {
-        try {
-            await db.execute(
-                'UPDATE reservas SET status = "cancelada" WHERE id = ?',
-                [id]
-            );
-            return this.findById(id);
-        } catch (error) {
-            throw new Error(`Erro ao cancelar reserva: ${error.message}`);
-        }
-    }
 
     async concluir(id) {
         try {
@@ -455,7 +466,7 @@ async update(id, reservaData) {
         }
     }
 
-   async getReservasExpiradas() {
+async getReservasExpiradas() {
     try {
         const [rows] = await db.execute(`
             SELECT 
@@ -468,11 +479,13 @@ async update(id, reservaData) {
                 END as usuario
             FROM reservas r
             LEFT JOIN reserva_livros rl ON r.id = rl.reserva_id
-            WHERE r.status = 'ativa' AND r.data_validade < CURDATE()
+            WHERE 
+                r.status = 'ativa'
+                AND r.data_validade < CURDATE()
             GROUP BY r.id
-            ORDER BY r.data_validade ASC
+            ORDER BY r.data_reserva ASC
         `);
-        
+
         const reservasComLivros = await Promise.all(
             rows.map(async (row) => {
                 const [livros] = await db.execute(`
@@ -501,6 +514,7 @@ async update(id, reservaData) {
         throw new Error(`Erro ao buscar reservas expiradas: ${error.message}`);
     }
 }
+
     async getReservasPorUsuario(usuarioId, usuarioTipo) {
         try {
             const [rows] = await db.execute(`

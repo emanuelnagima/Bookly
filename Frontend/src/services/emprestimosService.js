@@ -2,13 +2,13 @@ const API_BASE_URL = 'http://localhost:3000/api/emprestimos';
 
 // services/emprestimosService.js - Atualize a função handleResponse
 
+// Função handleResponse melhorada (use em ambos os services)
 const handleResponse = async (response) => {
   const contentType = response.headers.get('content-type');
   
   if (!response.ok) {
     let errorMessage = `HTTP error! status: ${response.status}`;
     
-    // Tenta obter a mensagem de erro do servidor
     try {
       if (contentType && contentType.includes('application/json')) {
         const errorData = await response.json();
@@ -22,6 +22,11 @@ const handleResponse = async (response) => {
     }
     
     throw new Error(errorMessage);
+  }
+  
+  // Para respostas vazias (como em alguns DELETE)
+  if (response.status === 204) {
+    return { success: true };
   }
   
   const data = await response.json();
@@ -185,13 +190,37 @@ const verificarDisponibilidade = async (livroId, quantidade = 1) => {
     const response = await fetch(`${API_BASE_URL}/disponibilidade/${livroId}?quantidade=${quantidade}`, {
       credentials: 'include'
     });
-    const result = await handleResponse(response);
+    
+    if (!response.ok) {
+      // Se a rota não existir ainda, usa fallback
+      const livroResponse = await fetch(`http://localhost:3000/api/livros/${livroId}`, {
+        credentials: 'include'
+      });
+      
+      if (livroResponse.ok) {
+        const livroData = await livroResponse.json();
+        return {
+          success: true,
+          data: {
+            podeReservar: (livroData.data.estoque || 0) >= quantidade,
+            disponivelExato: livroData.data.estoque || 0,
+            estoqueFisico: livroData.data.estoque || 0,
+            totalReservado: 0,
+            livro: livroData.data.titulo
+          }
+        };
+      }
+      
+      throw new Error('Erro ao verificar disponibilidade');
+    }
+    
+    const result = await response.json();
     return result;
   } catch (error) {
     console.error(`Erro ao verificar disponibilidade do livro ${livroId}:`, error);
     throw error;
   }
-}
+};
 const verificarEdicao = async (id) => {
   try {
     const response = await fetch(`${API_BASE_URL}/${id}/verificar-edicao`, {
@@ -205,7 +234,7 @@ const verificarEdicao = async (id) => {
   }
   
 };
-// Adicione este método ao seu emprestimosService.js
+
 const gerarRelatorio = async (filtros) => {
   try {
     const response = await fetch('http://localhost:3000/api/emprestimos/relatorios', {
@@ -226,18 +255,49 @@ const gerarRelatorio = async (filtros) => {
   }
 };
 
+const cancelar = async (id, motivo) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/${id}/cancelar`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ motivo_cancelamento: motivo }),
+    });
+    const result = await handleResponse(response);
+    return result.data;
+  } catch (error) {
+    console.error(`Erro ao cancelar empréstimo ${id}:`, error);
+    throw error;
+  }
+};
 
+const getCancelados = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/cancelados`, {
+      credentials: 'include'
+    });
+    const result = await handleResponse(response);
+    return result.data || [];
+  } catch (error) {
+    console.error('Erro ao buscar empréstimos cancelados:', error);
+    throw error;
+  }
+};
 
 const emprestimosService = {
   getAll,
   getById,
   getAtivos,
   getAtrasados,
+  getCancelados,
   getOpcoesUsuarios,
   add,
   update,
   renovar,
   finalizar,
+  cancelar,
   remove,
   verificarEdicao,
   verificarDisponibilidade,

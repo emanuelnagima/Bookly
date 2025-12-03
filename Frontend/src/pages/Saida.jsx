@@ -12,7 +12,6 @@ const Saida = () => {
   const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [ordenacao, setOrdenacao] = useState('titulo_asc');
-
   const [livroSelecionado, setLivroSelecionado] = useState(null);
   const [opcoes, setOpcoes] = useState({ origens: [] });
   const [formData, setFormData] = useState({
@@ -24,7 +23,11 @@ const Saida = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  // Carrega livros com estoque - FUNÇÃO ORIGINAL
+ useEffect(() => {
+    document.title = "Bookly - Saída de Livros";
+  }, []);
+
+  // Carrega livros com estoque 
   const loadLivros = async () => {
     try {
       setLoading(true);
@@ -49,7 +52,7 @@ const Saida = () => {
   };
 
 
-  // Carrega opções de saída - FUNÇÃO ORIGINAL
+  // Carrega opções de saída 
   const loadOpcoes = async () => {
     try {
       const data = await entradaSaidaService.getOpcoesSaida();
@@ -92,7 +95,7 @@ const Saida = () => {
     });
   };
 
-  // Filtrar livros - MANTIDO ORIGINAL
+  // Filtrar livros
   const livrosFiltrados = livros.filter(livro => {
     const termo = termoBusca.toLowerCase();
     return (
@@ -167,7 +170,7 @@ const Saida = () => {
 
     //  verifica contra estoqueDisponivel, não estoque físico
     if (formData.quantidade > (livroSelecionado.estoque || 0)) {
-      setError(`Quantidade maior que o estoque disponível. Disponível: ${livroSelecionado.estoque || 0}`);
+      setError(`Atenção: Quantidade maior que o estoque disponível. O exemplar está emprestado ou reservado e não está disponível para baixa. Disponível: ${livroSelecionado.estoque || 0}`);
       return;
     }
 
@@ -188,7 +191,7 @@ const Saida = () => {
 
   return (
     <Container className="py-4">
-      {/* Toast de sucesso - ORIGINAL */}
+      {/* Toast de sucesso */}
       <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
         <Toast show={showSuccess} onClose={() => setShowSuccess(false)} delay={4000} autohide bg="success">
           <Toast.Header>
@@ -203,23 +206,21 @@ const Saida = () => {
       {/* HEADER ORIGINAL PRESERVADO - MESMA ESTRUTURA DA ENTRADA */}
       <div className="rounded-3 p-4 mb-4 border">
         <Row className="align-items-center">
-          <Col md={8}>
+           <Col md={8}>
             <div className="d-flex align-items-center">
               <div className="me-3">
                 <i className="fas fa-book-open fa-2x" style={{ color: '#0b192c' }}></i>
               </div>
               <div>
                 <h4 className="fw-bold text-dark mb-1">Saída de Livros</h4>
+                <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
+                  Registro e controle das saídas e baixas do acervo
+                </p>
               </div>
             </div>
           </Col>
           <Col md={4} className="text-md-end">
             <div className="d-flex justify-content-end flex-wrap gap-2">
-              {livroSelecionado && (
-                <Badge bg="danger" className="px-3 py-2">
-                  Livro Selecionado
-                </Badge>
-              )}
             </div>
           </Col>
         </Row>
@@ -349,7 +350,7 @@ const Saida = () => {
 
                               <td className="text-center">
                                 <Button
-                                  variant={isSelected ? 'danger' : 'btn btn-danger'}
+                                  variant={isSelected ? 'danger' : 'paginacao'}
                                   size="sm"
                                   onClick={() => selecionarLivro(livro)}
                                   disabled={isSelected}
@@ -402,14 +403,12 @@ const Saida = () => {
           </Card>
         </Col>
 
-        {/* Formulário de Saída - MANTIDO ORIGINAL (apenas estrutura visual) */}
         <Col lg={6}>
           {livroSelecionado ? (
             <>
-              {/* Card do Livro Selecionado */}
               {/* Card do Livro Selecionado - SAÍDA */}
               <Card className="mb-3">
-                <Card.Header className="bg-danger text-white d-flex justify-content-between align-items-center">
+                <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
                   <h6 className="mb-0">
                     Livro Selecionado
                   </h6>
@@ -453,31 +452,23 @@ const Saida = () => {
                         </div>
                       </div>
 
-                      {/* SEÇÃO DE ESTOQUE ORGANIZADA - ADAPTADA PARA SAÍDA */}
+                      {/* SEÇÃO DE ESTOQUE   */}
                       <div className="mt-3 pt-2 border-top">
                         <div className="row small">
-                          <div className="col-12 mb-2">
+                          <div className="col-12 mb-0">
                             <div className="d-flex justify-content-between align-items-center">
-                              <strong>
-                                Estoque físico total:
-                              </strong>
+                              <strong>Estoque físico total:</strong>
                               <Badge bg="primary">
                                 {livroSelecionado.estoqueInfo?.estoqueFisico || livroSelecionado.estoque || 0} unidades
                               </Badge>
                             </div>
                           </div>
                           <div className="col-12 mb-2">
-                            <div className="d-flex justify-content-between align-items-center">
-                              <strong>Atualmente emprestado:</strong>
-                              <Badge bg="warning" text="dark">
-                                {livroSelecionado.estoqueInfo?.totalEmprestado || 0} unidades
-                              </Badge>
-                            </div>
                           </div>
                           <div className="col-12 mb-2">
                             <div className="d-flex justify-content-between align-items-center">
                               <strong>Disponível para baixa:</strong>
-                              <Badge bg="info">
+                              <Badge bg="success">
                                 {livroSelecionado.estoque || 0} unidades
                               </Badge>
                             </div>
@@ -497,7 +488,7 @@ const Saida = () => {
                 </Card.Body>
               </Card>
 
-              {/* Formulário de Registro - ORIGINAL */}
+              {/* Formulário de Registro */}
               <Card>
                 <Card.Header className="bg-primary text-white">
                   <h6 className="mb-0">
@@ -520,17 +511,18 @@ const Saida = () => {
                           ))}
                         </Form.Select>
                       </Col>
-                      {/* 🟡 ADICIONE O ALERT AQUI - ANTES do campo Quantidade */}
                       {livroSelecionado && livroSelecionado.estoqueInfo && (
                         <Col md={12}>
                           <Alert variant="info" className="small py-2">
-                            <strong> Informações do Livro:</strong><br />
+                            <strong>Informações do Livro:</strong><br />
                             Disponível para baixa: <strong>{livroSelecionado.estoqueInfo.estoqueDisponivel} unidades</strong><br />
-                            Estoque físico total: {livroSelecionado.estoqueInfo.estoqueFisico} unidades<br />
-                            Atualmente emprestado: {livroSelecionado.estoqueInfo.totalEmprestado} unidades
+                            Estoque físico total: <strong>{livroSelecionado.estoqueInfo.estoqueFisico} unidades<br /></strong>
+                            Atualmente emprestado:<strong> {livroSelecionado.estoqueInfo.totalEmprestado} unidades<br /></strong>
+                            Atualmente reservado:  <strong>{livroSelecionado.estoqueInfo.totalReservado} unidades</strong>
                           </Alert>
                         </Col>
                       )}
+
                       <Col md={6}>
                         <Form.Label className="fw-semibold">Quantidade</Form.Label>
                         <Form.Control
@@ -548,26 +540,41 @@ const Saida = () => {
                     </Row>
 
                     <Form.Group className="mb-3">
-                      <Form.Label className="fw-semibold">
-                        Observações
-                        <Badge bg="warning" text="dark" className="ms-2">Obrigatório</Badge>
-                      </Form.Label>
 
-                      <Alert variant="info" className="py-2 mb-2">
-                        <FaInfoCircle className="me-1" />
-                        <small>
-                          <strong>Registro obrigatório:</strong> Informe o motivo desta saída.
-                        </small>
-                      </Alert>
-
-                      <Form.Control
-                        as="textarea"
-                        rows={3}
-                        placeholder="Descreva o motivo da saída (ex: livro extraviado, danificado, empréstimo externo)..."
-                        value={formData.observacoes}
-                        onChange={e => setFormData({ ...formData, observacoes: e.target.value })}
+                     <Alert variant="" className="py-2 mb-2">
+                      <FaInfoCircle
+                        className="me-1"
+                        style={{ color: "var(--color-accent)" }}
                       />
+
+                      <small style={{ opacity: 0.9 }}>
+                        <strong style={{ color: "var(--color-accent)" }}>Obrigatório:</strong>{" "}
+                        Informe o motivo desta saída.
+                      </small>
+
+                      <p
+                        style={{
+                          fontSize: "0.7rem",
+                          marginTop: "2px",
+                          opacity: 0.7,
+                          lineHeight: "1.2",
+                        }}
+                      >
+                        O motivo da saída deve ser informado para manter rastreabilidade,
+                        garantir o controle histórico do acervo e registrar corretamente
+                        a movimentação do exemplar.
+                      </p>
+                    </Alert>
+
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      placeholder="(ex: adquirido em loja X, nota fiscal nº..., recebimento por doação, reposição de exemplar...)"
+                      value={formData.observacoes}
+                      onChange={e => setFormData({ ...formData, observacoes: e.target.value })}
+                    />
                     </Form.Group>
+
 
                     {error && (
                       <Alert variant="danger" className="mb-3">{error}</Alert>
@@ -578,7 +585,6 @@ const Saida = () => {
                         type="submit"
                         variant="danger"
                         disabled={loading || !formData.observacoes.trim()}
-                        className="flex-fill"
                       >
                         {loading ? (
                           <><Spinner animation="border" size="sm" /> Registrando...</>

@@ -1,16 +1,38 @@
 const API_BASE_URL = 'http://localhost:3000/api/reservas';
 
+// Função handleResponse melhorada (use em ambos os services)
 const handleResponse = async (response) => {
+  const contentType = response.headers.get('content-type');
+  
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    let errorMessage = `HTTP error! status: ${response.status}`;
+    
+    try {
+      if (contentType && contentType.includes('application/json')) {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } else {
+        const errorText = await response.text();
+        if (errorText) errorMessage = errorText;
+      }
+    } catch (e) {
+      console.error('Erro ao ler resposta de erro:', e);
+    }
+    
+    throw new Error(errorMessage);
   }
+  
+  // Para respostas vazias (como em alguns DELETE)
+  if (response.status === 204) {
+    return { success: true };
+  }
+  
   const data = await response.json();
   if (!data.success) {
     throw new Error(data.message || 'Erro na requisição');
   }
   return data;
 };
-
 const getAll = async () => {
   try {
     const response = await fetch(API_BASE_URL, {
@@ -63,33 +85,68 @@ const getPorLivro = async (livroId) => {
   }
 };
 
+
 const add = async (reserva) => {
-  try {    
-    const response = await fetch(API_BASE_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify(reserva),
-    });
+    try {    
+        const response = await fetch(API_BASE_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify(reserva),
+        });
+            
+        if (!response.ok) {
+            let errorMessage = `Erro ao processar reserva (${response.status})`;
+            
+            try {
+                const errorText = await response.text();
+                console.log(' Resposta de erro do servidor:', errorText);
+                
+                if (errorText) {
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        errorMessage = errorData.message || errorData.error || errorText;
+                    } catch (e) {
+                        errorMessage = errorText;
+                    }
+                }
+            } catch (e) {
+                console.error('Erro ao ler resposta:', e);
+            }
+            
+            throw new Error(errorMessage);
+        }
         
-    if (!response.ok) {
-      // Tente obter mais detalhes do erro
-      const errorText = await response.text();
-      throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.message || 'Erro ao processar reserva');
+        }
+        return result.data;
+        
+    } catch (error) {
+        console.error(' Erro ao adicionar reserva:', error);
+        
+        let friendlyMessage = error.message;
+        
+        if (error.message.includes('Estoque insuficiente') || error.message.includes('ESTOQUE INSUFICIENTE')) {
+            const livroMatch = error.message.match(/Livro: "([^"]+)"/);
+            const livroNome = livroMatch ? livroMatch[1] : 'o livro selecionado';
+            
+            friendlyMessage = `
+               Estoque insuficiente para reservar o
+               Livro: "${livroNome}"
+               Situação: Todos os exemplares estão emprestados ou reservados.
+              * Tente outro livro ou aguarde devolução *
+            `;
+        } else if (error.message.includes('já possui reserva ativa')) {
+            friendlyMessage = 'Você já possui uma reserva ativa para este livro';
+        }
+        
+        throw new Error(friendlyMessage);
     }
-    
-    const result = await response.json();
-    
-    if (!result.success) {
-      throw new Error(result.message || 'Erro na requisição');
-    }
-    return result.data;
-  } catch (error) {
-    console.error(' Erro ao adicionar reserva:', error);
-    throw error;
-  }
 };
 
 const update = async (id, reserva) => {

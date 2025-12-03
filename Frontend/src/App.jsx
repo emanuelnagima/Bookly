@@ -5,6 +5,7 @@ import './App.css';
 import AuthProvider from './components/AuthProvider';
 import ProtectedRoute from './components/ProtectedRoute';
 
+
 // Layout
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
@@ -16,6 +17,7 @@ import Login from './pages/Login'; // JÁ ATUALIZADO
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import FAQ from './pages/FAQ';
 import TermsOfUse from './pages/TermsOfUse';
+import Estatisticas from './pages/Estatisticas';
 
 // Listagens
 import Livros from './pages/Livros';
@@ -26,7 +28,7 @@ import Editoras from './pages/Editoras';
 import UsuariosEspeciais from './pages/UsuariosEspeciais';
 import Entrada from './pages/Entrada';
 import Saida from './pages/Saida';
-
+import RelatoriosGerais from './pages/RelatoriosGerais';
 import Emprestimos from './pages/Emprestimos';
 import Reservas from './pages/Reservas';
 
@@ -108,15 +110,20 @@ function App() {
                         </ProtectedRoute>
                       } />
                       <Route path="/emprestimos" element={
-  <ProtectedRoute roles={['admin', 'operador']}>
-    <Emprestimos />
-  </ProtectedRoute>
-} />
-<Route path="/reservas" element={
-  <ProtectedRoute roles={['admin', 'operador']}>
-    <Reservas />
-  </ProtectedRoute>
-} />
+                        <ProtectedRoute roles={['admin', 'operador']}>
+                          <Emprestimos />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/reservas" element={
+                        <ProtectedRoute roles={['admin', 'operador']}>
+                          <Reservas />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/relatorios" element={
+                        <ProtectedRoute roles={['admin', 'operador']}>
+                          <RelatoriosGerais />
+                        </ProtectedRoute>
+                      } />
                       {/* Cadastros - Apenas admin */}
                       <Route path="/cadastros/livros" element={
                         <ProtectedRoute roles={['admin']}>
@@ -178,7 +185,11 @@ function App() {
                           <CadastroUsuariosEspeciais />
                         </ProtectedRoute>
                       } />
-
+                      <Route path="/estatisticas" element={
+                        <ProtectedRoute roles={['admin', 'operador']}>
+                          <Estatisticas />
+                        </ProtectedRoute>
+                      } />
 
                       
                       {/* Redireciona rotas desconhecidas para home */}

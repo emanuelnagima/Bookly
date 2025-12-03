@@ -16,6 +16,10 @@ const Autores = () => {
   const [toastMessage, setToastMessage] = useState('')
   const [operationType, setOperationType] = useState('')
 
+ useEffect(() => {
+    document.title = "Bookly - Autores";
+  }, []);
+
   const loadAutores = async () => {
     try {
       setLoading(true)
@@ -163,7 +167,9 @@ const handleDeleteAutor = async () => {
               </div>
               <div>
                 <h4 className="fw-bold text-dark mb-1">Autores</h4>
-               
+                <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
+                  Cadastro e gerenciamento de autores do sistema
+                </p>
               </div>
             </div>
           </Col>

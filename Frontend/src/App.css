@@ -46,6 +46,86 @@
   --help-size: 48px;
   --devs-grid-min: 280px;
 }
+/* Adicione ao seu CSS */
+.relatorio-estatistica {
+  border-left: 4px solid #007bff;
+  padding-left: 15px;
+}
+
+.relatorio-card {
+  transition: transform 0.2s;
+}
+
+.relatorio-card:hover {
+  transform: translateY(-2px);
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .table {
+    font-size: 12px;
+  }
+}
+
+
+/* animação dos elementos*/
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-fade-in-left {
+  animation: fadeInLeft 0.6s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-right {
+  animation: fadeInRight 0.6s ease-out 0.4s forwards;
+  opacity: 0;
+}
+
+.animate-delay-1 {
+  animation-delay: 0.2s;
+}
+
+.animate-delay-2 {
+  animation-delay: 0.4s;
+}
 
 /* ====== RESET BÁSICO E ESTILOS GERAIS ====== */
 body.tema-padrao {
@@ -57,6 +137,11 @@ body.tema-padrao {
   font-size: var(--font-size-base);
   background: linear-gradient(to bottom, #f0f4f8, #ffffff);
 }
+
+.help-modal .modal-header .btn-close {
+  filter: brightness(0) invert(1) !important;
+}
+
 
 /* ====== CONTEÚDO PRINCIPAL ====== */
 .app-container {
@@ -372,8 +457,8 @@ transition: all 0.25s ease;}
 }
 
 .sem-imagem {
-  width: 150px;
-  height: 220px;
+  width: 80px;
+  height: 120px;
   background-color: #f8f9fa;
   border-radius: 6px;
   display: flex;
@@ -458,25 +543,64 @@ transition: all 0.25s ease;}
 .livrolist-sem-imagem {
   width: 120px;
   height: 180px;
-  background-color: #141414;
-  border-radius: 4px;
-  border: 1px solid #333;
+  background-color: #f8f9fa;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #e9ecef;
+  color: #6c757d;
+}/* Adicione ao seu arquivo CSS global */
+.hover-card {
+  transition: all 0.2s ease;
+}
+
+.hover-card:hover {
+  background-color: #f8f9ff;
+  transform: translateY(-2px);
+  border-color: #5b2cff !important;
+  box-shadow: 0 4px 12px rgba(91, 44, 255, 0.1);
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e0e4ff;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.info-item:hover {
+  background-color: #f8f9ff;
+}
+
+.icon-pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .livrolist-lista-sem-imagem {
   width: 45px;
   height: 60px;
-  background-color: #141414;
-  border-radius: 2px;
-  border: 1px solid #333;
+  background-color: #f8f9fa;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #e9ecef;
+  color: #6c757d;
 }
 
 .livrolist-livro-card-body {
@@ -490,28 +614,29 @@ transition: all 0.25s ease;}
   min-width: 40px;
 }
 
-/* Estilos para o modal */
 .livrolist-modal-imagem {
-  max-height: 280px;
+  width: 160px;       /* largura menor */
+  height: 240px;      /* altura maior */
   object-fit: cover;
   border-radius: 4px;
   background-color: #141414;
   border: 1px solid #333;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  display: block;
+  margin: 0 auto;
 }
 
 .livrolist-modal-sem-imagem {
-  width: 180px;
-  height: 230px;
-  background-color: #141414;
-  border-radius: 4px;
-  border: 1px solid #333;
+  width: 240px;
+  height: 340px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #e9ecef;
-  margin: 0 auto;
+  color: #6c757d;
 }
+
 .btn-sm-custom {
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
@@ -536,6 +661,293 @@ transition: all 0.25s ease;}
   background-color: var(--color-sidebar) !important;
   color: var(--color-white) !important;
   border: none !important;
+}/* ====== ESTILOS DO CABEÇALHO HOME ====== */
+
+/* Container principal do cabeçalho */
+.home-header {
+  background: var(--color-page);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border: 1px solid var(--color-card-border);
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+}
+
+.home-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-accent), #5b2cff);
+  z-index: 1;
+}
+
+/* Layout flex interno */
+.home-header .d-flex {
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+/* Logo e Nome do Sistema */
+.home-header h1 {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+  font-size: 3.8rem;
+  background: linear-gradient(90deg, var(--color-accent), #5b2cff, #2119b4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.1rem;
+  letter-spacing: -2px;
+  position: relative;
+  display: inline-block;
+}
+
+.home-header h1::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent), #5b2cff);
+  border-radius: 2px;
+  opacity: 0.3;
+}
+
+/* Subtítulo */
+.home-header .text-secondary {
+  color: var(--color-muted) !important;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.home-header strong {
+  color: var(--color-sidebar);
+  font-weight: 600;
+}
+
+/* Container do email */
+.home-header .me-0 {
+  color: var(--color-accent);
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+/* Boas-vindas */
+.home-header .fw-bold.text-primary {
+  color: var(--color-sidebar) !important;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid rgba(33, 25, 180, 0.1);
+}
+
+/* Data atual */
+.home-header .text-muted.mb-2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.8rem;
+  background: rgba(11, 25, 44, 0.03);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-card-border);
+  color: var(--color-foreground) !important;
+  font-weight: 500;
+  margin-bottom: 1rem !important;
+}
+
+.home-header .text-muted.mb-2 .me-1 {
+  color: var(--color-accent);
+}
+
+/* Card de informações do sistema */
+.home-header .rounded-3 {
+  border: 1px solid var(--color-card-border) !important;
+  background: var(--color-white) !important;
+  max-width: 360px;
+  padding: 1.2rem !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition-fast);
+}
+
+.home-header .rounded-3:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+/* Título do card */
+.home-header small {
+  color: var(--color-accent) !important;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  font-size: 0.8rem;
+  display: block;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(33, 25, 180, 0.1);
+}
+
+/* Lista de links */
+.home-header .list-unstyled {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.home-header .list-unstyled li {
+  display: flex;
+  align-items: center;
+}
+
+.home-header .list-unstyled li::before {
+  content: '→';
+  color: var(--color-accent);
+  margin-right: 0.5rem;
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+.home-header .list-unstyled a {
+  color: var(--color-foreground) !important;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.4rem 0.5rem;
+  border-radius: 4px;
+  transition: all var(--transition-fast);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.home-header .list-unstyled a::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--color-accent);
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+.home-header .list-unstyled a:hover {
+  background: rgba(33, 25, 180, 0.05);
+  color: var(--color-accent) !important;
+  padding-left: 0.8rem;
+  text-decoration: none !important;
+}
+
+.home-header .list-unstyled a.hover-underline:hover::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0.8rem;
+  right: 0;
+  height: 1px;
+  background: var(--color-accent);
+  opacity: 0.3;
+}
+
+/* Linha divisória na lista */
+.home-header .list-unstyled {
+  border-top: 1px solid var(--color-card-border);
+  padding-top: 0.8rem;
+}
+
+/* Ícones nos links (se quiser adicionar) */
+.home-header .list-unstyled a[href*="terms"]::before {
+  background: #ff6b6b;
+}
+
+.home-header .list-unstyled a[href*="privacy"]::before {
+  background: #4ecdc4;
+}
+
+.home-header .list-unstyled a[href*="sobre"]::before {
+  background: #45b7d1;
+}
+
+.home-header .list-unstyled a[href*="#"]::before {
+  background: #96ceb4;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .home-header {
+    padding: 1rem;
+  }
+  
+  .home-header h1 {
+    font-size: 2.8rem;
+    letter-spacing: -1px;
+  }
+  
+  .home-header .d-flex {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .home-header .text-end {
+    text-align: left !important;
+  }
+  
+  .home-header .rounded-3 {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-header h1 {
+    font-size: 2.2rem;
+  }
+  
+  .home-header .text-secondary {
+    font-size: 0.8rem;
+  }
+  
+  .home-header .list-unstyled a {
+    font-size: 0.8rem;
+  }
+}
+
+/* Animações suaves */
+.home-header .rounded-3 {
+  animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Efeito de brilho no logo */
+.home-header h1 {
+  animation: logoGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes logoGlow {
+  0% {
+    filter: brightness(1);
+    text-shadow: 0 0 5px rgba(33, 25, 180, 0.2);
+  }
+  100% {
+    filter: brightness(1.1);
+    text-shadow: 0 0 15px rgba(33, 25, 180, 0.3);
+  }
 }
 
 /* ====== BOTÃO DE AJUDA ====== */

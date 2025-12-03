@@ -37,7 +37,6 @@ const AuthProvider = ({ children }) => {
     }
   };
      
-  console.log('user', user);
   const value = {
     user,
     login,

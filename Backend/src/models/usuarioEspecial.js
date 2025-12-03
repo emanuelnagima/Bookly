@@ -5,6 +5,7 @@ class UsuarioEspecial {
         this.email = data.email || '';
         this.telefone = data.telefone || '';
         this.cpf = data.cpf || '';
+        this.data_nascimento = data.data_nascimento || null; 
         this.tipo_usuario = data.tipo_usuario || '';
         this.data_cadastro = data.data_cadastro || null;
 
@@ -21,6 +22,8 @@ class UsuarioEspecial {
         if (!this.telefone || this.telefone.trim() === '') erros.push('Telefone é obrigatório');
         if (!this.cpf || this.cpf.trim() === '') erros.push('CPF é obrigatório');
         if (!this.tipo_usuario || this.tipo_usuario.trim() === '') erros.push('Tipo de usuário é obrigatório');
+        
+        if (!this.data_nascimento) erros.push('Data de nascimento é obrigatória');
 
         if (this.email && !this.email.includes('@')) erros.push('Email inválido');
         if (this.tipo_usuario && !this.tiposValidos.includes(this.tipo_usuario)) erros.push(`Tipo de usuário inválido. Use: ${this.tiposValidos.join(', ')}`);
@@ -35,10 +38,10 @@ class UsuarioEspecial {
             email: this.email,
             telefone: this.telefone,
             cpf: this.cpf,
+            data_nascimento: this.data_nascimento, 
             tipo_usuario: this.tipo_usuario,
             data_cadastro: this.data_cadastro
         };
     }
 }
-
 module.exports = UsuarioEspecial;

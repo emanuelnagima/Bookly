@@ -16,33 +16,23 @@ import { Tooltip, OverlayTrigger } from "react-bootstrap";
 import entradaSaidaService from "../services/entradaSaidaService";
 
 import {
-  FaBookOpen,
   FaCalendarAlt,
   FaSearch,
   FaImage,
   FaChevronLeft,
   FaChevronRight,
   FaUserTie,
-  FaUserCircle,
-  FaUserGraduate,
   FaBook,
-  FaPenFancy,
   FaBuilding,
   FaDoorOpen,
   FaSignOutAlt,
   FaHandshake,
-  FaSyncAlt,
-  FaReply,
-  FaBox,
   FaChartBar,
   FaInfoCircle,
   FaEnvelope,
-  FaBriefcase,
   FaUsers,
-  FaChalkboardTeacher,
   FaGraduationCap,
   FaFeatherAlt,
-  FaUniversity,
 } from "react-icons/fa";
 import livroService from "../services/livroService";
 import professorService from "../services/professorService";
@@ -84,7 +74,7 @@ const Home = () => {
       year: "numeric",
     };
     setCurrentDate(new Date().toLocaleDateString("pt-BR", options));
-    const timer = setTimeout(() => setShowWelcome(false), 10000);
+    const timer = setTimeout(() => setShowWelcome(false), 7000); // 7 segundos
     return () => clearTimeout(timer);
   }, []);
 
@@ -241,13 +231,13 @@ const Home = () => {
       cards: [
         {
           icone: FaDoorOpen,
-          titulo: "Entrada",
+          titulo: "Entradas",
           descricao: "Registre a entrada de novos livros no acervo",
           link: "/entrada",
         },
         {
           icone: FaSignOutAlt,
-          titulo: "Saída",
+          titulo: "Saídas",
           descricao: "Registre a saída de livros do acervo do sistema",
           link: "/saida",
         },
@@ -265,181 +255,91 @@ const Home = () => {
         },
       ],
     },
+
     {
       titulo: "Relatórios",
       cards: [
         {
           icone: FaChartBar,
-          titulo: "Relatórios",
-          descricao: "Veja estatísticas e relatórios do acervo",
+          titulo: " Relatórios Gerais",
+          descricao: "Gere relatórios detalhados do sistema",
           link: "/relatorios",
+        },
+        {
+          icone: FaHandshake,
+          titulo: "Estatísticas e Dashboards",
+          descricao: "Acompanhe as estatísticas do sistema",
+          link: "/estatisticas",
         },
       ],
     },
   ];
 
   return (
-    <Container className="py-4">
+    <Container className="py-0">
       {/* CABEÇALHO */}
-      <Row className="mb-4">
-        <Col>
-          <div
+     <Row className="mb-0">
+  <Col>
+    <div
+      style={{
+        padding: "1rem",
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "space-between",
+        gap: "2rem",
+        flexWrap: "wrap",
+      }}
+    >
+      <div style={{ padding: "1rem" }} className="animate-fade-in-left">
+        {/* Logo e Nome do Sistema */}
+        <div>
+          <h1
             style={{
-              padding: "1rem",
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              gap: "2rem",
-              flexWrap: "wrap",
+              fontFamily: '"Montserrat", sans-serif',
+              fontWeight: "700",
+              fontSize: "3.8rem",
+              background: "linear-gradient(90deg, #2119b4, #5b2cff)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              marginBottom: "0.1rem",
+              letterSpacing: "-10px",
             }}
+            className="animate-fade-in-up"
           >
-            <div style={{ padding: "1rem" }}>
-              {/* Logo e Nome do Sistema */}
-              <div>
-                <h1
-                  style={{
-                    fontFamily: '"Montserrat", sans-serif',
-                    fontWeight: "700",
-                    fontSize: "3.8rem",
-                    background: "linear-gradient(90deg, #2119b4, #5b2cff)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    marginBottom: "0.1rem",
-                    letterSpacing: "-10px",
-                  }}
-                >
-                  Bookly
-                </h1>
-                <p style={{ fontSize: "1rem", margin: 0, color: "#6c757d" }}>
-                  <strong>Gestão para Bibliotecas</strong>
-                </p>
-                <p className="text-secondary small mb-0">
-                  Gerencie todo o acervo da sua biblioteca, controle empréstimos, reservas e mantenha seu sistema sempre atualizado.
-                </p>
+            Bookly
+          </h1>
 
-                {/* ESTATÍSTICAS DO SISTEMA */}
-                <div className="mt-3">
-                  <div className="d-flex flex-wrap gap-3">
-                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
-                      {livros.length} Livros
-                    </Badge>
-                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
-                      {estoqueTotal} em Estoque
-                    </Badge>
-                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
-                      {professores.length} Professores
-                    </Badge>
-                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
-                      {alunos.length} Alunos
-                    </Badge>
-                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
-                      {autores.length} Autores
-                    </Badge>
-                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
-                      {usuarios.length} Usuários
-                    </Badge>
-                    <Badge bg="light" text="secondary" className="px-3 py-2 border">
-                      {editoras.length} Editoras
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="d-flex flex-wrap justify-content-start align-items-center">
+          <p 
+            className="text-secondary small mb-0 animate-fade-in-up animate-delay-1" 
+            style={{ marginTop: "0.25rem", opacity: 0 }}
+          >
+            Gerencie todo o acervo da sua biblioteca
+          </p>
 
-
-              {/* Boas-vindas e Data */}
-              <div className="text-end" style={{ padding: "1rem" }}>
-                {showWelcome && (
-                  <h3 className="mb-3 fw-bold text-primary">
-                    Bem-vindo ao Bookly!
-                  </h3>
-                )}
-                <p className="text-muted mb-2">
-                  <FaCalendarAlt className="me-1" /> {currentDate}
-                </p>
-
-                <div
-                  className="rounded-3 p-3 mt-3"
-                  style={{
-                    border: "1px solid #e6e6e6",
-                    maxWidth: "360px",
-                    backgroundColor: "#f9f9f9",
-                  }}
-                >
-                  {/* Título / descrição */}
-                  <div style={{ marginBottom: "0.5rem" }}>
-                    <small
-                      style={{
-                        fontSize: "0.75rem",
-                        lineHeight: "1.3",
-                        color: "#025fbdff",
-                        display: "block",
-                      }}
-                    >
-                      Conheça as regras e condições do sistema
-                    </small>
-                  </div>
-
-                  {/* Links */}
-                  <ul
-                    className="list-unstyled m-0 p-0"
-                    style={{
-                      fontSize: "0.8rem",
-                      borderTop: "1px solid #e6e6e6",
-                      paddingTop: "0.5rem",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "0.25rem",
-                    }}
-                  >
-                    <li>
-                      <a
-                        href="/terms-of-use"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-muted hover-underline"
-                      >
-                        Termos de uso
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="/privacy-policy"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-muted hover-underline"
-                      >
-                        Política de Privacidade
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/sobre" className="text-muted hover-underline">
-                        Sobre
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setShowHelpModal(true);
-                        }}
-                        className="text-muted hover-underline"
-                      >
-                        Ajuda
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Col>
-      </Row>
-
-
-
+          <p 
+            className="text-secondary small mb-0 animate-fade-in-up animate-delay-2" 
+            style={{ marginTop: "0.25rem", opacity: 0 }}
+          >
+            <span className="me-1"><FaEnvelope /></span> booklysuporte@gmail.com
+          </p>
+        </div>
+      </div>
+      <div className="d-flex flex-wrap justify-content-start align-items-center animate-fade-in-right">
+        {/* Boas-vindas e Data */}
+        <div className="text-end" style={{ padding: "1rem" }}>
+          {showWelcome && (
+            <h3 className="mb-2 fw-bold text-info animate-fade-in-up">
+              Bem-vindo ao Bookly!
+            </h3>
+          )}
+          <p className="text-muted mb-2 animate-fade-in-up animate-delay-1">
+            <FaCalendarAlt className="me-1" /> {currentDate}
+          </p>
+        </div>
+      </div>
+    </div>
+  </Col>
+</Row>
       {/* LISTA DE LIVROS COM BARRA DE PESQUISA */}
       <Row className="mb-4">
         <Col>
@@ -657,6 +557,7 @@ const Home = () => {
             Precisa de ajuda?
           </Modal.Title>
         </Modal.Header>
+
         <Modal.Body className="modal-body-help">
           <div className="contact-options">
             <div className="contact-method">
@@ -674,13 +575,6 @@ const Home = () => {
               </div>
             </div>
             <div className="contact-method">
-              <div className="method-icon hours-icon">
-                <FaBriefcase size={32} />
-              </div>
-              <div className="method-info">
-                <h5>Horário de atendimento</h5>
-                <p>Segunda a sexta, das 8h às 18h</p>
-              </div>
             </div>
           </div>
         </Modal.Body>

@@ -25,8 +25,8 @@
   --shadow-sidebar: 4px 0 20px rgba(44, 62, 80, 0.4);
   --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);
   --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
-  --transition-fast: 0.3s ease;
-  --transition-slower: 0.5s ease;
+  --transition-fast: 0.2s ease;
+  --transition-slower: 0.4s ease;
   --btn-bg: var(--color-accent);
   --btn-bg-hover: #2119b4;
   --btn-color: var(--color-white);
@@ -72,12 +72,19 @@
   height: 100vh;
   background: rgba(0, 0, 0, 0.5);
   z-index: 999;
+  transition: opacity var(--transition-fast);
 }
 
 @media (max-width: 768px) {
   .sidebar-overlay.mobile-open {
     display: block;
+    animation: fadeIn 0.3s ease;
   }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Botão hamburger */
@@ -97,6 +104,12 @@
   justify-content: center;
   cursor: pointer;
   box-shadow: var(--shadow-card);
+  transition: all var(--transition-fast);
+}
+
+.sidebar-toggle:hover {
+  background: var(--color-accent);
+  transform: scale(1.05);
 }
 
 @media (max-width: 768px) {
@@ -110,6 +123,7 @@
   padding: 1.5rem 1.5rem 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.02);
+  transition: all var(--transition-fast);
 }
 
 .header-content-modern {
@@ -143,6 +157,7 @@
   -webkit-background-clip: unset;
   -webkit-text-fill-color: unset;
   background-clip: unset;
+  transition: all var(--transition-fast);
 }
 
 .system-description {
@@ -150,14 +165,15 @@
   color: rgba(190, 155, 155, 1);
   margin: 0.1rem 0 0.2rem;
   font-weight: 500;
+  transition: color var(--transition-fast);
 }
-
 
 .system-version {
   font-size: 0.65rem;
   color: #45ffd6;
   margin: 0;
   font-weight: 400;
+  transition: color var(--transition-fast);
 }
 
 /* ===== MENU PRINCIPAL ===== */
@@ -178,6 +194,11 @@
 .sidebar-menu::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 2px;
+  transition: background var(--transition-fast);
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
 }
 
 /* ===== LINKS DE NAVEGAÇÃO ===== */
@@ -200,22 +221,71 @@
   font-family: var(--font-sans);
 }
 
-
-
-/* ===== ESTILO ATIVO PADRONIZADO ===== */
+/* ===== ANIMAÇÃO SUTIL AO SELECIONAR ===== */
 .nav-link-modern.active,
-.submenu-link.active {
-  background: rgba(255, 255, 255, 0.12); 
+.submenu-link.active,
+.accordion-header.open {
+  background: rgba(99,102,241,0.08); /* leve brilho */
   color: var(--color-accent);
-  border-right: 3px solid var(--color-accent);
   font-weight: 600;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s ease, color 0.3s ease;
 }
+
+.nav-link-modern.active::before,
+.submenu-link.active::before,
+.accordion-header.open::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0%;
+  height: 100%;
+  background: rgba(99,102,241,0.2);
+  transition: width 0.35s ease;
+  z-index: 0;
+}
+
+.nav-link-modern.active:hover::before,
+.submenu-link.active:hover::before,
+.accordion-header.open:hover::before {
+  width: 100%;
+}
+
+.nav-link-modern.active span,
+.submenu-link.active span,
+.accordion-header.open span {
+  position: relative;
+  z-index: 1;
+}
+
+/* hover suave */
+.nav-link-modern:hover,
+.submenu-link:hover,
+.accordion-header:hover {
+  background: rgba(99,102,241,0.12);
+  transform: translateX(1px); /* só um leve movimento */
+  transition: all 0.25s ease;
+}
+
 
 .nav-link-modern.active .nav-icon,
 .submenu-link.active .nav-icon {
   color: var(--color-accent);
 }
 
+/* ===== HOVERS ===== */
+.nav-link-modern:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-white);
+  padding-left: 1.75rem;
+}
+
+.nav-link-modern:hover .nav-icon {
+  color: var(--color-accent);
+  transform: scale(1.1);
+}
 
 /* ===== ÍCONES ===== */
 .nav-icon {
@@ -247,6 +317,7 @@
   height: 1px;
   background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
   margin-bottom: 0.5rem;
+  transition: background var(--transition-fast);
 }
 
 .section-title {
@@ -256,6 +327,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   display: block;
+  transition: color var(--transition-fast);
 }
 
 .accordion-item {
@@ -280,10 +352,12 @@
 .accordion-header:hover {
   color: var(--color-white);
   background: rgba(255, 255, 255, 0.05);
+  padding-left: 1.75rem;
 }
 
 .accordion-header:hover .nav-icon {
   color: var(--color-accent);
+  transform: scale(1.1);
 }
 
 .accordion-header.open {
@@ -316,10 +390,12 @@
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    max-height: 0;
+    transform: translateY(-8px);
   }
   to {
     opacity: 1;
+    max-height: 500px;
     transform: translateY(0);
   }
 }
@@ -336,6 +412,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  transition: color var(--transition-fast);
 }
 
 .submenu-link {
@@ -355,12 +432,14 @@
 .submenu-link:hover {
   color: var(--color-white);
   background: rgba(255, 255, 255, 0.05);
+  padding-left: 2.75rem;
 }
 
 .submenu-link:hover .nav-icon {
   color: var(--color-accent);
+  transform: scale(1.1);
 }
-.nav-link-modern.active,
+
 .submenu-link.active {
   background: rgba(0, 0, 0, 0.103);
   color: var(--color-accent);
@@ -368,34 +447,30 @@
   font-weight: 600;
 }
 
-.nav-link-modern:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--color-accent);
-}
-
-.nav-link-modern:hover .nav-icon {
-  color: var(--color-accent);
-}
-
-.nav-link-modern.active .nav-icon,
 .submenu-link.active .nav-icon {
   color: var(--color-accent);
 }
-
 
 /* ===== BOTÃO DE LOGOUT ===== */
 .logout-btn {
   color: #ef4444 !important;
   margin-top: 0.5rem;
+  transition: all var(--transition-fast) !important;
 }
 
 .logout-btn:hover {
   color: #dc2626 !important;
   background: rgba(239, 68, 68, 0.1) !important;
+  padding-left: 1.75rem !important;
 }
 
 .logout-btn .nav-icon {
   color: inherit;
+  transition: transform var(--transition-fast);
+}
+
+.logout-btn:hover .nav-icon {
+  transform: scale(1.1);
 }
 
 /* ===== PERFIL DO USUÁRIO ===== */
@@ -407,6 +482,7 @@
   backdrop-filter: blur(10px);
   position: relative;
   overflow: hidden;
+  transition: all var(--transition-fast);
 }
 
 .user-profile-modern::before {
@@ -417,6 +493,7 @@
   right: 1.5rem;
   height: 1px;
   background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+  transition: background var(--transition-fast);
 }
 
 .user-info {
@@ -453,7 +530,9 @@
   background: #10b981;
   border: 2px solid var(--color-sidebar);
   border-radius: 50%;
+  transition: all var(--transition-fast);
 }
+
 .user-details {
   flex: 1;
   min-width: 0; 
@@ -469,6 +548,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 150px; 
+  transition: color var(--transition-fast);
 }
 
 .user-role { 
@@ -482,6 +562,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 150px;
+  transition: color var(--transition-fast);
 }
 
 .user-email {
@@ -490,10 +571,11 @@
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.9rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color var(--transition-fast);
 }
 
 .user-profile-modern::after {
@@ -514,6 +596,12 @@
   opacity: 1;
 }
 
+.user-profile-modern:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
 /* Ajustes específicos para mobile */
 @media (max-width: 480px) {
   .sidebar-header-modern {
@@ -528,23 +616,45 @@
     font-size: 0.7rem;
   }
   
-  
   .nav-link-modern {
     padding: 1rem 1rem;
     font-size: 1rem;
+  }
+  
+  .nav-link-modern:hover {
+    padding-left: 1.25rem;
   }
   
   .accordion-header {
     padding: 1rem 1rem;
   }
   
+  .accordion-header:hover {
+    padding-left: 1.25rem;
+  }
+  
   .submenu-link {
     padding: 0.8rem 1rem 0.8rem 2rem;
+  }
+  
+  .submenu-link:hover {
+    padding-left: 2.25rem;
   }
   
   .user-profile-modern {
     padding: 1rem 1rem;
     margin: 0.5rem;
   }
-  
+}
+
+.nav-link-modern,
+.submenu-link,
+.accordion-header {
+  transition: padding var(--transition-fast), background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.nav-link-modern:hover,
+.submenu-link:hover,
+.accordion-header:hover {
+  transform: none;
 }

@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react'
-import { Card, Form, Col, Row, Button, Spinner } from 'react-bootstrap'
+import { Card, Form, Col, Row, Button, Spinner, InputGroup } from 'react-bootstrap'
 import { BsCheckCircle } from "react-icons/bs";
+import { FaLock } from 'react-icons/fa';
 
-// Máscaras 
+// Máscaras (REMOVER maskMatricula)
 const maskCPF = (value) => {
   return value
-    .replace(/\D/g, '') // Remove tudo   que não for número
-    .replace(/(\d{9})(\d)/, '$1-$2') //    Coloca traço entre o 9º e 10º dígito
-    .slice(0, 12) // Limita  pra  no máximo 11  números  + 1 traço
+    .replace(/\D/g, '')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4')
+    .slice(0, 14)
 }
 
 const maskTelefone = (value) => {
@@ -18,19 +21,10 @@ const maskTelefone = (value) => {
     .slice(0, 15)
 }
 
-const maskMatricula = (value) => {
-  return value
-    .replace(/\D/g, '')
-    .replace(/(\d{3})(\d)/, '$1.$2')
-    .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
-    .slice(0, 11)
-}
-
 const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
   const [alunoData, setAlunoData] = useState({
     id: null,
     nome: '',
-    matricula: '',
     cpf: '',
     data_nascimento: '',
     email: '',
@@ -45,7 +39,7 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
       setAlunoData({
         id: aluno.id,
         nome: aluno.nome || '',
-        matricula: maskMatricula(aluno.matricula),
+        // NÃO incluir matrícula aqui - ela virá do backend
         cpf: maskCPF(aluno.cpf),
         data_nascimento: aluno.data_nascimento || '',
         email: aluno.email || '',
@@ -56,7 +50,6 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
       setAlunoData({
         id: null,
         nome: '',
-        matricula: '',
         cpf: '',
         data_nascimento: '',
         email: '',
@@ -72,7 +65,7 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
     let maskedValue = value
     if (name === 'cpf') maskedValue = maskCPF(value)
     if (name === 'telefone') maskedValue = maskTelefone(value)
-    if (name === 'matricula') maskedValue = maskMatricula(value)
+    // REMOVER tratamento de matrícula
 
     setAlunoData(prev => ({
       ...prev,
@@ -83,7 +76,7 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
   const handleSubmit = (e) => {
     e.preventDefault()
     const form = e.currentTarget
-
+    
     if (form.checkValidity() === false) {
       e.stopPropagation()
       setValidated(true)
@@ -94,7 +87,7 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
       ...alunoData,
       cpf: alunoData.cpf.replace(/\D/g, ''),
       telefone: alunoData.telefone.replace(/\D/g, ''),
-      matricula: alunoData.matricula.replace(/\D/g, '')
+      // NÃO enviar matrícula - será gerada no backend
     }
 
     onSave(cleanedData)
@@ -107,6 +100,33 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
       </Card.Header>
       <Card.Body>
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
+          
+          {/* SEÇÃO DE MATRÍCULA (somente leitura para edição) */}
+          {alunoData.id && aluno?.matricula && (
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId='matricula'>
+                  <Form.Label>Matrícula</Form.Label>
+                  <InputGroup>
+                    <InputGroup.Text>
+                      <FaLock />
+                    </InputGroup.Text>
+                    <Form.Control
+                      type='text'
+                      value={aluno.matricula}
+                      readOnly
+                      disabled
+                      className='bg-light'
+                    />
+                  </InputGroup>
+                  <Form.Text className='text-muted'>
+                    Matrícula gerada automaticamente pelo sistema
+                  </Form.Text>
+                </Form.Group>
+              </Col>
+            </Row>
+          )}
+
           <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='nome'>
@@ -126,26 +146,6 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
               </Form.Group>
             </Col>
             <Col md={6}>
-              <Form.Group className='mb-3' controlId='matricula'>
-                <Form.Label>Matrícula</Form.Label>
-                <Form.Control
-                  type='text'
-                  name='matricula'
-                  placeholder='Ex: 2025-001'
-                  value={alunoData.matricula}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                />
-                <Form.Control.Feedback type='invalid'>
-                  Informe a matrícula (000.000.000)
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
-          </Row>
-
-          <Row>
-            <Col md={6}>
               <Form.Group className='mb-3' controlId='cpf'>
                 <Form.Label>CPF</Form.Label>
                 <Form.Control
@@ -158,10 +158,13 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
                   disabled={loading}
                 />
                 <Form.Control.Feedback type='invalid'>
-                  Informe o CPF (000.000.000-00)
+                  Informe o CPF
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>
+          </Row>
+
+          <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='data_nascimento'>
                 <Form.Label>Data de Nascimento</Form.Label>
@@ -178,9 +181,6 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>
-          </Row>
-
-          <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='email'>
                 <Form.Label>E-mail</Form.Label>
@@ -199,6 +199,9 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>
+          </Row>
+
+          <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='telefone'>
                 <Form.Label>Telefone</Form.Label>
@@ -208,20 +211,10 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
                   value={alunoData.telefone}
                   onChange={handleChange}
                   placeholder="(00) 00000-0000"
-                  required
                   disabled={loading}
                 />
-                <Form.Text className='text-muted'>
-                </Form.Text>
-                <Form.Control.Feedback type='invalid'>
-                  Informe o telefone
-                </Form.Control.Feedback>
-
               </Form.Group>
             </Col>
-          </Row>
-
-          <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='turma'>
                 <Form.Label>Turma</Form.Label>
@@ -233,6 +226,11 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
                   disabled={loading}
                 >
                   <option value=''>Selecione...</option>
+                  <option value='1º Ano'>1º Ano</option>
+                  <option value='2º Ano'>2º Ano</option>
+                  <option value='3º Ano'>3º Ano</option>
+                  <option value='4º Ano'>4º Ano</option>
+                  <option value='5º Ano'>5º Ano</option>
                   <option value='6º Ano'>6º Ano</option>
                   <option value='7º Ano'>7º Ano</option>
                   <option value='8º Ano'>8º Ano</option>

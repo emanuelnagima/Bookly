@@ -12,10 +12,13 @@ const Editoras = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const [operationType, setOperationType] = useState('')
+
+ useEffect(() => {
+    document.title = "Bookly - Editoras";
+  }, []);
 
   // Carregar editoras
   const loadEditoras = async () => {
@@ -187,6 +190,9 @@ const Editoras = () => {
               </div>
               <div>
                 <h4 className="fw-bold text-dark mb-1">Editoras</h4>
+                <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
+                  Cadastro e gerenciamento de editoras do sistema
+                </p>
               </div>
             </div>
           </Col>

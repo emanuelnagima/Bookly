@@ -2,58 +2,53 @@ class Professor {
     constructor(data) {
         this.id = data.id || null;
         this.nome = data.nome || '';
-        this.matricula = data.matricula || '';
+        this.cpf = data.cpf || '';
+        this.data_nascimento = data.data_nascimento || null;
+        this.matricula = data.matricula || ''; // Será gerada automaticamente
         this.email = data.email || '';
         this.telefone = data.telefone || '';
-        this.departamento = data.departamento || ''; 
-
-        // Departamentos permitidos 
+        this.departamento = data.departamento || '';
         this.departamentosPermitidos = [
-            'Educação Física',
-            'Matemática',
-            'Português',
-            'Ciências',
-            'História',
-            'Inglês',
-            'Geografia',
-            'Artes'
+            'Matemática', 'Ciências', 'Português', 'História', 'Geografia', 
+            'Inglês', 'Espanhol', 'Educação Física', 'Artes', 'Música', 
+            'Teatro', 'Filosofia', 'Sociologia', 'Biologia', 'Física', 
+            'Química', 'Informática', 'Programação', 'Administração', 
+            , 'Psicologia', 'Pedagogia'
         ];
     }
 
     validar() {
         const erros = [];
         
-        
+        // Validações obrigatórias
         if (!this.nome || this.nome.trim() === '') erros.push('Nome é obrigatório');
-        if (!this.matricula || this.matricula.trim() === '') erros.push('Matrícula é obrigatória');
+        // REMOVER: if (!this.matricula || this.matricula.trim() === '') erros.push('Matrícula é obrigatória');
         if (!this.email || this.email.trim() === '') erros.push('Email é obrigatório');
+        if (!this.departamento || this.departamento.trim() === '') erros.push('Departamento é obrigatório');
         
-        
-        if (!this.departamento) {
-            erros.push('Departamento é obrigatório');
-        } else if (!this.departamentosPermitidos.includes(this.departamento)) {
+        // Validações específicas
+        if (this.email && !this.email.includes('@')) erros.push('Email inválido');
+        if (this.departamento && !this.departamentosPermitidos.includes(this.departamento)) {
             erros.push(`Departamento inválido. Use: ${this.departamentosPermitidos.join(', ')}`);
-        }
-        
-        
-        if (this.email && !this.email.includes('@')) {
-            erros.push('Email inválido');
         }
         
         return erros.length === 0 ? true : erros;
     }
 
     toJSON() {
-        return {
+        const json = {
             id: this.id,
             nome: this.nome,
-            matricula: this.matricula,
+            cpf: this.cpf,
+            data_nascimento: this.data_nascimento, 
+            matricula: this.matricula, // Incluir matrícula no JSON
             email: this.email,
             telefone: this.telefone,
             departamento: this.departamentosPermitidos.includes(this.departamento) 
                 ? this.departamento 
                 : ''
         };
+        return json;
     }
 }
 

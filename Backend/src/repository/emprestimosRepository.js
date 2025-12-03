@@ -13,7 +13,7 @@ async findAll() {
                     WHEN e.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = e.usuario_id)
                     WHEN e.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = e.usuario_id)
                     WHEN e.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = e.usuario_id)
-                END as usuario,  -- ← MANTENHA COMO 'usuario' PARA COMPATIBILIDADE
+                END as usuario,  
                 CASE 
                     WHEN e.usuario_tipo = 'aluno' THEN (SELECT email FROM alunos WHERE id = e.usuario_id)
                     WHEN e.usuario_tipo = 'professor' THEN (SELECT email FROM professores WHERE id = e.usuario_id)
@@ -63,7 +63,7 @@ async findAll() {
                     total_livros: livros.length,
                     // Adicionar dados completos do usuário
                     usuario_detalhes: {
-                        nome: row.usuario,  // ← AGORA USA O CAMPO 'usuario'
+                        nome: row.usuario,  
                         email: row.usuario_email,
                         telefone: row.usuario_telefone,
                         turma: row.usuario_turma,
@@ -90,7 +90,7 @@ async findById(id) {
                        WHEN e.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = e.usuario_id)
                        WHEN e.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = e.usuario_id)
                        WHEN e.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = e.usuario_id)
-                   END as usuario,  -- ← MANTENHA COMO 'usuario'
+                   END as usuario,  
                    CASE 
                        WHEN e.usuario_tipo = 'aluno' THEN (SELECT email FROM alunos WHERE id = e.usuario_id)
                        WHEN e.usuario_tipo = 'professor' THEN (SELECT email FROM professores WHERE id = e.usuario_id)
@@ -128,7 +128,7 @@ async findById(id) {
         const emprestimo = new Emprestimo(emprestimoRows[0]);
         emprestimo.livros = livrosRows;
         emprestimo.usuario_detalhes = {
-            nome: emprestimoRows[0].usuario,  // ← USA O CAMPO 'usuario'
+            nome: emprestimoRows[0].usuario,  
             email: emprestimoRows[0].usuario_email,
             telefone: emprestimoRows[0].usuario_telefone,
             turma: emprestimoRows[0].usuario_turma,
@@ -178,15 +178,15 @@ async create(emprestimoData) {
 
             const totalEmprestado = emprestimosAtivos[0].total_emprestado || 0;
             
-            //  Calcular estoque REALMENTE disponível
+            // Calcular estoque disponível
             const estoqueDisponivel = livroInfo.estoque - totalEmprestado;
 
-            //  Usar estoqueDisponivel em vez de livroInfo.estoque
+            // Usar estoqueDisponivel em vez de livroInfo.estoque
             if (quantidadeSolicitada > estoqueDisponivel) {
                 throw new Error(`Estoque disponível insuficiente para "${livroInfo.titulo}". Disponível: ${estoqueDisponivel}, Solicitado: ${quantidadeSolicitada}`);
             }
 
-            // 4.VALIDAÇÃO: Quantidade mínima
+            // 4. VALIDAÇÃO: Quantidade mínima
             if (quantidadeSolicitada < 1) {
                 throw new Error(`Quantidade inválida para "${livroInfo.titulo}". Mínimo: 1`);
             }
@@ -200,32 +200,19 @@ async create(emprestimoData) {
 
         const emprestimoId = result.insertId;
 
-        // ATUALIZAR ESTOQUE
+        // **REMOVER A ATUALIZAÇÃO DE ESTOQUE FÍSICO - SÓ DEVE ATUALIZAR NA ENTRADA/SAÍDA**
         for (const livro of emprestimo.livros) {
             const livroId = livro.livro_id;
             const quantidade = livro.quantidade || 1;
             
-            // Vincular ao empréstimo
+            // Vincular ao empréstimo (APENAS ISSO)
             await connection.execute(
                 'INSERT INTO emprestimo_livros (emprestimo_id, livro_id, quantidade) VALUES (?, ?, ?)',
                 [emprestimoId, livroId, quantidade]
             );
-
-            // ATUALIZAR ESTOQUE FÍSICO
-            await connection.execute(
-                'UPDATE livros SET estoque = estoque - ? WHERE id = ?',
-                [quantidade, livroId]
-            );
-
-            // Verificar estoque atualizado
-            const [estoqueAtual] = await connection.execute(
-                'SELECT estoque, titulo FROM livros WHERE id = ?',
-                [livroId]
-            );
         }
 
         await connection.commit();
-
         return this.findById(emprestimoId);
 
     } catch (error) {
@@ -235,23 +222,21 @@ async create(emprestimoData) {
         if (connection) connection.release();
     }
 }
-
 async verificarDisponibilidadeComQuantidade(livroId, quantidade = 1) {
-  try {
-    const diagnostico = await this.diagnosticarEstoque(livroId);
-    
-    return {
-      disponivel: diagnostico.disponivel >= quantidade,
-      estoqueFisico: diagnostico.estoqueFisico,
-      totalEmprestado: diagnostico.totalEmprestado,
-      disponivelExato: diagnostico.disponivel,
-      podeEmprestar: diagnostico.disponivel >= quantidade
-    };
-  } catch (error) {
-    throw new Error(`Erro ao verificar disponibilidade: ${error.message}`);
-  }
+    try {
+        const diagnostico = await this.diagnosticarEstoque(livroId);
+        
+        return {
+            disponivel: diagnostico.disponivel >= quantidade,
+            estoqueFisico: diagnostico.estoqueFisico,
+            totalEmprestado: diagnostico.totalEmprestado,
+            disponivelExato: diagnostico.disponivel,
+            podeEmprestar: diagnostico.disponivel >= quantidade
+        };
+    } catch (error) {
+        throw new Error(`Erro ao verificar disponibilidade: ${error.message}`);
+    }
 }
-
 async diagnosticarEstoque(livroId) {
     try {
         // 1. Estoque físico
@@ -320,43 +305,33 @@ async diagnosticarEstoque(livroId) {
         }
     }
 
-    async finalizar(id) {
-        let connection;
-        try {
-            connection = await db.getConnection();
-            await connection.beginTransaction();
+async finalizar(id) {
+    let connection;
+    try {
+        connection = await db.getConnection();
+        await connection.beginTransaction();
 
-            // Buscar empréstimo e seus livros
-            const emprestimo = await this.findById(id);
-            if (!emprestimo) {
-                throw new Error('Empréstimo não encontrado');
-            }
-
-            // Atualizar status do empréstimo
-            await connection.execute(
-                'UPDATE emprestimos SET status = "finalizado", data_devolucao_real = NOW() WHERE id = ?',
-                [id]
-            );
-
-            // Restaurar estoque dos livros
-            for (const livro of emprestimo.livros) {
-                await connection.execute(
-                    'UPDATE livros SET estoque = estoque + ? WHERE id = ?',
-                    [livro.quantidade || 1, livro.livro_id]
-                );
-            }
-
-            await connection.commit();
-            return this.findById(id);
-
-        } catch (error) {
-            if (connection) await connection.rollback();
-            throw new Error(`Erro ao finalizar empréstimo: ${error.message}`);
-        } finally {
-            if (connection) connection.release();
+        // Buscar empréstimo e seus livros
+        const emprestimo = await this.findById(id);
+        if (!emprestimo) {
+            throw new Error('Empréstimo não encontrado');
         }
+
+        await connection.execute(
+            'UPDATE emprestimos SET status = "finalizado", data_devolucao_real = NOW() WHERE id = ?',
+            [id]
+        );
+
+        await connection.commit();
+        return this.findById(id);
+
+    } catch (error) {
+        if (connection) await connection.rollback();
+        throw new Error(`Erro ao finalizar empréstimo: ${error.message}`);
+    } finally {
+        if (connection) connection.release();
     }
-    
+}
     async getEmprestimosAtivos() {
         try {
             const [rows] = await db.execute(`
@@ -418,7 +393,7 @@ async getEmprestimosAtrasados() {
                 END as usuario_nome
             FROM emprestimos e
             LEFT JOIN emprestimo_livros el ON e.id = el.emprestimo_id
-            WHERE e.status = 'atrasado'  // ← CORRIGIDO: buscar por 'atrasado'
+            WHERE e.status = 'atrasado'  
             GROUP BY e.id
             ORDER BY e.data_devolucao_prevista ASC
         `);
@@ -435,73 +410,6 @@ async update(id, emprestimoData) {
         await connection.beginTransaction();
 
         const emprestimo = new Emprestimo(emprestimoData);
-        
-        // Verificar se empréstimo existe
-        const emprestimoExistente = await this.findById(id);
-        if (!emprestimoExistente) {
-            throw new Error('Empréstimo não encontrado');
-        }
-
-        // **VERIFICAÇÃO DE ESTOQUE PARA NOVOS LIVROS**
-        const livrosAtuaisIds = emprestimoExistente.livros.map(l => l.livro_id);
-        
-        for (const livro of emprestimo.livros) {
-            // Se é um livro novo (não estava no empréstimo anterior)
-            if (!livrosAtuaisIds.includes(livro.livro_id)) {
-                const [estoqueRows] = await connection.execute(
-                    'SELECT estoque, titulo FROM livros WHERE id = ?',
-                    [livro.livro_id]
-                );
-
-                if (estoqueRows.length === 0) {
-                    throw new Error(`Livro ID ${livro.livro_id} não encontrado`);
-                }
-
-                const quantidadeSolicitada = livro.quantidade || 1;
-                if (estoqueRows[0].estoque < quantidadeSolicitada) {
-                    throw new Error(`Estoque insuficiente para o livro "${estoqueRows[0].titulo}". Disponível: ${estoqueRows[0].estoque}, Solicitado: ${quantidadeSolicitada}`);
-                }
-            }
-        }
-
-        // Atualizar dados básicos do empréstimo
-        await connection.execute(
-            'UPDATE emprestimos SET usuario_id = ?, usuario_tipo = ?, data_devolucao_prevista = ?, observacoes = ? WHERE id = ?',
-            [emprestimo.usuario_id, emprestimo.usuario_tipo, emprestimo.data_devolucao_prevista, emprestimo.observacoes, id]
-        );
-
-        // Remover livros antigos e restaurar estoque
-        const [livrosAntigos] = await connection.execute(
-            'SELECT * FROM emprestimo_livros WHERE emprestimo_id = ?',
-            [id]
-        );
-
-        for (const livroAntigo of livrosAntigos) {
-            await connection.execute(
-                'UPDATE livros SET estoque = estoque + ? WHERE id = ?',
-                [livroAntigo.quantidade, livroAntigo.livro_id]
-            );
-        }
-
-        // Deletar livros antigos
-        await connection.execute(
-            'DELETE FROM emprestimo_livros WHERE emprestimo_id = ?',
-            [id]
-        );
-
-        // Adicionar novos livros e atualizar estoque
-        for (const livro of emprestimo.livros) {
-            await connection.execute(
-                'INSERT INTO emprestimo_livros (emprestimo_id, livro_id, quantidade) VALUES (?, ?, ?)',
-                [id, livro.livro_id, livro.quantidade || 1]
-            );
-
-            await connection.execute(
-                'UPDATE livros SET estoque = estoque - ? WHERE id = ?',
-                [livro.quantidade || 1, livro.livro_id]
-            );
-        }
-
         await connection.commit();
         return this.findById(id);
 
@@ -513,49 +421,51 @@ async update(id, emprestimoData) {
     }
 }
 
-    async delete(id) {
-        let connection;
-        try {
-            connection = await db.getConnection();
-            await connection.beginTransaction();
+async delete(id) {
+    let connection;
+    try {
+        connection = await db.getConnection();
+        await connection.beginTransaction();
 
-            // Buscar empréstimo e livros
-            const emprestimo = await this.findById(id);
-            if (!emprestimo) {
-                throw new Error('Empréstimo não encontrado');
-            }
-
-            if (emprestimo.status === 'ativo') {
-                for (const livro of emprestimo.livros) {
-                    await connection.execute(
-                        'UPDATE livros SET estoque = estoque + ? WHERE id = ?',
-                        [livro.quantidade || 1, livro.livro_id]
-                    );
-                }
-            }
-
-            // Deletar livros do empréstimo
-            await connection.execute(
-                'DELETE FROM emprestimo_livros WHERE emprestimo_id = ?',
-                [id]
-            );
-
-            // Deletar empréstimo
-            const [result] = await connection.execute(
-                'DELETE FROM emprestimos WHERE id = ?',
-                [id]
-            );
-
-            await connection.commit();
-            return result.affectedRows > 0;
-
-        } catch (error) {
-            if (connection) await connection.rollback();
-            throw new Error(`Erro ao deletar empréstimo: ${error.message}`);
-        } finally {
-            if (connection) connection.release();
+        // Buscar empréstimo e livros
+        const emprestimo = await this.findById(id);
+        if (!emprestimo) {
+            throw new Error('Empréstimo não encontrado');
         }
+
+        // **REMOVER RESTAURAÇÃO DE ESTOQUE - SÓ DEVE SER FEITO NA ENTRADA/SAÍDA**
+        // if (emprestimo.status === 'ativo') {
+        //     for (const livro of emprestimo.livros) {
+        //         await connection.execute(
+        //             'UPDATE livros SET estoque = estoque + ? WHERE id = ?',
+        //             [livro.quantidade || 1, livro.livro_id]
+        //         );
+        //     }
+        // }
+
+        // Excluir registros da tabela emprestimo_livros primeiro (chave estrangeira)
+        await connection.execute(
+            'DELETE FROM emprestimo_livros WHERE emprestimo_id = ?',
+            [id]
+        );
+
+        // Excluir o empréstimo
+        const [result] = await connection.execute(
+            'DELETE FROM emprestimos WHERE id = ?',
+            [id]
+        );
+
+        await connection.commit();
+        
+        return result.affectedRows > 0;
+
+    } catch (error) {
+        if (connection) await connection.rollback();
+        throw new Error(`Erro ao deletar empréstimo: ${error.message}`);
+    } finally {
+        if (connection) connection.release();
     }
+}
 
     async podeEditar(id) {
         try {
@@ -613,22 +523,22 @@ async atualizarStatusAtrasados() {
         connection = await db.getConnection();
         await connection.beginTransaction();
 
-
-        // 1. Atualizar para 'atrasado' onde está ativo e data passou
+        // 1. Marcar como ATIVOS -> ATRASADOS
         const [resultAtrasados] = await connection.execute(
             `UPDATE emprestimos 
              SET status = 'atrasado' 
              WHERE status = 'ativo' 
-             AND data_devolucao_prevista < CURDATE()`
+             AND DATE(data_devolucao_prevista) < CURDATE()`
         );
 
-        // 2. Reverter para 'ativo' onde está atrasado mas data foi renovada
+        // 2. Marcar como ATRASADOS -> ATIVOS (se renovados)
         const [resultAtivos] = await connection.execute(
             `UPDATE emprestimos 
              SET status = 'ativo' 
              WHERE status = 'atrasado' 
-             AND data_devolucao_prevista >= CURDATE()`
+             AND DATE(data_devolucao_prevista) >= CURDATE()`
         );
+
         await connection.commit();
         
         return {
@@ -640,11 +550,131 @@ async atualizarStatusAtrasados() {
 
     } catch (error) {
         if (connection) await connection.rollback();
+        console.error(' Erro no repositório:', error.message);
         throw new Error(`Erro ao atualizar status: ${error.message}`);
     } finally {
         if (connection) connection.release();
     }
 }
+
+async cancelar(id, motivo_cancelamento = 'Cancelado pelo usuário') {
+    let connection;
+    try {
+        connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        // Verificar se empréstimo existe e pode ser cancelado
+        const [emprestimoRows] = await connection.execute(
+            'SELECT * FROM emprestimos WHERE id = ? AND status NOT IN ("finalizado", "cancelado")',
+            [id]
+        );
+
+        if (emprestimoRows.length === 0) {
+            throw new Error('Empréstimo não encontrado, já finalizado ou já cancelado');
+        }
+
+        const emprestimoInfo = emprestimoRows[0];
+
+        // Buscar livros do empréstimo para registrar no histórico
+        const [livrosRows] = await connection.execute(
+            'SELECT livro_id, quantidade FROM emprestimo_livros WHERE emprestimo_id = ?',
+            [id]
+        );
+
+        // Atualizar status para cancelado SEM RESTAURAR ESTOQUE
+        await connection.execute(
+            `UPDATE emprestimos 
+             SET status = "cancelado", 
+                 data_cancelamento = NOW(), 
+                 motivo_cancelamento = ? 
+             WHERE id = ?`,
+            [motivo_cancelamento, id]
+        );
+
+        // O estoque só deve ser ajustado na entrada/saída do livro físico
+        // Apenas registramos o cancelamento no histórico
+
+        // Registrar histórico de cancelamento
+        await connection.execute(
+            `INSERT INTO historico_cancelamentos 
+                (emprestimo_id, usuario_id, usuario_tipo, 
+                 motivo_cancelamento, data_cancelamento) 
+             VALUES (?, ?, ?, ?, NOW())`,
+            [id, emprestimoInfo.usuario_id, emprestimoInfo.usuario_tipo, motivo_cancelamento]
+        );
+
+        await connection.commit();
+        
+        // Retornar empréstimo atualizado
+        return await this.findById(id);
+
+    } catch (error) {
+        if (connection) await connection.rollback();
+        throw new Error(`Erro ao cancelar empréstimo: ${error.message}`);
+    } finally {
+        if (connection) connection.release();
+    }
+}
+
+async getEmprestimosCancelados() {
+    try {
+        const [rows] = await db.execute(`
+            SELECT 
+                e.*,
+                COUNT(el.livro_id) as total_livros,
+                CASE 
+                    WHEN e.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = e.usuario_id)
+                    WHEN e.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = e.usuario_id)
+                    WHEN e.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = e.usuario_id)
+                END as usuario
+            FROM emprestimos e
+            LEFT JOIN emprestimo_livros el ON e.id = el.emprestimo_id
+            WHERE e.status = 'cancelado'
+            GROUP BY e.id
+            ORDER BY e.data_cancelamento DESC
+        `);
+        
+        // Para cada empréstimo, buscar os livros
+        const emprestimosComLivros = await Promise.all(
+            rows.map(async (row) => {
+                const [livros] = await db.execute(`
+                    SELECT 
+                        l.titulo as livro_titulo, 
+                        l.imagem as livro_imagem, 
+                        l.isbn as livro_isbn,
+                        a.nome as autor_nome,
+                        el.quantidade,
+                        el.livro_id
+                    FROM emprestimo_livros el
+                    JOIN livros l ON el.livro_id = l.id
+                    LEFT JOIN autores a ON l.autor_id = a.id
+                    WHERE el.emprestimo_id = ?
+                `, [row.id]);
+
+                const resultado = {
+                    ...new Emprestimo(row),
+                    livros: livros,
+                    total_livros: livros.length,
+                    usuario_detalhes: {
+                        nome: row.usuario,
+                        email: row.usuario_email,
+                        telefone: row.usuario_telefone,
+                        turma: row.usuario_turma,
+                        departamento: row.usuario_departamento,
+                        tipo_especial: row.usuario_tipo_especial
+                    }
+                };
+
+                return resultado;
+            })
+        );
+
+        return emprestimosComLivros;
+    } catch (error) {
+        throw new Error(`Erro ao buscar empréstimos cancelados: ${error.message}`);
+    }
+}
+
 }
 
 module.exports = new EmprestimosRepository();
