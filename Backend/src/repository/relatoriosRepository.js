@@ -58,8 +58,13 @@ class RelatoriosRepository {
     }
   }
 
-async getRelatorioEmprestimos(filtros = {}) {
+
+  async getRelatorioEmprestimos(filtros = {}) {
     try {
+        console.log('=== CORREÇÃO: getRelatorioEmprestimos ===');
+        console.log('Filtro status:', filtros.status);
+        
+        // Query corrigida usando LEFT JOIN e subquery para livros
         let query = `
             SELECT 
                 e.id,
@@ -68,9 +73,15 @@ async getRelatorioEmprestimos(filtros = {}) {
                 e.data_devolucao_real,
                 e.status,
                 e.usuario_tipo,
-                e.data_cancelamento,  -- NOVO: Data do cancelamento
-                e.motivo_cancelamento,  -- NOVO: Motivo do cancelamento
-                l.titulo as livro, 
+                e.data_cancelamento,
+                e.motivo_cancelamento,
+                COALESCE(
+                    (SELECT GROUP_CONCAT(DISTINCT l.titulo SEPARATOR ', ') 
+                     FROM emprestimo_livros el 
+                     JOIN livros l ON el.livro_id = l.id 
+                     WHERE el.emprestimo_id = e.id),
+                    'Livro não registrado'
+                ) as livro,
                 CASE 
                     WHEN e.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = e.usuario_id)
                     WHEN e.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = e.usuario_id)
@@ -78,20 +89,18 @@ async getRelatorioEmprestimos(filtros = {}) {
                     ELSE 'Não identificado'
                 END as usuario,
                 e.usuario_id,
-                -- CAMPO CALCULADO: verifica se está atrasado
+                -- CAMPO CALCULADO: mantém o status existente
                 CASE 
                     WHEN e.status = 'ativo' AND e.data_devolucao_prevista < CURDATE() THEN 'atrasado'
                     ELSE e.status
                 END as status_calculado
             FROM emprestimos e
-            INNER JOIN emprestimo_livros el ON e.id = el.emprestimo_id
-            INNER JOIN livros l ON el.livro_id = l.id
             WHERE 1=1
         `;
         
         const params = [];
 
-        // Filtros de data
+        // Filtros de data (mantenha como estava)
         if (filtros.dataInicio && !filtros.dataFim) {
             query += ' AND DATE(e.data_emprestimo) = ?';
             params.push(filtros.dataInicio);
@@ -105,13 +114,12 @@ async getRelatorioEmprestimos(filtros = {}) {
             params.push(filtros.dataFim);
         }
 
-        // MODIFICAÇÃO AQUI: Incluir status 'cancelado' no filtro
+        // Filtro de status
         if (filtros.status) {
             if (filtros.status === 'atrasado') {
-                // Incluir tanto os marcados como 'atrasado' quanto os 'ativos' com data vencida
+                // CORREÇÃO: Inclui tanto os marcados como 'atrasado' quanto os 'ativos' com data vencida
                 query += ' AND (e.status = "atrasado" OR (e.status = "ativo" AND e.data_devolucao_prevista < CURDATE()))';
             } else if (filtros.status === 'cancelado') {
-                // Filtro específico para cancelados
                 query += ' AND e.status = "cancelado"';
             } else {
                 query += ' AND e.status = ?';
@@ -136,7 +144,12 @@ async getRelatorioEmprestimos(filtros = {}) {
 
         query += ' ORDER BY e.data_emprestimo DESC LIMIT 1000';
         
+        console.log('Query corrigida:', query);
+        console.log('Parâmetros:', params);
+        
         const [rows] = await db.execute(query, params);
+        
+        console.log('Total de resultados encontrados:', rows.length);
         
         // Atualizar o status nos dados retornados
         const rowsAtualizados = rows.map(row => ({
@@ -146,9 +159,11 @@ async getRelatorioEmprestimos(filtros = {}) {
         
         return rowsAtualizados;
     } catch (error) {
+        console.error('Erro na query corrigida:', error);
         throw new Error(`Erro ao buscar relatório de empréstimos: ${error.message}`);
     }
 }
+  
   async getRelatorioEntradas(filtros = {}) {
     try {
       let query = `
@@ -708,140 +723,216 @@ async getRelatorioReservas(filtros = {}) {
 
 async getEstatisticasGerais() {
   try {
-    const [
-      [totalUsuarios],
-      [totalLivros],
-      [totalEmprestimosAtivos],
-      [totalEmprestimosAtrasados],
-      [totalEmprestimosFinalizados],
-      [totalEmprestimosCancelados],
-      [totalEmprestimos],
-      [totalReservasAtivas],
-      [totalReservasCanceladas],
-      [totalReservasExpiradas],
-      [totalReservas],
-      [totalEditoras],
-      [totalAutores],
-      [livrosDisponiveis],
-      [totalEstoque],
-      [totalEntradas],
-      [totalSaidas]
-    ] = await Promise.all([
-      // Total de usuários
-      db.execute(`
-        SELECT 
-          (SELECT COUNT(*) FROM alunos) as total_alunos,
-          (SELECT COUNT(*) FROM professores) as total_professores,
-          (SELECT COUNT(*) FROM usuarios_especiais) as total_usuarios_especiais
-      `),
-      
-      // Total de livros cadastrados (títulos)
-      db.execute(`SELECT COUNT(*) as total FROM livros`),
-      
-      // Empréstimos ativos
-      db.execute(`SELECT COUNT(*) as total FROM emprestimos WHERE status = 'ativo'`),
-      
-      // Empréstimos atrasados
-      db.execute(`
-        SELECT COUNT(*) as total 
-        FROM emprestimos 
-        WHERE status = 'atrasado' 
-        OR (status = 'ativo' AND data_devolucao_prevista < CURDATE())
-      `),
-      
-      // Empréstimos finalizados
-      db.execute(`SELECT COUNT(*) as total FROM emprestimos WHERE status = 'finalizado'`),
-      
-      // NOVO: Empréstimos cancelados
-      db.execute(`SELECT COUNT(*) as total FROM emprestimos WHERE status = 'cancelado'`),
-      
-      // Total de empréstimos
-      db.execute(`SELECT COUNT(*) as total FROM emprestimos`),
-      
-      // Reservas ativas
-      db.execute(`SELECT COUNT(*) as total FROM reservas WHERE status = 'ativa'`),
-      
-      // Reservas canceladas
-      db.execute(`SELECT COUNT(*) as total FROM reservas WHERE status = 'cancelada'`),
-      
-      // Reservas expiradas
-      db.execute(`
-        SELECT COUNT(*) as total 
-        FROM reservas 
-        WHERE status = 'expirada' 
-        OR (status = 'ativa' AND data_validade < CURDATE())
-      `),
-      
-      // Total de reservas
-      db.execute(`SELECT COUNT(*) as total FROM reservas`),
-      
-      // Total de editoras
-      db.execute(`SELECT COUNT(*) as total FROM editoras`),
-      
-      // Total de autores
-      db.execute(`SELECT COUNT(*) as total FROM autores`),
-      
-      // Livros disponíveis (títulos com estoque > 0)
-      db.execute(`SELECT COUNT(*) as total FROM livros WHERE estoque > 0`),
-      
-      // Total do estoque (soma de todos os exemplares)
-      db.execute(`SELECT COALESCE(SUM(estoque), 0) as total_estoque FROM livros`),
-      
-      // Total de entradas
-      db.execute(`SELECT COUNT(*) as total FROM entradas`),
-      
-      // Total de saídas
-      db.execute(`SELECT COUNT(*) as total FROM saidas`)
-    ]);
+    // Query única com subqueries para melhor performance 
+    const [result] = await db.execute(`
+      SELECT 
+        -- Usuários
+        (SELECT COUNT(*) FROM alunos) as total_alunos,
+        (SELECT COUNT(*) FROM professores) as total_professores,
+        (SELECT COUNT(*) FROM usuarios_especiais) as total_usuarios_especiais,
+        
+        -- Livros - NOVO: Adicionado títulos sem estoque
+        (SELECT COUNT(*) FROM livros) as total_livros,
+        (SELECT COUNT(*) FROM livros WHERE estoque > 0) as livros_com_estoque,
+        (SELECT COUNT(*) FROM livros WHERE estoque <= 0 OR estoque IS NULL) as livros_sem_estoque, 
+        (SELECT COALESCE(SUM(estoque), 0) FROM livros) as total_estoque,
+        
+        -- Títulos disponíveis (considerando empréstimos E reservas ativas)
+        (
+          SELECT COUNT(DISTINCT l.id)
+          FROM livros l
+          WHERE l.estoque > 0
+          AND (l.estoque - COALESCE(
+            (SELECT SUM(el.quantidade) 
+             FROM emprestimo_livros el
+             JOIN emprestimos e ON el.emprestimo_id = e.id
+             WHERE el.livro_id = l.id AND e.status IN ('ativo', 'atrasado')
+            ), 0) > 0)
+        ) as livros_disponiveis_titulos,
+        
+        -- Exemplares disponíveis (considerando empréstimos E reservas)
+        (
+          SELECT COALESCE(SUM(l.estoque), 0) 
+          - COALESCE(SUM(emprestados.total_emprestado), 0)
+          - COALESCE(SUM(reservas.total_reservado), 0)
+          FROM livros l
+          LEFT JOIN (
+            SELECT el.livro_id, SUM(el.quantidade) as total_emprestado
+            FROM emprestimo_livros el
+            JOIN emprestimos e ON el.emprestimo_id = e.id
+            WHERE e.status IN ('ativo', 'atrasado')
+            GROUP BY el.livro_id
+          ) emprestados ON l.id = emprestados.livro_id
+          LEFT JOIN (
+            SELECT r.livro_id, COUNT(r.id) as total_reservado
+            FROM reservas r
+            WHERE r.status = 'ativa'
+            AND r.data_validade >= CURDATE()
+            GROUP BY r.livro_id
+          ) reservas ON l.id = reservas.livro_id
+        ) as exemplares_disponiveis,
+        
+        -- Empréstimos
+        (SELECT COUNT(*) FROM emprestimos WHERE status = 'ativo') as emprestimos_ativos,
+        (SELECT COUNT(*) FROM emprestimos WHERE status = 'atrasado' OR (status = 'ativo' AND data_devolucao_prevista < CURDATE())) as emprestimos_atrasados,
+        (SELECT COUNT(*) FROM emprestimos WHERE status = 'finalizado') as emprestimos_finalizados,
+        (SELECT COUNT(*) FROM emprestimos WHERE status = 'cancelado') as emprestimos_cancelados,
+        (SELECT COUNT(*) FROM emprestimos) as emprestimos_totais,
+        
+        -- Reservas
+        (SELECT COUNT(*) FROM reservas WHERE status = 'ativa') as reservas_ativas,
+        (SELECT COUNT(*) FROM reservas WHERE status = 'cancelada') as reservas_canceladas,
+        (SELECT COUNT(*) FROM reservas WHERE status = 'expirada' OR (status = 'ativa' AND data_validade < CURDATE())) as reservas_expiradas,
+        (SELECT COUNT(*) FROM reservas WHERE status = 'concluida') as reservas_finalizadas,
+        (SELECT COUNT(*) FROM reservas) as reservas_totais,
+        
+        -- Cadastros
+        (SELECT COUNT(*) FROM editoras) as total_editoras,
+        (SELECT COUNT(*) FROM autores) as total_autores,
+        
+        -- Movimentação
+        (SELECT COUNT(*) FROM entradas) as total_entradas,
+        (SELECT COUNT(*) FROM saidas) as total_saidas,
+        
+        -- Último mês
+        (SELECT COUNT(*) FROM emprestimos WHERE data_emprestimo >= DATE_SUB(NOW(), INTERVAL 30 DAY)) as emprestimos_ultimo_mes,
+        (SELECT COUNT(*) FROM reservas WHERE data_reserva >= DATE_SUB(NOW(), INTERVAL 30 DAY)) as reservas_ultimo_mes,
+        
+        -- Empréstimos ativos detalhados
+        (SELECT COALESCE(SUM(el.quantidade), 0) FROM emprestimo_livros el JOIN emprestimos e ON el.emprestimo_id = e.id WHERE e.status IN ('ativo', 'atrasado')) as total_exemplares_emprestados,
+        
+        -- Reservas ativas detalhadas
+        (SELECT COUNT(*) FROM reservas WHERE status = 'ativa' AND data_validade >= CURDATE()) as reservas_ativas_validas
+    `);
 
-    const estatisticas = {
-      // Estatísticas de usuários
-      total_usuarios: 
-        (totalUsuarios[0].total_alunos || 0) + 
-        (totalUsuarios[0].total_professores || 0) + 
-        (totalUsuarios[0].total_usuarios_especiais || 0),
+    const stats = result[0];
+    const totalUsuarios = 
+      (stats.total_alunos || 0) + 
+      (stats.total_professores || 0) + 
+      (stats.total_usuarios_especiais || 0);
+
+    // Calcular valores
+    const exemplaresEmprestados = stats.total_exemplares_emprestados || 0;
+    const exemplaresDisponiveis = stats.exemplares_disponiveis || 0;
+    const exemplaresTotal = stats.total_estoque || 0;
+    const reservasAtivasValidas = stats.reservas_ativas_validas || 0;
+    
+    // NOVO: Calcular percentual de livros sem estoque
+    const percentualSemEstoque = stats.total_livros > 0 
+      ? Math.round((stats.livros_sem_estoque / stats.total_livros) * 100) 
+      : 0;
+
+    return {
+      // Usuários
+      total_usuarios: totalUsuarios,
+      total_alunos: stats.total_alunos || 0,
+      total_professores: stats.total_professores || 0,
+      total_usuarios_especiais: stats.total_usuarios_especiais || 0,
       
-      total_alunos: totalUsuarios[0].total_alunos || 0,
-      total_professores: totalUsuarios[0].total_professores || 0,
-      total_usuarios_especiais: totalUsuarios[0].total_usuarios_especiais || 0,
+      // Livros - COMPLETO
+      total_livros: stats.total_livros || 0,
+      livros_com_estoque: stats.livros_com_estoque || 0,
+      livros_sem_estoque: stats.livros_sem_estoque || 0,  // NOVO
+      livros_disponiveis_titulos: stats.livros_disponiveis_titulos || 0,  
+      total_estoque: exemplaresTotal,
+      exemplares_disponiveis: exemplaresDisponiveis,
+      exemplares_emprestados: exemplaresEmprestados,
       
-      // Estatísticas de livros
-      total_livros: totalLivros[0].total || 0,
-      livros_disponiveis: livrosDisponiveis[0].total || 0,
-      total_estoque: totalEstoque[0].total_estoque || 0,
+      // Reservas
+      reservas_ativas: stats.reservas_ativas || 0,
+      reservas_ativas_validas: reservasAtivasValidas,
+      reservas_canceladas: stats.reservas_canceladas || 0,
+      reservas_expiradas: stats.reservas_expiradas || 0,
+      reservas_finalizadas: stats.reservas_finalizadas || 0,
+      reservas_totais: stats.reservas_totais || 0,
       
-      // Estatísticas de empréstimos (COM CANCELADOS)
-      emprestimos_ativos: totalEmprestimosAtivos[0].total || 0,
-      emprestimos_atrasados: totalEmprestimosAtrasados[0].total || 0,
-      emprestimos_finalizados: totalEmprestimosFinalizados[0].total || 0,
-      emprestimos_cancelados: totalEmprestimosCancelados[0].total || 0, 
-      emprestimos_totais: totalEmprestimos[0].total || 0,
+      // Empréstimos
+      emprestimos_ativos: stats.emprestimos_ativos || 0,
+      emprestimos_atrasados: stats.emprestimos_atrasados || 0,
+      emprestimos_finalizados: stats.emprestimos_finalizados || 0,
+      emprestimos_cancelados: stats.emprestimos_cancelados || 0,
+      emprestimos_totais: stats.emprestimos_totais || 0,
       
-      // Estatísticas de reservas
-      reservas_ativas: totalReservasAtivas[0].total || 0,
-      reservas_canceladas: totalReservasCanceladas[0].total || 0,
-      reservas_expiradas: totalReservasExpiradas[0].total || 0,
-      reservas_totais: totalReservas[0].total || 0,
+      // Cadastros
+      total_editoras: stats.total_editoras || 0,
+      total_autores: stats.total_autores || 0,
       
-      // Estatísticas de cadastros
-      total_editoras: totalEditoras[0].total || 0,
-      total_autores: totalAutores[0].total || 0,
+      // Movimentação
+      total_entradas: stats.total_entradas || 0,
+      total_saidas: stats.total_saidas || 0,
       
-      // Estatísticas de movimentação
-      total_entradas: totalEntradas[0].total || 0,
-      total_saidas: totalSaidas[0].total || 0,
+      // Atividade recente
+      emprestimos_ultimo_mes: stats.emprestimos_ultimo_mes || 0,
+      reservas_ultimo_mes: stats.reservas_ultimo_mes || 0,
       
-      // Timestamp da última atualização
-      ultima_atualizacao: new Date().toISOString()
+      // Percentuais calculados
+      percentual_disponivel_titulos: stats.total_livros > 0 
+        ? Math.round((stats.livros_disponiveis_titulos / stats.total_livros) * 100) 
+        : 0,
+      
+      percentual_disponivel_exemplares: exemplaresTotal > 0 
+        ? Math.round((exemplaresDisponiveis / exemplaresTotal) * 100) 
+        : 0,
+      
+      percentual_livros_sem_estoque: percentualSemEstoque,
+      
+      percentual_emprestimos_atrasados: stats.emprestimos_totais > 0 
+        ? Math.round((stats.emprestimos_atrasados / stats.emprestimos_totais) * 100) 
+        : 0,
+      
+      percentual_reservas_finalizadas: stats.reservas_totais > 0 
+        ? Math.round((stats.reservas_finalizadas / stats.reservas_totais) * 100) 
+        : 0,
+      
+      // Timestamps
+      ultima_atualizacao: new Date().toISOString(),
+      ultima_atualizacao_formatada: new Date().toLocaleString('pt-BR')
     };
-
-    return estatisticas;
 
   } catch (error) {
     console.error('Erro ao buscar estatísticas gerais:', error);
-    throw new Error(`Erro ao buscar estatísticas: ${error.message}`);
+    console.error('Stack trace:', error.stack);
+    
+    // Retornar objeto vazio em caso de erro
+    return {
+      total_usuarios: 0,
+      total_alunos: 0,
+      total_professores: 0,
+      total_usuarios_especiais: 0,
+      total_livros: 0,
+      livros_com_estoque: 0,
+      livros_sem_estoque: 0, // NOVO
+      livros_disponiveis_titulos: 0,
+      total_estoque: 0,
+      exemplares_disponiveis: 0,
+      exemplares_emprestados: 0,
+      reservas_ativas: 0,
+      reservas_ativas_validas: 0,
+      reservas_canceladas: 0,
+      reservas_expiradas: 0,
+      reservas_finalizadas: 0,
+      reservas_totais: 0,
+      emprestimos_ativos: 0,
+      emprestimos_atrasados: 0,
+      emprestimos_finalizados: 0,
+      emprestimos_cancelados: 0,
+      emprestimos_totais: 0,
+      total_editoras: 0,
+      total_autores: 0,
+      total_entradas: 0,
+      total_saidas: 0,
+      percentual_disponivel_titulos: 0,
+      percentual_disponivel_exemplares: 0,
+      percentual_livros_sem_estoque: 0, 
+      percentual_emprestimos_atrasados: 0,
+      percentual_reservas_finalizadas: 0,
+      ultima_atualizacao: new Date().toISOString(),
+      ultima_atualizacao_formatada: new Date().toLocaleString('pt-BR'),
+      erro: error.message
+    };
   }
 }
+
   async getRelatorioEstoque(filtros = {}) {
     try {
       let query = `
@@ -898,9 +989,6 @@ async getEstatisticasGerais() {
 
       // Ordenar por estoque (do menor para o maior, para mostrar os críticos primeiro)
       query += ' ORDER BY l.estoque ASC, l.titulo LIMIT 1000';
-
-      console.log('Query Estoque executada:', query);
-      console.log('Parâmetros:', params);
 
       const [rows] = await db.execute(query, params);
       

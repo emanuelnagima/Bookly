@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useEffect } from 'react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -11,6 +12,10 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   
   const { login, isAuthenticated } = useAuth();
+  
+useEffect(() => {
+    document.title = "Bookly - Login"; 
+  }, []);
 
   // Se já estiver logado, redireciona
   if (isAuthenticated) {
@@ -32,6 +37,8 @@ const Login = () => {
     }
   };
 
+
+  
   return (
     <div className="login-container">
       <div className="login-form">

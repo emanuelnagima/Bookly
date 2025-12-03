@@ -313,7 +313,7 @@ const Home = () => {
             className="text-secondary small mb-0 animate-fade-in-up animate-delay-1" 
             style={{ marginTop: "0.25rem", opacity: 0 }}
           >
-            Gerencie todo o acervo da sua biblioteca...
+            Gerencie todo o acervo da sua biblioteca
           </p>
 
           <p 
@@ -328,7 +328,7 @@ const Home = () => {
         {/* Boas-vindas e Data */}
         <div className="text-end" style={{ padding: "1rem" }}>
           {showWelcome && (
-            <h3 className="mb-3 fw-bold text-info animate-fade-in-up">
+            <h3 className="mb-2 fw-bold text-info animate-fade-in-up">
               Bem-vindo ao Bookly!
             </h3>
           )}

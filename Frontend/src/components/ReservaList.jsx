@@ -176,7 +176,7 @@ const reservasFiltradas = reservas.filter(reserva => {
         }
         return <Badge bg="success">Reservado</Badge>;
       case 'cancelada':
-        return <Badge bg="secondary">Cancelada</Badge>;
+        return <Badge bg="secondary">Cancelado</Badge>;
       case 'concluida':
         return <Badge bg="dark">Finalizado</Badge>;
       default:
@@ -247,7 +247,7 @@ const reservasFiltradas = reservas.filter(reserva => {
             <option value="ativa">Ativas</option>
             <option value="expirada">Expiradas</option>
             <option value="cancelada">Canceladas</option>
-            <option value="concluida">Finalizados</option>
+            <option value="concluida">Finalizadas</option>
           </Form.Select>
 
           {/* Seletor de Ordenação Melhorado */}

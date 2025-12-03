@@ -16,7 +16,7 @@ router.get('/:id/verificar-edicao', authenticate, authorize('admin', 'operador')
 router.get('/disponibilidade/:livroId', authenticate, authorize('admin', 'operador'), controller.verificarDisponibilidade);
 router.post('/', authenticate, authorize('admin', 'operador'), controller.create);
 router.put('/:id', authenticate, authorize('admin', 'operador'), controller.update);
-
+router.put('/atualizar-status', authenticate, authorize('admin','operador'), controller.atualizarStatus);
 router.put('/:id/renovar', authenticate, authorize('admin', 'operador'), controller.renovar);
 router.put('/:id/finalizar', authenticate, authorize('admin', 'operador'), controller.finalizar);
 router.put('/:id/cancelar', authenticate, authorize('admin', 'operador'), controller.cancelar);

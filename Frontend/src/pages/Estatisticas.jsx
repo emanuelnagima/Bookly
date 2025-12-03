@@ -6,7 +6,7 @@ import {
   Badge,
   Spinner,
   Container,
-  Button
+  Button,
 } from 'react-bootstrap';
 import {
   FaChartBar,
@@ -18,9 +18,11 @@ import {
   FaGraduationCap,
   FaUsers,
   FaBuilding,
+  FaExclamationTriangle,
   FaUserEdit,
 } from 'react-icons/fa';
 import relatoriosService from '../services/relatoriosService';
+import { BsCheckCircle } from 'react-icons/bs'; // Adicione esta linha
 
 const Estatisticas = () => {
   const [estatisticasGerais, setEstatisticasGerais] = useState({});
@@ -104,91 +106,179 @@ const Estatisticas = () => {
         </div>
 
         <Row>
-          {/* CARD 1: LIVROS */}
-{/* CARD 1: LIVROS - COM DADOS CORRETOS */}
-<Col md={6} lg={4} className="mb-4">
-  <Card>
-    <Card.Header className="bg-primary text-white d-flex align-items-center">
-      <h6 className="mb-0">Livros</h6>
-    </Card.Header>
-    <Card.Body className="p-3">
-      <div className="d-flex flex-column gap-2">
-        {/* Total de títulos cadastrados */}
-        <div className="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-          <span className="text-muted">Títulos Cadastrados</span>
-          <span className="fw-bold text-primary fs-5">{stats.total_livros || 0}</span>
-        </div>
-        
-        {/* Total de exemplares no acervo */}
-        <div className="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-          <span className="text-muted">Exemplares no Acervo</span>
-          <span className="fw-bold text-primary fs-5">{stats.total_estoque || 0}</span>
-        </div>
-        
-    
-        
-      </div>
-    </Card.Body>
-  </Card>
-</Col>
+          {/* CARD 1: LIVROS*/}
+      <Col md={6} lg={4} className="mb-4">
+          <Card>
+            <Card.Header className="bg-primary text-white d-flex align-items-center">
+              <h6 className="mb-0">Livros - Situação Completa</h6>
+            </Card.Header>
+            <Card.Body className="p-3">
+              <div className="d-flex flex-column gap-2">
+                {/* Total de títulos cadastrados */}
+                <div className="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                  <span className="text-muted">Títulos Cadastrados</span>
+                  <span className="fw-bold text-primary fs-5">{stats.total_livros || 0}</span>
+                </div>
+                
+                {/* Títulos com estoque > 0 */}
+                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#e7f1ff'}}>
+                  <span className="text-muted">
+                    Com Estoque
+                  </span>
+                  <div className="d-flex align-items-center">
+                    <Badge bg="info" className="fs-6 me-2">
+                      {stats.livros_com_estoque || 0}
+                    </Badge>
+                    <small className="text-muted">
+                      {stats.total_livros > 0 ? 
+                        Math.round((stats.livros_com_estoque / stats.total_livros) * 100) : 0}%
+                    </small>
+                  </div>
+                </div>
+                
+                {/* Títulos SEM estoque (estoque = 0) */}
+                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#fff3cd'}}>
+                  <span className="text-muted">
+                    Sem Estoque
+                  </span>
+                  <div className="d-flex align-items-center">
+                    <Badge bg="warning" className="fs-6 me-2">
+                      {stats.livros_sem_estoque || 0}
+                    </Badge>
+                    {stats.percentual_livros_sem_estoque > 0 && (
+                      <small className="text-warning">
+                        {stats.percentual_livros_sem_estoque}%
+                      </small>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Títulos disponíveis para empréstimo */}
+                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#d4edda'}}>
+                  <span className="text-muted">
+                    Disponível para Empréstimo
+                  </span>
+                  <div className="d-flex align-items-center">
+                    <Badge bg="success" className="fs-6 me-2">
+                      {stats.livros_disponiveis_titulos || 0}
+                    </Badge>
+                    {stats.percentual_disponivel_titulos > 0 && (
+                      <small className="text-success">
+                        {stats.percentual_disponivel_titulos}%
+                      </small>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Separador visual */}
+                <hr className="my-1" />
+                
+                {/* Total de exemplares no acervo */}
+                <div className="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                  <span className="text-muted"> Exemplares no Acervo</span>
+                  <span className="fw-bold text-primary fs-5">{stats.total_estoque || 0}</span>
+                </div>
+                
+                {/* Exemplares emprestados */}
+                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#f8d7da'}}>
+                  <span className="text-muted"> Exemplares Emprestados</span>
+                  <Badge bg="warning" className="fs-6">
+                    {stats.exemplares_emprestados || 0}
+                  </Badge>
+                </div>
+              
+                
+                {/* Exemplares disponíveis */}
+                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#d4edda'}}>
+                  <span className="text-muted">
+                     Exemplares Disponíveis
+                  </span>
+                  <div className="d-flex align-items-center">
+                    <Badge bg="success" className="fs-6 me-2">
+                      {stats.exemplares_disponiveis || 0}
+                    </Badge>
+                    {stats.percentual_disponivel_exemplares > 0 && (
+                      <small className="text-success">
+                        {stats.percentual_disponivel_exemplares}%
+                      </small>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
 
           {/* CARD 2: EMPRÉSTIMOS */}
           <Col md={6} lg={4} className="mb-4">
-            <Card>
-              <Card.Header className="bg-primary text-white d-flex align-items-center">
-                <h6 className="mb-0">Empréstimos</h6>
-              </Card.Header>
-              <Card.Body className="p-3">
-                <div className="d-flex flex-column gap-2">
-                  <div className="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                    <span className="text-muted">Total</span>
-                    <span className="fw-bold text-primary fs-5">{stats.emprestimos_totais || 0}</span>
-                  </div>
-                  <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#e7f1ff'}}>
-                    <span className="text-muted">Ativos</span>
-                    <Badge bg="primary" className="fs-6">{stats.emprestimos_ativos || 0}</Badge>
-                  </div>
-                  <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#e7f1ff'}}>
-                    <span className="text-muted">Atrasados</span>
-                    <Badge bg="warning" className="text-dark fs-6">{stats.emprestimos_atrasados || 0}</Badge>
-                  </div>
-                  <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#e7f1ff'}}>
-                    <span className="text-muted">Finalizados</span>
-                    <Badge bg="secondary" className="fs-6">{stats.emprestimos_finalizados || 0}</Badge>
-                  </div>
+          <Card>
+            <Card.Header className="bg-primary text-white d-flex align-items-center">
+              <h6 className="mb-0">Empréstimos</h6>
+            </Card.Header>
+            <Card.Body className="p-3">
+              <div className="d-flex flex-column gap-2">
+                <div className="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                  <span className="text-muted">Total</span>
+                  <span className="fw-bold text-primary fs-5">{stats.emprestimos_totais || 0}</span>
                 </div>
-              </Card.Body>
-            </Card>
-          </Col>
+                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#e7f1ff'}}>
+                  <span className="text-muted">Ativos</span>
+                  <Badge bg="primary" className="fs-6">{stats.emprestimos_ativos || 0}</Badge>
+                </div>
+                
+                {/* NOVO: Empréstimos cancelados */}
+                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#e7f1ff'}}>
+                  <span className="text-muted">Cancelados</span>
+                  <Badge bg="danger" className="fs-6">{stats.emprestimos_cancelados || 0}</Badge>
+                </div>
+                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#e7f1ff'}}>
+                  <span className="text-muted">Finalizados</span>
+                  <Badge bg="success" className="fs-6">{stats.emprestimos_finalizados || 0}</Badge>
+                </div>
+                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#e7f1ff'}}>
+                  <span className="text-muted">Atrasados</span>
+                  <Badge bg="warning" className="text-dark fs-6">{stats.emprestimos_atrasados || 0}</Badge>
+                </div>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
 
           {/* CARD 3: RESERVAS */}
           <Col md={6} lg={4} className="mb-4">
-            <Card>
-              <Card.Header className="bg-primary text-white d-flex align-items-center">
-                <h6 className="mb-0">Reservas</h6>
-              </Card.Header>
-              <Card.Body className="p-3">
-                <div className="d-flex flex-column gap-2">
-                  <div className="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                    <span className="text-muted">Total</span>
-                    <span className="fw-bold text-primary fs-5">{stats.reservas_totais || 0}</span>
-                  </div>
-                  <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#e7f1ff'}}>
-                    <span className="text-muted">Ativas</span>
-                    <Badge bg="primary" className="fs-6">{stats.reservas_ativas || 0}</Badge>
-                  </div>
-                  <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#e7f1ff'}}>
-                    <span className="text-muted">Expiradas</span>
-                    <Badge bg="warning" className="text-dark fs-6">{stats.reservas_expiradas || 0}</Badge>
-                  </div>
-                  <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#e7f1ff'}}>
-                    <span className="text-muted">Canceladas</span>
-                    <Badge bg="danger" className="fs-6">{stats.reservas_canceladas || 0}</Badge>
-                  </div>
+          <Card>
+            <Card.Header className="bg-primary text-white d-flex align-items-center">
+              <h6 className="mb-0">Reservas</h6>
+            </Card.Header>
+            <Card.Body className="p-3">
+              <div className="d-flex flex-column gap-2">
+                <div className="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                  <span className="text-muted">Total</span>
+                  <span className="fw-bold text-primary fs-5">{stats.reservas_totais || 0}</span>
                 </div>
-              </Card.Body>
-            </Card>
-          </Col>
+                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#e7f1ff'}}>
+                  <span className="text-muted">Ativas</span>
+                  <Badge bg="primary" className="fs-6">{stats.reservas_ativas || 0}</Badge>
+                </div>
+                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#e7f1ff'}}>
+                  <span className="text-muted">Canceladas</span>
+                  <Badge bg="danger" className="fs-6">{stats.reservas_canceladas || 0}</Badge>
+                </div>
+                {/* Reservas finalizadas */}
+                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#e7f1ff'}}>
+                  <span className="text-muted">Finalizadas</span>
+                  <Badge bg="success" className="fs-6">{stats.reservas_finalizadas || 0}</Badge>
+                </div>
+                
+                <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#e7f1ff'}}>
+                  <span className="text-muted">Expiradas</span>
+                  <Badge bg="warning" className="text-dark fs-6">{stats.reservas_expiradas || 0}</Badge>
+                </div>
+                
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
 
           {/* CARD 4: USUÁRIOS */}
           <Col md={6} lg={4} className="mb-4">

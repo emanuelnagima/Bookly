@@ -220,10 +220,7 @@ async cancelar(req, res) {
         let connection;
         try {
             const { id } = req.params;
-            const { data_devolucao_prevista } = req.body; 
-            
-            console.log(`=== INICIANDO CONVERSÃO DA RESERVA ${id} ===`);
-            
+            const { data_devolucao_prevista } = req.body;                    
             // 1. Buscar reserva
             const reserva = await reservasRepository.findById(id);
             
@@ -294,9 +291,6 @@ async cancelar(req, res) {
             // 6. Atualizar status da reserva para "concluida"
             console.log('Atualizando status da reserva...');
             await reservasRepository.concluir(id);
-
-            console.log('=== CONVERSÃO CONCLUÍDA COM SUCESSO ===');
-
             res.json({
                 success: true,
                 data: {
@@ -319,6 +313,13 @@ async cancelar(req, res) {
 }
 
 
-
+exports.getExpiradas = async (req, res) => {
+    try {
+        const expiradas = await reservasRepository.getReservasExpiradas();
+        res.json(expiradas);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 
 module.exports = new ReservasController();

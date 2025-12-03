@@ -178,7 +178,7 @@ async create(emprestimoData) {
 
             const totalEmprestado = emprestimosAtivos[0].total_emprestado || 0;
             
-            // Calcular estoque REALMENTE disponível
+            // Calcular estoque disponível
             const estoqueDisponivel = livroInfo.estoque - totalEmprestado;
 
             // Usar estoqueDisponivel em vez de livroInfo.estoque
@@ -558,48 +558,63 @@ async atualizarStatusAtrasados() {
 }
 
 async cancelar(id, motivo_cancelamento = 'Cancelado pelo usuário') {
-        let connection;
-        try {
-            connection = await db.getConnection();
-            await connection.beginTransaction();
+    let connection;
+    try {
+        connection = await db.getConnection();
+        await connection.beginTransaction();
 
-            // Verificar se empréstimo existe e pode ser cancelado
-            const [emprestimoRows] = await connection.execute(
-                'SELECT * FROM emprestimos WHERE id = ? AND status != "finalizado"',
-                [id]
-            );
+        // Verificar se empréstimo existe e pode ser cancelado
+        const [emprestimoRows] = await connection.execute(
+            'SELECT * FROM emprestimos WHERE id = ? AND status NOT IN ("finalizado", "cancelado")',
+            [id]
+        );
 
-            if (emprestimoRows.length === 0) {
-                throw new Error('Empréstimo não encontrado ou já finalizado');
-            }
-
-            // Atualizar status para cancelado
-            await connection.execute(
-                'UPDATE emprestimos SET status = "cancelado", data_cancelamento = NOW(), motivo_cancelamento = ? WHERE id = ?',
-                [motivo_cancelamento, id]
-            );
-
-            // **RESTAURAR ESTOQUE** (se necessário, dependendo da sua lógica)
-            const emprestimo = await this.findById(id);
-            if (emprestimo.status === 'ativo') {
-                for (const livro of emprestimo.livros) {
-                    await connection.execute(
-                        'UPDATE livros SET estoque = estoque + ? WHERE id = ?',
-                        [livro.quantidade || 1, livro.livro_id]
-                    );
-                }
-            }
-
-            await connection.commit();
-            return this.findById(id);
-
-        } catch (error) {
-            if (connection) await connection.rollback();
-            throw new Error(`Erro ao cancelar empréstimo: ${error.message}`);
-        } finally {
-            if (connection) connection.release();
+        if (emprestimoRows.length === 0) {
+            throw new Error('Empréstimo não encontrado, já finalizado ou já cancelado');
         }
+
+        const emprestimoInfo = emprestimoRows[0];
+
+        // Buscar livros do empréstimo para registrar no histórico
+        const [livrosRows] = await connection.execute(
+            'SELECT livro_id, quantidade FROM emprestimo_livros WHERE emprestimo_id = ?',
+            [id]
+        );
+
+        // Atualizar status para cancelado SEM RESTAURAR ESTOQUE
+        await connection.execute(
+            `UPDATE emprestimos 
+             SET status = "cancelado", 
+                 data_cancelamento = NOW(), 
+                 motivo_cancelamento = ? 
+             WHERE id = ?`,
+            [motivo_cancelamento, id]
+        );
+
+        // O estoque só deve ser ajustado na entrada/saída do livro físico
+        // Apenas registramos o cancelamento no histórico
+
+        // Registrar histórico de cancelamento
+        await connection.execute(
+            `INSERT INTO historico_cancelamentos 
+                (emprestimo_id, usuario_id, usuario_tipo, 
+                 motivo_cancelamento, data_cancelamento) 
+             VALUES (?, ?, ?, ?, NOW())`,
+            [id, emprestimoInfo.usuario_id, emprestimoInfo.usuario_tipo, motivo_cancelamento]
+        );
+
+        await connection.commit();
+        
+        // Retornar empréstimo atualizado
+        return await this.findById(id);
+
+    } catch (error) {
+        if (connection) await connection.rollback();
+        throw new Error(`Erro ao cancelar empréstimo: ${error.message}`);
+    } finally {
+        if (connection) connection.release();
     }
+}
 
 async getEmprestimosCancelados() {
     try {

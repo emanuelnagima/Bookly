@@ -22,4 +22,6 @@ router.put('/:id/cancelar', authenticate, authorize('admin', 'operador'), contro
 router.put('/:id/concluir', authenticate, authorize('admin', 'operador'), controller.concluir);
 router.delete('/:id', authenticate, authorize('admin', 'operador'), controller.delete);
 router.post('/:id/converter-emprestimo', authenticate, authorize('admin', 'operador'), controller.converterEmEmprestimo);
+router.get('/status/expiradas', authenticate, authorize('admin', 'operador'), controller.getExpiradas);
+
 module.exports = router;

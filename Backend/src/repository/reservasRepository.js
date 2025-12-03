@@ -466,7 +466,7 @@ async update(id, reservaData) {
         }
     }
 
-   async getReservasExpiradas() {
+async getReservasExpiradas() {
     try {
         const [rows] = await db.execute(`
             SELECT 
@@ -479,11 +479,13 @@ async update(id, reservaData) {
                 END as usuario
             FROM reservas r
             LEFT JOIN reserva_livros rl ON r.id = rl.reserva_id
-            WHERE r.status = 'ativa' AND r.data_validade < CURDATE()
+            WHERE 
+                r.status = 'ativa'
+                AND r.data_validade < CURDATE()
             GROUP BY r.id
-            ORDER BY r.data_validade ASC
+            ORDER BY r.data_reserva ASC
         `);
-        
+
         const reservasComLivros = await Promise.all(
             rows.map(async (row) => {
                 const [livros] = await db.execute(`
@@ -512,6 +514,7 @@ async update(id, reservaData) {
         throw new Error(`Erro ao buscar reservas expiradas: ${error.message}`);
     }
 }
+
     async getReservasPorUsuario(usuarioId, usuarioTipo) {
         try {
             const [rows] = await db.execute(`

@@ -197,64 +197,85 @@ const RelatoriosGerais = () => {
     };
   }, [timeoutId]);
 
-  // Configurações completas para todos os relatórios 
-  const configRelatorios = {
-    emprestimos: {
-      titulo: 'Relatório de Empréstimos',
-      colunas: ['ID', 'Usuário', 'Tipo', 'Livro', 'Data Empréstimo', 'Data Devolução', 'Status','Data Cancelamento', 'Motivo'],
-      icone: FaBook
+// Configurações completas para todos os relatórios 
+const configRelatorios = {
+  emprestimos: {
+    titulo: 'Relatório de Empréstimos',
+    // Colunas base (sem as de cancelamento)
+    colunasBase: ['ID', 'Usuário', 'Tipo', 'Livro', 'Data Empréstimo', 'Data Devolução', 'Status'],
+    // Colunas adicionais (cancelamento)
+    colunasCancelamento: ['Data Cancelamento', 'Motivo'],
+    // Função para determinar quais colunas mostrar
+    getColunas: (statusFiltro) => {
+      // Se o filtro for "todos" (vazio) ou "cancelado", mostrar todas as colunas
+      if (!statusFiltro || statusFiltro === 'cancelado') {
+        return [...configRelatorios.emprestimos.colunasBase, ...configRelatorios.emprestimos.colunasCancelamento];
+      }
+      // Se for outro filtro (ativo, atrasado, finalizado), mostrar só as colunas base
+      return configRelatorios.emprestimos.colunasBase;
     },
-    entrada: {
-      titulo: 'Relatório de Entradas',
-      colunas: ['ID', 'Livro', 'Autor', 'Origem', 'Quantidade', 'Data Aquisição', 'Observações'],
-      icone: FaBook
+    icone: FaBook
+  },
+  reservas: {
+    titulo: 'Relatório de Reservas',
+    // Colunas base (sem as de cancelamento)
+    colunasBase: ['ID', 'Usuário', 'Livro', 'Data Reserva', 'Data Validade', 'Status'],
+    // Colunas adicionais (cancelamento) - se quiser aplicar a mesma lógica para reservas
+    colunasCancelamento: ['Data Cancelamento', 'Motivo'],
+    getColunas: (statusFiltro) => {
+      if (!statusFiltro || statusFiltro === 'cancelada') {
+        return [...configRelatorios.reservas.colunasBase, ...configRelatorios.reservas.colunasCancelamento];
+      }
+      return configRelatorios.reservas.colunasBase;
     },
-    saida: {
-      titulo: 'Relatório de Saídas',
-      colunas: ['ID', 'Livro', 'Autor', 'Origem', 'Quantidade', 'Data Saída', 'Observações'],
-      icone: FaBook
-    },
-    cadastros: {
-      titulo: 'Relatório de Cadastros de Livros',
-      colunas: ['ID', 'Título', 'Autor', 'Editora', 'ISBN', 'Gênero', 'Ano', 'Estoque'],
-      icone: FaBook
-    },
-    reservas: {
-      titulo: 'Relatório de Reservas',
-      colunas: ['ID', 'Usuário', 'Livro', 'Data Reserva', 'Data Validade', 'Status'],
-      icone: FaBook
-    },
-    professores: {
-      titulo: 'Relatório de Professores',
-      colunas: ['ID', 'Nome', 'Departamento', 'Email', 'Telefone', 'Data Cadastro'],
-      icone: FaUserTie
-    },
-    alunos: {
-      titulo: 'Relatório de Alunos',
-      colunas: ['ID', 'Nome', 'Matrícula', 'Turma', 'Email', 'Telefone', 'Data Cadastro'],
-      icone: FaGraduationCap
-    },
-    'usuarios-especiais': {
-      titulo: 'Relatório de Usuários Especiais',
-      colunas: ['ID', 'Nome', 'Tipo', 'CPF', 'Email', 'Telefone', 'Data Cadastro'],
-      icone: FaUserEdit
-    },
-    editoras: {
-      titulo: 'Relatório de Editoras',
-      colunas: ['ID', 'Nome', 'CNPJ', 'Email', 'Telefone', 'Data Cadastro'],
-      icone: FaBuilding
-    },
-    autores: {
-      titulo: 'Relatório de Autores',
-      colunas: ['ID', 'Nome', 'Nacionalidade', 'Data Nascimento', 'Data Cadastro'],
-      icone: FaUsers
-    },
-    estoque: {
-      titulo: 'Relatório de Estoque Atual',
-      colunas: ['ID', 'Título', 'Autor', 'Editora', 'ISBN', 'Gênero', 'Ano', 'Estoque', 'Situação'],
-      icone: FaBox
-    },
-  };
+    icone: FaBook
+  },
+  entrada: {
+    titulo: 'Relatório de Entradas',
+    colunas: ['ID', 'Livro', 'Autor', 'Origem', 'Quantidade', 'Data Aquisição', 'Observações'],
+    icone: FaBook
+  },
+  saida: {
+    titulo: 'Relatório de Saídas',
+    colunas: ['ID', 'Livro', 'Autor', 'Origem', 'Quantidade', 'Data Saída', 'Observações'],
+    icone: FaBook
+  },
+  cadastros: {
+    titulo: 'Relatório de Cadastros de Livros',
+    colunas: ['ID', 'Título', 'Autor', 'Editora', 'ISBN', 'Gênero', 'Ano', 'Estoque'],
+    icone: FaBook
+  },
+  professores: {
+    titulo: 'Relatório de Professores',
+    colunas: ['ID', 'Nome', 'Departamento', 'Email', 'Telefone', 'Data Cadastro'],
+    icone: FaUserTie
+  },
+  alunos: {
+    titulo: 'Relatório de Alunos',
+    colunas: ['ID', 'Nome', 'Matrícula', 'Turma', 'Email', 'Telefone', 'Data Cadastro'],
+    icone: FaGraduationCap
+  },
+  'usuarios-especiais': {
+    titulo: 'Relatório de Usuários Especiais',
+    colunas: ['ID', 'Nome', 'Tipo', 'CPF', 'Email', 'Telefone', 'Data Cadastro'],
+    icone: FaUserEdit
+  },
+  editoras: {
+    titulo: 'Relatório de Editoras',
+    colunas: ['ID', 'Nome', 'CNPJ', 'Email', 'Telefone', 'Data Cadastro'],
+    icone: FaBuilding
+  },
+  autores: {
+    titulo: 'Relatório de Autores',
+    colunas: ['ID', 'Nome', 'Nacionalidade', 'Data Nascimento', 'Data Cadastro'],
+    icone: FaUsers
+  },
+  estoque: {
+    titulo: 'Relatório de Estoque Atual',
+    colunas: ['ID', 'Título', 'Autor', 'Editora', 'ISBN', 'Gênero', 'Ano', 'Estoque', 'Situação'],
+    icone: FaBox
+  },
+};
 
   // Buscar filtros disponíveis
   useEffect(() => {
@@ -1238,7 +1259,7 @@ const RelatoriosGerais = () => {
             </Row>
           )}
 
-          {/* Tabela de Resultados */}
+         {/* Tabela de Resultados */}
           {dadosRelatorio.length > 0 ? (
             <Card>
               <Card.Header>
@@ -1256,7 +1277,11 @@ const RelatoriosGerais = () => {
                 <Table striped hover responsive>
                   <thead>
                     <tr>
-                      {configRelatorios[tipoRelatorio].colunas.map(coluna => (
+                      {/* Use getColunas() para obter as colunas dinamicamente */}
+                      {(tipoRelatorio === 'emprestimos' || tipoRelatorio === 'reservas' 
+                        ? configRelatorios[tipoRelatorio].getColunas(filtrosAdicionais.status)
+                        : configRelatorios[tipoRelatorio].colunas
+                      ).map(coluna => (
                         <th key={coluna}>{coluna}</th>
                       ))}
                     </tr>
@@ -1264,7 +1289,11 @@ const RelatoriosGerais = () => {
                   <tbody>
                     {formatarDadosTabela(dadosRelatorio).map((linha, index) => (
                       <tr key={index}>
-                        {configRelatorios[tipoRelatorio].colunas.map(coluna => (
+                        {/* Renderize as células correspondentes às colunas exibidas */}
+                        {(tipoRelatorio === 'emprestimos' || tipoRelatorio === 'reservas' 
+                          ? configRelatorios[tipoRelatorio].getColunas(filtrosAdicionais.status)
+                          : configRelatorios[tipoRelatorio].colunas
+                        ).map(coluna => (
                           <td key={coluna}>
                             {getValorPorColuna(linha, coluna)}
                           </td>

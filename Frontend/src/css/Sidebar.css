@@ -275,7 +275,7 @@
   color: var(--color-accent);
 }
 
-/* ===== HOVERS CORRIGIDOS ===== */
+/* ===== HOVERS ===== */
 .nav-link-modern:hover {
   background: rgba(255, 255, 255, 0.08);
   color: var(--color-white);

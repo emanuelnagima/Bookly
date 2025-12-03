@@ -216,7 +216,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
     });
   };
 
-  // FUNÇÃO PARA VERIFICAR SE PODE RESERVAR - CORRIGIDA
+  // FUNÇÃO PARA VERIFICAR SE PODE RESERVAR 
   const podeReservarLivro = (livroId) => {
     const info = disponibilidadeGeral[livroId];
     if (!info) {
@@ -227,7 +227,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
     return info.podeReservar && info.disponivelExato >= 1;
   };
 
-  // FUNÇÃO PARA CALCULAR DISPONIBILIDADE - CORRIGIDA
+  // FUNÇÃO PARA CALCULAR DISPONIBILIDADE
   const calcularDisponibilidade = (livroId) => {
     const info = disponibilidadeGeral[livroId];
     if (!info) {
@@ -238,7 +238,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
     return info.disponivelExato;
   };
 
-  // FUNÇÃO PARA OBTER STATUS DE DISPONIBILIDADE (para estilização) - CORRIGIDA
+  // FUNÇÃO PARA OBTER STATUS DE DISPONIBILIDADE (para estilização) 
   const getStatusDisponibilidade = (livroId) => {
     const podeReservar = podeReservarLivro(livroId);
     const disponivel = calcularDisponibilidade(livroId);
@@ -284,7 +284,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
       return;
     }
 
-    // VERIFICAÇÃO DE DISPONIBILIDADE - CORRIGIDA
+    // VERIFICAÇÃO DE DISPONIBILIDADE 
     try {
       const verificacao = await disponibilidadeService.verificarPodeReservar(
         formData.usuario_id, 

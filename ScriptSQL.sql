@@ -208,21 +208,22 @@ CREATE TABLE `emprestimo_livros` (
 -- Tabela: RESERVAS
 -- -----------------------------
 CREATE TABLE `reservas` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `usuario_id` int(11) NOT NULL,
-  `usuario_tipo` enum('aluno','professor','usuario_especial') NOT NULL,
-  `livro_id` int(11) NOT NULL,
-  `data_reserva` datetime NOT NULL DEFAULT current_timestamp(),
-  `data_validade` date NOT NULL,
-  `status` enum('ativa','cancelada','concluida','expirada') NOT NULL DEFAULT 'ativa',
-  `observacoes` text DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_usuario_reserva` (`usuario_id`,`usuario_tipo`),
-  KEY `idx_livro_reserva` (`livro_id`),
-  KEY `idx_status_reserva` (`status`),
-  CONSTRAINT `fk_livro_reserva` FOREIGN KEY (`livro_id`) REFERENCES `livros` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `usuario_id` int(11) NOT NULL,
+   `usuario_tipo` enum('aluno','professor','usuario_especial') NOT NULL,
+   `livro_id` int(11) NOT NULL,
+   `data_reserva` datetime NOT NULL DEFAULT current_timestamp(),
+   `data_validade` date NOT NULL,
+   `status` enum('ativa','cancelada','concluida','expirada') NOT NULL DEFAULT 'ativa',
+   `data_cancelamento` datetime DEFAULT NULL,
+   `motivo_cancelamento` text DEFAULT NULL,
+   `observacoes` text DEFAULT NULL,
+   PRIMARY KEY (`id`),
+   KEY `idx_usuario_reserva` (`usuario_id`,`usuario_tipo`),
+   KEY `idx_livro_reserva` (`livro_id`),
+   KEY `idx_status_reserva` (`status`),
+   CONSTRAINT `fk_livro_reserva` FOREIGN KEY (`livro_id`) REFERENCES `livros` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+ ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 -- -----------------------------
 -- Tabela: RESERVA_LIVROS
 -- -----------------------------
@@ -281,25 +282,17 @@ CREATE TABLE `saidas` (
 -- ALTERAR: Atualizar o evento para considerar status cancelado
 DELIMITER $$
 
-DROP EVENT IF EXISTS atualizar_status_emprestimos;
-$$
-
 CREATE EVENT atualizar_status_emprestimos
 ON SCHEDULE EVERY 1 HOUR
 STARTS CURRENT_TIMESTAMP
 DO
 BEGIN
-    -- Atualizar para atrasado (apenas se não estiver finalizado ou cancelado)
+    -- Atualizar para atrasado
     UPDATE emprestimos 
     SET status = 'atrasado'
-    WHERE status = 'ativo' 
-    AND DATE(data_devolucao_prevista) < CURDATE();
-    
-    -- Atualizar para ativo (caso tenha renovação)
-    UPDATE emprestimos 
-    SET status = 'ativo'
-    WHERE status = 'atrasado' 
-    AND DATE(data_devolucao_prevista) >= CURDATE();
+    WHERE status = 'ativo'
+    AND DATE(data_devolucao_prevista) < CURDATE()
+    AND data_devolucao_real IS NULL;
 END$$
 
 DELIMITER ;

@@ -136,6 +136,17 @@ const emprestimosFiltrados = emprestimos.filter(emprestimo => {
 
   // Função para verificar se está no prazo
 const verificarPrazo = (dataDevolucaoPrevista, dataDevolucaoReal, status) => {
+  // Status cancelado tem prioridade
+  if (status === 'cancelado') {
+    return { 
+      situacao: 'cancelado', 
+      classe: 'text-danger', 
+      texto: 'Cancelado',
+      dataDisplay: 'Cancelado',
+      badge: 'danger'
+    };
+  }
+
   if (status === 'finalizado') {
     return { 
       situacao: 'finalizado', 
@@ -159,9 +170,8 @@ const verificarPrazo = (dataDevolucaoPrevista, dataDevolucaoReal, status) => {
     };
   }
 
-
   // Verificar se está próximo do vencimento (3 dias ou menos)
-const diasRestantes = Math.ceil((devolucao - hoje) / (1000 * 60 * 60 * 24));
+  const diasRestantes = Math.ceil((devolucao - hoje) / (1000 * 60 * 60 * 24));
   if (diasRestantes <= 3) {
     return { 
       situacao: 'proximo_vencimento', 
@@ -180,29 +190,34 @@ const diasRestantes = Math.ceil((devolucao - hoje) / (1000 * 60 * 60 * 24));
     badge: 'success'
   };
 };
-
 const getStatusBadge = (status, dataDevolucao) => {
   const hoje = new Date();
   const devolucao = new Date(dataDevolucao);
-
+  
   // Função para capitalizar (primeira letra maiúscula)
   const capitalizar = (texto) => {
     return texto.charAt(0).toUpperCase() + texto.slice(1);
   };
 
-  if (status === 'finalizado') {
-    return <Badge bg="dark">{capitalizar('finalizado')}</Badge>;
+  switch (status) {
+    case 'finalizado':
+      return <Badge bg="dark">{capitalizar('finalizado')}</Badge>;
+    
+    case 'cancelado':
+      return <Badge bg="danger">{capitalizar('cancelado')}</Badge>;
+    
+    case 'atrasado':
+      return <Badge bg="warning" className="text-dark">{capitalizar('atrasado')}</Badge>;
+    
+    case 'ativo':
+      if (devolucao < hoje) {
+        return <Badge bg="warning" className="text-dark">{capitalizar('atrasado')}</Badge>;
+      }
+      return <Badge bg="success">{capitalizar('emprestado')}</Badge>;
+    
+    default:
+      return <Badge bg="secondary">{capitalizar(status || 'desconhecido')}</Badge>;
   }
-
-  if (status === 'atrasado') {
-    return <Badge bg="warning" className="text-dark">{capitalizar('atrasado')}</Badge>;
-  }
-
-  if (devolucao < hoje) {
-    return <Badge bg="warning" className="text-dark">{capitalizar('atrasado')}</Badge>;
-  }
-
-  return <Badge bg="success">{capitalizar('emprestado')}</Badge>;
 };
   const isAtrasado = (dataDevolucao, status) => {
     if (status === 'finalizado') return false;
@@ -369,7 +384,7 @@ const getStatusBadge = (status, dataDevolucao) => {
 
                       <td className="text-nowrap">{formatarData(emprestimo.data_emprestimo)}</td>
                       
-                      {/* Coluna Data Devolução - CORRIGIDA */}
+                      {/* Coluna Data Devolução */}
                       <td className={`text-nowrap ${atrasado ? 'text-warning fw-bold' : ''}`}>
                         {atrasado && <FaExclamationTriangle className="me-1" />}
                         {/* EXIBIR DATA CORRETA: real se finalizado, prevista se ativo/atrasado */}

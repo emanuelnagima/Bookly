@@ -227,6 +227,10 @@ async cancelar(req, res) {
         const { motivo_cancelamento } = req.body;
         
         const emprestimoCancelado = await emprestimosRepository.cancelar(id, motivo_cancelamento);
+        
+        // Garantir que o status está como cancelado
+        emprestimoCancelado.status = 'cancelado';
+        
         res.json({ 
             success: true, 
             data: emprestimoCancelado, 
