@@ -688,7 +688,7 @@ const handleSubmit = async (e) => {
                           </optgroup>
                         </Form.Select>
                         
-                        {/* FEEDBACK VISUAL - ATUALIZADO */}
+                        {/* FEEDBACK VISUAL */}
                         {livroAtual.livro_id && (
                           <div className="mt-2">
                             {(disponibilidade[livroAtual.livro_id] || disponibilidadeGeral[livroAtual.livro_id]) && (

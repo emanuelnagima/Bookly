@@ -8,12 +8,14 @@ class Professor {
         this.email = data.email || '';
         this.telefone = data.telefone || '';
         this.departamento = data.departamento || '';
+        this.data_cadastro = data.data_cadastro || null; 
+        
         this.departamentosPermitidos = [
             'Matemática', 'Ciências', 'Português', 'História', 'Geografia', 
             'Inglês', 'Espanhol', 'Educação Física', 'Artes', 'Música', 
             'Teatro', 'Filosofia', 'Sociologia', 'Biologia', 'Física', 
             'Química', 'Informática', 'Programação', 'Administração', 
-            , 'Psicologia', 'Pedagogia'
+            'Psicologia', 'Pedagogia'
         ];
     }
 
@@ -22,7 +24,8 @@ class Professor {
         
         // Validações obrigatórias
         if (!this.nome || this.nome.trim() === '') erros.push('Nome é obrigatório');
-        // REMOVER: if (!this.matricula || this.matricula.trim() === '') erros.push('Matrícula é obrigatória');
+        if (!this.cpf || this.cpf.trim() === '') erros.push('CPF é obrigatório');
+        if (!this.data_nascimento) erros.push('Data de nascimento é obrigatória');
         if (!this.email || this.email.trim() === '') erros.push('Email é obrigatório');
         if (!this.departamento || this.departamento.trim() === '') erros.push('Departamento é obrigatório');
         
@@ -32,23 +35,28 @@ class Professor {
             erros.push(`Departamento inválido. Use: ${this.departamentosPermitidos.join(', ')}`);
         }
         
+        // Validação de CPF (11 dígitos)
+        if (this.cpf && this.cpf.replace(/\D/g, '').length !== 11) {
+            erros.push('CPF deve ter 11 dígitos');
+        }
+        
         return erros.length === 0 ? true : erros;
     }
 
     toJSON() {
-        const json = {
+        return {
             id: this.id,
             nome: this.nome,
             cpf: this.cpf,
             data_nascimento: this.data_nascimento, 
-            matricula: this.matricula, // Incluir matrícula no JSON
+            matricula: this.matricula,
             email: this.email,
             telefone: this.telefone,
             departamento: this.departamentosPermitidos.includes(this.departamento) 
                 ? this.departamento 
-                : ''
+                : '',
+            data_cadastro: this.data_cadastro 
         };
-        return json;
     }
 }
 

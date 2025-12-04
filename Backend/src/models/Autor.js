@@ -4,6 +4,7 @@ class Autor {
         this.nome = data.nome || '';
         this.nacionalidade = data.nacionalidade || '';
         this.data_nascimento = data.data_nascimento || null;
+        this.data_cadastro = data.data_cadastro || null; 
     }
 
     static getNacionalidades() {
@@ -34,6 +35,16 @@ class Autor {
         if (!this.data_nascimento) erros.push('Data de nascimento é obrigatória');
         
         return erros.length === 0 ? true : erros;
+    }
+
+    toJSON() {
+        return {
+            id: this.id,
+            nome: this.nome,
+            nacionalidade: this.nacionalidade,
+            data_nascimento: this.data_nascimento,
+            data_cadastro: this.data_cadastro, 
+        };
     }
 }
 

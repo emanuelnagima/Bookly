@@ -3,6 +3,33 @@ import { Card, Form, Col, Row, Button, Spinner, InputGroup } from 'react-bootstr
 import { BsCheckCircle } from "react-icons/bs";
 import { FaLock } from 'react-icons/fa';
 
+// FUNÇÃO PARA FORMATAR DATA
+const formatDateForInput = (dateString) => {
+  if (!dateString) return '';
+  
+  if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    return dateString;
+  }
+  
+  try {
+    const date = new Date(dateString);
+    
+    if (isNaN(date.getTime())) {
+      return '';
+    }
+    
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+  } catch (error) {
+    console.error('Erro ao formatar data:', error);
+    return '';
+  }
+}
+
+// MÁSCARAS
 const maskTelefone = (value) => {
   return value
     .replace(/\D/g, '')
@@ -20,6 +47,7 @@ const maskCPF = (value) => {
     .slice(0, 14)
 }
 
+// COMPONENTE CADPROFESSOR - APENAS ESTE!
 const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
   const [professorData, setProfessorData] = useState({
     id: null,
@@ -38,11 +66,10 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
       setProfessorData({
         id: professor.id,
         nome: professor.nome || '',
-        cpf: maskCPF(professor.cpf),
-        data_nascimento: professor.data_nascimento || '',
-        // NÃO incluir matrícula aqui - ela virá do backend
+        cpf: maskCPF(professor.cpf || ''),
+        data_nascimento: formatDateForInput(professor.data_nascimento),
         email: professor.email || '',
-        telefone: maskTelefone(professor.telefone),
+        telefone: maskTelefone(professor.telefone || ''),
         departamento: professor.departamento || ''
       })
     } else {
@@ -64,7 +91,6 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
     let maskedValue = value
     if (name === 'telefone') maskedValue = maskTelefone(value)
     if (name === 'cpf') maskedValue = maskCPF(value)
-    // REMOVER tratamento de matrícula
 
     setProfessorData(prev => ({
       ...prev,
@@ -86,7 +112,6 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
       ...professorData,
       telefone: professorData.telefone.replace(/\D/g, ''),
       cpf: professorData.cpf.replace(/\D/g, '')
-      // NÃO enviar matrícula - será gerada no backend
     }
 
     onSave(dataToSave)
@@ -100,7 +125,7 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
       <Card.Body>
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
           
-          {/* SEÇÃO DE MATRÍCULA (somente leitura para edição) */}
+          {/* SEÇÃO DE MATRÍCULA */}
           {professorData.id && professor?.matricula && (
             <Row className="mb-3">
               <Col md={6}>
@@ -129,7 +154,7 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
           <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='nome'>
-                <Form.Label>Nome</Form.Label>
+                <Form.Label>Nome Completo</Form.Label>
                 <Form.Control
                   type='text'
                   name='nome'
@@ -153,23 +178,34 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
                   placeholder='000.000.000-00'
                   value={professorData.cpf}
                   onChange={handleChange}
+                  required  
                   disabled={loading}
                 />
+                <Form.Text className='text-muted'>
+                      Formato: 11 dígitos
+                  </Form.Text>
+                <Form.Control.Feedback type='invalid'>
+                  CPF é obrigatório
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
           </Row>
 
           <Row>
             <Col md={6}>
-              <Form.Group className='mb-3' controlId='data_nascimento'>
+             <Form.Group className='mb-3' controlId='data_nascimento'>
                 <Form.Label>Data de Nascimento</Form.Label>
                 <Form.Control
                   type='date'
                   name='data_nascimento'
                   value={professorData.data_nascimento}
                   onChange={handleChange}
+                  required  
                   disabled={loading}
                 />
+                <Form.Control.Feedback type='invalid'>
+                  Data de nascimento é obrigatória
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
             <Col md={6}>
@@ -204,6 +240,9 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
                   placeholder='(00) 00000-0000'
                   disabled={loading}
                 />
+                <Form.Text className='text-muted'>
+                      Formato: 11 dígitos
+                  </Form.Text>
               </Form.Group>
             </Col>
             <Col md={6}>
@@ -284,4 +323,4 @@ const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
   )
 }
 
-export default CadProfessor
+export default CadProfessor  

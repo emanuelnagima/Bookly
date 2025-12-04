@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Table, Form, InputGroup, Button, Row, Col, Modal } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaGraduationCap, FaInfoCircle, FaBook, FaUser, FaEnvelope, FaPhone, FaIdCard, FaCalendarAlt, FaUsers } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaGraduationCap, FaInfoCircle, FaBook, FaUser, FaEnvelope, FaRegCalendarPlus, FaPhone, FaAddressCard , FaIdCard, FaCalendarAlt, FaUsers } from 'react-icons/fa';
 
 const ITENS_POR_PAGINA = 7;
 
@@ -60,7 +60,7 @@ const AlunoList = ({ alunos, onDelete, onEdit, loading }) => {
     setPaginaAtual(1);
   }, [termoBusca, ordenacao, filtroTurma]);
 
-  // Função de ordenação
+  // Função de ordenação -  para ordenar por nível de ensino
   const ordenarAlunos = (alunos) => {
     return [...alunos].sort((a, b) => {
       switch (ordenacao) {
@@ -73,9 +73,10 @@ const AlunoList = ({ alunos, onDelete, onEdit, loading }) => {
         case 'matricula_desc':
           return (b.matricula || '').localeCompare(a.matricula || '');
         case 'turma_asc':
-          return (a.turma || '').localeCompare(b.turma || '');
+          // Ordenação inteligente por nível de ensino e ano
+          return ordenarPorTurma(a.turma, b.turma, 'asc');
         case 'turma_desc':
-          return (b.turma || '').localeCompare(a.turma || '');
+          return ordenarPorTurma(a.turma, b.turma, 'desc');
         case 'data_nascimento_asc':
           return new Date(a.data_nascimento || a.dataNascimento) - new Date(b.data_nascimento || b.dataNascimento);
         case 'data_nascimento_desc':
@@ -86,6 +87,28 @@ const AlunoList = ({ alunos, onDelete, onEdit, loading }) => {
     });
   };
 
+  // Função auxiliar para ordenar turmas 
+  const ordenarPorTurma = (turmaA, turmaB, direcao) => {
+    const nivelValor = {
+      '1º Ano Fundamental': 1,
+      '2º Ano Fundamental': 2,
+      '3º Ano Fundamental': 3,
+      '4º Ano Fundamental': 4,
+      '5º Ano Fundamental': 5,
+      '6º Ano Fundamental': 6,
+      '7º Ano Fundamental': 7,
+      '8º Ano Fundamental': 8,
+      '9º Ano Fundamental': 9,
+      '1º Ano Médio': 10,
+      '2º Ano Médio': 11,
+      '3º Ano Médio': 12
+    };
+
+    const valorA = nivelValor[turmaA] || 999;
+    const valorB = nivelValor[turmaB] || 999;
+
+    return direcao === 'asc' ? valorA - valorB : valorB - valorA;
+  };
   // Filtrar alunos
   const alunosFiltrados = alunos.filter(aluno => {
     if (!termoBusca && filtroTurma === 'todos') return true;
@@ -110,7 +133,7 @@ const AlunoList = ({ alunos, onDelete, onEdit, loading }) => {
 
   // Calcular paginação
   const totalPaginas = Math.ceil(alunosOrdenados.length / ITENS_POR_PAGINA);
-  
+
   // Garantir que a página atual seja válida
   const paginaValida = Math.max(1, Math.min(paginaAtual, totalPaginas));
   if (paginaValida !== paginaAtual) {
@@ -351,11 +374,22 @@ const AlunoList = ({ alunos, onDelete, onEdit, loading }) => {
                   <Row>
                     <Col md={6}>
                       <p className="mb-2">
-                        <strong>Matrícula: </strong> 
+                          <FaAddressCard  className="me-1" />
+                        <strong>Matrícula: </strong>
                         <span>
                           {alunoSelecionado?.matricula}
                         </span>
                       </p>
+                        <p className="mb-2">
+                      <FaRegCalendarPlus className="me-1" />
+                          <strong>Data de Cadastro: </strong>
+                          <span>
+                            {alunoSelecionado?.data_cadastro ? 
+                              formatarData(alunoSelecionado.data_cadastro) : 
+                              'Não disponível'
+                            }
+                          </span>
+                        </p>
                     </Col>
                     <Col md={6}>
                     </Col>
@@ -376,7 +410,7 @@ const AlunoList = ({ alunos, onDelete, onEdit, loading }) => {
                 <div className="text-muted small">
                   Mostrando {inicio + 1} a {Math.min(fim, alunosOrdenados.length)} de {alunosOrdenados.length} alunos
                 </div>
-                
+
                 <div className="d-flex align-items-center gap-2">
                   <Button
                     className="btn-paginacao"
@@ -386,11 +420,11 @@ const AlunoList = ({ alunos, onDelete, onEdit, loading }) => {
                     <FaChevronLeft className="me-1" />
                     Anterior
                   </Button>
-                  
+
                   <span className="mx-3 text-muted">
                     Página <strong>{paginaAtual}</strong> de <strong>{totalPaginas}</strong>
                   </span>
-                  
+
                   <Button
                     className="btn-paginacao"
                     onClick={handleProximaPagina}

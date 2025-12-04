@@ -8,12 +8,14 @@ class Aluno {
         this.email = data.email || '';
         this.telefone = data.telefone || '';
         this.turma = data.turma || '';
+        this.data_cadastro = data.data_cadastro || data.created_at || data.dataCadastro || null;
         
-        // Turmas permitidas
+        // Turmas permitidas 
         this.turmasValidas = [
-            '1º Ano', '2º Ano', '3º Ano', '4º Ano', '5º Ano',
-            '6º Ano', '7º Ano', '8º Ano', '9º Ano',
-            '1º Colegial', '2º Colegial', '3º Colegial'
+            '1º Ano Fundamental', '2º Ano Fundamental', '3º Ano Fundamental', 
+            '4º Ano Fundamental', '5º Ano Fundamental', '6º Ano Fundamental', 
+            '7º Ano Fundamental', '8º Ano Fundamental', '9º Ano Fundamental',
+            '1º Ano Médio', '2º Ano Médio', '3º Ano Médio'
         ];
     }
 
@@ -43,7 +45,8 @@ class Aluno {
             data_nascimento: this.data_nascimento,
             email: this.email,
             telefone: this.telefone,
-            turma: this.turma
+            turma: this.turma,
+            data_cadastro: this.data_cadastro
         };
     }
 }

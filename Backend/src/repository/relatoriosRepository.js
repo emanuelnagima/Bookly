@@ -61,9 +61,6 @@ class RelatoriosRepository {
 
   async getRelatorioEmprestimos(filtros = {}) {
     try {
-        console.log('=== CORREÇÃO: getRelatorioEmprestimos ===');
-        console.log('Filtro status:', filtros.status);
-        
         // Query corrigida usando LEFT JOIN e subquery para livros
         let query = `
             SELECT 
@@ -117,7 +114,7 @@ class RelatoriosRepository {
         // Filtro de status
         if (filtros.status) {
             if (filtros.status === 'atrasado') {
-                // CORREÇÃO: Inclui tanto os marcados como 'atrasado' quanto os 'ativos' com data vencida
+                // Inclui tanto os marcados como 'atrasado' quanto os 'ativos' com data vencida
                 query += ' AND (e.status = "atrasado" OR (e.status = "ativo" AND e.data_devolucao_prevista < CURDATE()))';
             } else if (filtros.status === 'cancelado') {
                 query += ' AND e.status = "cancelado"';

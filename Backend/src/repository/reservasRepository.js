@@ -375,7 +375,7 @@ async update(id, reservaData) {
             throw new Error('Apenas reservas ativas podem ser editadas');
         }
 
-        // **CORREÇÃO: Usar primeiro livro como livro_id obrigatório**
+        // ** Usar primeiro livro como livro_id obrigatório**
         const primeiroLivroId = reserva.livros.length > 0 ? reserva.livros[0].livro_id : null;
         if (!primeiroLivroId) {
             throw new Error('Pelo menos um livro deve ser selecionado');

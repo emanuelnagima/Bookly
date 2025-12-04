@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Table, Form, InputGroup, Button, Row, Col, Modal } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaFeatherAlt, FaInfoCircle, FaUser, FaGlobeAmericas, FaCalendarAlt, FaBook } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaFeatherAlt, FaInfoCircle, FaUser, FaGlobeAmericas, FaCalendarAlt, FaRegCalendarPlus, FaBook } from 'react-icons/fa';
 
 const ITENS_POR_PAGINA = 7;
 
@@ -189,6 +189,7 @@ const AutorList = ({ autores, onDelete, onEdit, loading }) => {
                   <th>Nome Completo</th>
                   <th width="120px">Nacionalidade</th>
                   <th width="140px">Data Nasc.</th>
+                  <th width="140px">Data Cadastro</th> 
                   <th width="200px" className="text-center">Ações</th>
                 </tr>
               </thead>
@@ -228,7 +229,11 @@ const AutorList = ({ autores, onDelete, onEdit, loading }) => {
                     <td className="text-nowrap">
                       {formatarData(autor.data_nascimento)}
                     </td>
-
+                      <td className="text-nowrap">
+  <div>
+    {formatarData(autor.data_cadastro)}
+  </div>
+</td>
                     {/* Coluna Ações */}
                     <td>
                       <div className="d-flex gap-2 justify-content-center">
@@ -291,6 +296,16 @@ const AutorList = ({ autores, onDelete, onEdit, loading }) => {
                       <p className="mb-2">
                         <strong><FaCalendarAlt className="me-2 text-muted" />Data de Nascimento:</strong> {formatarData(autorSelecionado?.data_nascimento)}
                       </p>
+                      <p className="mb-2">
+                        <FaRegCalendarPlus className="me-1" />
+                         <strong> Data de Cadastro:</strong> 
+                          <span className="ms-2">
+                            {autorSelecionado?.data_cadastro ? 
+                              formatarData(autorSelecionado.data_cadastro) : 
+                              'Não disponível'
+                            }
+                          </span>
+                        </p>
                     </Col>
                   </Row>
                 </div>

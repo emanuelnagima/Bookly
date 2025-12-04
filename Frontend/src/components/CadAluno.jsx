@@ -34,30 +34,60 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
 
   const [validated, setValidated] = useState(false)
 
-  useEffect(() => {
-    if (aluno) {
-      setAlunoData({
-        id: aluno.id,
-        nome: aluno.nome || '',
-        // NÃO incluir matrícula aqui - ela virá do backend
-        cpf: maskCPF(aluno.cpf),
-        data_nascimento: aluno.data_nascimento || '',
-        email: aluno.email || '',
-        telefone: maskTelefone(aluno.telefone),
-        turma: aluno.turma || ''
-      })
-    } else {
-      setAlunoData({
-        id: null,
-        nome: '',
-        cpf: '',
-        data_nascimento: '',
-        email: '',
-        telefone: '',
-        turma: ''
-      })
+ // Em CadAluno.js - Adicione esta função ANTES do componente
+// Função para formatar data para o input type="date" (YYYY-MM-DD)
+const formatDateForInput = (dateString) => {
+  if (!dateString) return '';
+  
+  // Se já estiver no formato YYYY-MM-DD, retorna como está
+  if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    return dateString;
+  }
+  
+  // Tenta converter de diferentes formatos
+  try {
+    const date = new Date(dateString);
+    
+    // Verifica se é uma data válida
+    if (isNaN(date.getTime())) {
+      return '';
     }
-  }, [aluno])
+    
+    // Formata para YYYY-MM-DD
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+  } catch (error) {
+    console.error('Erro ao formatar data:', error);
+    return '';
+  }
+}
+
+useEffect(() => {
+  if (aluno) {
+    setAlunoData({
+      id: aluno.id,
+      nome: aluno.nome || '',
+      cpf: maskCPF(aluno.cpf),
+      data_nascimento: formatDateForInput(aluno.data_nascimento), 
+      email: aluno.email || '',
+      telefone: maskTelefone(aluno.telefone),
+      turma: aluno.turma || ''
+    })
+  } else {
+    setAlunoData({
+      id: null,
+      nome: '',
+      cpf: '',
+      data_nascimento: '',
+      email: '',
+      telefone: '',
+      turma: ''
+    })
+  }
+}, [aluno])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -65,7 +95,6 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
     let maskedValue = value
     if (name === 'cpf') maskedValue = maskCPF(value)
     if (name === 'telefone') maskedValue = maskTelefone(value)
-    // REMOVER tratamento de matrícula
 
     setAlunoData(prev => ({
       ...prev,
@@ -130,7 +159,7 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
           <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='nome'>
-                <Form.Label>Nome</Form.Label>
+                <Form.Label>Nome Completo</Form.Label>
                 <Form.Control
                   type='text'
                   name='nome'
@@ -159,7 +188,12 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
                 />
                 <Form.Control.Feedback type='invalid'>
                   Informe o CPF
+                  
                 </Form.Control.Feedback>
+                <Form.Text className='text-muted'>
+                  Formato: 11 dígitos
+                </Form.Text>
+                
               </Form.Group>
             </Col>
           </Row>
@@ -205,14 +239,17 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
             <Col md={6}>
               <Form.Group className='mb-3' controlId='telefone'>
                 <Form.Label>Telefone</Form.Label>
+                
                 <Form.Control
                   type='text'
                   name='telefone'
                   value={alunoData.telefone}
                   onChange={handleChange}
                   placeholder="(00) 00000-0000"
-                  disabled={loading}
-                />
+                  disabled={loading}/>
+                    <Form.Text className='text-muted'>
+                      Formato: 11 dígitos
+                  </Form.Text>
               </Form.Group>
             </Col>
             <Col md={6}>
@@ -226,18 +263,26 @@ const CadAluno = ({ onSave, onCancel, aluno, loading }) => {
                   disabled={loading}
                 >
                   <option value=''>Selecione...</option>
-                  <option value='1º Ano'>1º Ano</option>
-                  <option value='2º Ano'>2º Ano</option>
-                  <option value='3º Ano'>3º Ano</option>
-                  <option value='4º Ano'>4º Ano</option>
-                  <option value='5º Ano'>5º Ano</option>
-                  <option value='6º Ano'>6º Ano</option>
-                  <option value='7º Ano'>7º Ano</option>
-                  <option value='8º Ano'>8º Ano</option>
-                  <option value='9º Ano'>9º Ano</option>
-                  <option value='1º Colegial'>1º Colegial</option>
-                  <option value='2º Colegial'>2º Colegial</option>
-                  <option value='3º Colegial'>3º Colegial</option>
+                  
+                  {/* Ensino Fundamental */}
+                  <optgroup label="Ensino Fundamental">
+                    <option value='1º Ano Fundamental'>1º Ano Fundamental</option>
+                    <option value='2º Ano Fundamental'>2º Ano Fundamental</option>
+                    <option value='3º Ano Fundamental'>3º Ano Fundamental</option>
+                    <option value='4º Ano Fundamental'>4º Ano Fundamental</option>
+                    <option value='5º Ano Fundamental'>5º Ano Fundamental</option>
+                    <option value='6º Ano Fundamental'>6º Ano Fundamental</option>
+                    <option value='7º Ano Fundamental'>7º Ano Fundamental</option>
+                    <option value='8º Ano Fundamental'>8º Ano Fundamental</option>
+                    <option value='9º Ano Fundamental'>9º Ano Fundamental</option>
+                  </optgroup>
+                  
+                  {/* Ensino Médio */}
+                  <optgroup label="Ensino Médio">
+                    <option value='1º Ano Médio'>1º Ano Médio</option>
+                    <option value='2º Ano Médio'>2º Ano Médio</option>
+                    <option value='3º Ano Médio'>3º Ano Médio</option>
+                  </optgroup>
                 </Form.Select>
                 <Form.Control.Feedback type='invalid'>
                   Selecione a turma

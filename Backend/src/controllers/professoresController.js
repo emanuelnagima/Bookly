@@ -55,43 +55,40 @@ class ProfessoresController {
         }
     }
 
-    async create(req, res) {
-        try {
-            const professor = new Professor(req.body);
-            const erros = professor.validar();
-
-            if (erros !== true) {
-                return res.status(400).json({ 
-                    success: false, 
-                    message: 'Dados inválidos', 
-                    errors: erros 
-                });
-            }
-
-            // GERAR MATRÍCULA AUTOMÁTICA PARA PROFESSOR
-            const ultimaMatricula = await professoresRepository.getUltimaMatricula();
-            professor.matricula = gerarMatriculaProfessor(ultimaMatricula);
-            
-            // Validar se matrícula já existe (segurança adicional)
-            const matriculaExistente = await professoresRepository.findByMatricula(professor.matricula);
-            if (matriculaExistente) {
-                // Se por acaso já existir, incrementa
-                const partes = professor.matricula.split('-');
-                const novoNumero = parseInt(partes[2]) + 1;
-                professor.matricula = `${partes[0]}-${partes[1]}-${novoNumero.toString().padStart(3, '0')}`;
-            }
-
-            const novoProfessor = await professoresRepository.create(professor);
-            res.status(201).json({ 
-                success: true, 
-                data: novoProfessor, 
-                message: `Professor criado com matrícula ${novoProfessor.matricula}` 
+async create(req, res) {
+    try {  
+        const professor = new Professor(req.body);
+        const erros = professor.validar();
+        
+        if (erros !== true) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Dados inválidos', 
+                errors: erros 
             });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
         }
-    }
 
+        // GERAR MATRÍCULA AUTOMÁTICA
+        const ultimaMatricula = await professoresRepository.getUltimaMatricula();
+        
+        professor.matricula = gerarMatriculaProfessor(ultimaMatricula);
+        
+        const novoProfessor = await professoresRepository.create(professor);
+        
+        res.status(201).json({ 
+            success: true, 
+            data: novoProfessor, 
+            message: `Professor criado com matrícula ${novoProfessor.matricula}` 
+        });
+    } catch (error) {
+        console.error(' Erro ao criar professor:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+    }
+}
     async update(req, res) {
         try {
             const professorExistente = await professoresRepository.findById(req.params.id);

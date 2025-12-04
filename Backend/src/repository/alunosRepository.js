@@ -65,5 +65,4 @@ class AlunosRepository {
     }
 }
 
-// REMOVA a função gerarNovaMatricula daqui - Ela já está no controller
 module.exports = new AlunosRepository();

@@ -16,7 +16,7 @@ class EditorasController {
             const { id } = req.params;
             const editora = await editorasRepository.findById(id);
             if (!editora) return res.status(404).json({ success: false, message: 'Editora não encontrada' });
-            res.json({ success: true, data: editora });
+            res.json({ success: true, data: editora }); // CORREÇÃO: mudar para success: true
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
@@ -32,8 +32,8 @@ class EditorasController {
             res.status(201).json({ success: true, data: newEditora, message: 'Editora criada com sucesso' });
         } catch (error) {
             if (error.code === 'ER_DUP_ENTRY') {
-                const campo = error.message.match(/for key '(.+?)'/)[1];
-                return res.status(400).json({ success: false, message: `Já existe uma editora com este ${campo}.` });
+                const mensagem = this.getMensagemDuplicidade(error.message);
+                return res.status(400).json({ success: false, message: mensagem });
             }
             res.status(500).json({ success: false, message: error.message });
         }
@@ -53,8 +53,8 @@ class EditorasController {
             res.json({ success: true, data: editoraAtualizada, message: 'Editora atualizada com sucesso' });
         } catch (error) {
             if (error.code === 'ER_DUP_ENTRY') {
-                const campo = error.message.match(/for key '(.+?)'/)[1];
-                return res.status(400).json({ success: false, message: `Já existe uma editora com este ${campo}.` });
+                const mensagem = this.getMensagemDuplicidade(error.message);
+                return res.status(400).json({ success: false, message: mensagem });
             }
             res.status(500).json({ success: false, message: error.message });
         }
@@ -66,7 +66,6 @@ class EditorasController {
             const editora = await editorasRepository.findById(id);
             if (!editora) return res.status(404).json({ success: false, message: 'Editora não encontrada' });
 
-            // VERIFICA SE EXISTEM LIVROS VINCULADOS
             const livrosVinculados = await editorasRepository.verificarLivrosVinculados(id);
             
             if (livrosVinculados > 0) {
@@ -82,7 +81,6 @@ class EditorasController {
         } catch (error) {
             console.error('Erro ao excluir editora:', error);
             
-            // TRATAMENTO PARA ERROS DE CHAVE ESTRANGEIRA
             if (
                 error.message?.includes('foreign key') ||
                 error.message?.includes('livros') ||
@@ -98,6 +96,24 @@ class EditorasController {
 
             res.status(500).json({ success: false, message: error.message });
         }
+    }
+
+    getMensagemDuplicidade(errorMessage) {
+        const constraintMap = {
+            'idx_email': 'e-mail',
+            'idx_cnpj': 'CNPJ',
+            'idx_telefone': 'telefone',
+            'idx_nome': 'nome'  
+        };
+
+        const match = errorMessage.match(/for key '(.+?)'/);
+        if (match && match[1]) {
+            const constraintName = match[1];
+            const campoAmigavel = constraintMap[constraintName] || constraintName;
+            return `Já existe uma editora com este ${campoAmigavel} cadastrado.`;
+        }
+
+        return 'Já existe uma editora com estes dados cadastrada.';
     }
 }
 

@@ -4,7 +4,7 @@ const handleResponse = async (response) => {
   const data = await response.json().catch(() => ({}));
   
   if (!response.ok) {
-    // CORREÇÃO: busca em "message" primeiro, depois em "error"
+    // busca em "message" primeiro, depois em "error"
     const errorMessage = data?.message || data?.error || `HTTP error! status: ${response.status}`;
     throw new Error(errorMessage);
   }
@@ -78,7 +78,7 @@ const remove = async (id) => {
     const responseData = await response.json().catch(() => null);
     
     if (!response.ok) {
-      // CORREÇÃO: busca a mensagem no campo "message" 
+      // busca a mensagem no campo "message" 
       if (responseData && responseData.message) {
         throw new Error(responseData.message);
       }

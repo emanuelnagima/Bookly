@@ -2,6 +2,24 @@ import { useState, useEffect } from 'react'
 import { Card, Form, Col, Row, Button, Spinner } from 'react-bootstrap'
 import { BsCheckCircle } from "react-icons/bs";
 
+const maskCNPJ = (value) => {
+  return value
+    .replace(/\D/g, '')
+    .replace(/(\d{2})(\d)/, '$1.$2')
+    .replace(/(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/(\d{2})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3/$4')
+    .replace(/(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, '$1.$2.$3/$4-$5')
+    .slice(0, 18)
+}
+
+const maskTelefone = (value) => {
+  return value
+    .replace(/\D/g, '')
+    .replace(/^(\d{2})(\d)/, '($1) $2')
+    .replace(/(\d{5})(\d)/, '$1-$2')
+    .slice(0, 15)
+}
+
 const CadEditora = ({ onSave, onCancel, editora, loading }) => {
   const [editoraData, setEditoraData] = useState({
     id: null,
@@ -19,9 +37,9 @@ const CadEditora = ({ onSave, onCancel, editora, loading }) => {
       setEditoraData({
         id: editora.id,
         nome: editora.nome,
-        cnpj: editora.cnpj || '',
+        cnpj: maskCNPJ(editora.cnpj || ''),
         endereco: editora.endereco || '',
-        telefone: editora.telefone || '',
+        telefone: maskTelefone(editora.telefone || ''),
         email: editora.email || ''
       })
     } else {
@@ -38,24 +56,36 @@ const CadEditora = ({ onSave, onCancel, editora, loading }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target
+
+    let maskedValue = value
+    if (name === 'cnpj') maskedValue = maskCNPJ(value)
+    if (name === 'telefone') maskedValue = maskTelefone(value)
+
     setEditoraData(prev => ({
       ...prev,
-      [name]: value
+      [name]: maskedValue
     }))
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const form = e.currentTarget
+const handleSubmit = (e) => {
+  e.preventDefault()
+  const form = e.currentTarget
 
-    if (form.checkValidity() === false) {
-      e.stopPropagation()
-      setValidated(true)
-      return
-    }
-
-    onSave(editoraData)
+  if (form.checkValidity() === false) {
+    e.stopPropagation()
+    setValidated(true)
+    return
   }
+
+  // Verificar se telefone existe
+  const cleanedData = {
+    ...editoraData,
+    cnpj: editoraData.cnpj.replace(/\D/g, ''),
+    telefone: editoraData.telefone ? editoraData.telefone.replace(/\D/g, '') : ''
+  }
+
+  onSave(cleanedData)
+}
 
   return (
     <Card>
@@ -67,7 +97,7 @@ const CadEditora = ({ onSave, onCancel, editora, loading }) => {
           <Row>
             <Col md={12}>
               <Form.Group className='mb-3' controlId='nome'>
-                <Form.Label>Nome da Editora</Form.Label>
+                <Form.Label>Nome </Form.Label>
                 <Form.Control
                   type='text'
                   placeholder="Digite o nome da editora"
@@ -83,8 +113,7 @@ const CadEditora = ({ onSave, onCancel, editora, loading }) => {
               </Form.Group>
             </Col>
           </Row>
-
-          <Row>
+         <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='cnpj'>
                 <Form.Label>CNPJ</Form.Label>
@@ -94,8 +123,15 @@ const CadEditora = ({ onSave, onCancel, editora, loading }) => {
                   value={editoraData.cnpj}
                   onChange={handleChange}
                   placeholder='00.000.000/0000-00'
+                  required
                   disabled={loading}
                 />
+                <Form.Control.Feedback type='invalid'>
+                  CNPJ é obrigatório
+                </Form.Control.Feedback>
+                <Form.Text className='text-muted'>
+                  Formato: 14 dígitos
+                </Form.Text>
               </Form.Group>
             </Col>
             <Col md={6}>
@@ -106,7 +142,7 @@ const CadEditora = ({ onSave, onCancel, editora, loading }) => {
                   name='telefone'
                   value={editoraData.telefone}
                   onChange={handleChange}
-                  placeholder='(00) 00000-0000'
+                  placeholder='(00) 00000-0000 (opcional)'
                   disabled={loading}
                 />
               </Form.Group>
@@ -116,11 +152,11 @@ const CadEditora = ({ onSave, onCancel, editora, loading }) => {
           <Row>
             <Col md={12}>
               <Form.Group className='mb-3' controlId='endereco'>
-                <Form.Label>Endereço</Form.Label>
+                <Form.Label>Endereço</Form.Label> 
                 <Form.Control
                   type='text'
                   name='endereco'
-                  placeholder="Ex: Rua das Flores, 123, Bairro Centro, Cidade - SP"
+                  placeholder="Ex: Rua das Flores, 123, Bairro Centro, Cidade - SP (opcional)"
                   value={editoraData.endereco}
                   onChange={handleChange}
                   disabled={loading}
@@ -138,13 +174,13 @@ const CadEditora = ({ onSave, onCancel, editora, loading }) => {
                   name='email'
                   value={editoraData.email}
                   onChange={handleChange}
-                  placeholder='editora@exemplo.com'
+                  placeholder='editora@exemplo.com (opcional)'
                   disabled={loading}
                 />
               </Form.Group>
             </Col>
           </Row>
-
+          
           <div className='d-flex justify-content-end gap-2'>
             <Button
               variant='cancelar'

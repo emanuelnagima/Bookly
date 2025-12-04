@@ -13,6 +13,21 @@ class EditorasRepository {
         return new Editora(rows[0]);
     }
 
+    async findByEmail(email) {
+        const [rows] = await db.execute('SELECT * FROM editoras WHERE email = ?', [email]);
+        return rows.length ? new Editora(rows[0]) : null;
+    }
+
+    async findByCnpj(cnpj) {
+        const [rows] = await db.execute('SELECT * FROM editoras WHERE cnpj = ?', [cnpj]);
+        return rows.length ? new Editora(rows[0]) : null;
+    }
+
+    async findByTelefone(telefone) {
+        const [rows] = await db.execute('SELECT * FROM editoras WHERE telefone = ?', [telefone]);
+        return rows.length ? new Editora(rows[0]) : null;
+    }
+
     async create(editoraData) {
         try {
             const { nome, cnpj, endereco, telefone, email } = new Editora(editoraData).toJSON();
@@ -51,7 +66,6 @@ class EditorasRepository {
         }
     }
 
-    // MÉTODO PARA VERIFICAR LIVROS VINCULADOS
     async verificarLivrosVinculados(editoraId) {
         try {
             console.log(` Executando query para verificar livros da editora ${editoraId}`);
@@ -63,7 +77,6 @@ class EditorasRepository {
             return rows[0].total;
         } catch (error) {
             console.error(' Erro ao verificar livros vinculados:', error);
-
             throw error;
         }
     }

@@ -40,48 +40,68 @@ const Editoras = () => {
   }, [])
 
   // Salvar editora
-  const handleSaveEditora = async (editora) => {
-    try {
-      setLoading(true)
+const handleSaveEditora = async (editora) => {
+  try {
+    setLoading(true)
 
-      // VERIFICAÇÃO NO FRONTEND 
-      const editoraExistente = editoras.find(e =>
-        e.nome.toLowerCase().trim() === editora.nome.toLowerCase().trim() &&
-        e.id !== editora.id
-      )
-
-      if (editoraExistente) {
-        setError(`Já existe uma editora com o nome "${editora.nome}" cadastrada. Por favor, utilize um nome diferente.`)
-        setLoading(false)
-        return
-      }
-
-      // ENVIO PARA O SERVIDOR USANDO SERVICE
-      if (editora.id) {
-        await editoraService.update(editora)
-      } else {
-        await editoraService.add(editora)
-      }
-
-      // SUCESSO
-      await loadEditoras()
-
-      setToastMessage(editora.id ? 'Editora atualizada com sucesso!' : 'Editora cadastrada com sucesso!')
-      setOperationType(editora.id ? 'update' : 'create')
-      setShowSuccessToast(true)
-
-      setShowForm(false)
-      setEditoraToEdit(null)
-      setError(null)
-
-    } catch (error) {
-      console.error('Erro ao salvar editora:', error)
-      setError(error.message || `Falha ao ${editora.id ? 'atualizar' : 'cadastrar'} editora. Tente novamente.`)
-    } finally {
-      setLoading(false)
+    // VERIFICAÇÃO DE DUPLICIDADE NO FRONTEND (igual ao aluno)
+    const cnpjExistente = editoras.find(e =>
+      e.cnpj === editora.cnpj && e.id !== editora.id
+    );
+    if (cnpjExistente && editora.cnpj) {
+      setError(`Já existe uma editora com o CNPJ "${editora.cnpj}" cadastrada.`);
+      setLoading(false);
+      return;
     }
-  }
 
+    const emailExistente = editoras.find(e =>
+      e.email?.toLowerCase().trim() === editora.email?.toLowerCase().trim() && 
+      e.id !== editora.id && 
+      editora.email
+    );
+    if (emailExistente && editora.email) {
+      setError(`Já existe uma editora com o e-mail "${editora.email}" cadastrada.`);
+      setLoading(false);
+      return;
+    }
+
+    const telefoneExistente = editoras.find(e =>
+      e.telefone === editora.telefone && e.id !== editora.id && editora.telefone
+    );
+    if (telefoneExistente && editora.telefone) {
+      setError(`Já existe uma editora com o telefone "${editora.telefone}" cadastrada.`);
+      setLoading(false);
+      return;
+    }
+
+    // NOTA: NÃO verificamos duplicidade de nome conforme solicitado
+    // O nome pode ser livre e repetido
+
+    // ENVIO PARA O SERVIDOR USANDO SERVICE
+    if (editora.id) {
+      await editoraService.update(editora)
+    } else {
+      await editoraService.add(editora)
+    }
+
+    // SUCESSO
+    await loadEditoras()
+
+    setToastMessage(editora.id ? 'Editora atualizada com sucesso!' : 'Editora cadastrada com sucesso!')
+    setOperationType(editora.id ? 'update' : 'create')
+    setShowSuccessToast(true)
+
+    setShowForm(false)
+    setEditoraToEdit(null)
+    setError(null)
+
+  } catch (error) {
+    console.error('Erro ao salvar editora:', error)
+    setError(error.message || `Falha ao ${editora.id ? 'atualizar' : 'cadastrar'} editora. Tente novamente.`)
+  } finally {
+    setLoading(false)
+  }
+}
   // Editar
   const handleEditEditora = async (id) => {
     try {

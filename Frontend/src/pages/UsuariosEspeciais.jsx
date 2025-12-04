@@ -41,56 +41,70 @@ const UsuariosEspeciais = () => {
     loadUsuarios()
   }, [])
 
-  const handleSaveUsuario = async (usuario) => {
-    try {
-      setLoading(true)
+const handleSaveUsuario = async (usuario) => {
+  try {
+    setLoading(true);
+    setError(null);
 
-      // Validação do telefone obrigatório
-      if (!usuario.telefone || usuario.telefone.trim() === '') {
-        setError('O telefone é obrigatório.')
-        setLoading(false)
-        return
-      }
-
-      // Verificação de duplicidade: e-mail, CPF e telefone
-      const usuarioExistente = usuarios.find(u =>
-        (u.email.toLowerCase().trim() === usuario.email.toLowerCase().trim() ||
-          u.cpf === usuario.cpf ||
-          u.telefone === usuario.telefone) &&
-        u.id !== usuario.id
-      )
-
-      if (usuarioExistente) {
-        setError(
-          `O usuário "${usuarioExistente.nome_completo}" já está cadastrado com este e-mail, CPF ou telefone.`
-        )
-        setLoading(false)
-        return
-      }
-
-      // Envio para o servidor
-      if (usuario.id) {
-        await usuarioEspecialService.update(usuario.id, usuario)
-        setToastMessage('Usuário atualizado com sucesso!')
-        setOperationType('update')
-      } else {
-        await usuarioEspecialService.add(usuario)
-        setToastMessage('Usuário cadastrado com sucesso!')
-        setOperationType('create')
-      }
-
-      await loadUsuarios()
-      setShowSuccessToast(true)
-      setShowForm(false)
-      setUsuarioToEdit(null)
-      setError(null)
-    } catch (error) {
-      console.error('Erro ao salvar usuário:', error)
-      setError(error.message || `Falha ao ${usuario.id ? 'atualizar' : 'cadastrar'} usuário.`)
-    } finally {
-      setLoading(false)
+    // VERIFICAÇÃO DE DUPLICIDADE ESPECÍFICA - IGUAL AO ALUNO
+    const emailExistente = usuarios.find(u =>
+      u.email.toLowerCase().trim() === usuario.email.toLowerCase().trim() && u.id !== usuario.id
+    );
+    if (emailExistente) {
+      setError(`Já existe um usuário com o e-mail "${usuario.email}" cadastrado.`);
+      setLoading(false);
+      return;
     }
+
+    const cpfExistente = usuarios.find(u =>
+      u.cpf === usuario.cpf && u.id !== usuario.id
+    );
+    if (cpfExistente) {
+      setError(`Já existe um usuário com o CPF "${usuario.cpf}" cadastrado.`);
+      setLoading(false);
+      return;
+    }
+
+    const telefoneExistente = usuarios.find(u =>
+      u.telefone === usuario.telefone && u.id !== usuario.id
+    );
+    if (telefoneExistente) {
+      setError(`Já existe um usuário com o telefone "${usuario.telefone}" cadastrado.`);
+      setLoading(false);
+      return;
+    }
+
+    // Envio para o servidor
+    let responseData;
+    if (usuario.id) {
+      responseData = await usuarioEspecialService.update(usuario.id, usuario);
+      setToastMessage('Usuário atualizado com sucesso!');
+      setOperationType('update');
+    } else {
+      responseData = await usuarioEspecialService.add(usuario);
+      setToastMessage('Usuário cadastrado com sucesso!');
+      setOperationType('create');
+    }
+
+    await loadUsuarios();
+    setShowSuccessToast(true);
+    setShowForm(false);
+    setUsuarioToEdit(null);
+    setError(null);
+
+  } catch (error) {
+    console.error('Erro ao salvar usuário:', error);
+    
+    // Tratamento específico para erro 401
+    if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+      setError('Sessão expirada. Faça login novamente.');
+    } else {
+      setError(error.message || `Falha ao ${usuario.id ? 'atualizar' : 'cadastrar'} usuário. Tente novamente.`);
+    }
+  } finally {
+    setLoading(false);
   }
+}
 
   const handleEditUsuario = async (id) => {
     try {

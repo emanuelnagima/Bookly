@@ -3,7 +3,7 @@ import { Card, Table, Form, InputGroup, Button, Row, Col, Modal, Image } from 'r
 import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaBook, FaInfoCircle, FaImage, FaTh, FaList, FaUser, FaBuilding, FaTags, FaCalendarAlt, FaHashtag } from 'react-icons/fa';
 import entradaSaidaService from '../services/entradaSaidaService';
 
-const ITENS_POR_PAGINA = 7;
+const ITENS_POR_PAGINA = 8;
 
 const formatarTexto = (texto = '') =>
   texto
@@ -16,7 +16,7 @@ const LivroList = ({ livros, loading, onDelete, onEdit }) => {
   const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [livrosComEstoque, setLivrosComEstoque] = useState([]);
-  const [visualizacao, setVisualizacao] = useState('lista'); // Alterado para 'lista' como padrão
+  const [visualizacao, setVisualizacao] = useState('cards'); 
   const [ordenacao, setOrdenacao] = useState('titulo_asc');
   const [filtroGenero, setFiltroGenero] = useState('todos');
 
@@ -148,30 +148,26 @@ const LivroList = ({ livros, loading, onDelete, onEdit }) => {
         </div>
 
         <div className="d-flex align-items-center gap-3">
-  <div className="btn-group" role="group">
-
-    <Button
-      className={visualizacao === 'lista' ? 'btn-paginacao' : 'btn-outline'}
-      size="sm"
-      onClick={() => setVisualizacao('lista')}
-      title="Visualização em lista"
-    >
-      <FaList className="me-1" />
-      Lista
-    </Button>
-
-    <Button
-      className={visualizacao === 'cards' ? 'btn-paginacao' : 'btn-outline'}
-      size="sm"
-      onClick={() => setVisualizacao('cards')}
-      title="Visualização em cards"
-    >
-      <FaTh className="me-1" />
-      Cards
-    </Button>
-
-  </div>
-
+          <div className="btn-group" role="group">
+            <Button
+              className={visualizacao === 'cards' ? 'btn-paginacao' : 'btn-outline'}
+              size="sm"
+              onClick={() => setVisualizacao('cards')}
+              title="Visualização em cards"
+            >
+              <FaTh className="me-1" />
+              Cards
+            </Button>
+            <Button
+              className={visualizacao === 'lista' ? 'btn-paginacao' : 'btn-outline'}
+              size="sm"
+              onClick={() => setVisualizacao('lista')}
+              title="Visualização em lista"
+            >
+              <FaList className="me-1" />
+              Lista
+            </Button>
+          </div>
 
           {/* Filtro de Gênero */}
           <Form.Select
@@ -336,7 +332,7 @@ const LivroList = ({ livros, loading, onDelete, onEdit }) => {
             </Table>
           </div>
         ) : (
-          // Renderização em Cards (opcional)
+          // Renderização em Cards
           <Row>
             {livrosPaginaAtual.map((livro) => (
               <Col key={livro.id} md={6} lg={4} xl={3} className="mb-4">
@@ -370,6 +366,13 @@ const LivroList = ({ livros, loading, onDelete, onEdit }) => {
                     </div>
 
                     <div className="d-flex gap-2 mt-2">
+                      <button
+                        className="btn-sm-custom btn-renovar"
+                        onClick={() => handleVerDetalhes(livro)}
+                        title="Ver detalhes do livro"
+                      >
+                        <FaInfoCircle />
+                      </button>
                       <button
                         className="btn-sm-custom btn-edit"
                         onClick={() => onEdit(livro.id)}

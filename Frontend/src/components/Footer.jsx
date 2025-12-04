@@ -351,8 +351,7 @@ const navigate = useNavigate();
         {/* Créditos */}
         <div className="creditos-rodape py-3 text-center">
           <p className="mb-0 small text-muted">
-            &copy; {new Date().getFullYear()} Bookly. Todos os direitos
-            reservados. <br />
+             Bookly &copy; {new Date().getFullYear()} <br />
             Versão 1.0.0
           </p>
         </div>

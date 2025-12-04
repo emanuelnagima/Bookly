@@ -4,6 +4,13 @@ const handleResponse = async (response) => {
   const data = await response.json().catch(() => ({}));
   
   if (!response.ok) {
+    if (data && data.errors && Array.isArray(data.errors)) {
+      // Juntar todos os erros em uma string
+      const errorMessage = data.errors.join(', ');
+      throw new Error(errorMessage);
+    }
+    
+    // Se não tiver errors, usa message normalmente
     const errorMessage = data?.message || data?.error || `HTTP error! status: ${response.status}`;
     throw new Error(errorMessage);
   }
@@ -85,7 +92,7 @@ const remove = async (id) => {
     const responseData = await response.json().catch(() => null);
     
     if (!response.ok) {
-      // CORREÇÃO: busca a mensagem no campo "message" 
+      // busca a mensagem no campo "message" 
       if (responseData && responseData.message) {
         throw new Error(responseData.message);
       }

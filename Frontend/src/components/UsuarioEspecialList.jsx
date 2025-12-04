@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Table, Form, InputGroup, Button, Row, Col, Modal, Badge } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaUsers, FaInfoCircle, FaUser, FaEnvelope, FaPhone, FaIdCard, FaUserTag, FaCalendarAlt  } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaUsers, FaInfoCircle, FaUser, FaEnvelope, FaRegCalendarPlus , FaPhone, FaIdCard, FaUserTag, FaCalendarAlt  } from 'react-icons/fa';
 
 const ITENS_POR_PAGINA = 7;
 
@@ -377,13 +377,14 @@ const ordenarUsuarios = (usuarios) => {
                     </Col>
                     <Col md={6}>
                       {usuarioSelecionado?.data_cadastro && (
-                        <p className="mb-2">
-                          <strong>Data de Cadastro:</strong> 
-                          <span className="ms-2">
-                            {formatarData(usuarioSelecionado.data_cadastro)}
-                          </span>
-                        </p>
-                      )}
+                          <p className="mb-2">
+                        <FaRegCalendarPlus className="me-1" />
+                            <strong>Data de Cadastro:</strong> 
+                            <span className="ms-2">
+                              {formatarData(usuarioSelecionado.data_cadastro)}
+                            </span>
+                          </p>
+                        )}
                       {usuarioSelecionado?.status && (
                         <p className="mb-2">
                           <strong>Status:</strong> 

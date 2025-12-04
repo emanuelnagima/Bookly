@@ -68,61 +68,56 @@ CREATE TABLE `autores` (
 -- Tabela: EDITORAS
 -- -----------------------------
 CREATE TABLE `editoras` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `nome` varchar(100) NOT NULL,
-  `cnpj` varchar(18) DEFAULT NULL,
-  `endereco` varchar(200) DEFAULT NULL,
-  `telefone` varchar(20) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `data_cadastro` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_nome` (`nome`),
-  UNIQUE KEY `idx_email` (`email`),
-  UNIQUE KEY `idx_cnpj` (`cnpj`),
-  UNIQUE KEY `idx_telefone` (`telefone`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+   `id` int NOT NULL AUTO_INCREMENT,
+   `nome` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+   `cnpj` varchar(18) COLLATE utf8mb4_general_ci NOT NULL,
+   `endereco` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+   `telefone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+   `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+   `data_cadastro` datetime DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `idx_cnpj` (`cnpj`),
+   UNIQUE KEY `idx_email` (`email`),
+   UNIQUE KEY `idx_telefone` (`telefone`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 
 -- -----------------------------
 -- Tabela: ALUNOS
 -- -----------------------------
-CREATE TABLE `alunos` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `nome` varchar(100) NOT NULL,
-  `matricula` varchar(20) NOT NULL,
-  `cpf` varchar(14) NOT NULL,
-  `data_nascimento` date NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `telefone` varchar(20) DEFAULT NULL,
-  `turma` enum(
-    '1º Ano','2º Ano','3º Ano','4º Ano','5º Ano','6º Ano','7º Ano','8º Ano','9º Ano',
-    '1º Colegial','2º Colegial','3º Colegial'
-  ) NOT NULL,
-  `data_cadastro` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `matricula` (`matricula`),
-  UNIQUE KEY `cpf` (`cpf`),
-  UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+	CREATE TABLE `alunos` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `nome` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+   `matricula` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
+   `cpf` varchar(14) COLLATE utf8mb4_general_ci NOT NULL,
+   `data_nascimento` date NOT NULL,
+   `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+   `telefone` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+   `turma` enum('1º Ano Fundamental','2º Ano Fundamental','3º Ano Fundamental','4º Ano Fundamental','5º Ano Fundamental','6º Ano Fundamental','7º Ano Fundamental','8º Ano Fundamental','9º Ano Fundamental','1º Ano Médio','2º Ano Médio','3º Ano Médio') COLLATE utf8mb4_general_ci NOT NULL,
+   `data_cadastro` datetime DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `matricula` (`matricula`),
+   UNIQUE KEY `cpf` (`cpf`),
+   UNIQUE KEY `email` (`email`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 
 -- -----------------------------
 -- Tabela: PROFESSORES
 -- -----------------------------
-CREATE TABLE `professores` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `nome` varchar(100) NOT NULL,
-  `cpf` varchar(14) DEFAULT NULL,
-  `data_nascimento` date DEFAULT NULL,
-  `matricula` varchar(20) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `telefone` varchar(20) DEFAULT NULL,
-  `departamento` varchar(50) NOT NULL,
-  `data_cadastro` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `matricula` (`matricula`),
-  UNIQUE KEY `email` (`email`),
-  UNIQUE KEY `cpf` (`cpf`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
+	CREATE TABLE `professores` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `nome` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+   `cpf` varchar(14) COLLATE utf8mb4_general_ci NOT NULL,
+   `data_nascimento` date NOT NULL,
+   `matricula` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
+   `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+   `telefone` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+   `departamento` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+   `data_cadastro` datetime DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `matricula` (`matricula`),
+   UNIQUE KEY `email` (`email`),
+   UNIQUE KEY `cpf` (`cpf`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 -- -----------------------------
 -- Tabela: USUÁRIOS ESPECIAIS
 -- -----------------------------
@@ -276,7 +271,6 @@ CREATE TABLE `saidas` (
   KEY `fk_livro_saida` (`livro_id`),
   CONSTRAINT `fk_livro_saida` FOREIGN KEY (`livro_id`) REFERENCES `livros` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 
 
 -- ALTERAR: Atualizar o evento para considerar status cancelado

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Table, Form, InputGroup, Button, Row, Col, Modal } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaBuilding, FaInfoCircle, FaEnvelope, FaPhone, FaIdCard, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaBuilding, FaInfoCircle, FaEnvelope, FaPhone, FaIdCard, FaMapMarkerAlt, FaRegCalendarPlus } from 'react-icons/fa'; 
 
 const ITENS_POR_PAGINA = 7;
 
@@ -10,6 +10,11 @@ const formatarTexto = texto =>
     .split(' ')
     .map(p => p.charAt(0).toUpperCase() + p.slice(1))
     .join(' ');
+
+const formatarData = (data) => {
+  if (!data) return '-';
+  return new Date(data).toLocaleDateString('pt-BR');
+};
 
 const formatarCNPJ = (cnpj) => {
   if (!cnpj) return '-';
@@ -50,7 +55,6 @@ const formatarEndereco = (endereco) => {
     .replace(/\s+/g, ' ') // Remove múltiplos espaços
     .split(', ')
     .map((parte, index) => {
-      // Se for o número ou complemento (última parte ou parte com número), mantém como está
       if (index > 0 && /\d/.test(parte)) {
         return parte;
       }
@@ -74,7 +78,7 @@ const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
     setPaginaAtual(1);
   }, [termoBusca, ordenacao]);
 
-  // Função de ordenação
+  // Função de ordenação 
   const ordenarEditoras = (editoras) => {
     return [...editoras].sort((a, b) => {
       switch (ordenacao) {
@@ -86,11 +90,16 @@ const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
           return (a.cnpj || '').localeCompare(b.cnpj || '');
         case 'cnpj_desc':
           return (b.cnpj || '').localeCompare(a.cnpj || '');
+        case 'data_cadastro_asc':
+          return new Date(a.data_cadastro || 0) - new Date(b.data_cadastro || 0);
+        case 'data_cadastro_desc':
+          return new Date(b.data_cadastro || 0) - new Date(a.data_cadastro || 0);
         default:
           return formatarTexto(a.nome).localeCompare(formatarTexto(b.nome));
       }
     });
   };
+  
 
   // Filtrar editoras
   const editorasFiltradas = editoras.filter(editora => {
@@ -164,7 +173,7 @@ const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
         </div>
 
         <div className="d-flex align-items-center gap-3">
-          {/* Seletor de Ordenação */}
+          {/* Seletor de Ordenação  */}
           <Form.Select
             value={ordenacao}
             onChange={(e) => setOrdenacao(e.target.value)}
@@ -175,6 +184,8 @@ const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
             <option value="nome_desc">Nome (Z-A)</option>
             <option value="cnpj_asc">CNPJ (crescente)</option>
             <option value="cnpj_desc">CNPJ (decrescente)</option>
+            <option value="data_cadastro_asc">Data Cad. (mais antigo)</option>
+            <option value="data_cadastro_desc">Data Cad. (mais recente)</option>
           </Form.Select>
 
           {/* Barra de pesquisa */}
@@ -236,8 +247,7 @@ const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
                     {/* Coluna Telefone */}
                     <td className="text-nowrap">
                       {formatarTelefone(editora.telefone)}
-                    </td>
-
+                      </td>
                     {/* Coluna Ações */}
                     <td>
                       <div className="d-flex gap-2 justify-content-center">
@@ -271,7 +281,7 @@ const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
               </tbody>
             </Table>
 
-            {/* Modal para mostrar detalhes da editora */}
+            {/* Modal para mostrar detalhes da editora  */}
             <Modal show={showDetalhesModal} onHide={handleCloseDetalhesModal} size="lg">
               <Modal.Header closeButton closeVariant="white" className="bg-primary text-white">
                 <Modal.Title className="d-flex align-items-center">
@@ -281,7 +291,7 @@ const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
               </Modal.Header>
 
               <Modal.Body className="p-4">
-                {/* SEÇÃO: Informações da Editora */}
+                {/* SEÇÃO: Informações da Editora  */}
                 <div className="mb-4 p-3 border rounded bg-white">
                   <h5 className="fw-bold mb-3 text-primary border-bottom pb-2 d-flex align-items-center">
                     <FaBuilding className="me-2" />
@@ -303,26 +313,22 @@ const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
                       <p className="mb-2">
                         <strong><FaPhone className="me-2 text-muted" />Telefone:</strong> {formatarTelefone(editoraSelecionada?.telefone) || 'Não informado'}
                       </p>
+                      <p className="mb-2">
+                        <FaRegCalendarPlus className="me-1" />
+                       <strong>  Data de Cadastro:</strong> 
+                        <span className="ms-2">
+                          {editoraSelecionada?.data_cadastro ? 
+                            formatarData(editoraSelecionada.data_cadastro) : 
+                            'Não disponível'
+                          }
+                        </span>
+                      </p>
                     </Col>
                   </Row>
                 </div>
 
-                {/* SEÇÃO: Endereço */}
-                {editoraSelecionada?.endereco && (
-                  <div className="p-3 border rounded bg-white">
-                    <h5 className="fw-bold mb-3 text-primary border-bottom pb-2 d-flex align-items-center">
-                      <FaMapMarkerAlt className="me-2" />
-                      Endereço
-                    </h5>
-                    <Row>
-                      <Col md={12}>
-                        <p className="mb-0" style={{ fontSize: '1.1rem', lineHeight: '1.6' }}>
-                          {formatarEndereco(editoraSelecionada.endereco)}
-                        </p>
-                      </Col>
-                    </Row>
-                  </div>
-                )}
+                
+              
               </Modal.Body>
 
               <Modal.Footer>

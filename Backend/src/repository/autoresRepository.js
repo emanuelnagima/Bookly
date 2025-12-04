@@ -3,13 +3,13 @@ const Autor = require('../models/Autor');
 
 class AutoresRepository {
     async findAll() {
-        const [rows] = await db.execute('SELECT id, nome, nacionalidade, data_nascimento FROM autores');
+        const [rows] = await db.execute('SELECT id, nome, nacionalidade, data_nascimento, data_cadastro FROM autores');
         return rows.map(row => new Autor(row));
     }
 
     async findById(id) {
         const [rows] = await db.execute(
-            'SELECT id, nome, nacionalidade, data_nascimento FROM autores WHERE id = ?',
+            'SELECT id, nome, nacionalidade, data_nascimento, data_cadastro FROM autores WHERE id = ?',
             [id]
         );
         return rows.length ? new Autor(rows[0]) : null;
@@ -36,7 +36,6 @@ class AutoresRepository {
         return result.affectedRows > 0;
     }
 
-    // NOVO : Verificar se existem livros vinculados
     async verificarLivrosVinculados(autorId) {
         try {
             const [rows] = await db.execute(

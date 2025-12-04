@@ -13,7 +13,7 @@ import Footer from './components/Footer';
 // Páginas principais
 import Home from './pages/Home';
 import About from './pages/About';
-import Login from './pages/Login'; // JÁ ATUALIZADO
+import Login from './pages/Login'; 
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import FAQ from './pages/FAQ';
 import TermsOfUse from './pages/TermsOfUse';

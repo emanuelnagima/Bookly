@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Table, Form, InputGroup, Button, Row, Col, Modal } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaUserTie, FaInfoCircle, FaUser, FaEnvelope, FaPhone, FaIdCard, FaBuilding, FaBook, FaCalendarAlt } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaUserTie, FaInfoCircle, FaUser, FaEnvelope, FaRegCalendarPlus, FaPhone, FaIdCard, FaBuilding, FaAddressCard, FaBook, FaCalendarAlt } from 'react-icons/fa';
 
 const ITENS_POR_PAGINA = 7;
 
@@ -358,13 +358,14 @@ const ProfessorList = ({ professores, onDelete, onEdit, loading }) => {
                   <Row>
                     <Col md={6}>
                       <p className="mb-2">
+                        <FaAddressCard  className="me-1" />               
                         <strong>Matrícula:</strong>
                         <span className="ms-2 fw-semibold">
                           {professorSelecionado?.matricula}
                         </span>
                       </p>
                       <p className="mb-2">
-                        <strong><FaBuilding className="me-2 text-muted" />Departamento:</strong>
+                        <strong><FaBuilding className="me-1 text-muted" />Departamento:</strong>
                         <span className="ms-2">
                           {professorSelecionado?.departamento || 'Não informado'}
                         </span>
@@ -372,13 +373,14 @@ const ProfessorList = ({ professores, onDelete, onEdit, loading }) => {
                     </Col>
                     <Col md={6}>
                       {professorSelecionado?.data_cadastro && (
-                        <p className="mb-2">
-                          <strong>Data de Cadastro:</strong>
-                          <span className="ms-2">
-                            {formatarData(professorSelecionado.data_cadastro)}
-                          </span>
-                        </p>
-                      )}
+                          <p className="mb-2">
+                        <FaRegCalendarPlus className="me-1" />
+                            <strong>Data de Cadastro:</strong>
+                            <span className="ms-2">
+                              {formatarData(professorSelecionado.data_cadastro)}
+                            </span>
+                          </p>
+                        )}
                       {professorSelecionado?.tipo_especial && (
                         <p className="mb-2">
                           <strong>Tipo Especial:</strong>

@@ -192,7 +192,7 @@ const reservasFiltradas = reservas.filter(reserva => {
   };
 
   const handleVerLivro = (reserva) => {
-    // **CORREÇÃO: Pegar o primeiro livro da lista de livros**
+    // ** Pegar o primeiro livro da lista de livros**
     const primeiroLivro = reserva.livros && reserva.livros.length > 0 ? reserva.livros[0] : null;
 
     if (primeiroLivro) {
