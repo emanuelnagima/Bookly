@@ -5,8 +5,8 @@ const { authenticate, authorize } = require('../middlewares/auth');
 
 router.get('/', professoresController.getAll);
 router.get('/:id', professoresController.getById);
-router.post('/', authenticate, authorize('admin','operador'), professoresController.create);
-router.put('/:id', authenticate, authorize('admin','operador'), professoresController.update);
-router.delete('/:id', authenticate, authorize('admin','operador'), professoresController.delete);
+router.post('/', authenticate, authorize('admin','bibliotecario'), professoresController.create);
+router.put('/:id', authenticate, authorize('admin','bibliotecario'), professoresController.update);
+router.delete('/:id', authenticate, authorize('admin','bibliotecario'), professoresController.delete);
 
 module.exports = router;

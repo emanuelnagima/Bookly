@@ -1,13 +1,15 @@
 const mysql = require('mysql2/promise');
 
 const dbConfig = {
-    host: '132.226.245.178',
-    user: '10482521821',
-    password: '10482521821',  
-    database: 'PIT_10482521821',
+    host: 'localhost',
+    user: 'root',               
+    password: '',               
+    database: 'teste',
     waitForConnections: true,
-    connectionLimit: 10,  
+    connectionLimit: 200,
+    idleTimeout: 60000,
 };
+
 
 const pool = mysql.createPool(dbConfig);
 

@@ -87,66 +87,85 @@ const getPorLivro = async (livroId) => {
 
 
 const add = async (reserva) => {
-    try {    
-        const response = await fetch(API_BASE_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify(reserva),
-        });
-            
-        if (!response.ok) {
-            let errorMessage = `Erro ao processar reserva (${response.status})`;
-            
-            try {
-                const errorText = await response.text();
-                console.log(' Resposta de erro do servidor:', errorText);
-                
-                if (errorText) {
-                    try {
-                        const errorData = JSON.parse(errorText);
-                        errorMessage = errorData.message || errorData.error || errorText;
-                    } catch (e) {
-                        errorMessage = errorText;
-                    }
-                }
-            } catch (e) {
-                console.error('Erro ao ler resposta:', e);
-            }
-            
-            throw new Error(errorMessage);
+  try {    
+    const response = await fetch(API_BASE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(reserva),
+    });
+        
+    if (!response.ok) {
+      let errorMessage = `Erro ao processar reserva (${response.status})`;
+      
+      try {
+        const errorText = await response.text();
+        
+        if (errorText) {
+          try {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.message || errorData.error || errorText;
+          } catch (e) {
+            errorMessage = errorText;
+          }
         }
-        
-        const result = await response.json();
-        
-        if (!result.success) {
-            throw new Error(result.message || 'Erro ao processar reserva');
-        }
-        return result.data;
-        
-    } catch (error) {
-        console.error(' Erro ao adicionar reserva:', error);
-        
-        let friendlyMessage = error.message;
-        
-        if (error.message.includes('Estoque insuficiente') || error.message.includes('ESTOQUE INSUFICIENTE')) {
-            const livroMatch = error.message.match(/Livro: "([^"]+)"/);
-            const livroNome = livroMatch ? livroMatch[1] : 'o livro selecionado';
-            
-            friendlyMessage = `
-               Estoque insuficiente para reservar o
-               Livro: "${livroNome}"
-               Situação: Todos os exemplares estão emprestados ou reservados.
-              * Tente outro livro ou aguarde devolução *
-            `;
-        } else if (error.message.includes('já possui reserva ativa')) {
-            friendlyMessage = 'Você já possui uma reserva ativa para este livro';
-        }
-        
-        throw new Error(friendlyMessage);
+      } catch (e) {
+        console.error('Erro ao ler resposta:', e);
+      }
+      
+      throw new Error(errorMessage);
     }
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.message || 'Erro ao processar reserva');
+    }
+    return result.data;
+    
+  } catch (error) {
+    console.error('Erro ao adicionar reserva:', error);
+    
+    // MELHORIA: Organize os erros de forma mais clara
+    let errorObject = { 
+      message: error.message,
+      originalError: error
+    };
+    
+    if (error.message.includes('Estoque insuficiente') || error.message.includes('ESTOQUE INSUFICIENTE')) {
+      const livroMatch = error.message.match(/Livro: "([^"]+)"/);
+      const livroNome = livroMatch ? livroMatch[1] : 'o livro selecionado';
+      
+      errorObject = {
+        type: 'estoque_insuficiente',
+        title: 'Estoque Insuficiente',
+        message: `Não há exemplares disponíveis para reservar "${livroNome}"`,
+        detalhe: 'Todos os exemplares estão emprestados ou reservados',
+        sugestao: 'Tente outro livro ou aguarde devolução',
+        style: 'warning'
+      };
+    } else if (error.message.includes('já possui reserva ativa')) {
+      errorObject = {
+        type: 'reserva_duplicada',
+        title: 'Reserva Duplicada',
+        message: 'Você já possui uma reserva ativa para este livro',
+        detalhe: 'Cada usuário pode ter apenas uma reserva ativa por livro',
+        style: 'warning'
+      };
+    } else if (error.message.includes('Usuário não encontrado')) {
+      errorObject = {
+        type: 'usuario_nao_encontrado',
+        title: 'Usuário Inválido',
+        message: 'O usuário selecionado não foi encontrado',
+        sugestao: 'Verifique se o usuário está cadastrado no sistema',
+        style: 'danger'
+      };
+    }
+    
+    throw errorObject;
+  }
 };
 
 const update = async (id, reserva) => {

@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import LivroForm from '../components/CadLivro'
 import LivroList from '../components/LivroList'
 import livroService from '../services/livroService'
+import { FaTimes } from 'react-icons/fa';
 
 const Livros = () => {
   const [showForm, setShowForm] = useState(false)
@@ -28,9 +29,15 @@ const Livros = () => {
       const dados = await livroService.getAll()
       setLivros(dados)
     } catch (error) {
-      console.error('Erro ao carregar livros:', error)
-      setError(error.message)
-    } finally {
+  console.error('Erro ao carregar livros:', error)
+  setError({
+    type: 'carregamento_falhou',
+    title: 'Erro ao Carregar',
+    message: 'Falha ao carregar livros',
+    detalhe: 'Tente recarregar a página',
+    style: 'danger'
+  })
+} finally {
       setLoading(false)
     }
   }, [])
@@ -39,41 +46,121 @@ const Livros = () => {
     loadLivros()
   }, [loadLivros])
 
-  const handleSaveLivro = async (livro) => {
-    try {
-      setLoading(true)
-      setError('')
+const handleSaveLivro = async (livro) => {
+  try {
+    setLoading(true)
+    setError('')
 
-      if (livroToEdit) {
-        // Modo edição
-        await livroService.update({ ...livro, id: livroToEdit.id })
-        setToastMessage('Livro atualizado com sucesso!')
-        setOperationType('update')
-      } else {
-        // Modo cadastro
-        await livroService.add(livro)
-        setToastMessage('Livro cadastrado com sucesso!')
-        setOperationType('create')
-      }
-
-      // Recarrega a lista e limpa o estado
-      await loadLivros()
-      setShowSuccessToast(true)
-      setShowForm(false)
-      setLivroToEdit(null)
-
-    } catch (err) {
-      // Tratamento específico para erros de duplicação
-      if (err.message.includes('Duplicate') || err.message.includes('duplicidade') || err.message.includes('já existe') || err.message.includes('ISBN')) {
-        setError('ISBN já cadastrado! Por favor, use um ISBN diferente.')
-      } else {
-        setError(`Falha ao ${livroToEdit ? 'atualizar' : 'cadastrar'} livro: ${err.message}`)
-      }
-    } finally {
-      setLoading(false)
+    if (livroToEdit) {
+      // Modo edição
+      await livroService.update({ ...livro, id: livroToEdit.id })
+      setToastMessage('Livro atualizado com sucesso!')
+      setOperationType('update')
+    } else {
+      // Modo cadastro
+      await livroService.add(livro)
+      setToastMessage('Livro cadastrado com sucesso!')
+      setOperationType('create')
     }
-  }
 
+    // Recarrega a lista e limpa o estado
+    await loadLivros()
+    setShowSuccessToast(true)
+    setShowForm(false)
+    setLivroToEdit(null)
+
+  } catch (err) {
+    // MENSAGENS PADRONIZADAS
+    let errorObject = {};
+    
+    if (err.message.includes('Duplicate') || err.message.includes('duplicidade') || err.message.includes('já existe') || err.message.includes('ISBN')) {
+      errorObject = {
+        type: 'isbn_duplicado',
+        title: 'ISBN Duplicado',
+        message: 'Já existe um livro com este ISBN',
+        detalhe: 'Por favor, use um ISBN diferente',
+        isbn: livro.isbn,
+        style: 'warning'
+      };
+    } else if (err.message.includes('autor_id') && err.message.includes('não encontrado')) {
+      errorObject = {
+        type: 'autor_nao_encontrado',
+        title: 'Autor Não Encontrado',
+        message: 'O autor selecionado não foi encontrado',
+        detalhe: 'Verifique se o autor está cadastrado',
+        style: 'warning'
+      };
+    } else if (err.message.includes('editora_id') && err.message.includes('não encontrado')) {
+      errorObject = {
+        type: 'editora_nao_encontrada',
+        title: 'Editora Não Encontrada',
+        message: 'A editora selecionada não foi encontrada',
+        detalhe: 'Verifique se a editora está cadastrada',
+        style: 'warning'
+      };
+    } else if (err.message.includes('Título é obrigatório')) {
+      errorObject = {
+        type: 'titulo_obrigatorio',
+        title: 'Título Obrigatório',
+        message: 'O título do livro é obrigatório',
+        detalhe: 'Informe o título do livro',
+        style: 'warning'
+      };
+    } else if (err.message.includes('ISBN é obrigatório')) {
+      errorObject = {
+        type: 'isbn_obrigatorio',
+        title: 'ISBN Obrigatório',
+        message: 'O ISBN do livro é obrigatório',
+        detalhe: 'Informe o ISBN do livro',
+        style: 'warning'
+      };
+    } else if (err.message.includes('Ano inválido') || err.message.includes('ano inválido')) {
+      errorObject = {
+        type: 'ano_invalido',
+        title: 'Ano Inválido',
+        message: 'O ano de publicação não é válido',
+        detalhe: 'Informe um ano válido',
+        style: 'warning'
+      };
+    } else if (err.message.includes('imagem') && err.message.includes('tamanho')) {
+      errorObject = {
+        type: 'imagem_grande',
+        title: 'Imagem Muito Grande',
+        message: 'A imagem é muito grande',
+        detalhe: 'Selecione uma imagem menor que 5MB',
+        style: 'warning'
+      };
+    } else if (err.message.includes('imagem') && err.message.includes('formato')) {
+      errorObject = {
+        type: 'formato_imagem_invalido',
+        title: 'Formato de Imagem Inválido',
+        message: 'O formato da imagem não é suportado',
+        detalhe: 'Use formatos JPG, PNG ou GIF',
+        style: 'warning'
+      };
+    } else if (err.message.includes('401') || err.message.includes('Unauthorized')) {
+      errorObject = {
+        type: 'sessao_expirada',
+        title: 'Sessão Expirada',
+        message: 'Sua sessão expirou',
+        detalhe: 'Faça login novamente para continuar',
+        style: 'danger'
+      };
+    } else {
+      errorObject = {
+        type: 'erro_servidor',
+        title: 'Erro no Sistema',
+        message: `Falha ao ${livroToEdit ? 'atualizar' : 'cadastrar'} livro`,
+        detalhe: err.message || 'Tente novamente',
+        style: 'danger'
+      };
+    }
+    
+    setError(errorObject);
+  } finally {
+    setLoading(false)
+  }
+}
   const handleEditLivro = async (id) => {
     try {
       setLoading(true)
@@ -98,9 +185,38 @@ const Livros = () => {
 
       setShowForm(true)
     } catch (error) {
-      console.error('Erro ao buscar livro:', error)
-      setError(error.message)
-    } finally {
+  console.error('Erro ao buscar livro:', error)
+  
+  let errorObject = {};
+  
+  if (error.message.includes('não encontrado') || error.message.includes('not found')) {
+    errorObject = {
+      type: 'livro_nao_encontrado',
+      title: 'Livro Não Encontrado',
+      message: 'O livro não foi encontrado',
+      detalhe: 'O livro pode ter sido removido',
+      style: 'warning'
+    };
+  } else if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+    errorObject = {
+      type: 'sessao_expirada',
+      title: 'Sessão Expirada',
+      message: 'Sua sessão expirou',
+      detalhe: 'Faça login novamente para continuar',
+      style: 'danger'
+    };
+  } else {
+    errorObject = {
+      type: 'erro_carregamento',
+      title: 'Erro ao Carregar',
+      message: 'Erro ao carregar livro para edição',
+      detalhe: error.message || 'Tente novamente',
+      style: 'danger'
+    };
+  }
+  
+  setError(errorObject);
+} finally {
       setLoading(false)
     }
   }
@@ -125,9 +241,46 @@ const Livros = () => {
       setShowSuccessToast(true)
       await loadLivros()
     } catch (error) {
-      console.error("Falha na exclusão:", error)
-      setError(error.message)
-    } finally {
+  console.error("Falha na exclusão:", error)
+  
+  let errorObject = {};
+  
+  if (error.message.includes('empréstimo') || error.message.includes('reserva') || error.message.includes('ativo')) {
+    errorObject = {
+      type: 'livro_em_uso',
+      title: 'Livro em Uso',
+      message: 'Não é possível excluir este livro',
+      detalhe: 'O livro está em uso (empréstimo ou reserva ativa)',
+      style: 'warning'
+    };
+  } else if (error.message.includes('não encontrado') || error.message.includes('not found')) {
+    errorObject = {
+      type: 'livro_nao_encontrado',
+      title: 'Livro Não Encontrado',
+      message: 'O livro não foi encontrado',
+      detalhe: 'O livro pode já ter sido removido',
+      style: 'warning'
+    };
+  } else if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+    errorObject = {
+      type: 'sessao_expirada',
+      title: 'Sessão Expirada',
+      message: 'Sua sessão expirou',
+      detalhe: 'Faça login novamente para continuar',
+      style: 'danger'
+    };
+  } else {
+    errorObject = {
+      type: 'exclusao_falhou',
+      title: 'Erro na Exclusão',
+      message: 'Não foi possível excluir o livro',
+      detalhe: error.message || 'Tente novamente',
+      style: 'danger'
+    };
+  }
+  
+  setError(errorObject);
+} finally {
       setIsDeleting(false)
       setShowDeleteModal(false)
       setLivroToDelete(null)
@@ -147,28 +300,84 @@ const Livros = () => {
   }
 
   return (
-    <Container className="py-4">
-      {/* Toast de Sucesso */}
-      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
-        <Toast
-          show={showSuccessToast}
-          onClose={() => setShowSuccessToast(false)}
-          delay={3000}
-          autohide
-          bg={operationType === 'delete' ? 'danger' : 'success'}
-        >
-          <Toast.Header>
-            <strong className="me-auto">
-              {operationType === 'create' && 'Cadastro realizado'}
-              {operationType === 'update' && 'Atualização realizada'}
-              {operationType === 'delete' && 'Exclusão realizada'}
-            </strong>
-          </Toast.Header>
-          <Toast.Body className="text-white">
-            {toastMessage}
-          </Toast.Body>
-        </Toast>
-      </div>
+     <Container className="py-4">
+  {/* TOAST ESTILIZADO */}
+  <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
+    <Toast
+      show={showSuccessToast}
+      onClose={() => setShowSuccessToast(false)}
+      delay={6000}
+      autohide
+      className="shadow-sm"
+      style={{
+        minWidth: '320px',
+        borderRadius: '8px',
+        border: '1px solid #e9ecef',
+        borderLeft: `4px solid ${
+          operationType === 'delete' 
+            ? '#dc3545' 
+            : operationType === 'update' 
+            ? '#17a2b8' 
+            : '#28a745'
+        }`,
+        animation: showSuccessToast ? 'slideInRight 0.3s ease-out' : 'none'
+      }}
+    >
+      <Toast.Body className="p-3">
+        <div className="d-flex justify-content-between align-items-start">
+          <div className="d-flex align-items-start">
+            {/* Ícone pequeno e discreto */}
+            <div 
+              className="me-3 mt-1"
+              style={{
+                color: operationType === 'delete' 
+                  ? '#dc3545'
+                  : operationType === 'update'
+                  ? '#17a2b8'
+                  : '#28a745',
+                fontSize: '1rem'
+              }}
+            >
+              {operationType === 'delete' ? (
+                <i className="fas fa-trash"></i>
+              ) : operationType === 'update' ? (
+                <i className="fas fa-check"></i>
+              ) : (
+                <i className="fas fa-check"></i>
+              )}
+            </div>
+            
+            {/* Conteúdo de texto */}
+            <div>
+              <h6 className="mb-1 fw-semibold text-dark">
+                {operationType === 'create' ? 'Sucesso!' : 
+                 operationType === 'update' ? 'Atualizado!' : 
+                 'Excluído!'}
+              </h6>
+              <p className="mb-0 text-secondary" style={{ fontSize: '0.9rem' }}>
+                {toastMessage}
+              </p>
+              <small className="text-muted mt-1 d-block">
+                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </small>
+            </div>
+          </div>
+          
+          {/* Botão de fechar bem discreto */}
+          <button
+            onClick={() => setShowSuccessToast(false)}
+            className="btn-close btn-close-sm opacity-50"
+            style={{
+              fontSize: '0.6rem',
+              padding: '5px',
+              marginTop: '-2px',
+              marginRight: '-5px'
+            }}
+          />
+        </div>
+      </Toast.Body>
+    </Toast>
+  </div>
 
       {loading && !isDeleting && (
         <div className="text-center my-4">
@@ -179,15 +388,71 @@ const Livros = () => {
       )}
 
       {error && (
-        <div className="alert alert-danger" role="alert">
-          {error}
-          <button
-            type="button"
-            className="btn-close float-end"
-            onClick={() => setError('')}
-            aria-label="Close"
-          ></button>
-        </div>
+        (() => {
+          // Se for objeto estruturado (novos erros)
+          if (typeof error === 'object' && error.title) {
+            return (
+              <div className={`alert alert-${error.style === 'danger' ? 'danger' : 'warning'} py-2 mb-3 d-flex align-items-center`}>
+                <div className="flex-grow-1">
+                  <div className="d-flex align-items-center">
+                    <div className={`${error.style === 'danger' ? 'bg-danger' : 'bg-warning'} text-white rounded-circle d-flex align-items-center justify-content-center me-2`} 
+                        style={{ width: '20px', height: '20px', fontSize: '12px' }}>
+                      !
+                    </div>
+                    <strong className="text-dark">{error.title}</strong>
+                  </div>
+                  <div className="mt-1 small">
+                    {error.message}
+                    {error.isbn && (
+                      <div className="mt-1">
+                        <strong>ISBN:</strong> {error.isbn}
+                      </div>
+                    )}
+                    {error.titulo && (
+                      <div className="mt-1">
+                        <strong>Título:</strong> {error.titulo}
+                      </div>
+                    )}
+                    {error.autor && (
+                      <div className="mt-1">
+                        <strong>Autor:</strong> {error.autor}
+                      </div>
+                    )}
+                    {error.editora && (
+                      <div className="mt-1">
+                        <strong>Editora:</strong> {error.editora}
+                      </div>
+                    )}
+                    {error.detalhe && (
+                      <div className="mt-1">
+                        {error.detalhe}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <FaTimes 
+                  className="text-muted ms-2" 
+                  onClick={() => setError('')}
+                  style={{ cursor: 'pointer' }}
+                />
+              </div>
+            );
+          }
+          
+          // Se for string (erros antigos - mantém compatibilidade)
+          return (
+            <div className="alert alert-danger py-2 mb-3 d-flex align-items-center">
+              <div className="flex-grow-1">
+                <strong>Erro:</strong> {error}
+              </div>
+              <FaTimes 
+                className="text-muted ms-2" 
+                onClick={() => setError('')}
+                style={{ cursor: 'pointer' }}
+              />
+            </div>
+          );
+        })()
       )}
 
       {/* Cabeçalho Acervo de Livros */}

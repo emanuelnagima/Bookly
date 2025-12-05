@@ -3,6 +3,7 @@ import { Card, Table, Form, InputGroup, Button, Badge, Row, Col, Modal } from 'r
 import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaTimesCircle, FaCheckCircle, FaBook, FaList, FaExclamationTriangle, FaClipboardList } from 'react-icons/fa';
 import { FaCalendarAlt } from "react-icons/fa";
 import { FaExchangeAlt } from 'react-icons/fa';
+
 const ITENS_POR_PAGINA = 7;
 
 const formatarTexto = texto =>
@@ -73,47 +74,46 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
   };
 
   // Normalização para busca
-const normalizarTexto = texto =>
-  (texto || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remove acentos
-    .trim();
+  const normalizarTexto = texto =>
+    (texto || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+      .trim();
 
   // Filtrar reservas
-// Filtrar reservas
-const reservasFiltradas = reservas.filter(reserva => {
-  if (!termoBusca && filtroStatus === 'todos') return true;
+  const reservasFiltradas = reservas.filter(reserva => {
+    if (!termoBusca && filtroStatus === 'todos') return true;
 
-  const termo = normalizarTexto(termoBusca);
-  
-  // Busca no usuário, ID e título do livro principal
-  const buscaUsuario = normalizarTexto(reserva.usuario || '').includes(termo);
-  const buscaId = (reserva.id || '').toString().includes(termo);
-  const buscaLivroPrincipal = normalizarTexto(reserva.livro_titulo || '').includes(termo);
-  
-  // Busca nos títulos dos livros da lista de livros (se houver múltiplos)
-  const buscaLivros = (reserva.livros || []).some(livro => 
-    normalizarTexto(livro.livro_titulo || '').includes(termo)
-  );
-  
-  // Combina todas as buscas
-  const matchesBusca = !termoBusca || buscaUsuario || buscaId || buscaLivroPrincipal || buscaLivros;
+    const termo = normalizarTexto(termoBusca);
+    
+    // Busca no usuário, ID e título do livro principal
+    const buscaUsuario = normalizarTexto(reserva.usuario || '').includes(termo);
+    const buscaId = (reserva.id || '').toString().includes(termo);
+    const buscaLivroPrincipal = normalizarTexto(reserva.livro_titulo || '').includes(termo);
+    
+    // Busca nos títulos dos livros da lista de livros (se houver múltiplos)
+    const buscaLivros = (reserva.livros || []).some(livro => 
+      normalizarTexto(livro.livro_titulo || '').includes(termo)
+    );
+    
+    // Combina todas as buscas
+    const matchesBusca = !termoBusca || buscaUsuario || buscaId || buscaLivroPrincipal || buscaLivros;
 
-  const hoje = new Date();
-  const validade = new Date(reserva.data_validade);
+    const hoje = new Date();
+    const validade = new Date(reserva.data_validade);
 
-  // Calcula status dinâmico
-  let statusCalculado = reserva.status;
-  if (reserva.status === 'ativa' && validade < hoje) {
-    statusCalculado = 'expirada';
-  }
+    // Calcula status dinâmico
+    let statusCalculado = reserva.status;
+    if (reserva.status === 'ativa' && validade < hoje) {
+      statusCalculado = 'expirada';
+    }
 
-  const matchesStatus =
-    filtroStatus === 'todos' || statusCalculado === filtroStatus;
+    const matchesStatus =
+      filtroStatus === 'todos' || statusCalculado === filtroStatus;
 
-  return matchesBusca && matchesStatus;
-});
+    return matchesBusca && matchesStatus;
+  });
 
   // Aplicar ordenação
   const reservasOrdenadas = ordenarReservas(reservasFiltradas);
@@ -156,7 +156,7 @@ const reservasFiltradas = reservas.filter(reserva => {
       return { situacao: 'expirada', classe: 'text-warning', texto: 'Expirada' };
     }
 
-    // Verificar se está próximo do vencimento (2 dias ou menos)
+    // Verificar se está próximo do vencimento (2 dias ou menos) - PADRONIZADO
     const diasRestantes = Math.ceil((validade - hoje) / (1000 * 60 * 60 * 24));
     if (diasRestantes <= 2) {
       return { situacao: 'proximo_vencimento', classe: 'text-warning', texto: `Vence em ${diasRestantes} dia(s)` };
@@ -168,27 +168,45 @@ const reservasFiltradas = reservas.filter(reserva => {
   const getStatusBadge = (status, dataValidade) => {
     const hoje = new Date();
     const validade = new Date(dataValidade);
+    
+    // Função para capitalizar (primeira letra maiúscula)
+    const capitalizar = (texto) => {
+      return texto.charAt(0).toUpperCase() + texto.slice(1);
+    };
 
     switch (status) {
       case 'ativa':
         if (validade < hoje) {
-          return <Badge bg="warning" text="dark">Expirada</Badge>;
+          return <Badge bg="warning" className="text-dark">{capitalizar('expirada')}</Badge>;
         }
-        return <Badge bg="success">Reservado</Badge>;
+        return <Badge bg="success">{capitalizar('reservado')}</Badge>;
+      
       case 'cancelada':
-        return <Badge bg="secondary">Cancelado</Badge>;
+        return <Badge bg="secondary">{capitalizar('cancelada')}</Badge>;
+      
       case 'concluida':
-        return <Badge bg="dark">Finalizado</Badge>;
+        return <Badge bg="dark">{capitalizar('concluída')}</Badge>;
+      
+      case 'expirada':
+        return <Badge bg="warning" className="text-dark">{capitalizar('expirada')}</Badge>;
+      
       default:
-        return <Badge bg="secondary">{status}</Badge>;
+        return <Badge bg="secondary">{capitalizar(status || 'desconhecido')}</Badge>;
     }
   };
 
-  const isExpirada = (dataValidade, status) => {
-    if (status !== 'ativa') return false;
+  // Função padronizada para verificar vencimento
+  const verificarVencimento = (dataValidade, status, diasAlerta = 2) => {
+    if (status !== 'ativa') return { atrasado: false, proximo: false };
+    
     const hoje = new Date();
     const validade = new Date(dataValidade);
-    return validade < hoje;
+    const diasRestantes = Math.ceil((validade - hoje) / (1000 * 60 * 60 * 24));
+    
+    return {
+      atrasado: validade < hoje,
+      proximo: diasRestantes > 0 && diasRestantes <= diasAlerta
+    };
   };
 
   const handleVerLivro = (reserva) => {
@@ -247,7 +265,7 @@ const reservasFiltradas = reservas.filter(reserva => {
             <option value="ativa">Ativas</option>
             <option value="expirada">Expiradas</option>
             <option value="cancelada">Canceladas</option>
-            <option value="concluida">Finalizadas</option>
+            <option value="concluida">Concluídas</option>
           </Form.Select>
 
           {/* Seletor de Ordenação Melhorado */}
@@ -299,7 +317,7 @@ const reservasFiltradas = reservas.filter(reserva => {
                   <th width="120px">Tipo</th>
                   <th width="150px">Livro</th>
                   <th width="140px">Data Reserva</th>
-                  <th width="140px">Data Validade</th>
+                  <th width="140px">Data Expiração</th>
                   <th width="120px">Status</th>
                   <th width="120px">Situação</th>
                   <th width="200px" className="text-center">Ações</th>
@@ -307,11 +325,12 @@ const reservasFiltradas = reservas.filter(reserva => {
               </thead>
               <tbody>
                 {reservasPaginaAtual.map(reserva => {
-                  const expirada = isExpirada(reserva.data_validade, reserva.status);
                   const situacao = verificarSituacao(reserva.data_validade, reserva.status);
-
+                  const vencimento = verificarVencimento(reserva.data_validade, reserva.status, 2);
+                  const mostrarAlerta = vencimento.atrasado || vencimento.proximo;
+                  
                   return (
-                    <tr key={reserva.id} className={expirada ? 'linha-atrasada' : ''}>
+                    <tr key={reserva.id} className={mostrarAlerta ? 'linha-atrasada' : ''}>
                       <td className="fw-bold">#{reserva.id}</td>
 
                       <td>
@@ -339,11 +358,15 @@ const reservasFiltradas = reservas.filter(reserva => {
                           Ver Detalhes
                         </Button>
                       </td>
-
-                      <td className="text-nowrap">{formatarData(reserva.data_reserva)}</td>
                       
-                      <td className={`text-nowrap ${expirada ? 'text-warning fw-bold' : ''}`}>
-                        {expirada && <FaExclamationTriangle className="me-1" />}
+                      {/* Data Reserva (sem alerta) */}
+                      <td className="text-nowrap">
+                        {formatarData(reserva.data_reserva)}
+                      </td>
+                      
+                      {/* Data Validade COM ALERTA (padronizado com EmprestimoList) */}
+                      <td className={`text-nowrap ${mostrarAlerta ? 'text-warning fw-bold' : ''}`}>
+                        {mostrarAlerta && <FaExclamationTriangle className="me-1" />}
                         {formatarData(reserva.data_validade)}
                       </td>
 
@@ -351,7 +374,7 @@ const reservasFiltradas = reservas.filter(reserva => {
                         {getStatusBadge(reserva.status, reserva.data_validade)}
                       </td>
 
-                     {/* Coluna Situação */}
+                      {/* Coluna Situação */}
                       <td>
                         <span className={`small ${situacao.classe}`}>
                           {situacao.texto}
@@ -362,7 +385,7 @@ const reservasFiltradas = reservas.filter(reserva => {
                         <div className="d-flex gap-2 justify-content-center">
                           {reserva.status === 'ativa' && (
                             <>
-                             <button
+                              <button
                                 className="btn-sm-custom btn-primary"
                                 onClick={() => onConverterEmprestimo(reserva.id)}
                                 title="Transformar em empréstimo"
@@ -387,6 +410,7 @@ const reservasFiltradas = reservas.filter(reserva => {
                               </button>
                             </>
                           )}
+                          
                           {reserva.status !== 'ativa' && (
                             <span className="text-muted small d-flex align-items-center">
                               Sem ações
@@ -401,177 +425,193 @@ const reservasFiltradas = reservas.filter(reserva => {
             </Table>
 
             {/* Modal para mostrar detalhes do livro */}
-            <Modal show={showLivroModal} onHide={handleCloseLivroModal} size="lg">
-              <Modal.Header closeButton closeVariant="white" className="bg-primary text-white">
-                <Modal.Title className="d-flex align-items-center">
-                  <FaBook className="me-2" />
-                  Reserva #{reservaSelecionada?.id} - Detalhes
-                </Modal.Title>
-              </Modal.Header>
+            {/* Modal para mostrar detalhes do livro */}
+<Modal show={showLivroModal} onHide={handleCloseLivroModal} size="lg">
+  <Modal.Header closeButton closeVariant="white" className="bg-primary text-white">
+    <Modal.Title className="d-flex align-items-center">
+      <FaBook className="me-2" />
+      Reserva #{reservaSelecionada?.id} - Detalhes
+    </Modal.Title>
+  </Modal.Header>
 
-              <Modal.Body className="p-4">
-                {/* SEÇÃO: Informações do Usuário */}
-                <div className="mb-4 p-3 border rounded bg-white">
-                  <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
-                    Informações do Usuário
-                  </h5>
-                  <Row>
-                    <Col md={6}>
-                      <p className="mb-2">
-                        <strong>Nome:</strong> {formatarTexto(reservaSelecionada?.usuario)}
-                      </p>
-                      <p className="mb-2">
-                        <strong>Email:</strong> {reservaSelecionada?.usuario_detalhes?.email || 'Não informado'}
-                      </p>
-                      <p className="mb-2">
-                        <strong>Telefone:</strong> {formatarTelefone(reservaSelecionada?.usuario_detalhes?.telefone) || 'Não informado'}
-                      </p>
-                    </Col>
-                    <Col md={6}>
-                      <p className="mb-2">
-                        <strong>Tipo:</strong> {formatarTexto(reservaSelecionada?.usuario_tipo)}
-                      </p>
-                      {reservaSelecionada?.usuario_detalhes?.turma && (
-                        <p className="mb-2">
-                          <strong>Turma:</strong> {reservaSelecionada.usuario_detalhes.turma}
-                        </p>
-                      )}
-                      {reservaSelecionada?.usuario_detalhes?.departamento && (
-                        <p className="mb-2">
-                          <strong>Departamento:</strong> {reservaSelecionada.usuario_detalhes.departamento}
-                        </p>
-                      )}
-                      {reservaSelecionada?.usuario_detalhes?.tipo_especial && (
-                        <p className="mb-2">
-                          <strong>Tipo Especial:</strong> {formatarTexto(reservaSelecionada.usuario_detalhes.tipo_especial)}
-                        </p>
-                      )}
-                    </Col>
-                  </Row>
-                </div>
+  <Modal.Body className="p-4">
+    {/* SEÇÃO: Informações do Usuário */}
+    <div className="mb-4 p-3 border rounded bg-white">
+      <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
+        Informações do Usuário
+      </h5>
+      <Row>
+        <Col md={6}>
+          <p className="mb-2">
+            <strong>Nome:</strong> {formatarTexto(reservaSelecionada?.usuario)}
+          </p>
+          <p className="mb-2">
+            <strong>Email:</strong> {reservaSelecionada?.usuario_detalhes?.email || 'Não informado'}
+          </p>
+          <p className="mb-2">
+            <strong>Telefone:</strong> {formatarTelefone(reservaSelecionada?.usuario_detalhes?.telefone) || 'Não informado'}
+          </p>
+        </Col>
+        <Col md={6}>
+          <p className="mb-2">
+            <strong>Tipo:</strong> {formatarTexto(reservaSelecionada?.usuario_tipo)}
+          </p>
+          {reservaSelecionada?.usuario_detalhes?.turma && (
+            <p className="mb-2">
+              <strong>Turma:</strong> {reservaSelecionada.usuario_detalhes.turma}
+            </p>
+          )}
+          {reservaSelecionada?.usuario_detalhes?.departamento && (
+            <p className="mb-2">
+              <strong>Departamento:</strong> {reservaSelecionada.usuario_detalhes.departamento}
+            </p>
+          )}
+          {reservaSelecionada?.usuario_detalhes?.tipo_especial && (
+            <p className="mb-2">
+              <strong>Tipo Especial:</strong> {formatarTexto(reservaSelecionada.usuario_detalhes.tipo_especial)}
+            </p>
+          )}
+        </Col>
+      </Row>
+    </div>
 
-                {/* SEÇÃO: Informações da Reserva */}
-                <div className="mb-4 p-3 border rounded bg-white">
-                  <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
-                    Informações da Reserva
-                  </h5>
-                  <Row>
-                    <Col md={6}>
-                      <p className="mb-2">
-                        <strong>Data da Reserva:</strong> {formatarData(reservaSelecionada?.data_reserva)}
-                      </p>
-                      <p className="mb-2">
-                        <strong>Data de Validade:</strong> {formatarData(reservaSelecionada?.data_validade)}
-                      </p>
-                    </Col>
-                    <Col md={6}>
-                      <p className="mb-2">
-                        <strong>Status:</strong> {getStatusBadge(reservaSelecionada?.status, reservaSelecionada?.data_validade)}
-                      </p>
-                      <p className="mb-2">
-                        <strong>Situação:</strong>
-                        <span className={`ms-2 ${verificarSituacao(reservaSelecionada?.data_validade, reservaSelecionada?.status).classe}`}>
-                          {verificarSituacao(reservaSelecionada?.data_validade, reservaSelecionada?.status).texto}
-                        </span>
-                      </p>
-                    </Col>
-                  </Row>
-                </div>
+    {/* SEÇÃO: Informações da Reserva */}
+    <div className="mb-4 p-3 border rounded bg-white">
+      <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
+        Informações da Reserva
+      </h5>
+      <Row>
+        <Col md={6}>
+          <p className="mb-2">
+            <strong>Data da Reserva:</strong> {formatarData(reservaSelecionada?.data_reserva)}
+          </p>
+          <p className="mb-2">
+            <strong>Data de Validade:</strong> {formatarData(reservaSelecionada?.data_validade)}
+          </p>
+        </Col>
+        <Col md={6}>
+          <p className="mb-2">
+            <strong>Status:</strong> {getStatusBadge(reservaSelecionada?.status, reservaSelecionada?.data_validade)}
+          </p>
+          <p className="mb-2">
+            <strong>Situação:</strong>
+            <span className={`ms-2 ${verificarSituacao(reservaSelecionada?.data_validade, reservaSelecionada?.status).classe}`}>
+              {verificarSituacao(reservaSelecionada?.data_validade, reservaSelecionada?.status).texto}
+            </span>
+          </p>
+        </Col>
+      </Row>
+    </div>
 
-                {/* SEÇÃO: Livros Reservados */}
-                <div className="p-3 border rounded bg-white">
-                  <div className="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-                    <h5 className="fw-bold text-primary mb-0">Livros da Reserva</h5>
-                    <small className="text-muted">
-                      <strong>Total de livros:</strong> {reservaSelecionada?.livros?.length || 0}
-                    </small>
+    {/* SEÇÃO: Observações (se houver) */}
+    {reservaSelecionada?.observacoes && reservaSelecionada.observacoes.trim() !== '' && (
+      <div className="mb-4 p-3 border rounded bg-white">
+        <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
+          <FaExclamationTriangle className="me-2" />
+          Observações
+        </h5>
+        <div className="bg-light p-3 rounded">
+          <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>
+            {reservaSelecionada.observacoes}
+          </p>
+        </div>
+      </div>
+    )}
+
+    {/* SEÇÃO: Livros Reservados */}
+    <div className="p-3 border rounded bg-white">
+      <div className="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+        <h5 className="fw-bold text-primary mb-0">Livros da Reserva</h5>
+        <small className="text-muted">
+          <strong>Total de livros:</strong> {reservaSelecionada?.livros?.length || 0}
+        </small>
+      </div>
+
+      {reservaSelecionada?.livros && reservaSelecionada.livros.length > 0 ? (
+        <div className="row">
+          {reservaSelecionada.livros.map((livro, index) => (
+            <div key={livro.livro_id || index} className="col-12 mb-3">
+              <div className="card border-0 bg-light rounded-3 p-3">
+                <div className="d-flex align-items-start">
+                  {/* Imagem do livro */}
+                  <div
+                    className="me-3 rounded overflow-hidden border bg-white d-flex align-items-center justify-content-center"
+                    style={{
+                      width: '70px',
+                      height: '100px',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {livro.livro_imagem ? (
+                      <img
+                        src={`http://localhost:3000${livro.livro_imagem}`}
+                        alt={livro.livro_titulo}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          const placeholder = e.target.parentNode.querySelector('.livro-placeholder');
+                          if (placeholder) placeholder.style.display = 'flex';
+                        }}
+                      />
+                    ) : (
+                      <div
+                        className="livro-placeholder d-flex align-items-center justify-content-center text-muted"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          backgroundColor: '#f8f9fa',
+                        }}
+                      >
+                        <FaBook size={22} />
+                      </div>
+                    )}
                   </div>
 
-                  {reservaSelecionada?.livros && reservaSelecionada.livros.length > 0 ? (
-                    <div className="row">
-                      {reservaSelecionada.livros.map((livro, index) => (
-                        <div key={livro.livro_id || index} className="col-12 mb-3">
-                          <div className="card border-0 bg-light rounded-3 p-3">
-                            <div className="d-flex align-items-start">
-                              {/* Imagem do livro */}
-                              <div
-                                className="me-3 rounded overflow-hidden border bg-white d-flex align-items-center justify-content-center"
-                                style={{
-                                  width: '70px',
-                                  height: '100px',
-                                  flexShrink: 0,
-                                }}
-                              >
-                                {livro.livro_imagem ? (
-                                  <img
-                                    src={`http://localhost:3000${livro.livro_imagem}`}
-                                    alt={livro.livro_titulo}
-                                    style={{
-                                      width: '100%',
-                                      height: '100%',
-                                      objectFit: 'cover',
-                                    }}
-                                    onError={(e) => {
-                                      e.target.style.display = 'none';
-                                      const placeholder = e.target.parentNode.querySelector('.livro-placeholder');
-                                      if (placeholder) placeholder.style.display = 'flex';
-                                    }}
-                                  />
-                                ) : (
-                                  <div
-                                    className="livro-placeholder d-flex align-items-center justify-content-center text-muted"
-                                    style={{
-                                      width: '100%',
-                                      height: '100%',
-                                      backgroundColor: '#f8f9fa',
-                                    }}
-                                  >
-                                    <FaBook size={22} />
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* Informações do livro */}
-                              <div className="flex-grow-1">
-                                <h6 className="fw-bold text-primary mb-2">
-                                  {formatarTexto(livro.livro_titulo) || 'Livro sem título'}
-                                </h6>
-                                <div className="row small text-muted">
-                                  <div className="col-md-6">
-                                    <p className="mb-1">
-                                      <strong>Autor:</strong> {formatarTexto(livro.autor_nome) || 'Não informado'}
-                                    </p>
-                                    <p className="mb-1">
-                                      <strong>ISBN:</strong> {livro.livro_isbn || 'Não informado'}
-                                    </p>
-                                  </div>
-                                  <div className="col-md-6">
-                                    <p className="mb-1">
-                                      <strong>Quantidade:</strong> {livro.quantidade || 1}
-                                    </p>
-                                    <p className="mb-0">
-                                      <strong>ID do Livro:</strong> {livro.livro_id}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                  {/* Informações do livro */}
+                  <div className="flex-grow-1">
+                    <h6 className="fw-bold text-primary mb-2">
+                      {formatarTexto(livro.livro_titulo) || 'Livro sem título'}
+                    </h6>
+                    <div className="row small text-muted">
+                      <div className="col-md-6">
+                        <p className="mb-1">
+                          <strong>Autor:</strong> {formatarTexto(livro.autor_nome) || 'Não informado'}
+                        </p>
+                        <p className="mb-1">
+                          <strong>ISBN:</strong> {livro.livro_isbn || 'Não informado'}
+                        </p>
+                      </div>
+                      <div className="col-md-6">
+                        <p className="mb-1">
+                          <strong>Quantidade:</strong> {livro.quantidade || 1}
+                        </p>
+                        <p className="mb-0">
+                          <strong>ID do Livro:</strong> {livro.livro_id}
+                        </p>
+                      </div>
                     </div>
-                  ) : (
-                    <p className="text-muted text-center py-3">Nenhum livro encontrado nesta reserva</p>
-                  )}
+                  </div>
                 </div>
-              </Modal.Body>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-muted text-center py-3">Nenhum livro encontrado nesta reserva</p>
+      )}
+    </div>
+  </Modal.Body>
 
-              <Modal.Footer>
-                <Button variant="paginacao" onClick={handleCloseLivroModal}>
-                  Fechar
-                </Button>
-              </Modal.Footer>
-            </Modal>
+  <Modal.Footer>
+    <Button variant="paginacao" onClick={handleCloseLivroModal}>
+      Fechar
+    </Button>
+  </Modal.Footer>
+</Modal>
 
             {/* Paginação  */}
             {totalPaginas > 1 && (

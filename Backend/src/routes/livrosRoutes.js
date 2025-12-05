@@ -63,8 +63,8 @@ router.get('/:id', livrosController.getById);
 router.get('/generos', livrosController.getGeneros);
 
 // Rotas protegidas
-router.post('/', authenticate, authorize('admin', 'operador'), upload.single('imagem'), handleMulterError, livrosController.create);
-router.put('/:id', authenticate, authorize('admin', 'operador'), upload.single('imagem'), handleMulterError, livrosController.update);
-router.delete('/:id', authenticate, authorize('admin','operador'), livrosController.delete);
+router.post('/', authenticate, authorize('admin', 'bibliotecario'), upload.single('imagem'), handleMulterError, livrosController.create);
+router.put('/:id', authenticate, authorize('admin', 'bibliotecario'), upload.single('imagem'), handleMulterError, livrosController.update);
+router.delete('/:id', authenticate, authorize('admin','bibliotecario'), livrosController.delete);
 
 module.exports = router;

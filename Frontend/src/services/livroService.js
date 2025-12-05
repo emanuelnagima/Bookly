@@ -169,7 +169,7 @@ const livroService = {
   update,
   add,
   remove,
-  getAllComEstoque
+  getAllComEstoque,
 };
 
 export default livroService;

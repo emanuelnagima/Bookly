@@ -167,7 +167,7 @@ CREATE TABLE `livros` (
 -- -----------------------------
 -- Tabela: EMPRÉSTIMOS
 -- -----------------------------
-	CREATE TABLE `emprestimos` (
+CREATE TABLE `emprestimos` (
    `id` int(11) NOT NULL AUTO_INCREMENT,
    `usuario_id` int(11) NOT NULL,
    `usuario_tipo` enum('aluno','professor','usuario_especial') NOT NULL,
@@ -182,7 +182,7 @@ CREATE TABLE `livros` (
    KEY `idx_usuario` (`usuario_id`,`usuario_tipo`),
    KEY `idx_status` (`status`),
    KEY `idx_data_devolucao` (`data_devolucao_prevista`)
- ) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+ ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 
 -- -----------------------------
 -- Tabela: EMPRÉSTIMO_LIVROS
@@ -217,8 +217,8 @@ CREATE TABLE `reservas` (
    KEY `idx_usuario_reserva` (`usuario_id`,`usuario_tipo`),
    KEY `idx_livro_reserva` (`livro_id`),
    KEY `idx_status_reserva` (`status`),
-   CONSTRAINT `fk_livro_reserva` FOREIGN KEY (`livro_id`) REFERENCES `livros` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
- ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+   CONSTRAINT `fk_livro_reserva` FOREIGN KEY (`livro_id`) REFERENCES `livros` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+ ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 -- -----------------------------
 -- Tabela: RESERVA_LIVROS
 -- -----------------------------
@@ -272,24 +272,42 @@ CREATE TABLE `saidas` (
   CONSTRAINT `fk_livro_saida` FOREIGN KEY (`livro_id`) REFERENCES `livros` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- ====================================================
+-- TABELA: HISTÓRICO DE CANCELAMENTOS
+-- ====================================================
+CREATE TABLE `historico_cancelamentos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `emprestimo_id` int(11) NOT NULL,
+  `usuario_id` int(11) NOT NULL,
+  `usuario_tipo` enum('aluno','professor','usuario_especial') NOT NULL,
+  `data_cancelamento` datetime NOT NULL DEFAULT current_timestamp(),
+  `motivo_cancelamento` text DEFAULT NULL,
+  `livros_cancelados` text NOT NULL COMMENT 'JSON com os livros cancelados',
+  `cancelado_por` varchar(100) DEFAULT NULL COMMENT 'Usuário do sistema que realizou o cancelamento',
+  PRIMARY KEY (`id`),
+  KEY `fk_cancelamento_emprestimo` (`emprestimo_id`),
+  KEY `idx_usuario_cancelamento` (`usuario_id`,`usuario_tipo`),
+  CONSTRAINT `fk_cancelamento_emprestimo` FOREIGN KEY (`emprestimo_id`) REFERENCES `emprestimos` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- ALTERAR: Atualizar o evento para considerar status cancelado
-DELIMITER $$
+CREATE TABLE IF NOT EXISTS usuarios_sistema (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'bibliotecario') NOT NULL,
+    nome VARCHAR(100) NOT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-CREATE EVENT atualizar_status_emprestimos
-ON SCHEDULE EVERY 1 HOUR
-STARTS CURRENT_TIMESTAMP
-DO
-BEGIN
-    -- Atualizar para atrasado
-    UPDATE emprestimos 
-    SET status = 'atrasado'
-    WHERE status = 'ativo'
-    AND DATE(data_devolucao_prevista) < CURDATE()
-    AND data_devolucao_real IS NULL;
-END$$
+--  usuários do sistema
+INSERT INTO usuarios_sistema (email, password, role, nome) VALUES
+('admin@bookly.com', 'aDmin@&909086', 'admin', 'Administrador'),
+('bibli@bookly.com', 'bibli@98!o7', 'bibliotecario', 'Bibliotecário Principal');
 
-DELIMITER ;
+
+
+
 -- ====================================================
 -- FIM DO SCRIPT
 -- ====================================================

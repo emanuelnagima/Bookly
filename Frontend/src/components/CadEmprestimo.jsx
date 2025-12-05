@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Form, Col, Row, Button, Spinner, Alert, Badge, ListGroup } from 'react-bootstrap';
 import { BsCheckCircle, BsPlusCircle, BsTrash, BsExclamationTriangle } from "react-icons/bs";
-import { FaBook, FaUser, FaExclamationTriangle } from "react-icons/fa";
+import { FaBook, FaUser, FaExclamationTriangle, FaTimes  } from "react-icons/fa";
 import livroService from '../services/livroService';
 import emprestimosService from '../services/emprestimosService';
 import disponibilidadeService from '../services/disponibilidadeService';
@@ -350,22 +350,46 @@ const adicionarLivro = async () => {
         );
         
         if (!verificacao.podeEmprestar) {
-            // MENSAGENS MAIS ESPECÍFICAS
-            let mensagemErro = '';
-            
-            if (verificacao.motivo?.includes('reserva')) {
-                mensagemErro = `Não é possível emprestar "${livroCompleto.titulo}" * existe uma reserva ativa para este livro.*`;
-            } else if (verificacao.motivo?.includes('Estoque')) {
-                mensagemErro = `Estoque insuficiente para "${livroCompleto.titulo}". Disponível: ${verificacao.disponivelExato || 0}`;
-            } else if (verificacao.motivo?.includes('último exemplar')) {
-                mensagemErro = `Último exemplar de "${livroCompleto.titulo}" está reservado para outro usuário.`;
-            } else {
-                mensagemErro = `Não é possível emprestar "${livroCompleto.titulo}": ${verificacao.motivo}`;
-            }
-            
-            setError(mensagemErro);
-            return;
-        }
+    // MENSAGENS PADRONIZADAS COM ESTILO
+    let errorObject = {};
+    
+    if (verificacao.motivo?.includes('reserva')) {
+        errorObject = {
+            type: 'reserva_ativa',
+            title: 'Livro Reservado',
+            message: `Não é possível emprestar "${livroCompleto.titulo}"`,
+            detalhe: 'Existem reservas ativas para este livro',
+            style: 'warning'
+        };
+    } else if (verificacao.motivo?.includes('Estoque')) {
+        errorObject = {
+            type: 'estoque_insuficiente',
+            title: 'Estoque Insuficiente',
+            message: `Não há exemplares disponíveis de "${livroCompleto.titulo}"`,
+            disponivel: verificacao.disponivelExato || 0,
+            estilo: 'warning'
+        };
+    } else if (verificacao.motivo?.includes('último exemplar')) {
+        errorObject = {
+            type: 'ultimo_exemplar_reservado',
+            title: 'Último Exemplar Reservado',
+            message: `O último exemplar de "${livroCompleto.titulo}" não está disponível`,
+            detalhe: 'Está reservado para outro usuário',
+            style: 'warning'
+        };
+    } else {
+        errorObject = {
+            type: 'indisponivel',
+            title: 'Livro Indisponível',
+            message: `Não é possível emprestar "${livroCompleto.titulo}"`,
+            detalhe: verificacao.motivo,
+            style: 'warning'
+        };
+    }
+    
+    setError(errorObject);
+    return;
+}
     } catch (error) {
         console.error('Erro na verificação:', error);
         setError('Erro ao verificar disponibilidade do livro');
@@ -419,19 +443,38 @@ const handleSubmit = async (e) => {
             );
             
             if (!verificacao.podeEmprestar) {
-                let mensagem = '';
-                
-                if (verificacao.tipo === 'reserva_ativa_outro_usuario') {
-                    mensagem = `Não é possível completar o empréstimo. O livro "${livro.livro_titulo}" tem reservas ativas de outros usuários.`;
-                } else if (verificacao.tipo === 'reservas_ativas') {
-                    mensagem = `Não é possível completar o empréstimo. O livro "${livro.livro_titulo}" tem ${verificacao.reservasAtivas.length} reserva(s) ativa(s).`;
-                } else {
-                    mensagem = `Não é possível emprestar "${livro.livro_titulo}": ${verificacao.motivo}`;
-                }
-                
-                setError(mensagem);
-                return;
-            }
+              let errorObject = {};
+              
+              if (verificacao.tipo === 'reserva_ativa_outro_usuario') {
+                  errorObject = {
+                      type: 'reserva_outro_usuario',
+                      title: 'Reservas Pendentes',
+                      message: `Não é possível completar o empréstimo`,
+                      detalhe: `O livro "${livro.livro_titulo}" tem reservas ativas de outros usuários`,
+                      style: 'warning'
+                  };
+              } else if (verificacao.tipo === 'reservas_ativas') {
+                  errorObject = {
+                      type: 'reservas_ativas',
+                      title: 'Reservas Ativas',
+                      message: `Não é possível completar o empréstimo`,
+                      detalhe: `O livro "${livro.livro_titulo}" tem ${verificacao.reservasAtivas.length} reserva(s) ativa(s)`,
+                      quantidade: verificacao.reservasAtivas.length,
+                      style: 'warning'
+                  };
+              } else {
+                  errorObject = {
+                      type: 'indisponivel_final',
+                      title: 'Livro Indisponível',
+                      message: `Não é possível emprestar "${livro.livro_titulo}"`,
+                      detalhe: verificacao.motivo,
+                      style: 'warning'
+                  };
+              }
+              
+              setError(errorObject);
+              return;
+          }
         }
         
         const dadosEmprestimo = {
@@ -446,16 +489,44 @@ const handleSubmit = async (e) => {
         await recarregarLivrosDisponiveis();
         
     } catch (err) {
-        console.error('Erro no formulário:', err);
-        // Mensagens mais amigáveis para erros comuns
-        if (err.message.includes('reserva')) {
-            setError('Não foi possível completar o empréstimo devido a reservas ativas');
-        } else if (err.message.includes('Estoque')) {
-            setError('Estoque insuficiente para completar o empréstimo');
+    console.error('Erro no formulário:', err);
+    
+    // Mensagens padronizadas
+    let errorObject = {};
+    
+    if (err.message?.includes('reserva')) {
+        errorObject = {
+            type: 'reserva_bloqueio',
+            title: 'Empréstimo Bloqueado',
+            message: 'Não foi possível completar o empréstimo',
+            detalhe: 'Existem reservas ativas para um ou mais livros',
+            style: 'warning'
+        };
+    } else if (err.message?.includes('Estoque')) {
+        errorObject = {
+            type: 'estoque_insuficiente_geral',
+            title: 'Estoque Insuficiente',
+            message: 'Não foi possível completar o empréstimo',
+            detalhe: 'Estoque insuficiente para um ou mais livros',
+            style: 'warning'
+        };
+    } else {
+        // Se já for objeto estruturado
+        if (typeof err === 'object' && err.title) {
+            errorObject = err;
         } else {
-            setError(err.message || 'Erro ao salvar empréstimo');
+            // Se for string ou Error
+            errorObject = {
+                type: 'erro_geral',
+                title: 'Erro no Empréstimo',
+                message: err.message || 'Erro ao salvar empréstimo',
+                style: 'danger'
+            };
         }
     }
+    
+    setError(errorObject);
+}
 };
   const getUsuariosPorTipo = () => {
     switch (formData.usuario_tipo) {
@@ -495,10 +566,56 @@ const handleSubmit = async (e) => {
       </Card.Header>
       <Card.Body>
         {error && (
-          <Alert variant="danger" dismissible onClose={() => setError('')}>
-            {error}
-          </Alert>
-        )}
+    (() => {
+        // Se for objeto estruturado (novos erros)
+        if (typeof error === 'object' && error.title) {
+            return (
+                <div className="alert alert-warning py-2 mb-3 d-flex align-items-center">
+                    <div className="flex-grow-1">
+                        <div className="d-flex align-items-center">
+                            <div className="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                style={{ width: '20px', height: '20px', fontSize: '12px' }}>
+                                !
+                            </div>
+                            <strong className="text-dark">{error.title}</strong>
+                        </div>
+                        <div className="mt-1 small">
+                            {error.message}
+                            {error.detalhe && (
+                                <div className="mt-1">
+                                    {error.detalhe}
+                                </div>
+                            )}
+                            {error.disponivel !== undefined && (
+                                <div className="mt-1">
+                                    <span className="text-danger">0 unidades</span> disponíveis | 
+                                    <span className="text-success ms-1">Necessário: 1</span>
+                                </div>
+                            )}
+                            {error.quantidade && (
+                                <div className="mt-1">
+                                    <strong>Quantidade de reservas:</strong> {error.quantidade}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    <FaTimes 
+                        className="text-muted ms-2" 
+                        onClick={() => setError('')}
+                        style={{ cursor: 'pointer' }}
+                    />
+                </div>
+            );
+        }
+        
+        // Se for string (erros antigos - mantém compatibilidade)
+        return (
+            <Alert variant="danger" dismissible onClose={() => setError('')}>
+                {error}
+            </Alert>
+        );
+    })()
+)}
 
         {verificandoDisponibilidade && (
           <Alert variant="info" className="py-2">
@@ -626,7 +743,6 @@ const handleSubmit = async (e) => {
 
               {/* Adicionar Novo Livro */}
                 <Card className="border-dashed">
-                  <Card.Body>
                     <Row className="align-items-end">
                       <Col md={10}>
                         <Form.Label>Adicionar Livro:</Form.Label>
@@ -739,7 +855,6 @@ const handleSubmit = async (e) => {
                         </Button>
                       </Col>
                     </Row>
-                  </Card.Body>
                 </Card>
 
                             

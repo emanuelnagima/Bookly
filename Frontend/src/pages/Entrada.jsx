@@ -258,16 +258,64 @@ const formatarTexto = (texto) => {
   return (
     <Container className="py-4">
       {/* Toast de sucesso */}
-      <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
-        <Toast show={showSuccess} onClose={() => setShowSuccess(false)} delay={4000} autohide bg="success">
-          <Toast.Header>
-            <strong className="me-auto">Entrada registrada</strong>
-          </Toast.Header>
-          <Toast.Body className="text-white">
-            Entrada de livro registrada com sucesso!
-          </Toast.Body>
-        </Toast>
-      </div>
+        <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
+          <Toast
+            show={showSuccess}
+            onClose={() => setShowSuccess(false)}
+            delay={6000}
+            autohide
+            className="shadow-sm"
+            style={{
+              minWidth: '320px',
+              borderRadius: '8px',
+              border: '1px solid #e9ecef',
+              borderLeft: '4px solid #28a745',
+              animation: showSuccess ? 'slideInRight 0.3s ease-out' : 'none'
+            }}
+          >
+            <Toast.Body className="p-3">
+              <div className="d-flex justify-content-between align-items-start">
+                <div className="d-flex align-items-start">
+                  {/* Ícone pequeno e discreto */}
+                  <div 
+                    className="me-3 mt-1"
+                    style={{
+                      color: '#28a745',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    <i className="fas fa-check"></i>
+                  </div>
+                  
+                  {/* Conteúdo de texto */}
+                  <div>
+                    <h6 className="mb-1 fw-semibold text-dark">
+                      Entrada Registrada!
+                    </h6>
+                    <p className="mb-0 text-secondary" style={{ fontSize: '0.9rem' }}>
+                      Entrada de livro registrada com sucesso!
+                    </p>
+                    <small className="text-muted mt-1 d-block">
+                      {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </small>
+                  </div>
+                </div>
+                
+                {/* Botão de fechar bem discreto */}
+                <button
+                  onClick={() => setShowSuccess(false)}
+                  className="btn-close btn-close-sm opacity-50"
+                  style={{
+                    fontSize: '0.6rem',
+                    padding: '5px',
+                    marginTop: '-2px',
+                    marginRight: '-5px'
+                  }}
+                />
+              </div>
+            </Toast.Body>
+          </Toast>
+        </div>
 
       <div className="rounded-3 p-4 mb-4 border">
         <Row className="align-items-center">

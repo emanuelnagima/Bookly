@@ -15,8 +15,10 @@ import {
   FaSearch,
   FaChartBar,
   FaSyncAlt,
+  FaTimes,
   FaUserTie,
   FaGraduationCap,
+  FaInfoCircle,
   FaUsers,
   FaBuilding,
   FaUserEdit,
@@ -304,7 +306,7 @@ const configRelatorios = {
   }, [tipoRelatorio]);
 
   // Buscar dados do relatório
-  const buscarRelatorio = async () => {
+const buscarRelatorio = async () => {
     try {
       setLoading(true);
       setError('');
@@ -360,42 +362,57 @@ const configRelatorios = {
         const totalRegistros = response.relatorio?.length || response.dados?.length || 0;
 
         if (totalRegistros === 0) {
-          setSuccess(response.message || 'Nenhum registro encontrado para os filtros selecionados');
+          // Mensagem de sucesso (sem registros) padronizada
+          setSuccess({
+            message: response.message || 'Nenhum registro encontrado para os filtros selecionados',
+            type: 'warning' // Usa warning para "nenhum registro encontrado"
+          });
         } else {
-          setSuccess(`Relatório gerado com sucesso! ${totalRegistros} registros encontrados.`);
+          // Mensagem de sucesso (com registros) padronizada
+          setSuccess({
+            message: response.message || `Relatório gerado com sucesso! ${totalRegistros} registros encontrados.`,
+            type: 'success'
+          });
         }
       } else {
-        setError(response.message || 'Erro ao gerar relatório');
+        // Mensagem de erro padronizada
+        setError({
+          message: response.message || 'Erro ao gerar relatório',
+          type: 'danger'
+        });
       }
 
     } catch (err) {
       console.error('ERRO COMPLETO:', err);
-      setError(`Erro ao gerar relatório: ${err.message}`);
+      // Mensagem de erro de exceção padronizada
+      setError({
+        message: `Erro ao gerar relatório: ${err.message}`,
+        type: 'danger'
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const limparFiltros = () => {
-    setDataInicio('');
-    setDataFim('');
-    setFiltrosAdicionais({});
-    setBuscaTitulo('');
-    setBuscaAutor('');
-    setBuscaUsuario('');
-    setSugestoesLivros([]);
-    setSugestoesUsuarios([]);
+const limparFiltros = () => {
+  setDataInicio('');
+  setDataFim('');
+  setFiltrosAdicionais({});
+  setBuscaTitulo('');
+  setBuscaAutor('');
+  setBuscaUsuario('');
+  setSugestoesLivros([]);
+  setSugestoesUsuarios([]);
+  setDadosRelatorio([]);
+  setEstatisticas({});
+  setError({ message: '', type: '' });
+  setSuccess({ message: '', type: '' });
 
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-      setTimeoutId(null);
-    }
-
-    setDadosRelatorio([]);
-    setEstatisticas({});
-    setError('');
-    setSuccess('');
-  };
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+    setTimeoutId(null);
+  }
+};
 
   // Renderizar filtros específicos COM SELECT
   const renderFiltrosEspecificos = () => {
@@ -1153,17 +1170,37 @@ const getValorPorColuna = (linha, coluna) => {
 
       {/* CARD PRINCIPAL DO RELATÓRIO */}
       <Card>
-        <Card.Header className="bg-primary text-white">
-          <div className="d-flex align-items-center">
-            <h5 className="mb-0">Gerador de Relatórios</h5>
-          </div>
-        </Card.Header>
+  <Card.Header className="bg-primary text-white">
+    <div className="d-flex align-items-center">
+      <h5 className="mb-0">Gerador de Relatórios</h5>
+    </div>
+  </Card.Header>
 
-        <Card.Body>
-          {/* Alertas */}
-          {error && <Alert variant="danger">{error}</Alert>}
-          {success && <Alert variant="success">{success}</Alert>}
-
+  <Card.Body>
+    {/* Alerta Informativo */}
+   {/* Botões de Ação */}
+<Row className="mb-4">
+  <Col md={10}>
+    <Alert variant="info" className="py-2 mb-0">
+      <div className="d-flex align-items-center">
+        <FaInfoCircle className="me-2" />
+        <span className="small">
+          <strong>Lembre-se:</strong> Após alterar filtros, clique em "Gerar" para atualizar o relatório.
+        </span>
+      </div>
+    </Alert>
+  </Col>
+  <Col md={2} className="d-flex align-items-end">
+    <Button
+      variant="primary"
+      onClick={buscarRelatorio}
+      disabled={loading}
+      className="w-100"
+    >
+      {loading ? <Spinner size="sm" /> : <><FaSearch className="me-1" />Gerar</>}
+    </Button>
+  </Col>
+</Row>
           {/* Filtros Principais */}
           <Row className="mb-4">
             <Col md={4}>
@@ -1210,16 +1247,7 @@ const getValorPorColuna = (linha, coluna) => {
               </Form.Group>
             </Col>
 
-            <Col md={2} className="d-flex align-items-end">
-              <Button
-                variant="primary"
-                onClick={buscarRelatorio}
-                disabled={loading}
-                className="w-100"
-              >
-                {loading ? <Spinner size="sm" /> : <><FaSearch className="me-1" />Gerar</>}
-              </Button>
-            </Col>
+            
           </Row>
 
           {/* Filtros Específicos COM SELECT */}

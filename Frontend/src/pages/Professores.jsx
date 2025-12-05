@@ -3,6 +3,7 @@ import { Container, Row, Col, Button, Modal, Spinner, Toast } from 'react-bootst
 import ProfessorList from '../components/ProfessorList'
 import CadProfessor from '../components/CadProfessor'
 import professorService from '../services/professorService'
+import { FaTimes } from 'react-icons/fa';
 
 const Professores = () => {
   const [showForm, setShowForm] = useState(false)
@@ -17,7 +18,7 @@ const Professores = () => {
   const [operationType, setOperationType] = useState('') // 'create', 'update', 'delete'
   const [isDeleting, setIsDeleting] = useState(false)
 
- useEffect(() => {
+  useEffect(() => {
     document.title = "Bookly - Professores";
   }, []);
 
@@ -29,7 +30,13 @@ const Professores = () => {
       setError(null)
     } catch (error) {
       console.error('Erro ao carregar professores:', error)
-      setError('Falha ao carregar professores. Tente recarregar a página.')
+      setError({
+        type: 'carregamento_falhou',
+        title: 'Erro ao Carregar',
+        message: 'Falha ao carregar professores',
+        detalhe: 'Tente recarregar a página',
+        style: 'danger'
+      })
     } finally {
       setLoading(false)
     }
@@ -39,79 +46,151 @@ const Professores = () => {
     loadProfessores()
   }, [])
 
-const handleSaveProfessor = async (professor) => {
-  try {
-    setLoading(true);
-    setError(null);
+  const handleSaveProfessor = async (professor) => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    const emailExistente = professores.find(p =>
-      p.email.toLowerCase().trim() === professor.email.toLowerCase().trim() && p.id !== professor.id
-    );
-    if (emailExistente) {
-      setError(`Já existe um professor com o e-mail "${professor.email}" cadastrado.`);
-      setLoading(false);
-      return;
-    }
-
-    const matriculaExistente = professores.find(p =>
-      p.matricula === professor.matricula && p.id !== professor.id
-    );
-    if (matriculaExistente) {
-      setError(`Já existe um professor com a matrícula "${professor.matricula}" cadastrado.`);
-      setLoading(false);
-      return;
-    }
-
-    const telefoneExistente = professores.find(p =>
-      p.telefone === professor.telefone && p.id !== professor.id
-    );
-    if (telefoneExistente) {
-      setError(`Já existe um professor com o telefone "${professor.telefone}" cadastrado.`);
-      setLoading(false);
-      return;
-    }
-
-    if (professor.cpf) {
-      const cpfExistente = professores.find(p =>
-        p.cpf === professor.cpf && p.id !== professor.id
+      const emailExistente = professores.find(p =>
+        p.email.toLowerCase().trim() === professor.email.toLowerCase().trim() && p.id !== professor.id
       );
-      if (cpfExistente) {
-        setError(`Já existe um professor com o CPF "${professor.cpf}" cadastrado.`);
+      if (emailExistente) {
+        setError({
+          type: 'email_duplicado',
+          title: 'E-mail Duplicado',
+          message: `Já existe um professor com este e-mail`,
+          email: professor.email,
+          style: 'warning'
+        });
         setLoading(false);
         return;
       }
+
+      const matriculaExistente = professores.find(p =>
+        p.matricula === professor.matricula && p.id !== professor.id
+      );
+      if (matriculaExistente) {
+        setError({
+          type: 'matricula_duplicada',
+          title: 'Matrícula Duplicada',
+          message: `Já existe um professor com esta matrícula`,
+          matricula: professor.matricula,
+          style: 'warning'
+        });
+        setLoading(false);
+        return;
+      }
+
+      const telefoneExistente = professores.find(p =>
+        p.telefone === professor.telefone && p.id !== professor.id
+      );
+      if (telefoneExistente) {
+        setError({
+          type: 'telefone_duplicado',
+          title: 'Telefone Duplicado',
+          message: `Já existe um professor com este telefone`,
+          telefone: professor.telefone,
+          style: 'warning'
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (professor.cpf) {
+        const cpfExistente = professores.find(p =>
+          p.cpf === professor.cpf && p.id !== professor.id
+        );
+        if (cpfExistente) {
+          setError({
+            type: 'cpf_duplicado',
+            title: 'CPF Duplicado',
+            message: `Já existe um professor com este CPF`,
+            cpf: professor.cpf,
+            style: 'warning'
+          });
+          setLoading(false);
+          return;
+        }
+      }
+
+      let responseData;
+      if (professor.id) {
+        responseData = await professorService.update(professor);
+      } else {
+        responseData = await professorService.add(professor);
+      }
+
+      await loadProfessores();
+
+      setToastMessage(professor.id ? 'Professor atualizado com sucesso!' : 'Professor cadastrado com sucesso!');
+      setOperationType(professor.id ? 'update' : 'create');
+      setShowSuccessToast(true);
+
+      setShowForm(false);
+      setProfessorToEdit(null);
+      setError(null);
+
+    } catch (error) {
+      console.error('Erro ao salvar professor:', error);
+
+      let errorObject = {};
+
+      // Tratamento específico para erro 401
+      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+        errorObject = {
+          type: 'sessao_expirada',
+          title: 'Sessão Expirada',
+          message: 'Sua sessão expirou',
+          detalhe: 'Faça login novamente para continuar',
+          style: 'danger'
+        };
+      } else if (error.message?.includes('already exists') || error.message?.includes('já existe') || error.message?.includes('duplicat')) {
+        errorObject = {
+          type: 'registro_duplicado',
+          title: 'Registro Duplicado',
+          message: `Falha ao ${professor.id ? 'atualizar' : 'cadastrar'} professor`,
+          detalhe: 'Um registro duplicado foi encontrado',
+          style: 'warning'
+        };
+      } else if (error.message?.includes('CPF inválido') || error.message?.includes('cpf inválido')) {
+        errorObject = {
+          type: 'cpf_invalido',
+          title: 'CPF Inválido',
+          message: 'O CPF informado não é válido',
+          detalhe: 'Verifique o número e tente novamente',
+          style: 'warning'
+        };
+      } else if (error.message?.includes('Data inválida') || error.message?.includes('data inválida')) {
+        errorObject = {
+          type: 'data_invalida',
+          title: 'Data Inválida',
+          message: 'A data de nascimento não é válida',
+          detalhe: 'Verifique a data informada',
+          style: 'warning'
+        };
+      } else if (error.message?.includes('E-mail inválido') || error.message?.includes('email inválido')) {
+        errorObject = {
+          type: 'email_invalido',
+          title: 'E-mail Inválido',
+          message: 'O e-mail informado não é válido',
+          detalhe: 'Verifique o formato do e-mail',
+          style: 'warning'
+        };
+      } else {
+        errorObject = {
+          type: 'erro_servidor',
+          title: 'Erro no Sistema',
+          message: `Falha ao ${professor.id ? 'atualizar' : 'cadastrar'} professor`,
+          detalhe: error.message || 'Tente novamente',
+          style: 'danger'
+        };
+      }
+
+      setError(errorObject);
+    } finally {
+      setLoading(false);
     }
-
-    let responseData;
-    if (professor.id) {
-      responseData = await professorService.update(professor);
-    } else {
-      responseData = await professorService.add(professor);
-    }
-
-    await loadProfessores();
-
-    setToastMessage(professor.id ? 'Professor atualizado com sucesso!' : 'Professor cadastrado com sucesso!');
-    setOperationType(professor.id ? 'update' : 'create');
-    setShowSuccessToast(true);
-
-    setShowForm(false);
-    setProfessorToEdit(null);
-    setError(null);
-
-  } catch (error) {
-    console.error('Erro ao salvar professor:', error);
-    
-    // Tratamento específico para erro 401
-    if (error.message.includes('401') || error.message.includes('Unauthorized')) {
-      setError('Sessão expirada. Faça login novamente.');
-    } else {
-      setError(error.message || `Falha ao ${professor.id ? 'atualizar' : 'cadastrar'} professor. Tente novamente.`);
-    }
-  } finally {
-    setLoading(false);
   }
-}
   const handleEditProfessor = async (id) => {
     try {
       setLoading(true)
@@ -121,7 +200,13 @@ const handleSaveProfessor = async (professor) => {
       setError(null)
     } catch (error) {
       console.error('Erro ao buscar professor:', error)
-      setError('Erro ao carregar professor para edição.')
+      setError({
+        type: 'professor_nao_encontrado',
+        title: 'Professor Não Encontrado',
+        message: 'Erro ao carregar professor para edição',
+        detalhe: 'O professor pode ter sido removido',
+        style: 'warning'
+      })
     } finally {
       setLoading(false)
     }
@@ -147,7 +232,13 @@ const handleSaveProfessor = async (professor) => {
       setError(null)
     } catch (error) {
       console.error("Falha na exclusão:", error)
-      setError("Não foi possível excluir o professor. Tente novamente.")
+      setError({
+        type: 'exclusao_falhou',
+        title: 'Erro na Exclusão',
+        message: 'Não foi possível excluir o professor',
+        detalhe: error.message || 'Tente novamente',
+        style: 'danger'
+      })
     } finally {
       setIsDeleting(false)
       setLoading(false)
@@ -158,28 +249,82 @@ const handleSaveProfessor = async (professor) => {
 
   return (
     <Container className="py-4">
-      {/* Toast de sucesso */}
+      {/* TOAST ESTILIZADO */}
       <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
         <Toast
           show={showSuccessToast}
           onClose={() => setShowSuccessToast(false)}
-          delay={3000}
+          delay={6000}
           autohide
-          bg={operationType === 'delete' ? 'danger' : 'success'}
+          className="shadow-sm"
+          style={{
+            minWidth: '320px',
+            borderRadius: '8px',
+            border: '1px solid #e9ecef',
+            borderLeft: `4px solid ${operationType === 'delete'
+                ? '#dc3545'
+                : operationType === 'update'
+                  ? '#17a2b8'
+                  : '#28a745'
+              }`,
+            animation: showSuccessToast ? 'slideInRight 0.3s ease-out' : 'none'
+          }}
         >
-          <Toast.Header>
-            <strong className="me-auto">
-              {operationType === 'create' && 'Cadastro realizado'}
-              {operationType === 'update' && 'Atualização realizada'}
-              {operationType === 'delete' && 'Exclusão realizada'}
-            </strong>
-          </Toast.Header>
-          <Toast.Body className="text-white">
-            {toastMessage}
+          <Toast.Body className="p-3">
+            <div className="d-flex justify-content-between align-items-start">
+              <div className="d-flex align-items-start">
+                {/* Ícone pequeno e discreto */}
+                <div
+                  className="me-3 mt-1"
+                  style={{
+                    color: operationType === 'delete'
+                      ? '#dc3545'
+                      : operationType === 'update'
+                        ? '#17a2b8'
+                        : '#28a745',
+                    fontSize: '1rem'
+                  }}
+                >
+                  {operationType === 'delete' ? (
+                    <i className="fas fa-trash"></i>
+                  ) : operationType === 'update' ? (
+                    <i className="fas fa-check"></i>
+                  ) : (
+                    <i className="fas fa-check"></i>
+                  )}
+                </div>
+
+                {/* Conteúdo de texto */}
+                <div>
+                  <h6 className="mb-1 fw-semibold text-dark">
+                    {operationType === 'create' ? 'Sucesso!' :
+                      operationType === 'update' ? 'Atualizado!' :
+                        'Excluído!'}
+                  </h6>
+                  <p className="mb-0 text-secondary" style={{ fontSize: '0.9rem' }}>
+                    {toastMessage}
+                  </p>
+                  <small className="text-muted mt-1 d-block">
+                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </small>
+                </div>
+              </div>
+
+              {/* Botão de fechar bem discreto */}
+              <button
+                onClick={() => setShowSuccessToast(false)}
+                className="btn-close btn-close-sm opacity-50"
+                style={{
+                  fontSize: '0.6rem',
+                  padding: '5px',
+                  marginTop: '-2px',
+                  marginRight: '-5px'
+                }}
+              />
+            </div>
           </Toast.Body>
         </Toast>
       </div>
-
       {/* Loading */}
       {loading && !isDeleting && (
         <div className="text-center my-4">
@@ -191,15 +336,71 @@ const handleSaveProfessor = async (professor) => {
 
       {/* Erros */}
       {error && (
-        <div className="alert alert-danger" role="alert">
-          {error}
-          <button
-            type="button"
-            className="btn-close float-end"
-            onClick={() => setError(null)}
-            aria-label="Close"
-          ></button>
-        </div>
+        (() => {
+          // Se for objeto estruturado (novos erros)
+          if (typeof error === 'object' && error.title) {
+            return (
+              <div className={`alert alert-${error.style === 'danger' ? 'danger' : 'warning'} py-2 mb-3 d-flex align-items-center`}>
+                <div className="flex-grow-1">
+                  <div className="d-flex align-items-center">
+                    <div className={`${error.style === 'danger' ? 'bg-danger' : 'bg-warning'} text-white rounded-circle d-flex align-items-center justify-content-center me-2`}
+                      style={{ width: '20px', height: '20px', fontSize: '12px' }}>
+                      !
+                    </div>
+                    <strong className="text-dark">{error.title}</strong>
+                  </div>
+                  <div className="mt-1 small">
+                    {error.message}
+                    {error.email && (
+                      <div className="mt-1">
+                        <strong>E-mail:</strong> {error.email}
+                      </div>
+                    )}
+                    {error.matricula && (
+                      <div className="mt-1">
+                        <strong>Matrícula:</strong> {error.matricula}
+                      </div>
+                    )}
+                    {error.telefone && (
+                      <div className="mt-1">
+                        <strong>Telefone:</strong> {error.telefone}
+                      </div>
+                    )}
+                    {error.cpf && (
+                      <div className="mt-1">
+                        <strong>CPF:</strong> {error.cpf}
+                      </div>
+                    )}
+                    {error.detalhe && (
+                      <div className="mt-1">
+                        {error.detalhe}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <FaTimes
+                  className="text-muted ms-2"
+                  onClick={() => setError(null)}
+                  style={{ cursor: 'pointer' }}
+                />
+              </div>
+            );
+          }
+
+          // Se for string (erros antigos - mantém compatibilidade)
+          return (
+            <div className="alert alert-danger py-2 mb-3 d-flex align-items-center">
+              <div className="flex-grow-1">
+                <strong>Erro:</strong> {error}
+              </div>
+              <FaTimes
+                className="text-muted ms-2"
+                onClick={() => setError(null)}
+                style={{ cursor: 'pointer' }}
+              />
+            </div>
+          );
+        })()
       )}
 
       <div
@@ -210,7 +411,7 @@ const handleSaveProfessor = async (professor) => {
         }}
       >
         <Row className="align-items-center">
-         <Col md={8}>
+          <Col md={8}>
             <div className="d-flex align-items-center">
               <div className="me-3">
                 <i className="fas fa-chalkboard-teacher fa-2x" style={{ color: '#0b192c' }}></i>

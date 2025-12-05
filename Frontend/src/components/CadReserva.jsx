@@ -527,7 +527,6 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
 
               {/* Adicionar Novo Livro */}
               <Card className="border-dashed">
-                <Card.Body>
                   <Row className="align-items-end">
                     <Col md={10}>
                       <Form.Label>Adicionar Livro:</Form.Label>
@@ -639,7 +638,6 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
                       </Button>
                     </Col>
                   </Row>
-                </Card.Body>
               </Card>
 
               {livrosSelecionados.length === 0 && (

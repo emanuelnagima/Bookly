@@ -393,16 +393,49 @@ async getEmprestimosAtrasados() {
                 END as usuario_nome
             FROM emprestimos e
             LEFT JOIN emprestimo_livros el ON e.id = el.emprestimo_id
-            WHERE e.status = 'atrasado'  
+            WHERE (
+                e.status = 'atrasado' 
+                OR (
+                    e.status = 'ativo' 
+                    AND DATE(e.data_devolucao_prevista) < CURDATE()
+                    AND e.data_devolucao_real IS NULL
+                )
+            )
+            AND e.status != 'cancelado'  -- Excluir cancelados
             GROUP BY e.id
             ORDER BY e.data_devolucao_prevista ASC
         `);
 
+        // Processar resultados similar a outras funções
+        const emprestimosComLivros = await Promise.all(
+            rows.map(async (row) => {
+                const [livros] = await db.execute(`
+                    SELECT 
+                        l.titulo as livro_titulo, 
+                        l.imagem as livro_imagem, 
+                        l.isbn as livro_isbn,
+                        a.nome as autor_nome,
+                        el.quantidade,
+                        el.livro_id
+                    FROM emprestimo_livros el
+                    JOIN livros l ON el.livro_id = l.id
+                    LEFT JOIN autores a ON l.autor_id = a.id
+                    WHERE el.emprestimo_id = ?
+                `, [row.id]);
+
+                return {
+                    ...new Emprestimo(row),
+                    livros: livros,
+                    total_livros: livros.length
+                };
+            })
+        );
+
+        return emprestimosComLivros;
     } catch (error) {
         throw new Error(`Erro ao buscar empréstimos atrasados: ${error.message}`);
     }
 }
-
 async update(id, emprestimoData) {
     let connection;
     try {

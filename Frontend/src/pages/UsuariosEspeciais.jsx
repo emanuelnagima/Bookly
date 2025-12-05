@@ -1,7 +1,7 @@
 // UsuariosEspeciais.jsx
 import { useState, useEffect } from 'react'
 import { Container, Row, Col, Button, Modal, Spinner, Toast } from 'react-bootstrap'
-
+import { FaTimes } from 'react-icons/fa';
 import UsuarioEspecialList from '../components/UsuarioEspecialList';
 import CadUsuarioEspecial from '../components/CadUsuarioEspecial';
 import usuarioEspecialService from '../services/usuarioEspecialService';
@@ -19,7 +19,7 @@ const UsuariosEspeciais = () => {
   const [operationType, setOperationType] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
 
- useEffect(() => {
+  useEffect(() => {
     document.title = "Bookly - Usuários Especiais";
   }, []);
 
@@ -31,7 +31,13 @@ const UsuariosEspeciais = () => {
       setError(null)
     } catch (error) {
       console.error('Erro ao carregar usuários:', error)
-      setError('Falha ao carregar usuários. Tente recarregar a página.')
+      setError({
+        type: 'carregamento_falhou',
+        title: 'Erro ao Carregar',
+        message: 'Falha ao carregar usuários',
+        detalhe: 'Tente recarregar a página',
+        style: 'danger'
+      })
     } finally {
       setLoading(false)
     }
@@ -41,70 +47,112 @@ const UsuariosEspeciais = () => {
     loadUsuarios()
   }, [])
 
-const handleSaveUsuario = async (usuario) => {
-  try {
-    setLoading(true);
-    setError(null);
+  const handleSaveUsuario = async (usuario) => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    // VERIFICAÇÃO DE DUPLICIDADE ESPECÍFICA - IGUAL AO ALUNO
-    const emailExistente = usuarios.find(u =>
-      u.email.toLowerCase().trim() === usuario.email.toLowerCase().trim() && u.id !== usuario.id
-    );
-    if (emailExistente) {
-      setError(`Já existe um usuário com o e-mail "${usuario.email}" cadastrado.`);
+      // VERIFICAÇÃO DE DUPLICIDADE ESPECÍFICA - IGUAL AO ALUNO
+      const emailExistente = usuarios.find(u =>
+        u.email.toLowerCase().trim() === usuario.email.toLowerCase().trim() && u.id !== usuario.id
+      );
+      if (emailExistente) {
+        setError({
+          type: 'email_duplicado',
+          title: 'E-mail Duplicado',
+          message: `Já existe um usuário com este e-mail`,
+          email: usuario.email,
+          style: 'warning'
+        });
+        setLoading(false);
+        return;
+      }
+
+      const cpfExistente = usuarios.find(u =>
+        u.cpf === usuario.cpf && u.id !== usuario.id
+      );
+      if (cpfExistente) {
+        setError({
+          type: 'cpf_duplicado',
+          title: 'CPF Duplicado',
+          message: `Já existe um usuário com este CPF`,
+          cpf: usuario.cpf,
+          style: 'warning'
+        });
+        setLoading(false);
+        return;
+      }
+
+      const telefoneExistente = usuarios.find(u =>
+        u.telefone === usuario.telefone && u.id !== usuario.id
+      );
+      if (telefoneExistente) {
+        setError({
+          type: 'telefone_duplicado',
+          title: 'Telefone Duplicado',
+          message: `Já existe um usuário com este telefone`,
+          telefone: usuario.telefone,
+          style: 'warning'
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Envio para o servidor
+      let responseData;
+      if (usuario.id) {
+        responseData = await usuarioEspecialService.update(usuario.id, usuario);
+        setToastMessage('Usuário atualizado com sucesso!');
+        setOperationType('update');
+      } else {
+        responseData = await usuarioEspecialService.add(usuario);
+        setToastMessage('Usuário cadastrado com sucesso!');
+        setOperationType('create');
+      }
+
+      await loadUsuarios();
+      setShowSuccessToast(true);
+      setShowForm(false);
+      setUsuarioToEdit(null);
+      setError(null);
+
+    } catch (error) {
+      console.error('Erro ao salvar usuário:', error);
+      
+      let errorObject = {};
+      
+      // Tratamento específico para erro 401
+      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+        errorObject = {
+          type: 'sessao_expirada',
+          title: 'Sessão Expirada',
+          message: 'Sua sessão expirou',
+          detalhe: 'Faça login novamente para continuar',
+          style: 'danger'
+        };
+      } else if (error.message?.includes('already exists') || error.message?.includes('já existe')) {
+        errorObject = {
+          type: 'registro_duplicado',
+          title: 'Registro Duplicado',
+          message: `Falha ao ${usuario.id ? 'atualizar' : 'cadastrar'} usuário`,
+          detalhe: 'O registro já existe no sistema',
+          style: 'warning'
+        };
+      } else {
+        errorObject = {
+          type: 'erro_servidor',
+          title: 'Erro no Sistema',
+          message: `Falha ao ${usuario.id ? 'atualizar' : 'cadastrar'} usuário`,
+          detalhe: error.message || 'Tente novamente',
+          style: 'danger'
+        };
+      }
+      
+      setError(errorObject);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const cpfExistente = usuarios.find(u =>
-      u.cpf === usuario.cpf && u.id !== usuario.id
-    );
-    if (cpfExistente) {
-      setError(`Já existe um usuário com o CPF "${usuario.cpf}" cadastrado.`);
-      setLoading(false);
-      return;
-    }
-
-    const telefoneExistente = usuarios.find(u =>
-      u.telefone === usuario.telefone && u.id !== usuario.id
-    );
-    if (telefoneExistente) {
-      setError(`Já existe um usuário com o telefone "${usuario.telefone}" cadastrado.`);
-      setLoading(false);
-      return;
-    }
-
-    // Envio para o servidor
-    let responseData;
-    if (usuario.id) {
-      responseData = await usuarioEspecialService.update(usuario.id, usuario);
-      setToastMessage('Usuário atualizado com sucesso!');
-      setOperationType('update');
-    } else {
-      responseData = await usuarioEspecialService.add(usuario);
-      setToastMessage('Usuário cadastrado com sucesso!');
-      setOperationType('create');
-    }
-
-    await loadUsuarios();
-    setShowSuccessToast(true);
-    setShowForm(false);
-    setUsuarioToEdit(null);
-    setError(null);
-
-  } catch (error) {
-    console.error('Erro ao salvar usuário:', error);
-    
-    // Tratamento específico para erro 401
-    if (error.message.includes('401') || error.message.includes('Unauthorized')) {
-      setError('Sessão expirada. Faça login novamente.');
-    } else {
-      setError(error.message || `Falha ao ${usuario.id ? 'atualizar' : 'cadastrar'} usuário. Tente novamente.`);
-    }
-  } finally {
-    setLoading(false);
   }
-}
 
   const handleEditUsuario = async (id) => {
     try {
@@ -115,7 +163,13 @@ const handleSaveUsuario = async (usuario) => {
       setError(null)
     } catch (error) {
       console.error('Erro ao buscar usuário:', error)
-      setError('Erro ao carregar usuário para edição.')
+      setError({
+        type: 'usuario_nao_encontrado',
+        title: 'Usuário Não Encontrado',
+        message: 'Erro ao carregar usuário para edição',
+        detalhe: 'O usuário pode ter sido removido',
+        style: 'warning'
+      })
     } finally {
       setLoading(false)
     }
@@ -140,7 +194,13 @@ const handleSaveUsuario = async (usuario) => {
       await loadUsuarios()
     } catch (error) {
       console.error("Falha na exclusão:", error)
-      setError("Não foi possível excluir o usuário. Tente novamente.")
+      setError({
+        type: 'exclusao_falhou',
+        title: 'Erro na Exclusão',
+        message: 'Não foi possível excluir o usuário',
+        detalhe: error.message || 'Tente novamente',
+        style: 'danger'
+      })
     } finally {
       setIsDeleting(false)
       setLoading(false)
@@ -151,26 +211,83 @@ const handleSaveUsuario = async (usuario) => {
 
   return (
     <Container className="py-4">
-      {/* Toast */}
-      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
-        <Toast
-          show={showSuccessToast}
-          onClose={() => setShowSuccessToast(false)}
-          delay={3000}
-          autohide
-          bg={operationType === 'delete' ? 'danger' : 'success'}
-        >
-          <Toast.Header>
-            <strong className="me-auto">
-              {operationType === 'create' && 'Cadastro realizado'}
-              {operationType === 'update' && 'Atualização realizada'}
-              {operationType === 'delete' && 'Exclusão realizada'}
-            </strong>
-          </Toast.Header>
-          <Toast.Body className="text-white">{toastMessage}</Toast.Body>
-        </Toast>
-      </div>
-
+     {/* TOAST ESTILIZADO */}
+        <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
+          <Toast
+            show={showSuccessToast}
+            onClose={() => setShowSuccessToast(false)}
+            delay={6000}
+            autohide
+            className="shadow-sm"
+            style={{
+              minWidth: '320px',
+              borderRadius: '8px',
+              border: '1px solid #e9ecef',
+              borderLeft: `4px solid ${
+                operationType === 'delete' 
+                  ? '#dc3545' 
+                  : operationType === 'update' 
+                  ? '#17a2b8' 
+                  : '#28a745'
+              }`,
+              animation: showSuccessToast ? 'slideInRight 0.3s ease-out' : 'none'
+            }}
+          >
+            <Toast.Body className="p-3">
+              <div className="d-flex justify-content-between align-items-start">
+                <div className="d-flex align-items-start">
+                  {/* Ícone pequeno e discreto */}
+                  <div 
+                    className="me-3 mt-1"
+                    style={{
+                      color: operationType === 'delete' 
+                        ? '#dc3545'
+                        : operationType === 'update'
+                        ? '#17a2b8'
+                        : '#28a745',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    {operationType === 'delete' ? (
+                      <i className="fas fa-trash"></i>
+                    ) : operationType === 'update' ? (
+                      <i className="fas fa-check"></i>
+                    ) : (
+                      <i className="fas fa-check"></i>
+                    )}
+                  </div>
+                  
+                  {/* Conteúdo de texto */}
+                  <div>
+                    <h6 className="mb-1 fw-semibold text-dark">
+                      {operationType === 'create' ? 'Sucesso!' : 
+                      operationType === 'update' ? 'Atualizado!' : 
+                      'Excluído!'}
+                    </h6>
+                    <p className="mb-0 text-secondary" style={{ fontSize: '0.9rem' }}>
+                      {toastMessage}
+                    </p>
+                    <small className="text-muted mt-1 d-block">
+                      {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </small>
+                  </div>
+                </div>
+                
+                {/* Botão de fechar bem discreto */}
+                <button
+                  onClick={() => setShowSuccessToast(false)}
+                  className="btn-close btn-close-sm opacity-50"
+                  style={{
+                    fontSize: '0.6rem',
+                    padding: '5px',
+                    marginTop: '-2px',
+                    marginRight: '-5px'
+                  }}
+                />
+              </div>
+            </Toast.Body>
+          </Toast>
+        </div>
       {/* Loading */}
       {loading && !isDeleting && (
         <div className="text-center my-4">
@@ -182,15 +299,66 @@ const handleSaveUsuario = async (usuario) => {
 
       {/* Erros */}
       {error && (
-        <div className="alert alert-danger" role="alert">
-          {error}
-          <button
-            type="button"
-            className="btn-close float-end"
-            onClick={() => setError(null)}
-            aria-label="Close"
-          ></button>
-        </div>
+        (() => {
+          // Se for objeto estruturado (novos erros)
+          if (typeof error === 'object' && error.title) {
+            return (
+              <div className={`alert alert-${error.style === 'danger' ? 'danger' : 'warning'} py-2 mb-3 d-flex align-items-center`}>
+                <div className="flex-grow-1">
+                  <div className="d-flex align-items-center">
+                    <div className={`${error.style === 'danger' ? 'bg-danger' : 'bg-warning'} text-white rounded-circle d-flex align-items-center justify-content-center me-2`} 
+                        style={{ width: '20px', height: '20px', fontSize: '12px' }}>
+                      !
+                    </div>
+                    <strong className="text-dark">{error.title}</strong>
+                  </div>
+                  <div className="mt-1 small">
+                    {error.message}
+                    {error.email && (
+                      <div className="mt-1">
+                        <strong>E-mail:</strong> {error.email}
+                      </div>
+                    )}
+                    {error.cpf && (
+                      <div className="mt-1">
+                        <strong>CPF:</strong> {error.cpf}
+                      </div>
+                    )}
+                    {error.telefone && (
+                      <div className="mt-1">
+                        <strong>Telefone:</strong> {error.telefone}
+                      </div>
+                    )}
+                    {error.detalhe && (
+                      <div className="mt-1">
+                        {error.detalhe}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <FaTimes 
+                  className="text-muted ms-2" 
+                  onClick={() => setError(null)}
+                  style={{ cursor: 'pointer' }}
+                />
+              </div>
+            );
+          }
+          
+          // Se for string (erros antigos - mantém compatibilidade)
+          return (
+            <div className="alert alert-danger py-2 mb-3 d-flex align-items-center">
+              <div className="flex-grow-1">
+                <strong>Erro:</strong> {error}
+              </div>
+              <FaTimes 
+                className="text-muted ms-2" 
+                onClick={() => setError(null)}
+                style={{ cursor: 'pointer' }}
+              />
+            </div>
+          );
+        })()
       )}
       
       {/* Cabeçalho */}
@@ -205,10 +373,10 @@ const handleSaveUsuario = async (usuario) => {
               <div className="me-3">
                 <i className="fas fa-users fa-2x" style={{ color: '#0b192c' }}></i>
               </div>
-             <div>
+              <div>
                 <h4 className="fw-bold text-dark mb-1">Usuários Especiais</h4>
                 <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
-                  Cadastro e gerenciamento de usuários espeicias do sistema
+                  Cadastro e gerenciamento de usuários especiais do sistema
                 </p>
               </div>
             </div>
@@ -232,7 +400,7 @@ const handleSaveUsuario = async (usuario) => {
         </Row>
       </div>
             
-       <p className="text-muted mb-1" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
+      <p className="text-muted mb-1" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
         Esta seção permite o <strong>cadastro e gerenciamento de usuários</strong>. Você pode adicionar novos usuários, atualizar informações existentes ou remover registros, mantendo o sistema sempre atualizado e organizado.
       </p>
       <div className="d-flex flex-wrap justify-content-start align-items-center gap-4 py-3 border-bottom rounded-3">
@@ -240,7 +408,6 @@ const handleSaveUsuario = async (usuario) => {
           <h6 className="mb-0 text-primary fw-bold">{usuarios.length}</h6>
           <small className="text-muted">Usuários especiais cadastrados</small>
         </div>
-
       </div>
 
       {/* Formulário */}
@@ -307,4 +474,4 @@ const handleSaveUsuario = async (usuario) => {
   )
 }
 
-export default UsuariosEspeciais
+export default UsuariosEspeciais;

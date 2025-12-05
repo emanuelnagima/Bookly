@@ -4,6 +4,7 @@ import CadReserva from '../components/CadReserva'
 import ReservaList from '../components/ReservaList'
 import reservasService from '../services/reservasService'
 import disponibilidadeService from '../services/disponibilidadeService';
+import { FaExclamationTriangle, FaTimes, FaBan, FaInfoCircle } from 'react-icons/fa';
 
 const Reservas = () => {
   const [showForm, setShowForm] = useState(false)
@@ -83,12 +84,20 @@ const Reservas = () => {
     }
   };
 
-  const totalExpiradas = reservas.filter(r => {
-    if (r.status !== 'ativa') return false;
-    const hoje = new Date();
-    const validade = new Date(r.data_validade);
-    return validade < hoje;
-  }).length;
+// Substitua o cálculo de totalExpiradas:
+const totalExpiradas = reservas.filter(r => {
+    // Verifica se está realmente expirada (status ou data)
+    if (r.status === 'expirada') return true;
+    
+    // Se está ativa mas a data já passou, conta como expirada
+    if (r.status === 'ativa') {
+        const hoje = new Date();
+        const validade = new Date(r.data_validade);
+        return validade < hoje;
+    }
+    
+    return false;
+}).length;
 
   const totalGeral = reservas.length;
 
@@ -110,39 +119,54 @@ const Reservas = () => {
     loadReservas()
   }, [loadReservas])
 
-  const handleSaveReserva = async (reserva) => {
+const handleSaveReserva = async (reserva) => {
     try {
-      setLoading(true);
-      setError('');
+        setLoading(true);
+        setError('');
 
-      if (reservaToEdit) {
-        await reservasService.update(reservaToEdit.id, reserva);
-        setToastMessage('Reserva atualizada com sucesso!');
-        setOperationType('update');
-      } else {
-        await reservasService.add(reserva);
-        setToastMessage('Reserva registrada com sucesso!');
-        setOperationType('create');
-      }
+        if (reservaToEdit) {
+            await reservasService.update(reservaToEdit.id, reserva);
+            setToastMessage('Reserva atualizada com sucesso!');
+            setOperationType('update');
+        } else {
+            await reservasService.add(reserva);
+            setToastMessage('Reserva registrada com sucesso!');
+            setOperationType('create');
+        }
 
-      await loadReservas();
-      setShowSuccessToast(true);
-      setShowForm(false);
-      setReservaToEdit(null);
+        await loadReservas();
+        setShowSuccessToast(true);
+        setShowForm(false);
+        setReservaToEdit(null);
 
     } catch (err) {
-      console.error('Erro completo:', err);
-      let errorMessage = err.message;
-      errorMessage = errorMessage.replace(/<br\/>/g, '\n');
-      errorMessage = errorMessage.replace(/^Falha ao (?:registrar|atualizar) reserva: /, '');
-      errorMessage = errorMessage.replace(/^HTTP error! status: \d+ - /, '');
-      errorMessage = errorMessage.replace(/^Erro ao processar reserva \(\d+\): /, '');
-      errorMessage = errorMessage.replace(/^Não foi possível completar a reserva: /, '');
-      setError(errorMessage);
+        console.error('Erro completo:', err);
+        
+        // CORREÇÃO: Verifica se err.message existe antes de usar .replace
+        if (err && err.message) {
+            let errorMessage = err.message;
+            
+            // Só tenta usar .replace se errorMessage for string
+            if (typeof errorMessage === 'string') {
+                errorMessage = errorMessage.replace(/<br\/>/g, '\n');
+                errorMessage = errorMessage.replace(/^Falha ao (?:registrar|atualizar) reserva: /, '');
+                errorMessage = errorMessage.replace(/^HTTP error! status: \d+ - /, '');
+                errorMessage = errorMessage.replace(/^Erro ao processar reserva \(\d+\): /, '');
+                errorMessage = errorMessage.replace(/^Não foi possível completar a reserva: /, '');
+            }
+            
+            setError(errorMessage);
+        } else if (err && typeof err === 'object') {
+            // Se err for o objeto estruturado que criamos no service
+            setError(err);
+        } else {
+            // Erro genérico
+            setError('Ocorreu um erro ao processar a reserva');
+        }
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   const handleEditReserva = async (id) => {
     try {
@@ -272,50 +296,173 @@ const Reservas = () => {
   return (
     <Container className="py-4">
       {/* Toast de Sucesso */}
-      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
-        <Toast
-          show={showSuccessToast}
-          onClose={() => setShowSuccessToast(false)}
-          delay={3000}
-          autohide
-          bg={operationType === 'delete' ? 'danger' : 
-              operationType === 'cancelamento' ? 'warning' : 'success'}
-        >
-          <Toast.Header>
-            <strong className="me-auto">
-              {operationType === 'create' && 'Cadastro realizado'}
-              {operationType === 'update' && 'Atualização realizada'}
-              {operationType === 'cancelamento' && 'Cancelamento realizado'}
-              {operationType === 'conclusao' && 'Conclusão realizada'}
-              {operationType === 'conversao' && 'Conversão realizada'}
-              {operationType === 'delete' && 'Exclusão realizada'}
-            </strong>
-          </Toast.Header>
-          <Toast.Body className="text-white">
-            {toastMessage}
-          </Toast.Body>
-        </Toast>
-      </div>
-
-      {loading && !isDeleting && (
-        <div className="text-center my-4">
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Carregando...</span>
-          </Spinner>
+     <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
+  <Toast
+    show={showSuccessToast}
+    onClose={() => setShowSuccessToast(false)}
+    delay={6000}
+    autohide
+    className="shadow-sm"
+    style={{
+      minWidth: '320px',
+      borderRadius: '8px',
+      border: '1px solid #e9ecef',
+      borderLeft: `4px solid ${
+        operationType === 'delete' 
+          ? '#dc3545'
+          : operationType === 'cancelamento'
+          ? '#ffc107'
+          : operationType === 'conclusao'
+          ? '#20c997'
+          : operationType === 'conversao'
+          ? '#6f42c1'
+          : '#28a745'
+      }`,
+      animation: showSuccessToast ? 'slideInRight 0.3s ease-out' : 'none'
+    }}
+  >
+    <Toast.Body className="p-3">
+      <div className="d-flex justify-content-between align-items-start">
+        <div className="d-flex align-items-start">
+          {/* Ícone pequeno e discreto */}
+          <div 
+            className="me-3 mt-1"
+            style={{
+              color: operationType === 'delete' 
+                ? '#dc3545'
+                : operationType === 'cancelamento'
+                ? '#ffc107'
+                : operationType === 'conclusao'
+                ? '#20c997'
+                : operationType === 'conversao'
+                ? '#6f42c1'
+                : '#28a745',
+              fontSize: '1rem'
+            }}
+          >
+            {operationType === 'delete' ? (
+              <i className="fas fa-trash"></i>
+            ) : operationType === 'cancelamento' ? (
+              <i className="fas fa-ban"></i>
+            ) : operationType === 'conclusao' ? (
+              <i className="fas fa-check-circle"></i>
+            ) : operationType === 'conversao' ? (
+              <i className="fas fa-exchange-alt"></i>
+            ) : operationType === 'update' ? (
+              <i className="fas fa-edit"></i>
+            ) : (
+              <i className="fas fa-check"></i>
+            )}
+          </div>
+          
+          {/* Conteúdo de texto */}
+          <div>
+            <h6 className="mb-1 fw-semibold text-dark">
+              {operationType === 'create' ? 'Sucesso!' : 
+               operationType === 'update' ? 'Atualizado!' : 
+               operationType === 'cancelamento' ? 'Cancelado!' : 
+               operationType === 'conclusao' ? 'Concluído!' : 
+               operationType === 'conversao' ? 'Transformado!' : 
+               'Excluído!'}
+            </h6>
+            <p className="mb-0 text-secondary" style={{ fontSize: '0.9rem' }}>
+              {toastMessage}
+            </p>
+            <small className="text-muted mt-1 d-block">
+              {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </small>
+          </div>
         </div>
-      )}
+        
+        {/* Botão de fechar bem discreto */}
+        <button
+          onClick={() => setShowSuccessToast(false)}
+          className="btn-close btn-close-sm opacity-50"
+          style={{
+            fontSize: '0.6rem',
+            padding: '5px',
+            marginTop: '-2px',
+            marginRight: '-5px'
+          }}
+        />
+      </div>
+    </Toast.Body>
+  </Toast>
+</div>
 
       {error && (
-        <div className="alert alert-danger" role="alert">
-          {error}
-          <button
-            type="button"
-            className="btn-close float-end"
+  (() => {
+    // Se for objeto estruturado (novos erros com todas as informações)
+    if (typeof error === 'object' && error.title) {
+      return (
+        <div className="alert alert-warning py-2 mb-3 d-flex align-items-center">
+          <div className="flex-grow-1">
+            <div className="d-flex align-items-center">
+              <div className="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
+                   style={{ width: '20px', height: '20px', fontSize: '12px' }}>
+                !
+              </div>
+              <strong className="text-dark">{error.title}</strong>
+            </div>
+            
+            {/* MENSAGEM PRINCIPAL - MANTIDA DA ORIGINAL */}
+            <div className="mt-1 small">
+              {error.mainMessage || error.message}
+              
+              {/* LIVRO (se tiver) */}
+              {error.livro && (
+                <div className="mt-1">
+                  <strong>Livro:</strong> "{error.livro}"
+                </div>
+              )}
+              
+              {/* SITUAÇÃO (da mensagem original) */}
+              {error.situacao && (
+                <div className="mt-1">
+                  <strong>Situação:</strong> {error.situacao}
+                </div>
+              )}
+              
+              {/* DETALHE (da mensagem original) */}
+              {error.detalhe && (
+                <div className="mt-1">
+                  {error.detalhe}
+                </div>
+              )}
+              
+              {/* SUGESTÃO (da mensagem original - Tente outro livro...) */}
+              {error.sugestao && (
+                <div className="mt-1 fw-semibold">
+                  * {error.sugestao} *
+                </div>
+              )}
+            </div>
+          </div>
+          <FaTimes 
+            className="text-muted ms-2" 
             onClick={() => setError('')}
-            aria-label="Close"
-          ></button>
+            style={{ cursor: 'pointer' }}
+          />
         </div>
-      )}
+      );
+    }
+    
+    // Se for string (erros antigos - MANTÉM EXATAMENTE COMO ESTAVA)
+    return (
+      <div className="alert alert-danger py-2 mb-3 d-flex align-items-center">
+        <FaExclamationTriangle className="me-2 flex-shrink-0" />
+        <div className="flex-grow-1">
+          <strong>Erro:</strong> {error}
+        </div>
+        <FaTimes 
+          className="text-muted ms-2 flex-shrink-0" 
+          onClick={() => setError('')}
+          style={{ cursor: 'pointer' }}
+        />
+      </div>
+    );
+  })()
+)}
 
       {/* Cabeçalho */}
       <div
@@ -559,7 +706,7 @@ const Reservas = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button
-            variant="secondary"
+            variant="btn btn-cancelar"
             onClick={() => setShowConverterModal(false)}
             disabled={loading}
           >

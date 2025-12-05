@@ -84,7 +84,7 @@ const capitalize = (text) => {
   const roleLower = text.toLowerCase();
   
   // Mapeamento das roles para exibição
-  if (roleLower === 'operator' || roleLower === 'operador') {
+  if (roleLower === 'operator' || roleLower === 'bibliotecario') {
     return 'Bibliotecário';
   }
   
@@ -319,7 +319,7 @@ const capitalize = (text) => {
             </button>
           </Nav>
         </div>
-
+              
         <div className="user-profile-modern">
           <div className="user-info">
             <div className="avatar-container">

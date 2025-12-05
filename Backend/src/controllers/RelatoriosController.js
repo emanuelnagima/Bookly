@@ -151,19 +151,12 @@ class RelatoriosController {
   async getRelatorioEstoque(req, res) {
     try {
       const filtros = req.body;
-
-      console.log('=== GERANDO RELATÓRIO DE ESTOQUE ===');
-      console.log('Filtros recebidos:', filtros);
-
-      // 🔧 LIMPEZA DOS FILTROS
       const filtrosLimpos = {};
       Object.keys(filtros).forEach(key => {
         if (filtros[key] !== '' && filtros[key] !== null && filtros[key] !== undefined) {
           filtrosLimpos[key] = filtros[key];
         }
       });
-
-      console.log('Filtros limpos para busca:', filtrosLimpos);
 
       const resultado = await relatoriosRepository.getRelatorioEstoque(filtrosLimpos);
 

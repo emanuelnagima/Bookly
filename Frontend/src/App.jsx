@@ -15,7 +15,6 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Login from './pages/Login'; 
 import PrivacyPolicy from './pages/PrivacyPolicy';
-import FAQ from './pages/FAQ';
 import TermsOfUse from './pages/TermsOfUse';
 import Estatisticas from './pages/Estatisticas';
 
@@ -50,7 +49,6 @@ function App() {
           {/* Rotas públicas */}
           <Route path="/login" element={<Login />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/faq" element={<FAQ />} />
           <Route path="/terms-of-use" element={<TermsOfUse />} />
 
           {/* Rotas protegidas - ESTRUTURA COMPLETAMENTE MODIFICADA */}
@@ -66,61 +64,61 @@ function App() {
                       <Route path="/" element={<Home />} />
                       <Route path="/sobre" element={<About />} />
 
-                      {/* Listagens - Acesso admin e operador */}
+                      {/* Listagens - Acesso admin e bibliotecario */}
                       <Route path="/livros" element={
-                        <ProtectedRoute roles={['admin', 'operador']}>
+                        <ProtectedRoute roles={['admin', 'bibliotecario']}>
                           <Livros />
                         </ProtectedRoute>
                       } />
                       <Route path="/professores" element={
-                        <ProtectedRoute roles={['admin', 'operador']}>
+                        <ProtectedRoute roles={['admin', 'bibliotecario']}>
                           <Professores />
                         </ProtectedRoute>
                       } />
                       <Route path="/alunos" element={
-                        <ProtectedRoute roles={['admin', 'operador']}>
+                        <ProtectedRoute roles={['admin', 'bibliotecario']}>
                           <Alunos />
                         </ProtectedRoute>
                       } />
                       <Route path="/autores" element={
-                        <ProtectedRoute roles={['admin', 'operador']}>
+                        <ProtectedRoute roles={['admin', 'bibliotecario']}>
                           <Autores />
                         </ProtectedRoute>
                       } />
                       <Route path="/editoras" element={
-                        <ProtectedRoute roles={['admin', 'operador']}>
+                        <ProtectedRoute roles={['admin', 'bibliotecario']}>
                           <Editoras />
                         </ProtectedRoute>
                       } />
                       <Route path="/usuarios-especiais" element={
-                        <ProtectedRoute roles={['admin', 'operador']}>
+                        <ProtectedRoute roles={['admin', 'bibliotecario']}>
                           <UsuariosEspeciais />
                         </ProtectedRoute>
                       } />
 
-                      {/* Movimentações - Acesso admin e operador */}
+                      {/* Movimentações - Acesso admin e bibliotecario */}
                       <Route path="/entrada" element={
-                        <ProtectedRoute roles={['admin', 'operador']}>
+                        <ProtectedRoute roles={['admin', 'bibliotecario']}>
                           <Entrada />
                         </ProtectedRoute>
                       } />
                       <Route path="/saida" element={
-                        <ProtectedRoute roles={['admin', 'operador']}>
+                        <ProtectedRoute roles={['admin', 'bibliotecario']}>
                           <Saida />
                         </ProtectedRoute>
                       } />
                       <Route path="/emprestimos" element={
-                        <ProtectedRoute roles={['admin', 'operador']}>
+                        <ProtectedRoute roles={['admin', 'bibliotecario']}>
                           <Emprestimos />
                         </ProtectedRoute>
                       } />
                       <Route path="/reservas" element={
-                        <ProtectedRoute roles={['admin', 'operador']}>
+                        <ProtectedRoute roles={['admin', 'bibliotecario']}>
                           <Reservas />
                         </ProtectedRoute>
                       } />
                       <Route path="/relatorios" element={
-                        <ProtectedRoute roles={['admin', 'operador']}>
+                        <ProtectedRoute roles={['admin', 'bibliotecario']}>
                           <RelatoriosGerais />
                         </ProtectedRoute>
                       } />
@@ -181,12 +179,12 @@ function App() {
                         </ProtectedRoute>
                       } />
                       <Route path="/cadastros/usuarios-especiais/:id" element={
-                        <ProtectedRoute roles={['admin']}>
+                        <ProtectedRoute roles={['admin', 'bibliotecario']}>
                           <CadastroUsuariosEspeciais />
                         </ProtectedRoute>
                       } />
                       <Route path="/estatisticas" element={
-                        <ProtectedRoute roles={['admin', 'operador']}>
+                        <ProtectedRoute roles={['admin', 'bibliotecario']}>
                           <Estatisticas />
                         </ProtectedRoute>
                       } />

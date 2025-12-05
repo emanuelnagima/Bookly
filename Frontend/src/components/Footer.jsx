@@ -280,17 +280,6 @@ const navigate = useNavigate();
                       Documentação
                     </a>
                   </li>
-                  <li>
-                    <a
-                      href="/faq"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="small text-muted hover-underline"
-                    >
-                      <FaChevronRight className="me-2 text-primary" size={10} />
-                      FAQs
-                    </a>
-                  </li>
                 </ul>
               </Col>
             </Row>

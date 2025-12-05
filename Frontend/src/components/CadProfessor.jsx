@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { Card, Form, Col, Row, Button, Spinner, InputGroup } from 'react-bootstrap'
 import { BsCheckCircle } from "react-icons/bs";
 import { FaLock } from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 
-// FUNÇÃO PARA FORMATAR DATA
 const formatDateForInput = (dateString) => {
   if (!dateString) return '';
   
@@ -47,7 +47,7 @@ const maskCPF = (value) => {
     .slice(0, 14)
 }
 
-// COMPONENTE CADPROFESSOR - APENAS ESTE!
+// COMPONENTE CADPROFESSOR 
 const CadProfessor = ({ onSave, onCancel, professor, loading }) => {
   const [professorData, setProfessorData] = useState({
     id: null,

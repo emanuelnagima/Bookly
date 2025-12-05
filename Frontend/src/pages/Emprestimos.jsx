@@ -286,35 +286,93 @@
 
     return (
       <Container className="py-4">
-        {/* Toast de Sucesso */}
-        <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
-          <Toast
-            show={showSuccessToast}
-            onClose={() => setShowSuccessToast(false)}
-            delay={3000}
-            autohide
-            bg={
-              operationType === 'cancelamento' ? 'warning' :
-              operationType === 'delete' ? 'danger' : 'success'
-            }
-          >
-            <Toast.Header>
-              <strong className="me-auto">
-                {operationType === 'create' && 'Cadastro realizado'}
-                {operationType === 'update' && 'Atualização realizada'}
-                {operationType === 'renovacao' && 'Renovação realizada'}
-                {operationType === 'finalizacao' && 'Finalização realizada'}
-                {operationType === 'cancelamento' && 'Cancelamento realizado'}
-                {operationType === 'delete' && 'Exclusão realizada'}
-              </strong>
-            </Toast.Header>
-            <Toast.Body className="text-white">
-              {toastMessage}
-            </Toast.Body>
-          </Toast>
-        </div>
-
-        {loading && (
+          {/* Toast de Sucesso */}
+          <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
+            <Toast
+              show={showSuccessToast}
+              onClose={() => setShowSuccessToast(false)}
+              delay={6000}
+              autohide
+              className="shadow-sm"
+              style={{
+                minWidth: '320px',
+                borderRadius: '8px',
+                border: '1px solid #e9ecef',
+                borderLeft: `4px solid ${
+                  operationType === 'delete' 
+                    ? '#dc3545'
+                    : operationType === 'cancelamento'
+                    ? '#ffc107'
+                    : '#28a745'
+                }`,
+                animation: showSuccessToast ? 'slideInRight 0.3s ease-out' : 'none'
+              }}
+            >
+              <Toast.Body className="p-3">
+                <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex align-items-start">
+                    {/* Ícone pequeno e discreto */}
+                    <div 
+                      className="me-3 mt-1"
+                      style={{
+                        color: operationType === 'delete' 
+                          ? '#dc3545'
+                          : operationType === 'cancelamento'
+                          ? '#ffc107'
+                          : '#28a745',
+                        fontSize: '1rem'
+                      }}
+                    >
+                      {operationType === 'delete' ? (
+                        <i className="fas fa-trash"></i>
+                      ) : operationType === 'cancelamento' ? (
+                        <i className="fas fa-ban"></i>
+                      ) : operationType === 'renovacao' ? (
+                        <i className="fas fa-sync-alt"></i>
+                      ) : operationType === 'finalizacao' ? (
+                        <i className="fas fa-flag-checkered"></i>
+                      ) : operationType === 'update' ? (
+                        <i className="fas fa-edit"></i>
+                      ) : (
+                        <i className="fas fa-check"></i>
+                      )}
+                    </div>
+                    
+                    {/* Conteúdo de texto */}
+                    <div>
+                      <h6 className="mb-1 fw-semibold text-dark">
+                        {operationType === 'create' ? 'Sucesso!' : 
+                        operationType === 'update' ? 'Atualizado!' : 
+                        operationType === 'renovacao' ? 'Renovado!' : 
+                        operationType === 'finalizacao' ? 'Finalizado!' : 
+                        operationType === 'cancelamento' ? 'Cancelado!' : 
+                        'Excluído!'}
+                      </h6>
+                      <p className="mb-0 text-secondary" style={{ fontSize: '0.9rem' }}>
+                        {toastMessage}
+                      </p>
+                      <small className="text-muted mt-1 d-block">
+                        {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </small>
+                    </div>
+                  </div>
+                  
+                  {/* Botão de fechar bem discreto */}
+                  <button
+                    onClick={() => setShowSuccessToast(false)}
+                    className="btn-close btn-close-sm opacity-50"
+                    style={{
+                      fontSize: '0.6rem',
+                      padding: '5px',
+                      marginTop: '-2px',
+                      marginRight: '-5px'
+                    }}
+                  />
+                </div>
+              </Toast.Body>
+            </Toast>
+          </div>
+          {loading && (
           <div className="text-center my-4">
             <Spinner animation="border" role="status">
               <span className="visually-hidden">Carregando...</span>
@@ -453,7 +511,7 @@
           </Modal.Body>
           <Modal.Footer>
             <Button
-              variant="secondary"
+              variant="btn btn-cancelar"
               onClick={() => setShowRenovarModal(false)}
               disabled={loading}
             >
@@ -658,7 +716,7 @@
 
           <Modal.Footer className="border-top">
             <Button
-              variant="secondary"
+              variant="btn btn-cancelar"
               onClick={() => setShowFinalizarModal(false)}
               disabled={loading}
               className="px-4"
@@ -723,7 +781,7 @@
           </Modal.Body>
           <Modal.Footer>
             <Button
-              variant="secondary"
+              variant="btn btn-cancelar"
               onClick={() => setShowCancelarModal(false)}
               disabled={loading}
             >

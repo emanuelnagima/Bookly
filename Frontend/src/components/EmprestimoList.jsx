@@ -557,7 +557,20 @@ const getStatusBadge = (status, dataDevolucao) => {
                     <h5 className="fw-bold text-primary mb-0">Livros do Empréstimo</h5>
                     <small className="text-muted"><strong>Total de livros:</strong> {livrosSelecionados.length}</small>
                   </div>
-
+                    {/* SEÇÃO: Observações (se houver) */}
+{emprestimoSelecionado?.observacoes && emprestimoSelecionado.observacoes.trim() !== '' && (
+  <div className="mb-4 p-3 border rounded bg-white">
+    <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
+      <FaExclamationTriangle className="me-2" />
+      Observações
+    </h5>
+    <div className="bg-light p-3 rounded">
+      <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>
+        {emprestimoSelecionado.observacoes}
+      </p>
+    </div>
+  </div>
+)}
                   {livrosSelecionados.length === 0 ? (
                     <p className="text-muted text-center py-3">Nenhum livro encontrado neste empréstimo</p>
                   ) : (

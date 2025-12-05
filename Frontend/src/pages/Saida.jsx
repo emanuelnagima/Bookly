@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Table, Form, InputGroup, Button, Row, Col, Badge, Alert, Spinner, Toast, Container } from 'react-bootstrap';
-import { FaMinus, FaInfoCircle, FaSearch, FaChevronLeft, FaChevronRight, FaBook, FaBoxOpen } from 'react-icons/fa';
+import { FaMinus, FaInfoCircle, FaSearch, FaChevronLeft, FaChevronRight, FaBook, FaBoxOpen, FaExclamationTriangle, FaTimes  } from 'react-icons/fa';
 import entradaSaidaService from '../services/entradaSaidaService';
 import livroService from '../services/livroService';
 
@@ -170,9 +170,19 @@ const Saida = () => {
 
     //  verifica contra estoqueDisponivel, não estoque físico
     if (formData.quantidade > (livroSelecionado.estoque || 0)) {
-      setError(`Atenção: Quantidade maior que o estoque disponível. O exemplar está emprestado ou reservado e não está disponível para baixa. Disponível: ${livroSelecionado.estoque || 0}`);
-      return;
+  setError({
+    type: 'estoque_insuficiente',
+    message: 'Quantidade maior que o estoque disponível',
+    detalhes: {
+      quantidadeSolicitada: formData.quantidade,
+      estoqueDisponivel: livroSelecionado.estoque || 0,
+      estoqueFisico: livroSelecionado.estoqueInfo?.estoqueFisico || 0,
+      totalEmprestado: livroSelecionado.estoqueInfo?.totalEmprestado || 0,
+      totalReservado: livroSelecionado.estoqueInfo?.totalReservado || 0
     }
+  });
+  return;
+}
 
     setLoading(true);
     try {
@@ -192,18 +202,66 @@ const Saida = () => {
   return (
     <Container className="py-4">
       {/* Toast de sucesso */}
-      <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
-        <Toast show={showSuccess} onClose={() => setShowSuccess(false)} delay={4000} autohide bg="success">
-          <Toast.Header>
-            <strong className="me-auto">Saída registrada</strong>
-          </Toast.Header>
-          <Toast.Body className="text-white">
-            Saída de livro registrada com sucesso!
-          </Toast.Body>
-        </Toast>
-      </div>
+    <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
+      <Toast
+        show={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        delay={6000}
+        autohide
+        className="shadow-sm"
+        style={{
+          minWidth: '320px',
+          borderRadius: '8px',
+          border: '1px solid #e9ecef',
+          borderLeft: '4px solid #dc3545',
+          animation: showSuccess ? 'slideInRight 0.3s ease-out' : 'none'
+        }}
+      >
+        <Toast.Body className="p-3">
+          <div className="d-flex justify-content-between align-items-start">
+            <div className="d-flex align-items-start">
+              {/* Ícone pequeno e discreto */}
+              <div 
+                className="me-3 mt-1"
+                style={{
+                  color: '#dc3545',
+                  fontSize: '1rem'
+                }}
+              >
+                <i className="fas fa-minus"></i>
+              </div>
+              
+              {/* Conteúdo de texto */}
+              <div>
+                <h6 className="mb-1 fw-semibold text-dark">
+                  Saída Registrada!
+                </h6>
+                <p className="mb-0 text-secondary" style={{ fontSize: '0.9rem' }}>
+                  Saída de livro registrada com sucesso!
+                </p>
+                <small className="text-muted mt-1 d-block">
+                  {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </small>
+              </div>
+            </div>
+            
+            {/* Botão de fechar bem discreto */}
+            <button
+              onClick={() => setShowSuccess(false)}
+              className="btn-close btn-close-sm opacity-50"
+              style={{
+                fontSize: '0.6rem',
+                padding: '5px',
+                marginTop: '-2px',
+                marginRight: '-5px'
+              }}
+            />
+          </div>
+        </Toast.Body>
+      </Toast>
+    </div>
 
-      {/* HEADER ORIGINAL PRESERVADO - MESMA ESTRUTURA DA ENTRADA */}
+      {/* HEADER*/}
       <div className="rounded-3 p-4 mb-4 border">
         <Row className="align-items-center">
            <Col md={8}>
@@ -576,10 +634,28 @@ const Saida = () => {
                     </Form.Group>
 
 
-                    {error && (
-                      <Alert variant="danger" className="mb-3">{error}</Alert>
-                    )}
-
+                      {error && (
+                        <div className="alert alert-warning py-2 mb-3 d-flex align-items-center">
+                          <div className="flex-grow-1">
+                            <div className="d-flex align-items-center">
+                              <div className="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                  style={{ width: '20px', height: '20px', fontSize: '12px' }}>
+                                !
+                              </div>
+                              <strong className="text-dark">Limite excedido</strong>
+                            </div>
+                            <div className="mt-1 small">
+                              <span className="text-danger">{formData.quantidade} unidades</span> solicitadas | 
+                              <span className="text-success ms-1">{livroSelecionado?.estoque || 0} unidades</span> disponíveis
+                            </div>
+                          </div>
+                          <FaTimes 
+                            className="text-muted ms-2" 
+                            onClick={() => setError('')}
+                            style={{ cursor: 'pointer' }}
+                          />
+                        </div>
+                      )}
                     <div className="d-flex gap-2">
                       <Button
                         type="submit"
