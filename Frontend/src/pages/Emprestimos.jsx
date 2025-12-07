@@ -737,7 +737,7 @@
               ) : (
                 <>
                   <i className="fas fa-check-circle me-2"></i>
-                  Confirmar Devolução
+                  Concluir Devolução
                 </>
               )}
             </Button>
@@ -797,7 +797,7 @@
                   <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
                   <span className="ms-2">Cancelando...</span>
                 </>
-              ) : 'Confirmar Cancelamento'}
+              ) : 'Cancelar Empréstimo'}
             </Button>
           </Modal.Footer>
         </Modal>

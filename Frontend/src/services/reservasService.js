@@ -85,9 +85,11 @@ const getPorLivro = async (livroId) => {
   }
 };
 
-
 const add = async (reserva) => {
   try {    
+    console.log('=== reservasService.add INÍCIO ===');
+    console.log('Dados da reserva:', reserva);
+    
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
       headers: {
@@ -96,73 +98,102 @@ const add = async (reserva) => {
       credentials: 'include',
       body: JSON.stringify(reserva),
     });
-        
-    if (!response.ok) {
-      let errorMessage = `Erro ao processar reserva (${response.status})`;
-      
-      try {
-        const errorText = await response.text();
-        
-        if (errorText) {
-          try {
-            const errorData = JSON.parse(errorText);
-            errorMessage = errorData.message || errorData.error || errorText;
-          } catch (e) {
-            errorMessage = errorText;
-          }
-        }
-      } catch (e) {
-        console.error('Erro ao ler resposta:', e);
+    
+    const responseText = await response.text();
+    console.log('Resposta do servidor (texto):', responseText);
+    console.log('Status:', response.status);
+    
+    // Tentar parsear como JSON
+    let responseData;
+    try {
+      responseData = JSON.parse(responseText);
+      console.log('Resposta parseada:', responseData);
+    } catch (e) {
+      console.error('Erro ao parsear resposta como JSON:', e);
+      // Se não for JSON válido, tratar como texto
+      if (!response.ok) {
+        const erro = {
+          type: 'erro_http',
+          title: 'Erro na Solicitação',
+          message: `Erro ${response.status}: ${responseText}`,
+          style: 'danger'
+        };
+        console.log('Lançando erro HTTP:', erro);
+        throw erro;
       }
+      throw new Error('Resposta inválida do servidor');
+    }
+    
+    // Se não foi bem sucedido
+    if (!response.ok || !responseData.success) {
+      console.log('Resposta não foi bem sucedida');
       
-      throw new Error(errorMessage);
+      // VERIFICAR SE TEM ERRO ESTRUTURADO
+      if (responseData.error && typeof responseData.error === 'object') {
+        console.log('Tem erro estruturado:', responseData.error);
+        const erroEstruturado = responseData.error;
+        
+        // Garantir que tem as propriedades necessárias
+        if (!erroEstruturado.style) {
+          erroEstruturado.style = 'warning';
+        }
+        
+        throw erroEstruturado;
+      } 
+      // Se tiver message mas não for objeto estruturado
+      else if (responseData.message) {
+        console.log('Tem message:', responseData.message);
+        const erro = {
+          type: 'erro_api',
+          title: 'Erro no Sistema',
+          message: responseData.message,
+          style: 'danger'
+        };
+        throw erro;
+      }
+      // Erro genérico
+      else {
+        console.log('Erro genérico');
+        const erro = {
+          type: 'erro_desconhecido',
+          title: 'Erro Desconhecido',
+          message: 'Não foi possível processar a reserva',
+          style: 'danger'
+        };
+        throw erro;
+      }
     }
     
-    const result = await response.json();
-    
-    if (!result.success) {
-      throw new Error(result.message || 'Erro ao processar reserva');
-    }
-    return result.data;
+    // Sucesso
+    console.log('=== reservasService.add SUCESSO ===');
+    return responseData.data;
     
   } catch (error) {
-    console.error('Erro ao adicionar reserva:', error);
+    console.error('=== reservasService.add ERRO ===');
+    console.error('Tipo do erro:', typeof error);
+    console.error('Erro:', error);
     
-    // MELHORIA: Organize os erros de forma mais clara
-    let errorObject = { 
-      message: error.message,
-      originalError: error
-    };
-    
-    if (error.message.includes('Estoque insuficiente') || error.message.includes('ESTOQUE INSUFICIENTE')) {
-      const livroMatch = error.message.match(/Livro: "([^"]+)"/);
-      const livroNome = livroMatch ? livroMatch[1] : 'o livro selecionado';
-      
-      errorObject = {
-        type: 'estoque_insuficiente',
-        title: 'Estoque Insuficiente',
-        message: `Não há exemplares disponíveis para reservar "${livroNome}"`,
-        detalhe: 'Todos os exemplares estão emprestados ou reservados',
-        sugestao: 'Tente outro livro ou aguarde devolução',
-        style: 'warning'
-      };
-    } else if (error.message.includes('já possui reserva ativa')) {
-      errorObject = {
-        type: 'reserva_duplicada',
-        title: 'Reserva Duplicada',
-        message: 'Você já possui uma reserva ativa para este livro',
-        detalhe: 'Cada usuário pode ter apenas uma reserva ativa por livro',
-        style: 'warning'
-      };
-    } else if (error.message.includes('Usuário não encontrado')) {
-      errorObject = {
-        type: 'usuario_nao_encontrado',
-        title: 'Usuário Inválido',
-        message: 'O usuário selecionado não foi encontrado',
-        sugestao: 'Verifique se o usuário está cadastrado no sistema',
-        style: 'danger'
-      };
+    // SE JÁ FOR OBJETO ESTRUTURADO (com type e title), repassa diretamente
+    if (error.type && error.title) {
+      console.log('Erro já estruturado, repassando:', error);
+      // Garantir que tem style
+      if (!error.style) {
+        error.style = 'warning';
+      }
+      throw error;
     }
+    
+    // Se for string ou outro tipo, converter para objeto estruturado
+    const mensagem = error.message || String(error);
+    console.log('Convertendo para objeto estruturado:', mensagem);
+    
+    // Criar objeto de erro padrão
+    const errorObject = { 
+      type: 'erro_desconhecido',
+      title: 'Erro na Reserva',
+      message: mensagem,
+      style: 'danger'
+    };
     
     throw errorObject;
   }
@@ -186,23 +217,27 @@ const update = async (id, reserva) => {
   }
 };
 
-const cancelar = async (id) => {
+const cancelar = async (id, motivo = '') => {
   try {
+    console.log(`Service: Cancelando reserva ${id} com motivo: "${motivo}"`);
+    
     const response = await fetch(`${API_BASE_URL}/${id}/cancelar`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
+      body: JSON.stringify({ motivo }), // motivo no corpo
     });
+        
     const result = await handleResponse(response);
+    
     return result.data;
   } catch (error) {
     console.error(`Erro ao cancelar reserva ${id}:`, error);
     throw error;
   }
 };
-
 const concluir = async (id) => {
   try {
     const response = await fetch(`${API_BASE_URL}/${id}/concluir`, {

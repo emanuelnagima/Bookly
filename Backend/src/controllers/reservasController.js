@@ -21,25 +21,46 @@ class ReservasController {
             res.status(500).json({ success: false, message: error.message });
         }
     }
-
-  async create(req, res) {
+''
+async create(req, res) {
     try {
         const reserva = new Reserva(req.body);
         const erros = reserva.validar();
         
         if (erros !== true) {
-            return res.status(400).json({ success: false, message: 'Dados inválidos', errors: erros });
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Dados inválidos', 
+                errors: erros 
+            });
         }
 
-        const novaReserva = await reservasRepository.create(reserva); 
-        res.status(201).json({ success: true, data: novaReserva, message: 'Reserva criada com sucesso!' });
+        const novaReserva = await reservasRepository.create(reserva);
+        
+        // Se chegou aqui, a reserva foi criada com sucesso
+        res.status(201).json({ 
+            success: true, 
+            data: novaReserva, 
+            message: 'Reserva criada com sucesso!' 
+        });
         
     } catch (error) {
+        console.error('Erro no controller ao criar reserva:', error);
         
-        // **Enviar mensagem de erro detalhada**
-        res.status(500).json({ 
+        // **SE O ERRO JÁ FOR UM OBJETO ESTRUTURADO (do repository)**
+        if (error.type && error.title) {
+            return res.status(400).json({
+                success: false,
+                error: error  // Repassa o objeto completo
+            });
+        }
+        
+        // Para erros antigos (string)
+        const mensagem = error.message || 'Erro ao processar reserva';
+        
+        return res.status(500).json({ 
             success: false, 
-            message: error.message 
+            message: mensagem 
         });
     }
 }

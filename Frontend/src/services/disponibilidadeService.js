@@ -98,21 +98,49 @@ class DisponibilidadeService {
         }
     }
 
-    async verificarReservasAtivasPorUsuario(usuarioId, usuarioTipo, livroId) {
-        try {
-            const todasReservas = await reservasService.getAll();
+async verificarReservasAtivasPorUsuario(usuarioId, usuarioTipo, livroId) {
+    try {
+        console.log(`Verificando reservas ativas para usuário ${usuarioId} (${usuarioTipo}), livro ${livroId}`);
+        
+        const todasReservas = await reservasService.getAll();
+        console.log(`Total de reservas carregadas: ${todasReservas.length}`);
+        
+        const reservasFiltradas = todasReservas.filter(reserva => {
+            console.log(`Reserva ${reserva.id}: status=${reserva.status}, usuario_id=${reserva.usuario_id}, usuario_tipo=${reserva.usuario_tipo}`);
             
-            return todasReservas.filter(reserva => 
-                reserva.status === 'ativa' && 
-                reserva.usuario_id === parseInt(usuarioId) && 
-                reserva.usuario_tipo === usuarioTipo &&
-                reserva.livros.some(livro => livro.livro_id === parseInt(livroId))
-            );
-        } catch (error) {
-            console.error('Erro ao buscar reservas do usuário:', error);
-            return [];
-        }
+            // Verificar status
+            const hoje = new Date();
+            const dataValidade = new Date(reserva.data_validade);
+            const estaExpirada = dataValidade < hoje;
+            const statusEfetivo = estaExpirada ? 'expirada' : reserva.status;
+            
+            // Verificar se é do mesmo usuário
+            const mesmoUsuario = parseInt(reserva.usuario_id) === parseInt(usuarioId) && 
+                                 reserva.usuario_tipo === usuarioTipo;
+            
+            // Verificar se contém o livro
+            const temLivro = reserva.livros && 
+                            reserva.livros.some(livro => parseInt(livro.livro_id) === parseInt(livroId));
+            
+            // Verificar se está realmente ativa (não expirada, não cancelada, não concluída)
+            const estaAtiva = statusEfetivo === 'ativa';
+            
+            const resultado = estaAtiva && mesmoUsuario && temLivro;
+            
+            if (resultado) {
+                console.log(`ENCONTRADA reserva ativa: ${reserva.id} para livro ${livroId}`);
+            }
+            
+            return resultado;
+        });
+        
+        console.log(`Reservas ativas encontradas: ${reservasFiltradas.length}`);
+        return reservasFiltradas;
+    } catch (error) {
+        console.error('Erro ao buscar reservas do usuário:', error);
+        return [];
     }
+}
 
     async converterReservaEmEmprestimo(reservaId, dataDevolucaoPrevista) {
         try {

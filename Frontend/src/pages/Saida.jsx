@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Table, Form, InputGroup, Button, Row, Col, Badge, Alert, Spinner, Toast, Container } from 'react-bootstrap';
-import { FaMinus, FaInfoCircle, FaSearch, FaChevronLeft, FaChevronRight, FaBook, FaBoxOpen, FaExclamationTriangle, FaTimes  } from 'react-icons/fa';
+import { FaMinus, FaInfoCircle, FaSearch, FaChevronLeft, FaChevronRight, FaBook, FaBoxOpen, FaExclamationTriangle, FaTimes, FaArrowLeft } from 'react-icons/fa';
 import entradaSaidaService from '../services/entradaSaidaService';
 import livroService from '../services/livroService';
 
@@ -9,21 +9,22 @@ const ITENS_POR_PAGINA = 7;
 const Saida = () => {
   const [loading, setLoading] = useState(false);
   const [livros, setLivros] = useState([]);
+  const [passoAtual, setPassoAtual] = useState(1); // 1 = quantidade/origem, 2 = motivo
   const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [ordenacao, setOrdenacao] = useState('titulo_asc');
   const [livroSelecionado, setLivroSelecionado] = useState(null);
   const [opcoes, setOpcoes] = useState({ origens: [] });
-  const [formData, setFormData] = useState({
+  const [dadosSaida, setDadosSaida] = useState({
     livro_id: '',
     origem: '',
     observacoes: '',
-    quantidade: 1
+    quantidade: 0 // Começa em 0
   });
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState('');
 
- useEffect(() => {
+  useEffect(() => {
     document.title = "Bookly - Saída de Livros";
   }, []);
 
@@ -50,7 +51,6 @@ const Saida = () => {
       setLoading(false);
     }
   };
-
 
   // Carrega opções de saída 
   const loadOpcoes = async () => {
@@ -110,7 +110,6 @@ const Saida = () => {
 
   // Calcular paginação
   const totalPaginas = Math.ceil(livrosOrdenados.length / ITENS_POR_PAGINA);
-
   const paginaValida = Math.max(1, Math.min(paginaAtual, totalPaginas));
   if (paginaValida !== paginaAtual) {
     setPaginaAtual(paginaValida);
@@ -128,24 +127,53 @@ const Saida = () => {
     if (paginaAtual < totalPaginas) setPaginaAtual(paginaAtual + 1);
   };
 
+  // Funções para navegação entre passos
+  const avancarParaMotivo = () => {
+    if (dadosSaida.quantidade <= 0) {
+      setError('A quantidade deve ser maior que zero');
+      return;
+    }
+    
+    if (dadosSaida.quantidade > (livroSelecionado?.estoque || 0)) {
+      setError(`Quantidade maior que o estoque disponível (${livroSelecionado?.estoque || 0} unidades)`);
+      return;
+    }
+    
+    if (!dadosSaida.origem) {
+      setError('Selecione a origem da saída');
+      return;
+    }
+    
+    setError('');
+    setPassoAtual(2);
+  };
+
+  const voltarParaQuantidade = () => {
+    setPassoAtual(1);
+    setError('');
+  };
+
   // Selecionar livro
   const selecionarLivro = async (livro) => {
     setLivroSelecionado(livro);
-    setFormData(prev => ({ ...prev, livro_id: livro.id }));
+    setPassoAtual(1);
+    setDadosSaida({
+      livro_id: livro.id,
+      origem: '',
+      observacoes: '',
+      quantidade: 0 // Zerado
+    });
 
     try {
       const estoqueInfo = await entradaSaidaService.verificarEstoqueDisponivel(livro.id);
-
       setLivroSelecionado(prev => ({
         ...prev,
-        estoque: estoqueInfo.estoqueDisponivel, // Usa o disponível, não o físico
-        estoqueInfo // Guarda informações completas
+        estoque: estoqueInfo.estoqueDisponivel,
+        estoqueInfo
       }));
-
       setError('');
     } catch (err) {
       console.error(err);
-      // Fallback: usa estoque físico se a função falhar
       setLivroSelecionado(prev => ({
         ...prev,
         estoque: livro.estoque || 0
@@ -158,38 +186,18 @@ const Saida = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.observacoes.trim()) {
+    if (!dadosSaida.observacoes.trim()) {
       setError('O campo observações é obrigatório para registrar a saída.');
       return;
     }
 
-    if (!formData.livro_id || !formData.origem || !formData.quantidade || formData.quantidade <= 0) {
-      setError('Preencha todos os campos obrigatórios corretamente');
-      return;
-    }
-
-    //  verifica contra estoqueDisponivel, não estoque físico
-    if (formData.quantidade > (livroSelecionado.estoque || 0)) {
-  setError({
-    type: 'estoque_insuficiente',
-    message: 'Quantidade maior que o estoque disponível',
-    detalhes: {
-      quantidadeSolicitada: formData.quantidade,
-      estoqueDisponivel: livroSelecionado.estoque || 0,
-      estoqueFisico: livroSelecionado.estoqueInfo?.estoqueFisico || 0,
-      totalEmprestado: livroSelecionado.estoqueInfo?.totalEmprestado || 0,
-      totalReservado: livroSelecionado.estoqueInfo?.totalReservado || 0
-    }
-  });
-  return;
-}
-
     setLoading(true);
     try {
-      await entradaSaidaService.registrarSaida(formData);
+      await entradaSaidaService.registrarSaida(dadosSaida);
       setShowSuccess(true);
-      setFormData({ livro_id: '', origem: '', observacoes: '', quantidade: 1 });
+      setDadosSaida({ livro_id: '', origem: '', observacoes: '', quantidade: 0 });
       setLivroSelecionado(null);
+      setPassoAtual(1);
       setError('');
     } catch (err) {
       setError(err.message || 'Erro ao registrar saída');
@@ -202,69 +210,64 @@ const Saida = () => {
   return (
     <Container className="py-4">
       {/* Toast de sucesso */}
-    <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
-      <Toast
-        show={showSuccess}
-        onClose={() => setShowSuccess(false)}
-        delay={6000}
-        autohide
-        className="shadow-sm"
-        style={{
-          minWidth: '320px',
-          borderRadius: '8px',
-          border: '1px solid #e9ecef',
-          borderLeft: '4px solid #dc3545',
-          animation: showSuccess ? 'slideInRight 0.3s ease-out' : 'none'
-        }}
-      >
-        <Toast.Body className="p-3">
-          <div className="d-flex justify-content-between align-items-start">
-            <div className="d-flex align-items-start">
-              {/* Ícone pequeno e discreto */}
-              <div 
-                className="me-3 mt-1"
+      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
+        <Toast
+          show={showSuccess}
+          onClose={() => setShowSuccess(false)}
+          delay={6000}
+          autohide
+          className="shadow-sm"
+          style={{
+            minWidth: '320px',
+            borderRadius: '8px',
+            border: '1px solid #e9ecef',
+            borderLeft: '4px solid #dc3545',
+            animation: showSuccess ? 'slideInRight 0.3s ease-out' : 'none'
+          }}
+        >
+          <Toast.Body className="p-3">
+            <div className="d-flex justify-content-between align-items-start">
+              <div className="d-flex align-items-start">
+                <div 
+                  className="me-3 mt-1"
+                  style={{
+                    color: '#dc3545',
+                    fontSize: '1rem'
+                  }}
+                >
+                  <i className="fas fa-minus"></i>
+                </div>
+                <div>
+                  <h6 className="mb-1 fw-semibold text-dark">
+                    Saída Registrada!
+                  </h6>
+                  <p className="mb-0 text-secondary" style={{ fontSize: '0.9rem' }}>
+                    Saída de livro registrada com sucesso!
+                  </p>
+                  <small className="text-muted mt-1 d-block">
+                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </small>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowSuccess(false)}
+                className="btn-close btn-close-sm opacity-50"
                 style={{
-                  color: '#dc3545',
-                  fontSize: '1rem'
+                  fontSize: '0.6rem',
+                  padding: '5px',
+                  marginTop: '-2px',
+                  marginRight: '-5px'
                 }}
-              >
-                <i className="fas fa-minus"></i>
-              </div>
-              
-              {/* Conteúdo de texto */}
-              <div>
-                <h6 className="mb-1 fw-semibold text-dark">
-                  Saída Registrada!
-                </h6>
-                <p className="mb-0 text-secondary" style={{ fontSize: '0.9rem' }}>
-                  Saída de livro registrada com sucesso!
-                </p>
-                <small className="text-muted mt-1 d-block">
-                  {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </small>
-              </div>
+              />
             </div>
-            
-            {/* Botão de fechar bem discreto */}
-            <button
-              onClick={() => setShowSuccess(false)}
-              className="btn-close btn-close-sm opacity-50"
-              style={{
-                fontSize: '0.6rem',
-                padding: '5px',
-                marginTop: '-2px',
-                marginRight: '-5px'
-              }}
-            />
-          </div>
-        </Toast.Body>
-      </Toast>
-    </div>
+          </Toast.Body>
+        </Toast>
+      </div>
 
       {/* HEADER*/}
       <div className="rounded-3 p-4 mb-4 border">
         <Row className="align-items-center">
-           <Col md={8}>
+          <Col md={8}>
             <div className="d-flex align-items-center">
               <div className="me-3">
                 <i className="fas fa-book-open fa-2x" style={{ color: '#0b192c' }}></i>
@@ -275,10 +278,6 @@ const Saida = () => {
                   Registro e controle das saídas e baixas do acervo
                 </p>
               </div>
-            </div>
-          </Col>
-          <Col md={4} className="text-md-end">
-            <div className="d-flex justify-content-end flex-wrap gap-2">
             </div>
           </Col>
         </Row>
@@ -294,7 +293,6 @@ const Saida = () => {
           <h6 className="mb-0 text-primary fw-bold">{livros.length}</h6>
           <small className="text-muted">Livros cadastrados</small>
         </div>
-
         <div className="text-center px-3 py-2">
           <h6 className="mb-0 text-success fw-bold">
             {livros.reduce((acc, l) => acc + (l.estoque || 0), 0)}
@@ -304,14 +302,12 @@ const Saida = () => {
       </div>
 
       <Row>
-        {/* Lista de Livros - ESTRUTURA PADRONIZADA */}
+        {/* Lista de Livros */}
         <Col lg={6}>
           <Card>
             <Card.Header className="bg-primary text-white d-flex flex-wrap justify-content-between align-items-center">
               <h6 className="mb-0">Selecionar Livro</h6>
-
               <div className="d-flex align-items-center gap-3">
-                {/* Seletor de Ordenação */}
                 <Form.Select
                   value={ordenacao}
                   onChange={(e) => setOrdenacao(e.target.value)}
@@ -325,8 +321,6 @@ const Saida = () => {
                   <option value="id_asc">ID (crescente)</option>
                   <option value="id_desc">ID (decrescente)</option>
                 </Form.Select>
-
-                {/* Barra de pesquisa */}
                 <div style={{ minWidth: '200px', maxWidth: '250px' }}>
                   <InputGroup size="sm">
                     <InputGroup.Text className="bg-light text-primary">
@@ -342,7 +336,6 @@ const Saida = () => {
                 </div>
               </div>
             </Card.Header>
-
             <Card.Body>
               {loading ? (
                 <div className="text-center py-4">
@@ -370,10 +363,7 @@ const Saida = () => {
                         {livrosPaginaAtual.map((livro) => {
                           const isSelected = livroSelecionado?.id === livro.id;
                           return (
-                            <tr
-                              key={livro.id}
-                              className={isSelected ? 'table-active' : ''}
-                            >
+                            <tr key={livro.id} className={isSelected ? 'table-active' : ''}>
                               <td>
                                 {livro.imagem ? (
                                   <img
@@ -388,7 +378,6 @@ const Saida = () => {
                                   </div>
                                 )}
                               </td>
-
                               <td>
                                 <div className="fw-semibold" style={{ maxWidth: '200px' }}>
                                   {livro.titulo}
@@ -397,15 +386,8 @@ const Saida = () => {
                                   {livro.autor_nome}
                                 </small>
                               </td>
-
                               <td className="fw-bold">#{livro.id}</td>
-
-                              <td>
-                                <span>
-                                  {livro.estoque || 0}
-                                </span>
-                              </td>
-
+                              <td>{livro.estoque || 0}</td>
                               <td className="text-center">
                                 <Button
                                   variant={isSelected ? 'danger' : 'paginacao'}
@@ -423,13 +405,12 @@ const Saida = () => {
                     </Table>
                   </div>
 
-                  {/* Paginação Padronizada */}
+                  {/* Paginação */}
                   {totalPaginas > 1 && (
                     <div className="d-flex justify-content-between align-items-center mt-4">
                       <div className="text-muted small">
                         Mostrando {inicio + 1} a {Math.min(fim, livrosOrdenados.length)} de {livrosOrdenados.length} livros
                       </div>
-
                       <div className="d-flex align-items-center gap-2">
                         <Button
                           className="btn-paginacao"
@@ -439,11 +420,9 @@ const Saida = () => {
                           <FaChevronLeft className="me-1" />
                           Anterior
                         </Button>
-
                         <span className="mx-3 text-muted">
                           Página <strong>{paginaAtual}</strong> de <strong>{totalPaginas}</strong>
                         </span>
-
                         <Button
                           className="btn-paginacao"
                           onClick={handleProximaPagina}
@@ -461,15 +440,14 @@ const Saida = () => {
           </Card>
         </Col>
 
+        {/* Coluna Direita - Formulário ou Mensagem */}
         <Col lg={6}>
           {livroSelecionado ? (
             <>
-              {/* Card do Livro Selecionado - SAÍDA */}
+              {/* Card do Livro Selecionado */}
               <Card className="mb-3">
                 <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-                  <h6 className="mb-0">
-                    Livro Selecionado
-                  </h6>
+                  <h6 className="mb-0">Livro Selecionado</h6>
                   <Badge bg="light" text="dark">
                     ID: #{livroSelecionado.id}
                   </Badge>
@@ -509,34 +487,11 @@ const Saida = () => {
                           <div>{livroSelecionado.genero}</div>
                         </div>
                       </div>
-
-                      {/* SEÇÃO DE ESTOQUE   */}
                       <div className="mt-3 pt-2 border-top">
                         <div className="row small">
-                          <div className="col-12 mb-0">
-                            <div className="d-flex justify-content-between align-items-center">
-                              <strong>Estoque físico total:</strong>
-                              <Badge bg="primary">
-                                {livroSelecionado.estoqueInfo?.estoqueFisico || livroSelecionado.estoque || 0} unidades
-                              </Badge>
-                            </div>
-                          </div>
-                          <div className="col-12 mb-2">
-                          </div>
                           <div className="col-12 mb-2">
                             <div className="d-flex justify-content-between align-items-center">
-                              <strong>Disponível para baixa:</strong>
-                              <Badge bg="success">
-                                {livroSelecionado.estoque || 0} unidades
-                              </Badge>
-                            </div>
-                          </div>
-                          <div className="col-12">
-                            <div className="d-flex justify-content-between align-items-center">
-                              <strong className="text-danger">Após saída:</strong>
-                              <Badge bg="danger">
-                                {Math.max(0, (livroSelecionado.estoque || 0) - formData.quantidade)} unidades
-                              </Badge>
+                 
                             </div>
                           </div>
                         </div>
@@ -546,144 +501,229 @@ const Saida = () => {
                 </Card.Body>
               </Card>
 
-              {/* Formulário de Registro */}
-              <Card>
-                <Card.Header className="bg-primary text-white">
-                  <h6 className="mb-0">
-                    Registrar Saída
-                  </h6>
-                </Card.Header>
-                <Card.Body>
-                  <Form onSubmit={handleSubmit}>
+              {/* Formulário em 2 Passos */}
+              {passoAtual === 1 ? (
+                // PASSO 1: Quantidade e Origem
+                <Card>
+                  <Card.Header className="bg-primary text-white">
+                    <h6 className="mb-0">Definir Quantidade e Origem</h6>
+                  </Card.Header>
+                  <Card.Body>
+                    {error && <Alert variant="danger">{error}</Alert>}
+                    
+                    {livroSelecionado.estoqueInfo && (
+                      <Alert variant="info" className="small py-2 mb-3">
+                        <strong>Informações do Livro:</strong><br />
+                        Disponível para baixa: <strong>{livroSelecionado.estoqueInfo.estoqueDisponivel} unidades</strong><br />
+                        Estoque físico total: <strong>{livroSelecionado.estoqueInfo.estoqueFisico} unidades<br /></strong>
+                        Atualmente emprestado: <strong>{livroSelecionado.estoqueInfo.totalEmprestado} unidades<br /></strong>
+                        Atualmente reservado: <strong>{livroSelecionado.estoqueInfo.totalReservado} unidades</strong>
+                      </Alert>
+                    )}
+
                     <Row className="mb-3">
-                      <Col md={6} className="mb-3">
+                      <Col md={6}>
                         <Form.Label className="fw-semibold">Origem</Form.Label>
                         <Form.Select
-                          value={formData.origem}
-                          onChange={e => setFormData({ ...formData, origem: e.target.value })}
+                          value={dadosSaida.origem}
+                          onChange={e => setDadosSaida({ ...dadosSaida, origem: e.target.value })}
                           required
                         >
-                          <option value="">Selecione a origem</option>
+                          <option value="">Selecione...</option>
                           {opcoes.origens.map(origem => (
                             <option key={origem} value={origem}>{origem}</option>
                           ))}
                         </Form.Select>
                       </Col>
-                      {livroSelecionado && livroSelecionado.estoqueInfo && (
-                        <Col md={12}>
-                          <Alert variant="info" className="small py-2">
-                            <strong>Informações do Livro:</strong><br />
-                            Disponível para baixa: <strong>{livroSelecionado.estoqueInfo.estoqueDisponivel} unidades</strong><br />
-                            Estoque físico total: <strong>{livroSelecionado.estoqueInfo.estoqueFisico} unidades<br /></strong>
-                            Atualmente emprestado:<strong> {livroSelecionado.estoqueInfo.totalEmprestado} unidades<br /></strong>
-                            Atualmente reservado:  <strong>{livroSelecionado.estoqueInfo.totalReservado} unidades</strong>
-                          </Alert>
-                        </Col>
-                      )}
-
                       <Col md={6}>
                         <Form.Label className="fw-semibold">Quantidade</Form.Label>
-                        <Form.Control
-                          type="number"
-                          min="1"
-                          max={livroSelecionado?.estoque || 1}
-                          value={formData.quantidade}
-                          onChange={e => setFormData({ ...formData, quantidade: parseInt(e.target.value) || 1 })}
-                          required
-                        />
-                        <Form.Text className="text-muted">
-                          Máximo: {livroSelecionado?.estoque || 0} unidades disponíveis
-                        </Form.Text>
+                        <div className="input-group">
+                          <Form.Control
+                            type="number"
+                            min="0"
+                            max={livroSelecionado?.estoque || 0}
+                            value={dadosSaida.quantidade}
+                            onChange={e => {
+                              const val = parseInt(e.target.value) || 0;
+                              const max = livroSelecionado?.estoque || 0;
+                              setDadosSaida({ ...dadosSaida, quantidade: Math.max(0, Math.min(val, max)) });
+                            }}
+                            placeholder="0"
+                            className="form-control"
+                          />
+                          <span className="input-group-text">unidades</span>
+                        </div>
+                        {dadosSaida.quantidade === 0 ? (
+                          <Form.Text className="text-danger small">
+                            Informe a quantidade (maior que zero)
+                          </Form.Text>
+                        ) : (
+                          <Form.Text className="text-muted small">
+                            Máximo: {livroSelecionado?.estoque || 0} unidades disponíveis
+                          </Form.Text>
+                        )}
                       </Col>
                     </Row>
-
-                    <Form.Group className="mb-3">
-
-                     <Alert variant="" className="py-2 mb-2">
-                      <FaInfoCircle
-                        className="me-1"
-                        style={{ color: "var(--color-accent)" }}
-                      />
-
-                      <small style={{ opacity: 0.9 }}>
-                        <strong style={{ color: "var(--color-accent)" }}>Obrigatório:</strong>{" "}
-                        Informe o motivo desta saída.
-                      </small>
-
-                      <p
-                        style={{
-                          fontSize: "0.7rem",
-                          marginTop: "2px",
-                          opacity: 0.7,
-                          lineHeight: "1.2",
-                        }}
-                      >
-                        O motivo da saída deve ser informado para manter rastreabilidade,
-                        garantir o controle histórico do acervo e registrar corretamente
-                        a movimentação do exemplar.
-                      </p>
-                    </Alert>
-
-                    <Form.Control
-                      as="textarea"
-                      rows={3}
-                      placeholder="(ex: adquirido em loja X, nota fiscal nº..., recebimento por doação, reposição de exemplar...)"
-                      value={formData.observacoes}
-                      onChange={e => setFormData({ ...formData, observacoes: e.target.value })}
-                    />
-                    </Form.Group>
-
-
-                      {error && (
-                        <div className="alert alert-warning py-2 mb-3 d-flex align-items-center">
-                          <div className="flex-grow-1">
-                            <div className="d-flex align-items-center">
-                              <div className="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
-                                  style={{ width: '20px', height: '20px', fontSize: '12px' }}>
-                                !
-                              </div>
-                              <strong className="text-dark">Limite excedido</strong>
-                            </div>
-                            <div className="mt-1 small">
-                              <span className="text-danger">{formData.quantidade} unidades</span> solicitadas | 
-                              <span className="text-success ms-1">{livroSelecionado?.estoque || 0} unidades</span> disponíveis
-                            </div>
-                          </div>
-                          <FaTimes 
-                            className="text-muted ms-2" 
-                            onClick={() => setError('')}
-                            style={{ cursor: 'pointer' }}
-                          />
-                        </div>
-                      )}
-                    <div className="d-flex gap-2">
-                      <Button
-                        type="submit"
-                        variant="danger"
-                        disabled={loading || !formData.observacoes.trim()}
-                      >
-                        {loading ? (
-                          <><Spinner animation="border" size="sm" /> Registrando...</>
-                        ) : (
-                          <> Registrar Saída</>
-                        )}
-                      </Button>
-
+                    <div className="d-flex justify-content-between">
                       <Button
                         variant="cancelar"
                         onClick={() => {
                           setLivroSelecionado(null);
-                          setFormData({ livro_id: '', origem: '', observacoes: '', quantidade: 1 });
+                          setPassoAtual(1);
                         }}
                       >
                         Cancelar
                       </Button>
+                      <Button
+                        variant="primary"
+                        onClick={avancarParaMotivo}
+                        disabled={dadosSaida.quantidade <= 0 || !dadosSaida.origem}
+                      >
+                        Avançar para Motivo
+                      </Button>
                     </div>
-                  </Form>
-                </Card.Body>
-              </Card>
+                  </Card.Body>
+                </Card>
+              ) : (
+                // PASSO 2: Motivo e Confirmação
+                <Card>
+                  <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h6 className="mb-0">Registrar Saída</h6>
+                    <Badge bg="light" text="dark">
+                      {dadosSaida.quantidade} unidade{dadosSaida.quantidade !== 1 ? 's' : ''}
+                    </Badge>
+                  </Card.Header>
+                  <Card.Body>
+                    <Form onSubmit={handleSubmit}>
+
+                      {/* Resumo da Saída */}
+                    <div className="mb-4">
+                        <h6 className="fw-semibold mb-3">Detalhes da Saída</h6>
+                        
+                        <Table borderless className="bg-light rounded">
+                          <tbody>
+                            <tr>
+                              <td width="40%" className="border-bottom py-2">
+                                <div className="d-flex align-items-center gap-2">
+                                  <i className="fas fa-tag fa-sm text-muted"></i>
+                                  <span className="text-muted">Origem</span>
+                                </div>
+                              </td>
+                              <td className="border-bottom py-2">
+                                <Badge bg="info" className="fw-normal">
+                                  {dadosSaida.origem}
+                                </Badge>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td className="border-bottom py-2">
+                                <div className="d-flex align-items-center gap-2">
+                                  <i className="fas fa-box fa-sm text-muted"></i>
+                                  <span className="text-muted">Estoque Atual</span>
+                                </div>
+                              </td>
+                              <td className="border-bottom py-2 fw-semibold">
+                                {livroSelecionado.estoque || 0} unidades
+                              </td>
+                            </tr>
+                            <tr>
+                              <td className="border-bottom py-2">
+                                <div className="d-flex align-items-center gap-2">
+                                  <i className="fas fa-minus-circle fa-sm text-danger"></i>
+                                  <span className="text-muted">Saída Registrada</span>
+                                </div>
+                              </td>
+                              <td className="border-bottom py-2">
+                                <span className="fw-semibold text-danger">
+                                  -{dadosSaida.quantidade} unidades
+                                </span>
+                              </td>
+                            </tr>
+                            <tr className="bg-warning-subtle">
+                              <td className="py-3">
+                                <div className="d-flex align-items-center gap-2">
+                                  <i className="fas fa-calculator fa-sm text-warning"></i>
+                                  <strong className="text-warning">Estoque Final</strong>
+                                </div>
+                              </td>
+                              <td className="py-3">
+                                <div className="d-flex align-items-baseline gap-2">
+                                  <span className="fs-4 fw-bold text-warning">
+                                    {Math.max(0, (livroSelecionado.estoque || 0) - dadosSaida.quantidade)}
+                                  </span>
+                                  <span className="text-muted">unidades</span>
+                                </div>
+                                <div className="small text-muted">
+                                  {livroSelecionado.estoque || 0} - {dadosSaida.quantidade}
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </Table>
+                      </div>
+
+                      <Form.Group className="mb-4">
+                        <Form.Label className="fw-semibold">
+                          Motivo da Saída <span className="text-danger"></span>
+                        </Form.Label>
+                        <Form.Control
+                          as="textarea"
+                          rows={3}
+                          placeholder="(ex: descarte, perda, dano irreparável, transferência...)"
+                          value={dadosSaida.observacoes}
+                          onChange={e => setDadosSaida({ ...dadosSaida, observacoes: e.target.value })}
+                          required
+                        />
+                        <Form.Text className="text-muted">
+                          Informe detalhes sobre esta saída para manter o histórico do acervo.
+                        </Form.Text>
+                      </Form.Group>
+
+                      {error && <Alert variant="danger">{error}</Alert>}
+
+                      <div className="d-flex justify-content-between">
+                        <Button
+                          variant="paginacao"
+                          onClick={voltarParaQuantidade}
+                          disabled={loading}
+                        >
+                          <FaArrowLeft className="me-2" />
+                          Voltar
+                        </Button>
+                        <div className="d-flex gap-2">
+                          <Button
+                            variant="cancelar"
+                            onClick={() => {
+                              setLivroSelecionado(null);
+                              setPassoAtual(1);
+                            }}
+                            disabled={loading}
+                          >
+                            Cancelar
+                          </Button>
+                          <Button
+                            type="submit"
+                            variant="danger"
+                            disabled={loading || !dadosSaida.observacoes.trim()}
+                          >
+                            {loading ? (
+                              <>
+                                <Spinner animation="border" size="sm" className="me-2" />
+                                Registrando...
+                              </>
+                            ) : (
+                              'Registrar Saída'
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </Form>
+                  </Card.Body>
+                </Card>
+              )}
             </>
           ) : (
+            // Se nenhum livro selecionado
             <Card className="text-center py-5">
               <Card.Body>
                 <h5 className="text-muted">Nenhum livro selecionado</h5>

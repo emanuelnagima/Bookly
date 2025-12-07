@@ -9,101 +9,83 @@ const ITENS_POR_PAGINA = 7;
 const Entrada = () => {
   const [loading, setLoading] = useState(false);
   const [livros, setLivros] = useState([]);
+  const [passoAtual, setPassoAtual] = useState(1);
   const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [ordenacao, setOrdenacao] = useState('titulo_asc');
   const [livroSelecionado, setLivroSelecionado] = useState(null);
   const [opcoes, setOpcoes] = useState({ origens: [] });
-  const [formData, setFormData] = useState({
+  const [dadosEntrada, setDadosEntrada] = useState({
     livro_id: '',
     origem: '',
     observacoes: '',
-    quantidade: 1
+    quantidade: 0
   });
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState('');
 
- useEffect(() => {
+  useEffect(() => {
     document.title = "Bookly - Entrada de Livros";
   }, []);
 
-// FUNÇÃO PARA FORMATAR TEXTO COM PRIMEIRA LETRA MAIÚSCULA
-// Função universal para formatar textos
-const formatarTexto = (texto) => {
-  if (!texto || texto === '-') return '-';
+  // FUNÇÃO PARA FORMATAR TEXTO
+  const formatarTexto = (texto) => {
+    if (!texto || texto === '-') return '-';
+    if (typeof texto === 'number' || typeof texto === 'object') return texto;
 
-  // Se for número ou elemento React, retorna como está
-  if (typeof texto === 'number' || typeof texto === 'object') return texto;
-
-  const textoString = texto.toString().trim();
-
-  // Casos especiais que precisam de tratamento específico
-  if (textoString.toLowerCase() === 'usuario_especial') {
-    return 'Usuário Especial';
-  }
-
-  // Para nomes próprios (pessoas), converter para formato de nome
-  if (textoString.includes(' ')) {
-    // Verificar se é um nome de pessoa (usuário) ou título de livro
-    // Para nomes de usuários, aplicar capitalização normal
-    if (
-      textoString.toLowerCase().includes('harry') ||
-      textoString.toLowerCase().includes('potter') ||
-      // Aqui você pode adicionar outras pistas de que é um título de livro
-      textoString.toLowerCase().includes('o ') ||
-      textoString.toLowerCase().includes('a ') ||
-      textoString.toLowerCase().includes('de ') ||
-      textoString.toLowerCase().includes('da ') ||
-      textoString.toLowerCase().includes('do ') ||
-      textoString.toLowerCase().includes('dos ') ||
-      textoString.toLowerCase().includes('das ') ||
-      textoString.toLowerCase().includes('e ')
-    ) {
-      // É provavelmente um título de livro - manter como está ou aplicar regras específicas
-      return textoString
-        .split(' ')
-        .map(palavra => {
-          // Palavras que devem ser mantidas em letra minúscula (artigos, preposições, conjunções)
-          const palavrasMinusculas = ['o', 'a', 'os', 'as', 'de', 'da', 'do', 'dos', 'das', 'e', 'em', 'para', 'por', 'com', 'sem'];
-          
-          if (palavrasMinusculas.includes(palavra.toLowerCase())) {
-            return palavra.toLowerCase();
-          }
-          
-          // Manter siglas em maiúsculo (ex: ISBN, CPF, etc)
-          if (palavra.length <= 4 && /^[A-Z]+$/.test(palavra.toUpperCase())) {
-            return palavra.toUpperCase();
-          }
-          
-          // Capitalizar outras palavras
-          return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
-        })
-        .join(' ');
-    } else {
-      // É um nome de pessoa - aplicar formatação normal
-      return textoString
-        .toLowerCase()
-        .split(' ')
-        .map(palavra => {
-          // Manter siglas em maiúsculo (ex: CPF, ISBN, etc)
-          if (palavra.length <= 4 && /^[A-Z]+$/.test(palavra.toUpperCase())) {
-            return palavra.toUpperCase();
-          }
-          return palavra.charAt(0).toUpperCase() + palavra.slice(1);
-        })
-        .join(' ');
+    const textoString = texto.toString().trim();
+    
+    if (textoString.toLowerCase() === 'usuario_especial') {
+      return 'Usuário Especial';
     }
-  }
 
-  // Para textos sem espaços, verificar se é um nome próprio ou sigla
-  if (textoString.length <= 4 && /^[A-Z]+$/.test(textoString)) {
-    // É uma sigla, manter em maiúsculo
-    return textoString.toUpperCase();
-  }
+    if (textoString.includes(' ')) {
+      if (
+        textoString.toLowerCase().includes('harry') ||
+        textoString.toLowerCase().includes('potter') ||
+        textoString.toLowerCase().includes('o ') ||
+        textoString.toLowerCase().includes('a ') ||
+        textoString.toLowerCase().includes('de ') ||
+        textoString.toLowerCase().includes('da ') ||
+        textoString.toLowerCase().includes('do ') ||
+        textoString.toLowerCase().includes('dos ') ||
+        textoString.toLowerCase().includes('das ') ||
+        textoString.toLowerCase().includes('e ')
+      ) {
+        return textoString
+          .split(' ')
+          .map(palavra => {
+            const palavrasMinusculas = ['o', 'a', 'os', 'as', 'de', 'da', 'do', 'dos', 'das', 'e', 'em', 'para', 'por', 'com', 'sem'];
+            if (palavrasMinusculas.includes(palavra.toLowerCase())) {
+              return palavra.toLowerCase();
+            }
+            if (palavra.length <= 4 && /^[A-Z]+$/.test(palavra.toUpperCase())) {
+              return palavra.toUpperCase();
+            }
+            return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
+          })
+          .join(' ');
+      } else {
+        return textoString
+          .toLowerCase()
+          .split(' ')
+          .map(palavra => {
+            if (palavra.length <= 4 && /^[A-Z]+$/.test(palavra.toUpperCase())) {
+              return palavra.toUpperCase();
+            }
+            return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+          })
+          .join(' ');
+      }
+    }
 
-  // Para textos simples, capitalizar apenas a primeira letra
-  return textoString.charAt(0).toUpperCase() + textoString.slice(1).toLowerCase();
-};
+    if (textoString.length <= 4 && /^[A-Z]+$/.test(textoString)) {
+      return textoString.toUpperCase();
+    }
+
+    return textoString.charAt(0).toUpperCase() + textoString.slice(1).toLowerCase();
+  };
+
   // Carrega livros com estoque 
   const loadLivros = async () => {
     try {
@@ -187,7 +169,6 @@ const formatarTexto = (texto) => {
 
   // Calcular paginação
   const totalPaginas = Math.ceil(livrosOrdenados.length / ITENS_POR_PAGINA);
-
   const paginaValida = Math.max(1, Math.min(paginaAtual, totalPaginas));
   if (paginaValida !== paginaAtual) {
     setPaginaAtual(paginaValida);
@@ -205,16 +186,38 @@ const formatarTexto = (texto) => {
     if (paginaAtual < totalPaginas) setPaginaAtual(paginaAtual + 1);
   };
 
+  // Funções para navegação entre passos
+  const avancarParaMotivo = () => {
+    if (dadosEntrada.quantidade <= 0) {
+      setError('A quantidade deve ser maior que zero');
+      return;
+    }
+    if (!dadosEntrada.origem) {
+      setError('Selecione a origem da entrada');
+      return;
+    }
+    setError('');
+    setPassoAtual(2);
+  };
+
+  const voltarParaQuantidade = () => {
+    setPassoAtual(1);
+    setError('');
+  };
+
   // Selecionar livro
-  // Atualize a função selecionarLivro
   const selecionarLivro = async (livro) => {
     setLivroSelecionado(livro);
-    setFormData(prev => ({ ...prev, livro_id: livro.id }));
+    setPassoAtual(1);
+    setDadosEntrada({
+      livro_id: livro.id,
+      origem: '',
+      observacoes: '',
+      quantidade: 0
+    });
 
     try {
-      // Busca informações completas do estoque
       const estoqueInfo = await entradaSaidaService.verificarEstoqueDisponivel(livro.id);
-
       setLivroSelecionado(prev => ({
         ...prev,
         estoque: estoqueInfo.estoqueFisico,
@@ -223,31 +226,31 @@ const formatarTexto = (texto) => {
       setError('');
     } catch (err) {
       console.error(err);
-      // Fallback se não conseguir buscar as informações detalhadas
       const estoque = await entradaSaidaService.verificarEstoque(livro.id);
       setLivroSelecionado(prev => ({ ...prev, estoque, totalEmprestado: 0 }));
       setError('Erro ao buscar informações detalhadas do estoque');
     }
   };
 
+  // Submeter formulário
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.observacoes.trim()) {
+    if (!dadosEntrada.observacoes.trim()) {
       setError('O campo observações é obrigatório para registrar a entrada.');
       return;
     }
 
     setLoading(true);
     try {
-      const resultado = await entradaSaidaService.registrarEntrada(formData);
-
+      const resultado = await entradaSaidaService.registrarEntrada(dadosEntrada);
       setShowSuccess(true);
-      setFormData({ livro_id: '', origem: '', observacoes: '', quantidade: 1 });
+      setDadosEntrada({ livro_id: '', origem: '', observacoes: '', quantidade: 0 });
       setLivroSelecionado(null);
+      setPassoAtual(1);
       setError('');
     } catch (err) {
-      console.error(' Erro ao registrar entrada:', err);
+      console.error('Erro ao registrar entrada:', err);
       setError(err.message || 'Erro ao registrar entrada');
     } finally {
       setLoading(false);
@@ -258,83 +261,73 @@ const formatarTexto = (texto) => {
   return (
     <Container className="py-4">
       {/* Toast de sucesso */}
-        <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
-          <Toast
-            show={showSuccess}
-            onClose={() => setShowSuccess(false)}
-            delay={6000}
-            autohide
-            className="shadow-sm"
-            style={{
-              minWidth: '320px',
-              borderRadius: '8px',
-              border: '1px solid #e9ecef',
-              borderLeft: '4px solid #28a745',
-              animation: showSuccess ? 'slideInRight 0.3s ease-out' : 'none'
-            }}
-          >
-            <Toast.Body className="p-3">
-              <div className="d-flex justify-content-between align-items-start">
-                <div className="d-flex align-items-start">
-                  {/* Ícone pequeno e discreto */}
-                  <div 
-                    className="me-3 mt-1"
-                    style={{
-                      color: '#28a745',
-                      fontSize: '1rem'
-                    }}
-                  >
-                    <i className="fas fa-check"></i>
-                  </div>
-                  
-                  {/* Conteúdo de texto */}
-                  <div>
-                    <h6 className="mb-1 fw-semibold text-dark">
-                      Entrada Registrada!
-                    </h6>
-                    <p className="mb-0 text-secondary" style={{ fontSize: '0.9rem' }}>
-                      Entrada de livro registrada com sucesso!
-                    </p>
-                    <small className="text-muted mt-1 d-block">
-                      {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </small>
-                  </div>
-                </div>
-                
-                {/* Botão de fechar bem discreto */}
-                <button
-                  onClick={() => setShowSuccess(false)}
-                  className="btn-close btn-close-sm opacity-50"
+      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
+        <Toast
+          show={showSuccess}
+          onClose={() => setShowSuccess(false)}
+          delay={6000}
+          autohide
+          className="shadow-sm"
+          style={{
+            minWidth: '320px',
+            borderRadius: '8px',
+            border: '1px solid #e9ecef',
+            borderLeft: '4px solid #28a745',
+            animation: showSuccess ? 'slideInRight 0.3s ease-out' : 'none'
+          }}
+        >
+          <Toast.Body className="p-3">
+            <div className="d-flex justify-content-between align-items-start">
+              <div className="d-flex align-items-start">
+                <div 
+                  className="me-3 mt-1"
                   style={{
-                    fontSize: '0.6rem',
-                    padding: '5px',
-                    marginTop: '-2px',
-                    marginRight: '-5px'
+                    color: '#28a745',
+                    fontSize: '1rem'
                   }}
-                />
+                >
+                  <i className="fas fa-check"></i>
+                </div>
+                <div>
+                  <h6 className="mb-1 fw-semibold text-dark">
+                    Entrada Registrada!
+                  </h6>
+                  <p className="mb-0 text-secondary" style={{ fontSize: '0.9rem' }}>
+                    Entrada de livro registrada com sucesso!
+                  </p>
+                  <small className="text-muted mt-1 d-block">
+                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </small>
+                </div>
               </div>
-            </Toast.Body>
-          </Toast>
-        </div>
+              <button
+                onClick={() => setShowSuccess(false)}
+                className="btn-close btn-close-sm opacity-50"
+                style={{
+                  fontSize: '0.6rem',
+                  padding: '5px',
+                  marginTop: '-2px',
+                  marginRight: '-5px'
+                }}
+              />
+            </div>
+          </Toast.Body>
+        </Toast>
+      </div>
 
       <div className="rounded-3 p-4 mb-4 border">
         <Row className="align-items-center">
-           <Col md={8}>
-              <div className="d-flex align-items-center">
-                <div className="me-3">
-                  <i className="fas fa-book-open fa-2x" style={{ color: '#0b192c' }}></i>
-                </div>
-                <div>
-                  <h4 className="fw-bold text-dark mb-1">Entrada de Livros</h4>
-                  <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
-                    Registro e controle de novas entradas no acervo
-                  </p>
-                </div>
+          <Col md={8}>
+            <div className="d-flex align-items-center">
+              <div className="me-3">
+                <i className="fas fa-book-open fa-2x" style={{ color: '#0b192c' }}></i>
               </div>
-            </Col>
-          <Col md={4} className="text-md-end">
-            <div className="d-flex justify-content-end flex-wrap gap-2">
-          
+              <div>
+                <h4 className="fw-bold text-dark mb-1">Entrada de Livros</h4>
+                <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
+                  Registro e controle de novas entradas no acervo
+                </p>
+              </div>
             </div>
           </Col>
         </Row>
@@ -349,7 +342,6 @@ const formatarTexto = (texto) => {
           <h6 className="mb-0 text-primary fw-bold">{livros.length}</h6>
           <small className="text-muted">Livros cadastrados</small>
         </div>
-
         <div className="text-center px-3 py-2">
           <h6 className="mb-0 text-success fw-bold">
             {livros.reduce((acc, l) => acc + (l.estoque || 0), 0)}
@@ -364,9 +356,7 @@ const formatarTexto = (texto) => {
           <Card>
             <Card.Header className="bg-primary text-white d-flex flex-wrap justify-content-between align-items-center">
               <h6 className="mb-0">Selecionar Livro</h6>
-
               <div className="d-flex align-items-center gap-3">
-                {/* Seletor de Ordenação */}
                 <Form.Select
                   value={ordenacao}
                   onChange={(e) => setOrdenacao(e.target.value)}
@@ -380,8 +370,6 @@ const formatarTexto = (texto) => {
                   <option value="id_asc">ID (crescente)</option>
                   <option value="id_desc">ID (decrescente)</option>
                 </Form.Select>
-
-                {/* Barra de pesquisa */}
                 <div style={{ minWidth: '200px', maxWidth: '250px' }}>
                   <InputGroup size="sm">
                     <InputGroup.Text className="bg-light text-primary">
@@ -397,7 +385,6 @@ const formatarTexto = (texto) => {
                 </div>
               </div>
             </Card.Header>
-
             <Card.Body>
               {loading ? (
                 <div className="text-center py-4">
@@ -425,10 +412,7 @@ const formatarTexto = (texto) => {
                         {livrosPaginaAtual.map((livro) => {
                           const isSelected = livroSelecionado?.id === livro.id;
                           return (
-                            <tr
-                              key={livro.id}
-                              className={isSelected ? 'table-active' : ''}
-                            >
+                            <tr key={livro.id} className={isSelected ? 'table-active' : ''}>
                               <td>
                                 {livro.imagem ? (
                                   <img
@@ -443,8 +427,7 @@ const formatarTexto = (texto) => {
                                   </div>
                                 )}
                               </td>
-
-                             <td>
+                              <td>
                                 <div className="fw-semibold" style={{ maxWidth: '200px' }}>
                                   {formatarTexto(livro.titulo)}
                                 </div>
@@ -452,15 +435,8 @@ const formatarTexto = (texto) => {
                                   {formatarTexto(livro.autor_nome)} 
                                 </small>
                               </td>
-
                               <td className="fw-bold">#{livro.id}</td>
-
-                              <td>
-                                <span>
-                                  {livro.estoque || 0}
-                                </span>
-                              </td>
-
+                              <td>{livro.estoque || 0}</td>
                               <td className="text-center">
                                 <Button
                                   variant={isSelected ? 'success' : 'paginacao'}
@@ -478,13 +454,12 @@ const formatarTexto = (texto) => {
                     </Table>
                   </div>
 
-                  {/* Paginação Padronizada */}
+                  {/* Paginação */}
                   {totalPaginas > 1 && (
                     <div className="d-flex justify-content-between align-items-center mt-4">
                       <div className="text-muted small">
                         Mostrando {inicio + 1} a {Math.min(fim, livrosOrdenados.length)} de {livrosOrdenados.length} livros
                       </div>
-
                       <div className="d-flex align-items-center gap-2">
                         <Button
                           className="btn-paginacao"
@@ -494,11 +469,9 @@ const formatarTexto = (texto) => {
                           <FaChevronLeft className="me-1" />
                           Anterior
                         </Button>
-
                         <span className="mx-3 text-muted">
                           Página <strong>{paginaAtual}</strong> de <strong>{totalPaginas}</strong>
                         </span>
-
                         <Button
                           className="btn-paginacao"
                           onClick={handleProximaPagina}
@@ -516,16 +489,14 @@ const formatarTexto = (texto) => {
           </Card>
         </Col>
 
-        {/* Formulário de Entrada*/}
+        {/* Coluna Direita - Formulário ou Mensagem */}
         <Col lg={6}>
           {livroSelecionado ? (
             <>
               {/* Card do Livro Selecionado */}
               <Card className="mb-3">
                 <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-                  <h6 className="mb-0">
-                    Livro Selecionado
-                  </h6>
+                  <h6 className="mb-0">Livro Selecionado</h6>
                   <Badge bg="light" text="dark">
                     ID: #{livroSelecionado.id}
                   </Badge>
@@ -565,28 +536,13 @@ const formatarTexto = (texto) => {
                           <div>{formatarTexto(livroSelecionado.genero)}</div> 
                         </div>
                       </div>
-
-                      {/* SEÇÃO DE ESTOQUE ORGANIZADA */}
                       <div className="mt-3 pt-2 border-top">
                         <div className="row small">
-                          <div className="col-12 mb-0">
+                          <div className="col-12 mb-2">
                             <div className="d-flex justify-content-between align-items-center">
-                              <strong>
-                                Estoque físico total:
-                              </strong>
+                              <strong>Estoque atual:</strong>
                               <Badge bg="primary">
                                 {livroSelecionado.estoque || 0} unidades
-                              </Badge>
-                            </div>
-                          </div>
-                          <div className="col-12 mb-2">
-
-                          </div>
-                          <div className="col-12">
-                            <div className="d-flex justify-content-between align-items-center">
-                              <strong className="text-success">Após entrada:</strong>
-                              <Badge bg="success">
-                                {livroSelecionado.estoque + formData.quantidade} unidades
                               </Badge>
                             </div>
                           </div>
@@ -597,25 +553,24 @@ const formatarTexto = (texto) => {
                 </Card.Body>
               </Card>
 
-
-              {/* Formulário de Registro */}
-              <Card>
-                <Card.Header className="bg-primary text-white">
-                  <h6 className="mb-0">
-                    Registrar Entrada
-                  </h6>
-                </Card.Header>
-                <Card.Body>
-                  <Form onSubmit={handleSubmit}>
+              {/* Formulário em 2 Passos */}
+              {passoAtual === 1 ? (
+                // PASSO 1: Quantidade e Origem
+                <Card>
+                  <Card.Header className="bg-primary text-white">
+                    <h6 className="mb-0">Definir Quantidade e Origem</h6>
+                  </Card.Header>
+                  <Card.Body>
+                    {error && <Alert variant="danger">{error}</Alert>}
                     <Row className="mb-3">
                       <Col md={6}>
                         <Form.Label className="fw-semibold">Origem</Form.Label>
                         <Form.Select
-                          value={formData.origem}
-                          onChange={e => setFormData({ ...formData, origem: e.target.value })}
+                          value={dadosEntrada.origem}
+                          onChange={e => setDadosEntrada({ ...dadosEntrada, origem: e.target.value })}
                           required
                         >
-                          <option value="">Selecione a origem</option>
+                          <option value="">Selecione...</option>
                           {opcoes.origens.map(origem => (
                             <option key={origem} value={origem}>{origem}</option>
                           ))}
@@ -623,83 +578,183 @@ const formatarTexto = (texto) => {
                       </Col>
                       <Col md={6}>
                         <Form.Label className="fw-semibold">Quantidade</Form.Label>
-                        <Form.Control
-                          type="number"
-                          min="1"
-                          value={formData.quantidade}
-                          onChange={e => setFormData({ ...formData, quantidade: parseInt(e.target.value) || 1 })}
-                          required
-                        />
+                        <div className="input-group">
+                          <Form.Control
+                            type="number"
+                            min="0"
+                            value={dadosEntrada.quantidade}
+                            onChange={e => {
+                              const val = parseInt(e.target.value) || 0;
+                              setDadosEntrada({ ...dadosEntrada, quantidade: Math.max(0, val) });
+                            }}
+                            placeholder="0"
+                            className="form-control"
+                          />
+                          <span className="input-group-text">Unidades</span>
+                        </div>
+                        {dadosEntrada.quantidade === 0 && (
+                          <Form.Text className="text-danger small">
+                            Informe a quantidade (maior que zero)
+                          </Form.Text>
+                        )}
                       </Col>
                     </Row>
-
-                   <Form.Group className="mb-3">
-
-                    <Alert variant="" className="py-2 mb-2">
-                      <FaInfoCircle
-                        className="me-1"
-                        style={{ color: "var(--color-accent)" }}
-                      />
-
-                      <small style={{ opacity: 0.9 }}>
-                        <strong style={{ color: "var(--color-accent)" }}>Obrigatório:</strong>{" "}
-                        Informe o motivo desta entrada.
-                      </small>
-
-                      <p
-                        style={{
-                          fontSize: "0.7rem",
-                          marginTop: "2px",
-                          opacity: 0.7,
-                          lineHeight: "1.2",
-                        }}
-                      >
-                        O motivo da entrada deve ser informado para assegurar o registro rastreável da
-                        movimentação e manter o histórico do acervo atualizado.
-                      </p>
-                    </Alert>
-                    <Form.Control
-                      as="textarea"
-                      rows={3}
-                      placeholder="(ex: comprado da loja X, recebido por doação, reposição, ajuste de inventário...)"
-                      value={formData.observacoes}
-                      onChange={e => setFormData({ ...formData, observacoes: e.target.value })}
-                    />
-                  </Form.Group>
-
-
-                    {error && (
-                      <Alert variant="danger" className="mb-3">{error}</Alert>
-                    )}
-
-                    <div className="d-flex gap-2">
-                      <Button
-                        type="submit"
-                        variant="success"
-                        disabled={loading || !formData.observacoes.trim()}
-                      >
-                        {loading ? (
-                          <><Spinner animation="border" size="sm" /> Registrando...</>
-                        ) : (
-                          <> Registrar Entrada</>
-                        )}
-                      </Button>
-
+                    <div className="d-flex justify-content-between">
                       <Button
                         variant="cancelar"
                         onClick={() => {
                           setLivroSelecionado(null);
-                          setFormData({ livro_id: '', origem: '', observacoes: '', quantidade: 1 });
+                          setPassoAtual(1);
                         }}
                       >
                         Cancelar
                       </Button>
+                      <Button
+                        variant="primary"
+                        onClick={avancarParaMotivo}
+                        disabled={dadosEntrada.quantidade <= 0 || !dadosEntrada.origem}
+                      >
+                        Avançar para Motivo
+                      </Button>
                     </div>
-                  </Form>
-                </Card.Body>
-              </Card>
+                  </Card.Body>
+                </Card>
+              ) : (
+                // PASSO 2: Motivo e Confirmação
+                <Card>
+                  <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h6 className="mb-0">Registrar Entrada</h6>
+                    <Badge bg="light" text="dark">
+                      {dadosEntrada.quantidade} unidade{dadosEntrada.quantidade !== 1 ? 's' : ''}
+                    </Badge>
+                  </Card.Header>
+                  <Card.Body>
+                    <Form onSubmit={handleSubmit}>
+                     <div className="mb-4">
+                          <h6 className="fw-semibold mb-3">Detalhes da Entrada</h6>
+                          
+                          <Table borderless className="bg-light rounded">
+                            <tbody>
+                              <tr>
+                                <td width="40%" className="border-bottom py-2">
+                                  <div className="d-flex align-items-center gap-2">
+                                    <i className="fas fa-tag fa-sm text-muted"></i>
+                                    <span className="text-muted">Origem</span>
+                                  </div>
+                                </td>
+                                <td className="border-bottom py-2">
+                                  <Badge bg="info" className="fw-normal">
+                                    {dadosEntrada.origem}
+                                  </Badge>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td className="border-bottom py-2">
+                                  <div className="d-flex align-items-center gap-2">
+                                    <i className="fas fa-box fa-sm text-muted"></i>
+                                    <span className="text-muted">Estoque Atual</span>
+                                  </div>
+                                </td>
+                                <td className="border-bottom py-2 fw-semibold">
+                                  {livroSelecionado.estoque || 0} unidades
+                                </td>
+                              </tr>
+                              <tr>
+                                <td className="border-bottom py-2">
+                                  <div className="d-flex align-items-center gap-2">
+                                    <i className="fas fa-arrow-right fa-sm text-success"></i>
+                                    <span className="text-muted">Entrada Registrada</span>
+                                  </div>
+                                </td>
+                                <td className="border-bottom py-2">
+                                  <span className="fw-semibold text-success">
+                                    +{dadosEntrada.quantidade} unidades
+                                  </span>
+                                </td>
+                              </tr>
+                              <tr className="bg-primary-subtle">
+                                  <td className="py-3">
+                                <div className="d-flex align-items-center gap-2">
+                                  <i className="fas fa-calculator fa-sm text-warning"></i>
+                                  <strong className="text-warning">Estoque Final</strong>
+                                </div>
+                              </td>
+                                <td className="py-3">
+                                  <div className="d-flex align-items-baseline gap-2">
+                                  <span className="fs-4 fw-bold text-warning">
+                                      {(livroSelecionado.estoque || 0) + dadosEntrada.quantidade}
+                                    </span>
+                                    <span className="text-muted">unidades</span>
+                                  </div>
+                                  <div className="small text-muted">
+                                    {livroSelecionado.estoque || 0} + {dadosEntrada.quantidade}
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </Table>
+                        </div>
+                      <Form.Group className="mb-4">
+                        <Form.Label className="fw-semibold">
+                          Motivo da Entrada <span className="text-danger"></span>
+                        </Form.Label>
+                        <Form.Control
+                          as="textarea"
+                          rows={3}
+                          placeholder="(ex: comprado da loja X, recebido por doação, reposição...)"
+                          value={dadosEntrada.observacoes}
+                          onChange={e => setDadosEntrada({ ...dadosEntrada, observacoes: e.target.value })}
+                          required
+                        />
+                        <Form.Text className="text-muted">
+                          Informe detalhes sobre esta entrada para manter o histórico do acervo.
+                        </Form.Text>
+                      </Form.Group>
+
+                      {error && <Alert variant="danger">{error}</Alert>}
+
+                      <div className="d-flex justify-content-between">
+                        <Button
+                          variant="paginacao"
+                          onClick={voltarParaQuantidade}
+                          disabled={loading}
+                        >
+                          Voltar
+                        </Button>
+                        <div className="d-flex gap-2">
+                          <Button
+                            variant="cancelar"
+                            onClick={() => {
+                              setLivroSelecionado(null);
+                              setPassoAtual(1);
+                            }}
+                            disabled={loading}
+                          >
+                            Cancelar
+                          </Button>
+                          <Button
+                            type="submit"
+                            variant="success"
+                            disabled={loading || !dadosEntrada.observacoes.trim()}
+                          >
+                            {loading ? (
+                              <>
+                                <Spinner animation="border" size="sm" className="me-2" />
+                                Registrando...
+                              </>
+                            ) : (
+                              'Registrar Entrada'
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </Form>
+                  </Card.Body>
+                </Card>
+              )}
             </>
           ) : (
+            // Se nenhum livro selecionado
             <Card className="text-center py-5">
               <Card.Body>
                 <h5 className="text-muted">Nenhum livro selecionado</h5>

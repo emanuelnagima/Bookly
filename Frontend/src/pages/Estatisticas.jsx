@@ -156,7 +156,7 @@ const Estatisticas = () => {
                 {/* Títulos disponíveis para empréstimo */}
                 <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#d4edda'}}>
                   <span className="text-muted">
-                    Disponível para Empréstimo
+                    Títulos para Empréstimo
                   </span>
                   <div className="d-flex align-items-center">
                     <Badge bg="success" className="fs-6 me-2">

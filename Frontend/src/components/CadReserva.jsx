@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Form, Col, Row, Button, Spinner, Alert, Badge, ListGroup } from 'react-bootstrap';
 import { BsCheckCircle, BsPlusCircle, BsTrash, BsExclamationTriangle } from "react-icons/bs";
-import { FaBook, FaUser, FaExclamationTriangle } from "react-icons/fa";
+import { FaBook, FaUser, FaExclamationTriangle, FaTimes } from "react-icons/fa";
 import livroService from '../services/livroService';
 import emprestimosService from '../services/emprestimosService';
 import disponibilidadeService from '../services/disponibilidadeService';
@@ -265,26 +265,41 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
     }
   };
 
-  const adicionarLivro = async () => {
+const adicionarLivro = async () => {
     if (!livroAtual.livro_id) {
-      setError('Selecione um livro para adicionar');
+      setError({
+        type: 'livro_nao_selecionado',
+        title: 'Livro Não Selecionado',
+        message: 'Selecione um livro para adicionar',
+        style: 'warning'
+      });
       return;
     }
 
     // Verificar se o livro já foi adicionado
     const livroExistente = livrosSelecionados.find(l => l.livro_id === parseInt(livroAtual.livro_id));
     if (livroExistente) {
-      setError('Este livro já foi adicionado à reserva');
+      setError({
+        type: 'livro_duplicado',
+        title: 'Livro Duplicado',
+        message: 'Este livro já foi adicionado à reserva',
+        style: 'warning'
+      });
       return;
     }
 
     const livroCompleto = livrosDisponiveis.find(l => l.id === parseInt(livroAtual.livro_id));
     if (!livroCompleto) {
-      setError('Livro não encontrado');
+      setError({
+        type: 'livro_nao_encontrado',
+        title: 'Livro Não Encontrado',
+        message: 'Livro não encontrado no sistema',
+        style: 'danger'
+      });
       return;
     }
 
-    // VERIFICAÇÃO DE DISPONIBILIDADE 
+    // VERIFICAÇÃO DE DISPONIBILIDADE COM MENSAGENS PADRONIZADAS
     try {
       const verificacao = await disponibilidadeService.verificarPodeReservar(
         formData.usuario_id, 
@@ -293,12 +308,55 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
       );
       
       if (!verificacao.podeReservar) {
-        setError(`Não é possível reservar "${livroCompleto.titulo}": ${verificacao.motivo}`);
+        let errorObject = {};
+        
+        // MENSAGENS PADRONIZADAS IGUAIS AO EMPRÉSTIMO
+        if (verificacao.motivo?.includes('limite')) {
+          errorObject = {
+            type: 'limite_reservas_usuario',
+            title: 'Limite de Reservas',
+            message: `Não é possível reservar "${livroCompleto.titulo}"`,
+            detalhe: 'Você atingiu o limite máximo de reservas ativas',
+            style: 'warning'
+          };
+        } else if (verificacao.motivo?.includes('Estoque')) {
+          errorObject = {
+            type: 'estoque_insuficiente_reserva',
+            title: 'Estoque Insuficiente',
+            message: `Não há exemplares disponíveis de "${livroCompleto.titulo}"`,
+            disponivel: verificacao.disponivelExato || 0,
+            estilo: 'warning'
+          };
+        } else if (verificacao.motivo?.includes('já possui')) {
+          errorObject = {
+            type: 'reserva_ativa_usuario',
+            title: 'Reserva Ativa',
+            message: `Usuário já possui uma reserva para "${livroCompleto.titulo}"`,
+            detalhe: 'Cada usuário pode ter apenas uma reserva por livro',
+            style: 'warning'
+          };
+        } else {
+          errorObject = {
+            type: 'indisponivel_reserva',
+            title: 'Livro Indisponível',
+            message: `Não é possível reservar "${livroCompleto.titulo}"`,
+            detalhe: verificacao.motivo,
+            style: 'warning'
+          };
+        }
+        
+        setError(errorObject);
         return;
       }
     } catch (error) {
       console.error('Erro na verificação:', error);
-      setError('Erro ao verificar disponibilidade do livro');
+      setError({
+        type: 'erro_verificacao',
+        title: 'Erro de Verificação',
+        message: 'Erro ao verificar disponibilidade do livro',
+        detalhe: error.message,
+        style: 'danger'
+      });
       return;
     }
 
@@ -315,12 +373,11 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
     setLivroAtual({ livro_id: '' });
     setError('');
   };
-
   const removerLivro = (livroId) => {
     setLivrosSelecionados(prev => prev.filter(l => l.livro_id !== livroId));
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!formData.usuario_id || !formData.usuario_tipo || !formData.data_validade) {
@@ -329,7 +386,12 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
     }
 
     if (livrosSelecionados.length === 0) {
-      setError('Adicione pelo menos um livro à reserva');
+      setError({
+        type: 'sem_livros',
+        title: 'Livros Necessários',
+        message: 'Adicione pelo menos um livro à reserva',
+        style: 'warning'
+      });
       return;
     }
 
@@ -344,12 +406,63 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
         livros: livrosSelecionados
       };
       
+      console.log('Enviando reserva...');
       await onSave(dadosReserva);
       await recarregarLivrosDisponiveis();
       
     } catch (err) {
-      console.error('Erro no formulário:', err);
-      setError(err.message || 'Erro ao salvar reserva');
+      console.error('=== ERRO NO handleSubmit (CadReserva) ===');
+      console.error('Tipo do erro:', typeof err);
+      console.error('Erro completo:', err);
+      
+      // **CORREÇÃO: Verifique se é um objeto Error com message**
+      if (err instanceof Error) {
+        console.log('É instância de Error, message:', err.message);
+        // Se a mensagem for JSON, tente parsear
+        if (err.message && err.message.startsWith('{')) {
+          try {
+            const parsed = JSON.parse(err.message);
+            if (parsed.type && parsed.title) {
+              setError(parsed);
+              return;
+            }
+          } catch (e) {
+            // Não é JSON, continuar
+          }
+        }
+        // Se não, usar como mensagem simples
+        setError({
+          type: 'erro_generico',
+          title: 'Erro',
+          message: err.message,
+          style: 'danger'
+        });
+      }
+      // **Se for objeto estruturado (deve ser este caso)**
+      else if (err && typeof err === 'object' && err.type && err.title) {
+        console.log('É objeto estruturado, definindo error');
+        setError(err);
+      }
+      // **Se for string (fallback)**
+      else if (typeof err === 'string') {
+        console.log('É string simples');
+        setError({
+          type: 'erro_string',
+          title: 'Erro na Reserva',
+          message: err,
+          style: 'danger'
+        });
+      }
+      // **Se for qualquer outra coisa**
+      else {
+        console.log('Erro desconhecido, usando fallback');
+        setError({
+          type: 'erro_desconhecido',
+          title: 'Erro Desconhecido',
+          message: 'Não foi possível completar a reserva',
+          style: 'danger'
+        });
+      }
     }
   };
 
@@ -390,16 +503,76 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
         </h5>
       </Card.Header>
       <Card.Body>
-      {error && (
-  <Alert variant="danger" dismissible onClose={() => setError('')}>
-    <div className="d-flex align-items-start">
-      <div>
-        <div style={{ whiteSpace: 'pre-line' }}>
-          {error}
+
+       {error && (
+  (() => {
+    // Se for objeto estruturado
+    if (typeof error === 'object' && error.title) {
+      return (
+        <div className={`alert alert-${error.style || 'warning'} py-2 mb-3 d-flex align-items-center`}>
+          <div className="flex-grow-1">
+            <div className="d-flex align-items-center">
+              <div className={`bg-${error.style || 'warning'} text-white rounded-circle d-flex align-items-center justify-content-center me-2`} 
+                  style={{ width: '20px', height: '20px', fontSize: '12px' }}>
+                {error.style === 'danger' ? '✗' : '!'}
+              </div>
+              <strong className="text-dark">{error.title}</strong>
+            </div>
+            <div className="mt-1 small">
+              {error.message}
+              
+              {/* SITUAÇÃO DETALHADA - NOVO */}
+              {error.situacao && (
+                <div className="mt-2 p-2">
+                  <small className="text-muted d-block mb-1"><strong>Situação:</strong></small>
+                  <div>{error.situacao}</div>
+                </div>
+              )}
+              
+              {/* LIVRO (se tiver) */}
+              {error.livro && (
+                <div className="mt-1">
+                  <strong>Livro:</strong> "{error.livro}"
+                </div>
+              )}
+              
+              {/* SUGESTÃO (se tiver) */}
+              {error.sugestao && (
+                <div className="mt-1 text">
+                  <em>{error.sugestao}</em>
+                </div>
+              )}
+              
+              {/* DETALHE (se tiver) - removendo o antigo detalhe técnico */}
+              {error.detalhe && !error.situacao && (
+                <div className="mt-1">
+                  {error.detalhe}
+                </div>
+              )}
+            </div>
+          </div>
+          <FaTimes 
+            className="text-muted ms-2" 
+            onClick={() => setError('')}
+            style={{ cursor: 'pointer' }}
+          />
         </div>
-      </div>
-    </div>
-  </Alert>
+      );
+    }
+    
+    // Se for string (mantém compatibilidade)
+    return (
+      <Alert variant="danger" dismissible onClose={() => setError('')}>
+        <div className="d-flex align-items-start">
+          <div>
+            <div style={{ whiteSpace: 'pre-line' }}>
+              {error}
+            </div>
+          </div>
+        </div>
+      </Alert>
+    );
+  })()
 )}
         {verificandoDisponibilidade && (
           <Alert variant="info" className="py-2">

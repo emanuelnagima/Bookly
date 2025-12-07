@@ -224,7 +224,7 @@ const configRelatorios = {
     colunasBase: ['ID', 'Usuário', 'Livro', 'Data Reserva', 'Data Validade', 'Status'],
     // Colunas adicionais (cancelamento) - se quiser aplicar a mesma lógica para reservas
     colunasCancelamento: ['Data Cancelamento', 'Motivo'],
-    getColunas: (statusFiltro) => {
+     getColunas: (statusFiltro) => {  // <-- AQUI É O PROBLEMA
       if (!statusFiltro || statusFiltro === 'cancelada') {
         return [...configRelatorios.reservas.colunasBase, ...configRelatorios.reservas.colunasCancelamento];
       }
@@ -374,6 +374,19 @@ const buscarRelatorio = async () => {
             type: 'success'
           });
         }
+
+        // ******************** AQUI É O LUGAR CORRETO ********************
+        console.log('ESTRUTURA DOS DADOS RECEBIDOS:');
+        if (response.relatorio && response.relatorio.length > 0) {
+          console.log('Primeiro item:', response.relatorio[0]);
+          console.log('Tem data_cancelamento?', 'data_cancelamento' in response.relatorio[0]);
+          console.log('Tem motivo_cancelamento?', 'motivo_cancelamento' in response.relatorio[0]);
+          console.log('Valores:', {
+            data_cancelamento: response.relatorio[0].data_cancelamento,
+            motivo_cancelamento: response.relatorio[0].motivo_cancelamento
+          });
+        }
+        // ***************************************************************
       } else {
         // Mensagem de erro padronizada
         setError({
@@ -393,7 +406,6 @@ const buscarRelatorio = async () => {
       setLoading(false);
     }
   };
-
 const limparFiltros = () => {
   setDataInicio('');
   setDataFim('');

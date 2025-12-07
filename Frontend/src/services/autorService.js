@@ -79,7 +79,7 @@ const getById = async (id) => {
     console.log('Autor encontrado:', result);
     
     // O handleResponse já retorna os dados extraídos
-    return result; // ← Retorna o resultado diretamente
+    return result; 
   } catch (error) {
     console.error(`Erro ao buscar autor ${id}:`, error);
     throw error;

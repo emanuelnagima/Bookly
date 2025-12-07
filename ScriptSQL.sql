@@ -168,21 +168,19 @@ CREATE TABLE `livros` (
 -- Tabela: EMPRÉSTIMOS
 -- -----------------------------
 CREATE TABLE `emprestimos` (
-   `id` int(11) NOT NULL AUTO_INCREMENT,
-   `usuario_id` int(11) NOT NULL,
-   `usuario_tipo` enum('aluno','professor','usuario_especial') NOT NULL,
-   `data_emprestimo` datetime NOT NULL DEFAULT current_timestamp(),
-   `data_devolucao_prevista` date NOT NULL,
-   `data_devolucao_real` datetime DEFAULT NULL,
-   `status` enum('ativo','finalizado','atrasado','cancelado') NOT NULL DEFAULT 'ativo',
-   `observacoes` text DEFAULT NULL,
-   `data_cancelamento` datetime DEFAULT NULL,
-   `motivo_cancelamento` text DEFAULT NULL,
-   PRIMARY KEY (`id`),
-   KEY `idx_usuario` (`usuario_id`,`usuario_tipo`),
-   KEY `idx_status` (`status`),
-   KEY `idx_data_devolucao` (`data_devolucao_prevista`)
- ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `usuario_id` int(11) NOT NULL,
+  `usuario_tipo` enum('aluno','professor','usuario_especial') NOT NULL,
+  `data_emprestimo` datetime NOT NULL DEFAULT current_timestamp(),
+  `data_devolucao_prevista` date NOT NULL,
+  `data_devolucao_real` datetime DEFAULT NULL,
+  `status` enum('ativo','finalizado','atrasado','cancelado') NOT NULL DEFAULT 'ativo',
+  `observacoes` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_usuario` (`usuario_id`,`usuario_tipo`),
+  KEY `idx_status` (`status`),
+  KEY `idx_data_devolucao` (`data_devolucao_prevista`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- -----------------------------
 -- Tabela: EMPRÉSTIMO_LIVROS
@@ -195,30 +193,29 @@ CREATE TABLE `emprestimo_livros` (
   PRIMARY KEY (`id`),
   KEY `fk_emprestimo` (`emprestimo_id`),
   KEY `fk_livro_emprestimo` (`livro_id`),
-  CONSTRAINT `fk_emprestimo` FOREIGN KEY (`emprestimo_id`) REFERENCES `emprestimos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_livro_emprestimo` FOREIGN KEY (`livro_id`) REFERENCES `livros` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  CONSTRAINT `fk_emprestimo` FOREIGN KEY (`emprestimo_id`) REFERENCES `emprestimos` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_livro_emprestimo` FOREIGN KEY (`livro_id`) REFERENCES `livros` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- -----------------------------
 -- Tabela: RESERVAS
 -- -----------------------------
 CREATE TABLE `reservas` (
-   `id` int(11) NOT NULL AUTO_INCREMENT,
-   `usuario_id` int(11) NOT NULL,
-   `usuario_tipo` enum('aluno','professor','usuario_especial') NOT NULL,
-   `livro_id` int(11) NOT NULL,
-   `data_reserva` datetime NOT NULL DEFAULT current_timestamp(),
-   `data_validade` date NOT NULL,
-   `status` enum('ativa','cancelada','concluida','expirada') NOT NULL DEFAULT 'ativa',
-   `data_cancelamento` datetime DEFAULT NULL,
-   `motivo_cancelamento` text DEFAULT NULL,
-   `observacoes` text DEFAULT NULL,
-   PRIMARY KEY (`id`),
-   KEY `idx_usuario_reserva` (`usuario_id`,`usuario_tipo`),
-   KEY `idx_livro_reserva` (`livro_id`),
-   KEY `idx_status_reserva` (`status`),
-   CONSTRAINT `fk_livro_reserva` FOREIGN KEY (`livro_id`) REFERENCES `livros` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
- ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `usuario_id` int(11) NOT NULL,
+  `usuario_tipo` enum('aluno','professor','usuario_especial') NOT NULL,
+  `livro_id` int(11) NOT NULL,
+  `data_reserva` datetime NOT NULL DEFAULT current_timestamp(),
+  `data_validade` date NOT NULL,
+  `status` enum('ativa','cancelada','concluida','expirada') NOT NULL DEFAULT 'ativa',
+  `observacoes` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_usuario_reserva` (`usuario_id`,`usuario_tipo`),
+  KEY `idx_livro_reserva` (`livro_id`),
+  KEY `idx_status_reserva` (`status`),
+  CONSTRAINT `fk_livro_reserva` FOREIGN KEY (`livro_id`) REFERENCES `livros` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- -----------------------------
 -- Tabela: RESERVA_LIVROS
 -- -----------------------------
@@ -306,7 +303,50 @@ INSERT INTO usuarios_sistema (email, password, role, nome) VALUES
 ('bibli@bookly.com', 'bibli@98!o7', 'bibliotecario', 'Bibliotecário Principal');
 
 
+-- REMOVER TRIGGERS ANTIGOS SE EXISTIREM
+DROP TRIGGER IF EXISTS `atualizar_status_emprestimo`;
+DROP TRIGGER IF EXISTS `atualizar_status_reserva`;
 
+-- -----------------------------
+-- TRIGGER 1: Atualizar status de empréstimos para ATRASADO
+-- -----------------------------
+DELIMITER $$
+CREATE TRIGGER `atualizar_status_emprestimo`
+BEFORE UPDATE ON `emprestimos`
+FOR EACH ROW
+BEGIN
+    -- Se o empréstimo está ativo e a data já passou
+    IF NEW.status = 'ativo' AND DATE(NEW.data_devolucao_prevista) < CURDATE() THEN
+        SET NEW.status = 'atrasado';
+    END IF;
+END$$
+DELIMITER ;
+
+-- -----------------------------
+-- TRIGGER 2: Atualizar status de reservas para EXPIRADA
+-- -----------------------------
+DELIMITER $$
+CREATE TRIGGER `atualizar_status_reserva`
+BEFORE UPDATE ON `reservas`
+FOR EACH ROW
+BEGIN
+    -- Se a reserva está ativa e a data já passou
+    IF NEW.status = 'ativa' AND DATE(NEW.data_validade) < CURDATE() THEN
+        SET NEW.status = 'expirada';
+    END IF;
+END$$
+DELIMITER ;
+
+-- ====================================================
+-- VERIFICAÇÃO
+-- ====================================================
+
+-- Verificar se os triggers foram criados
+SHOW TRIGGERS;
+
+-- Ver estrutura das tabelas
+DESC emprestimos;
+DESC reservas;
 
 -- ====================================================
 -- FIM DO SCRIPT

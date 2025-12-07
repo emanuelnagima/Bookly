@@ -390,7 +390,9 @@ async getRelatorioReservas(filtros = {}) {
                 r.data_validade,
                 r.status,
                 r.usuario_tipo,
-                -- PRIORIDADE: primeiro busca do reserva_livros, depois da própria reserva
+                -- COLUNAS DE CANCELAMENTO ADICIONADAS:
+                r.data_cancelamento,
+                r.motivo_cancelamento,
                 COALESCE(
                     (SELECT GROUP_CONCAT(DISTINCT l.titulo SEPARATOR ', ') 
                      FROM reserva_livros rl 

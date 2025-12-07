@@ -5,6 +5,7 @@ import ReservaList from '../components/ReservaList'
 import reservasService from '../services/reservasService'
 import disponibilidadeService from '../services/disponibilidadeService';
 import { FaExclamationTriangle, FaTimes, FaBan, FaInfoCircle } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
 const Reservas = () => {
   const [showForm, setShowForm] = useState(false)
@@ -119,53 +120,27 @@ const totalExpiradas = reservas.filter(r => {
     loadReservas()
   }, [loadReservas])
 
-const handleSaveReserva = async (reserva) => {
-    try {
-        setLoading(true);
-        setError('');
-
-        if (reservaToEdit) {
-            await reservasService.update(reservaToEdit.id, reserva);
-            setToastMessage('Reserva atualizada com sucesso!');
-            setOperationType('update');
-        } else {
-            await reservasService.add(reserva);
-            setToastMessage('Reserva registrada com sucesso!');
-            setOperationType('create');
-        }
-
-        await loadReservas();
-        setShowSuccessToast(true);
-        setShowForm(false);
-        setReservaToEdit(null);
-
-    } catch (err) {
-        console.error('Erro completo:', err);
-        
-        // CORREÇÃO: Verifica se err.message existe antes de usar .replace
-        if (err && err.message) {
-            let errorMessage = err.message;
-            
-            // Só tenta usar .replace se errorMessage for string
-            if (typeof errorMessage === 'string') {
-                errorMessage = errorMessage.replace(/<br\/>/g, '\n');
-                errorMessage = errorMessage.replace(/^Falha ao (?:registrar|atualizar) reserva: /, '');
-                errorMessage = errorMessage.replace(/^HTTP error! status: \d+ - /, '');
-                errorMessage = errorMessage.replace(/^Erro ao processar reserva \(\d+\): /, '');
-                errorMessage = errorMessage.replace(/^Não foi possível completar a reserva: /, '');
-            }
-            
-            setError(errorMessage);
-        } else if (err && typeof err === 'object') {
-            // Se err for o objeto estruturado que criamos no service
-            setError(err);
-        } else {
-            // Erro genérico
-            setError('Ocorreu um erro ao processar a reserva');
-        }
-    } finally {
-        setLoading(false);
-    }
+// Reservas.jsx - função handleSaveReserva
+const handleSaveReserva = async (dadosReserva) => {
+  try {
+    setLoading(true);
+    const resultado = await reservasService.add(dadosReserva);
+    
+    // Sucesso
+    setToastMessage('Reserva criada com sucesso!');
+    setOperationType('create');
+    setShowSuccessToast(true);
+    
+    setShowForm(false);
+    await loadReservas(); 
+    
+    return resultado;
+  } catch (error) {
+    console.error('Erro ao adicionar reserva:', error);
+    throw error; // Propaga o erro para CadReserva tratar
+  } finally {
+    setLoading(false);
+  }
 };
 
   const handleEditReserva = async (id) => {
@@ -636,7 +611,7 @@ const handleSaveReserva = async (reserva) => {
                 <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
                 <span className="ms-2">Cancelando...</span>
               </>
-            ) : 'Confirmar Cancelamento'}
+            ) : 'Cancelar Reserva'}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -671,7 +646,7 @@ const handleSaveReserva = async (reserva) => {
                 <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
                 <span className="ms-2">Concluindo...</span>
               </>
-            ) : 'Concluir'}
+            ) : 'Concluir Reserva'}
           </Button>
         </Modal.Footer>
       </Modal>

@@ -396,7 +396,6 @@ const adicionarLivro = async () => {
         return;
     }
 
-    // Resto do código permanece igual...
     const novoLivro = {
         livro_id: parseInt(livroAtual.livro_id),
         quantidade: 1,
