@@ -195,18 +195,14 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
     }
   };
 
-  // Função padronizada para verificar vencimento
-  const verificarVencimento = (dataValidade, status, diasAlerta = 2) => {
-    if (status !== 'ativa') return { atrasado: false, proximo: false };
+  // Função para verificar se está expirado (PADRONIZADA com EmprestimoList)
+  const isExpirado = (dataValidade, status) => {
+    // Canceladas e concluídas NÃO são consideradas expiradas
+    if (status === 'cancelada' || status === 'concluida') return false;
     
     const hoje = new Date();
     const validade = new Date(dataValidade);
-    const diasRestantes = Math.ceil((validade - hoje) / (1000 * 60 * 60 * 24));
-    
-    return {
-      atrasado: validade < hoje,
-      proximo: diasRestantes > 0 && diasRestantes <= diasAlerta
-    };
+    return validade < hoje;
   };
 
   const handleVerLivro = (reserva) => {
@@ -325,12 +321,15 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
               </thead>
               <tbody>
                 {reservasPaginaAtual.map(reserva => {
+                  // PADRONIZADO: Canceladas e concluídas não são expiradas
+                  const expirado = reserva.status !== 'cancelada' && 
+                                   reserva.status !== 'concluida' && 
+                                   isExpirado(reserva.data_validade, reserva.status);
+                  
                   const situacao = verificarSituacao(reserva.data_validade, reserva.status);
-                  const vencimento = verificarVencimento(reserva.data_validade, reserva.status, 2);
-                  const mostrarAlerta = vencimento.atrasado || vencimento.proximo;
                   
                   return (
-                    <tr key={reserva.id} className={mostrarAlerta ? 'linha-atrasada' : ''}>
+                    <tr key={reserva.id} className={expirado && reserva.status !== 'cancelada' && reserva.status !== 'concluida' ? 'linha-atrasada' : ''}>
                       <td className="fw-bold">#{reserva.id}</td>
 
                       <td>
@@ -364,9 +363,11 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
                         {formatarData(reserva.data_reserva)}
                       </td>
                       
-                      {/* Data Validade COM ALERTA (padronizado com EmprestimoList) */}
-                      <td className={`text-nowrap ${mostrarAlerta ? 'text-warning fw-bold' : ''}`}>
-                        {mostrarAlerta && <FaExclamationTriangle className="me-1" />}
+                      {/* Data Validade - PADRONIZADO COM EMPRESTIMOLIST */}
+                      <td className={`text-nowrap ${
+                        expirado && reserva.status !== 'cancelada' && reserva.status !== 'concluida' ? 'text-warning fw-bold' : ''
+                      }`}>
+                        {expirado && reserva.status !== 'cancelada' && reserva.status !== 'concluida' && <FaExclamationTriangle className="me-1" />}
                         {formatarData(reserva.data_validade)}
                       </td>
 
@@ -383,7 +384,8 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
 
                       <td>
                         <div className="d-flex gap-2 justify-content-center">
-                          {reserva.status === 'ativa' && (
+                          {/* PADRONIZADO: Botões também aparecem para reservas expiradas */}
+                          {(reserva.status === 'ativa' || reserva.status === 'expirada') && (
                             <>
                               <button
                                 className="btn-sm-custom btn-primary"
@@ -411,7 +413,7 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
                             </>
                           )}
                           
-                          {reserva.status !== 'ativa' && (
+                          {reserva.status !== 'ativa' && reserva.status !== 'expirada' && (
                             <span className="text-muted small d-flex align-items-center">
                               Sem ações
                             </span>
@@ -424,194 +426,194 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
               </tbody>
             </Table>
 
+
             {/* Modal para mostrar detalhes do livro */}
-            {/* Modal para mostrar detalhes do livro */}
-<Modal show={showLivroModal} onHide={handleCloseLivroModal} size="lg">
-  <Modal.Header closeButton closeVariant="white" className="bg-primary text-white">
-    <Modal.Title className="d-flex align-items-center">
-      <FaBook className="me-2" />
-      Reserva #{reservaSelecionada?.id} - Detalhes
-    </Modal.Title>
-  </Modal.Header>
+            <Modal show={showLivroModal} onHide={handleCloseLivroModal} size="lg">
+              <Modal.Header closeButton closeVariant="white" className="bg-primary text-white">
+                <Modal.Title className="d-flex align-items-center">
+                  <FaBook className="me-2" />
+                  Reserva #{reservaSelecionada?.id} - Detalhes
+                </Modal.Title>
+              </Modal.Header>
 
-  <Modal.Body className="p-4">
-    {/* SEÇÃO: Informações do Usuário */}
-    <div className="mb-4 p-3 border rounded bg-white">
-      <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
-        Informações do Usuário
-      </h5>
-      <Row>
-        <Col md={6}>
-          <p className="mb-2">
-            <strong>Nome:</strong> {formatarTexto(reservaSelecionada?.usuario)}
-          </p>
-          <p className="mb-2">
-            <strong>Email:</strong> {reservaSelecionada?.usuario_detalhes?.email || 'Não informado'}
-          </p>
-          <p className="mb-2">
-            <strong>Telefone:</strong> {formatarTelefone(reservaSelecionada?.usuario_detalhes?.telefone) || 'Não informado'}
-          </p>
-        </Col>
-        <Col md={6}>
-          <p className="mb-2">
-            <strong>Tipo:</strong> {formatarTexto(reservaSelecionada?.usuario_tipo)}
-          </p>
-          {reservaSelecionada?.usuario_detalhes?.turma && (
-            <p className="mb-2">
-              <strong>Turma:</strong> {reservaSelecionada.usuario_detalhes.turma}
-            </p>
-          )}
-          {reservaSelecionada?.usuario_detalhes?.departamento && (
-            <p className="mb-2">
-              <strong>Departamento:</strong> {reservaSelecionada.usuario_detalhes.departamento}
-            </p>
-          )}
-          {reservaSelecionada?.usuario_detalhes?.tipo_especial && (
-            <p className="mb-2">
-              <strong>Tipo Especial:</strong> {formatarTexto(reservaSelecionada.usuario_detalhes.tipo_especial)}
-            </p>
-          )}
-        </Col>
-      </Row>
-    </div>
-
-    {/* SEÇÃO: Informações da Reserva */}
-    <div className="mb-4 p-3 border rounded bg-white">
-      <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
-        Informações da Reserva
-      </h5>
-      <Row>
-        <Col md={6}>
-          <p className="mb-2">
-            <strong>Data da Reserva:</strong> {formatarData(reservaSelecionada?.data_reserva)}
-          </p>
-          <p className="mb-2">
-            <strong>Data de Validade:</strong> {formatarData(reservaSelecionada?.data_validade)}
-          </p>
-        </Col>
-        <Col md={6}>
-          <p className="mb-2">
-            <strong>Status:</strong> {getStatusBadge(reservaSelecionada?.status, reservaSelecionada?.data_validade)}
-          </p>
-          <p className="mb-2">
-            <strong>Situação:</strong>
-            <span className={`ms-2 ${verificarSituacao(reservaSelecionada?.data_validade, reservaSelecionada?.status).classe}`}>
-              {verificarSituacao(reservaSelecionada?.data_validade, reservaSelecionada?.status).texto}
-            </span>
-          </p>
-        </Col>
-      </Row>
-    </div>
-
-    {/* SEÇÃO: Observações (se houver) */}
-    {reservaSelecionada?.observacoes && reservaSelecionada.observacoes.trim() !== '' && (
-      <div className="mb-4 p-3 border rounded bg-white">
-        <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
-          <FaExclamationTriangle className="me-2" />
-          Observações
-        </h5>
-        <div className="bg-light p-3 rounded">
-          <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>
-            {reservaSelecionada.observacoes}
-          </p>
-        </div>
-      </div>
-    )}
-
-    {/* SEÇÃO: Livros Reservados */}
-    <div className="p-3 border rounded bg-white">
-      <div className="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-        <h5 className="fw-bold text-primary mb-0">Livros da Reserva</h5>
-        <small className="text-muted">
-          <strong>Total de livros:</strong> {reservaSelecionada?.livros?.length || 0}
-        </small>
-      </div>
-
-      {reservaSelecionada?.livros && reservaSelecionada.livros.length > 0 ? (
-        <div className="row">
-          {reservaSelecionada.livros.map((livro, index) => (
-            <div key={livro.livro_id || index} className="col-12 mb-3">
-              <div className="card border-0 bg-light rounded-3 p-3">
-                <div className="d-flex align-items-start">
-                  {/* Imagem do livro */}
-                  <div
-                    className="me-3 rounded overflow-hidden border bg-white d-flex align-items-center justify-content-center"
-                    style={{
-                      width: '70px',
-                      height: '100px',
-                      flexShrink: 0,
-                    }}
-                  >
-                    {livro.livro_imagem ? (
-                      <img
-                        src={`http://localhost:3000${livro.livro_imagem}`}
-                        alt={livro.livro_titulo}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                        }}
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          const placeholder = e.target.parentNode.querySelector('.livro-placeholder');
-                          if (placeholder) placeholder.style.display = 'flex';
-                        }}
-                      />
-                    ) : (
-                      <div
-                        className="livro-placeholder d-flex align-items-center justify-content-center text-muted"
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          backgroundColor: '#f8f9fa',
-                        }}
-                      >
-                        <FaBook size={22} />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Informações do livro */}
-                  <div className="flex-grow-1">
-                    <h6 className="fw-bold text-primary mb-2">
-                      {formatarTexto(livro.livro_titulo) || 'Livro sem título'}
-                    </h6>
-                    <div className="row small text-muted">
-                      <div className="col-md-6">
-                        <p className="mb-1">
-                          <strong>Autor:</strong> {formatarTexto(livro.autor_nome) || 'Não informado'}
+              <Modal.Body className="p-4">
+                {/* SEÇÃO: Informações do Usuário */}
+                <div className="mb-4 p-3 border rounded bg-white">
+                  <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
+                    Informações do Usuário
+                  </h5>
+                  <Row>
+                    <Col md={6}>
+                      <p className="mb-2">
+                        <strong>Nome:</strong> {formatarTexto(reservaSelecionada?.usuario)}
+                      </p>
+                      <p className="mb-2">
+                        <strong>Email:</strong> {reservaSelecionada?.usuario_detalhes?.email || 'Não informado'}
+                      </p>
+                      <p className="mb-2">
+                        <strong>Telefone:</strong> {formatarTelefone(reservaSelecionada?.usuario_detalhes?.telefone) || 'Não informado'}
+                      </p>
+                    </Col>
+                    <Col md={6}>
+                      <p className="mb-2">
+                        <strong>Tipo:</strong> {formatarTexto(reservaSelecionada?.usuario_tipo)}
+                      </p>
+                      {reservaSelecionada?.usuario_detalhes?.turma && (
+                        <p className="mb-2">
+                          <strong>Turma:</strong> {reservaSelecionada.usuario_detalhes.turma}
                         </p>
-                        <p className="mb-1">
-                          <strong>ISBN:</strong> {livro.livro_isbn || 'Não informado'}
+                      )}
+                      {reservaSelecionada?.usuario_detalhes?.departamento && (
+                        <p className="mb-2">
+                          <strong>Departamento:</strong> {reservaSelecionada.usuario_detalhes.departamento}
                         </p>
-                      </div>
-                      <div className="col-md-6">
-                        <p className="mb-1">
-                          <strong>Quantidade:</strong> {livro.quantidade || 1}
+                      )}
+                      {reservaSelecionada?.usuario_detalhes?.tipo_especial && (
+                        <p className="mb-2">
+                          <strong>Tipo Especial:</strong> {formatarTexto(reservaSelecionada.usuario_detalhes.tipo_especial)}
                         </p>
-                        <p className="mb-0">
-                          <strong>ID do Livro:</strong> {livro.livro_id}
-                        </p>
-                      </div>
+                      )}
+                    </Col>
+                  </Row>
+                </div>
+
+                {/* SEÇÃO: Informações da Reserva */}
+                <div className="mb-4 p-3 border rounded bg-white">
+                  <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
+                    Informações da Reserva
+                  </h5>
+                  <Row>
+                    <Col md={6}>
+                      <p className="mb-2">
+                        <strong>Data da Reserva:</strong> {formatarData(reservaSelecionada?.data_reserva)}
+                      </p>
+                      <p className="mb-2">
+                        <strong>Data de Validade:</strong> {formatarData(reservaSelecionada?.data_validade)}
+                      </p>
+                    </Col>
+                    <Col md={6}>
+                      <p className="mb-2">
+                        <strong>Status:</strong> {getStatusBadge(reservaSelecionada?.status, reservaSelecionada?.data_validade)}
+                      </p>
+                      <p className="mb-2">
+                        <strong>Situação:</strong>
+                        <span className={`ms-2 ${verificarSituacao(reservaSelecionada?.data_validade, reservaSelecionada?.status).classe}`}>
+                          {verificarSituacao(reservaSelecionada?.data_validade, reservaSelecionada?.status).texto}
+                        </span>
+                      </p>
+                    </Col>
+                  </Row>
+                </div>
+
+                {/* SEÇÃO: Observações (se houver) */}
+                {reservaSelecionada?.observacoes && reservaSelecionada.observacoes.trim() !== '' && (
+                  <div className="mb-4 p-3 border rounded bg-white">
+                    <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
+                      <FaExclamationTriangle className="me-2" />
+                      Observações
+                    </h5>
+                    <div className="bg-light p-3 rounded">
+                      <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>
+                        {reservaSelecionada.observacoes}
+                      </p>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-muted text-center py-3">Nenhum livro encontrado nesta reserva</p>
-      )}
-    </div>
-  </Modal.Body>
+                )}
 
-  <Modal.Footer>
-    <Button variant="paginacao" onClick={handleCloseLivroModal}>
-      Fechar
-    </Button>
-  </Modal.Footer>
-</Modal>
+                {/* SEÇÃO: Livros Reservados */}
+                <div className="p-3 border rounded bg-white">
+                  <div className="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                    <h5 className="fw-bold text-primary mb-0">Livros da Reserva</h5>
+                    <small className="text-muted">
+                      <strong>Total de livros:</strong> {reservaSelecionada?.livros?.length || 0}
+                    </small>
+                  </div>
+
+                  {reservaSelecionada?.livros && reservaSelecionada.livros.length > 0 ? (
+                    <div className="row">
+                      {reservaSelecionada.livros.map((livro, index) => (
+                        <div key={livro.livro_id || index} className="col-12 mb-3">
+                          <div className="card border-0 bg-light rounded-3 p-3">
+                            <div className="d-flex align-items-start">
+                              {/* Imagem do livro */}
+                              <div
+                                className="me-3 rounded overflow-hidden border bg-white d-flex align-items-center justify-content-center"
+                                style={{
+                                  width: '70px',
+                                  height: '100px',
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {livro.livro_imagem ? (
+                                  <img
+                                    src={`http://localhost:3000${livro.livro_imagem}`}
+                                    alt={livro.livro_titulo}
+                                    style={{
+                                      width: '100%',
+                                      height: '100%',
+                                      objectFit: 'cover',
+                                    }}
+                                    onError={(e) => {
+                                      e.target.style.display = 'none';
+                                      const placeholder = e.target.parentNode.querySelector('.livro-placeholder');
+                                      if (placeholder) placeholder.style.display = 'flex';
+                                    }}
+                                  />
+                                ) : (
+                                  <div
+                                    className="livro-placeholder d-flex align-items-center justify-content-center text-muted"
+                                    style={{
+                                      width: '100%',
+                                      height: '100%',
+                                      backgroundColor: '#f8f9fa',
+                                    }}
+                                  >
+                                    <FaBook size={22} />
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Informações do livro */}
+                              <div className="flex-grow-1">
+                                <h6 className="fw-bold text-primary mb-2">
+                                  {formatarTexto(livro.livro_titulo) || 'Livro sem título'}
+                                </h6>
+                                <div className="row small text-muted">
+                                  <div className="col-md-6">
+                                    <p className="mb-1">
+                                      <strong>Autor:</strong> {formatarTexto(livro.autor_nome) || 'Não informado'}
+                                    </p>
+                                    <p className="mb-1">
+                                      <strong>ISBN:</strong> {livro.livro_isbn || 'Não informado'}
+                                    </p>
+                                  </div>
+                                  <div className="col-md-6">
+                                    <p className="mb-1">
+                                      <strong>Quantidade:</strong> {livro.quantidade || 1}
+                                    </p>
+                                    <p className="mb-0">
+                                      <strong>ID do Livro:</strong> {livro.livro_id}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-muted text-center py-3">Nenhum livro encontrado nesta reserva</p>
+                  )}
+                </div>
+              </Modal.Body>
+
+              <Modal.Footer>
+                <Button variant="paginacao" onClick={handleCloseLivroModal}>
+                  Fechar
+                </Button>
+              </Modal.Footer>
+            </Modal>
 
             {/* Paginação  */}
             {totalPaginas > 1 && (

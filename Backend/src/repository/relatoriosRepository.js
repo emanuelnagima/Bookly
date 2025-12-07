@@ -59,108 +59,106 @@ class RelatoriosRepository {
   }
 
 
-  async getRelatorioEmprestimos(filtros = {}) {
-    try {
-        // Query corrigida usando LEFT JOIN e subquery para livros
-        let query = `
-            SELECT 
-                e.id,
-                e.data_emprestimo,
-                e.data_devolucao_prevista,
-                e.data_devolucao_real,
-                e.status,
-                e.usuario_tipo,
-                e.data_cancelamento,
-                e.motivo_cancelamento,
-                COALESCE(
-                    (SELECT GROUP_CONCAT(DISTINCT l.titulo SEPARATOR ', ') 
-                     FROM emprestimo_livros el 
-                     JOIN livros l ON el.livro_id = l.id 
-                     WHERE el.emprestimo_id = e.id),
-                    'Livro não registrado'
-                ) as livro,
-                CASE 
-                    WHEN e.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = e.usuario_id)
-                    WHEN e.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = e.usuario_id)
-                    WHEN e.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = e.usuario_id)
-                    ELSE 'Não identificado'
-                END as usuario,
-                e.usuario_id,
-                -- CAMPO CALCULADO: mantém o status existente
-                CASE 
-                    WHEN e.status = 'ativo' AND e.data_devolucao_prevista < CURDATE() THEN 'atrasado'
-                    ELSE e.status
-                END as status_calculado
-            FROM emprestimos e
-            WHERE 1=1
-        `;
-        
-        const params = [];
+async getRelatorioEmprestimos(filtros = {}) {
+  try {
+    let query = `
+      SELECT 
+        e.id,
+        e.data_emprestimo,
+        e.data_devolucao_prevista,
+        e.data_devolucao_real,
+        e.status,
+        e.usuario_tipo,
+        -- Buscar dados de cancelamento da tabela historico_cancelamentos
+        hc.data_cancelamento,
+        hc.motivo_cancelamento,
+        COALESCE(
+          (SELECT GROUP_CONCAT(DISTINCT l.titulo SEPARATOR ', ') 
+           FROM emprestimo_livros el 
+           JOIN livros l ON el.livro_id = l.id 
+           WHERE el.emprestimo_id = e.id),
+          'Livro não registrado'
+        ) as livro,
+        CASE 
+          WHEN e.usuario_tipo = 'aluno' THEN (SELECT nome FROM alunos WHERE id = e.usuario_id)
+          WHEN e.usuario_tipo = 'professor' THEN (SELECT nome FROM professores WHERE id = e.usuario_id)
+          WHEN e.usuario_tipo = 'usuario_especial' THEN (SELECT nome_completo FROM usuarios_especiais WHERE id = e.usuario_id)
+          ELSE 'Não identificado'
+        END as usuario,
+        e.usuario_id,
+        CASE 
+          WHEN e.status = 'ativo' AND e.data_devolucao_prevista < CURDATE() THEN 'atrasado'
+          ELSE e.status
+        END as status_calculado
+      FROM emprestimos e
+      LEFT JOIN historico_cancelamentos hc ON e.id = hc.emprestimo_id
+      WHERE 1=1
+    `;
+    
+    const params = [];
 
-        // Filtros de data (mantenha como estava)
-        if (filtros.dataInicio && !filtros.dataFim) {
-            query += ' AND DATE(e.data_emprestimo) = ?';
-            params.push(filtros.dataInicio);
-        } 
-        else if (filtros.dataInicio && filtros.dataFim) {
-            query += ' AND e.data_emprestimo >= ? AND e.data_emprestimo <= ?';
-            params.push(filtros.dataInicio, filtros.dataFim + ' 23:59:59');
-        }
-        else if (!filtros.dataInicio && filtros.dataFim) {
-            query += ' AND DATE(e.data_emprestimo) = ?';
-            params.push(filtros.dataFim);
-        }
-
-        // Filtro de status
-        if (filtros.status) {
-            if (filtros.status === 'atrasado') {
-                // Inclui tanto os marcados como 'atrasado' quanto os 'ativos' com data vencida
-                query += ' AND (e.status = "atrasado" OR (e.status = "ativo" AND e.data_devolucao_prevista < CURDATE()))';
-            } else if (filtros.status === 'cancelado') {
-                query += ' AND e.status = "cancelado"';
-            } else {
-                query += ' AND e.status = ?';
-                params.push(filtros.status);
-            }
-        }
-
-        if (filtros.usuario_tipo) {
-            query += ' AND e.usuario_tipo = ?';
-            params.push(filtros.usuario_tipo);
-        }
-
-        // Filtro por nome do usuário
-        if (filtros.nome_usuario) {
-            query += ` AND (
-                (e.usuario_tipo = 'aluno' AND EXISTS (SELECT 1 FROM alunos WHERE id = e.usuario_id AND nome LIKE ?)) OR
-                (e.usuario_tipo = 'professor' AND EXISTS (SELECT 1 FROM professores WHERE id = e.usuario_id AND nome LIKE ?)) OR
-                (e.usuario_tipo = 'usuario_especial' AND EXISTS (SELECT 1 FROM usuarios_especiais WHERE id = e.usuario_id AND nome_completo LIKE ?))
-            )`;
-            params.push(`%${filtros.nome_usuario}%`, `%${filtros.nome_usuario}%`, `%${filtros.nome_usuario}%`);
-        }
-
-        query += ' ORDER BY e.data_emprestimo DESC LIMIT 1000';
-        
-        console.log('Query corrigida:', query);
-        console.log('Parâmetros:', params);
-        
-        const [rows] = await db.execute(query, params);
-        
-        console.log('Total de resultados encontrados:', rows.length);
-        
-        // Atualizar o status nos dados retornados
-        const rowsAtualizados = rows.map(row => ({
-            ...row,
-            status: row.status_calculado || row.status
-        }));
-        
-        return rowsAtualizados;
-    } catch (error) {
-        console.error('Erro na query corrigida:', error);
-        throw new Error(`Erro ao buscar relatório de empréstimos: ${error.message}`);
+    // Filtros de data
+    if (filtros.dataInicio && !filtros.dataFim) {
+      query += ' AND DATE(e.data_emprestimo) = ?';
+      params.push(filtros.dataInicio);
+    } 
+    else if (filtros.dataInicio && filtros.dataFim) {
+      query += ' AND e.data_emprestimo >= ? AND e.data_emprestimo <= ?';
+      params.push(filtros.dataInicio, filtros.dataFim + ' 23:59:59');
     }
+    else if (!filtros.dataInicio && filtros.dataFim) {
+      query += ' AND DATE(e.data_emprestimo) = ?';
+      params.push(filtros.dataFim);
+    }
+
+    // Filtro de status
+    if (filtros.status) {
+      if (filtros.status === 'atrasado') {
+        query += ' AND (e.status = "atrasado" OR (e.status = "ativo" AND e.data_devolucao_prevista < CURDATE()))';
+      } else if (filtros.status === 'cancelado') {
+        query += ' AND e.status = "cancelado"';
+      } else {
+        query += ' AND e.status = ?';
+        params.push(filtros.status);
+      }
+    }
+
+    if (filtros.usuario_tipo) {
+      query += ' AND e.usuario_tipo = ?';
+      params.push(filtros.usuario_tipo);
+    }
+
+    // Filtro por nome do usuário
+    if (filtros.nome_usuario) {
+      query += ` AND (
+        (e.usuario_tipo = 'aluno' AND EXISTS (SELECT 1 FROM alunos WHERE id = e.usuario_id AND nome LIKE ?)) OR
+        (e.usuario_tipo = 'professor' AND EXISTS (SELECT 1 FROM professores WHERE id = e.usuario_id AND nome LIKE ?)) OR
+        (e.usuario_tipo = 'usuario_especial' AND EXISTS (SELECT 1 FROM usuarios_especiais WHERE id = e.usuario_id AND nome_completo LIKE ?))
+      )`;
+      params.push(`%${filtros.nome_usuario}%`, `%${filtros.nome_usuario}%`, `%${filtros.nome_usuario}%`);
+    }
+
+    query += ' ORDER BY e.data_emprestimo DESC LIMIT 1000';
+    
+    console.log('Query corrigida:', query);
+    console.log('Parâmetros:', params);
+    
+    const [rows] = await db.execute(query, params);
+    
+    console.log('Total de resultados encontrados:', rows.length);
+    
+    // Atualizar o status nos dados retornados
+    const rowsAtualizados = rows.map(row => ({
+      ...row,
+      status: row.status_calculado || row.status
+    }));
+    
+    return rowsAtualizados;
+  } catch (error) {
+    console.error('Erro na query corrigida:', error);
+    throw new Error(`Erro ao buscar relatório de empréstimos: ${error.message}`);
+  }
 }
-  
   async getRelatorioEntradas(filtros = {}) {
     try {
       let query = `

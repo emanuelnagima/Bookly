@@ -312,11 +312,30 @@ async finalizar(id) {
         await connection.beginTransaction();
 
         // Buscar empréstimo e seus livros
-        const emprestimo = await this.findById(id);
-        if (!emprestimo) {
+        const [emprestimoRows] = await connection.execute(
+            'SELECT * FROM emprestimos WHERE id = ?',
+            [id]
+        );
+        
+        if (emprestimoRows.length === 0) {
             throw new Error('Empréstimo não encontrado');
         }
 
+        // Buscar livros do empréstimo
+        const [livrosRows] = await connection.execute(
+            'SELECT livro_id, quantidade FROM emprestimo_livros WHERE emprestimo_id = ?',
+            [id]
+        );
+
+        // Devolver livros ao estoque
+        for (const livro of livrosRows) {
+            await connection.execute(
+                'UPDATE livros SET estoque = estoque + ? WHERE id = ?',
+                [livro.quantidade || 1, livro.livro_id]
+            );
+        }
+
+        // Atualizar status do empréstimo
         await connection.execute(
             'UPDATE emprestimos SET status = "finalizado", data_devolucao_real = NOW() WHERE id = ?',
             [id]

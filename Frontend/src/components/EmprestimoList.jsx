@@ -332,7 +332,11 @@ const getStatusBadge = (status, dataDevolucao) => {
               </thead>
              <tbody>
                 {emprestimosPaginaAtual.map(emprestimo => {
-                  const atrasado = isAtrasado(emprestimo.data_devolucao_prevista, emprestimo.status);
+                  // CORREÇÃO: Cancelados não são atrasados
+                  const atrasado = emprestimo.status !== 'cancelado' && 
+                                  emprestimo.status !== 'finalizado' && 
+                                  isAtrasado(emprestimo.data_devolucao_prevista, emprestimo.status);
+                  
                   const situacao = verificarPrazo(
                     emprestimo.data_devolucao_prevista, 
                     emprestimo.data_devolucao_real,
@@ -340,33 +344,31 @@ const getStatusBadge = (status, dataDevolucao) => {
                   );
 
                   return (
-                    <tr key={emprestimo.id} className={atrasado ? 'linha-atrasada' : ''}>
+                    <tr key={emprestimo.id} className={atrasado && emprestimo.status !== 'cancelado' ? 'linha-atrasada' : ''}>
                       <td className="fw-bold">#{emprestimo.id}</td>
 
-                     {/* Coluna Usuário */}
-                        <td>
-                          <div className="fw-semibold">{formatarTexto(emprestimo.usuario)}</div>
-                        </td>
+                      {/* Coluna Usuário */}
+                      <td>
+                        <div className="fw-semibold">{formatarTexto(emprestimo.usuario)}</div>
+                      </td>
 
                       {/* Coluna Tipo */}
-                        <td>
-                          {emprestimo.usuario_tipo
-                            ? (() => {
-                                // Formatar o tipo de usuário
-                                let tipoFormatado = emprestimo.usuario_tipo;
-                                
-                                // Remover underline e capitalizar
-                                if (tipoFormatado === 'usuario_especial') {
-                                  tipoFormatado = 'Usuário Especial';
-                                } else {
-                                  tipoFormatado = tipoFormatado.charAt(0).toUpperCase() + tipoFormatado.slice(1);
-                                }
-                                
-                                return tipoFormatado;
-                              })()
-                            : ''
-                          }
-                        </td>
+                      <td>
+                        {emprestimo.usuario_tipo
+                          ? (() => {
+                              let tipoFormatado = emprestimo.usuario_tipo;
+                              
+                              if (tipoFormatado === 'usuario_especial') {
+                                tipoFormatado = 'Usuário Especial';
+                              } else {
+                                tipoFormatado = tipoFormatado.charAt(0).toUpperCase() + tipoFormatado.slice(1);
+                              }
+                              
+                              return tipoFormatado;
+                            })()
+                          : ''
+                        }
+                      </td>
 
                       {/* Coluna Livros */}
                       <td>
@@ -384,13 +386,17 @@ const getStatusBadge = (status, dataDevolucao) => {
 
                       <td className="text-nowrap">{formatarData(emprestimo.data_emprestimo)}</td>
                       
-                      {/* Coluna Data Devolução */}
-                      <td className={`text-nowrap ${atrasado ? 'text-warning fw-bold' : ''}`}>
-                        {atrasado && <FaExclamationTriangle className="me-1" />}
-                        {/* EXIBIR DATA CORRETA: real se finalizado, prevista se ativo/atrasado */}
+                      {/* Coluna Data Devolução - CORREÇÃO PARA CANCELADOS */}
+                      <td className={`text-nowrap ${
+                        // Apenas mostrar warning para atrasados NÃO cancelados
+                        atrasado && emprestimo.status !== 'cancelado' ? 'text-warning fw-bold' : ''
+                      }`}>
+                        {atrasado && emprestimo.status !== 'cancelado' && <FaExclamationTriangle className="me-1" />}
+                        
+                        {/* EXIBIR DATA CORRETA */}
                         {emprestimo.status === 'finalizado' && emprestimo.data_devolucao_real 
-                          ? formatarData(emprestimo.data_devolucao_real) // DATA REAL
-                          : formatarData(emprestimo.data_devolucao_prevista) // DATA PREVISTA
+                          ? formatarData(emprestimo.data_devolucao_real)
+                          : formatarData(emprestimo.data_devolucao_prevista)
                         }
                       </td>
 
@@ -398,7 +404,7 @@ const getStatusBadge = (status, dataDevolucao) => {
                         {getStatusBadge(emprestimo.status, emprestimo.data_devolucao_prevista)}
                       </td>
 
-                      {/*  Coluna Situação  */}
+                      {/* Coluna Situação */}
                       <td>
                         <span className={`small ${situacao.classe}`}>
                           {situacao.texto}
@@ -411,9 +417,10 @@ const getStatusBadge = (status, dataDevolucao) => {
                         )}
                       </td>
 
+                      {/* Coluna Ações - CORREÇÃO PARA INCLUIR ATRASADOS */}
                       <td>
                         <div className="d-flex gap-2 justify-content-center">
-                          {emprestimo.status === 'ativo' && (
+                          {(emprestimo.status === 'ativo' || emprestimo.status === 'atrasado') && (
                             <>
                               <button
                                 className="btn-sm-custom btn-primary"
@@ -422,13 +429,13 @@ const getStatusBadge = (status, dataDevolucao) => {
                               >
                                 <FaSyncAlt />
                               </button>
-                               <button
-                                  className="btn-sm-custom btn-renovar"
-                                  onClick={() => onCancelar(emprestimo.id)}
-                                  title="Cancelar empréstimo"
-                                >
-                                  <FaTimesCircle /> {/* Ícone de cancelar */}
-                                </button>
+                              <button
+                                className="btn-sm-custom btn-renovar"
+                                onClick={() => onCancelar(emprestimo.id)}
+                                title="Cancelar empréstimo"
+                              >
+                                <FaTimesCircle />
+                              </button>
                               <button
                                 className="btn-sm-custom btn-success"
                                 onClick={() => onFinalizar(emprestimo.id)}
@@ -436,11 +443,9 @@ const getStatusBadge = (status, dataDevolucao) => {
                               >
                                 <FaCheckCircle />
                               </button>
-
-              
                             </>
                           )}
-                          {emprestimo.status !== 'ativo' && (
+                          {emprestimo.status !== 'ativo' && emprestimo.status !== 'atrasado' && (
                             <span className="text-muted small d-flex align-items-center">
                               Sem ações
                             </span>

@@ -270,16 +270,17 @@ const navigate = useNavigate();
                       Termos de uso
                     </a>
                   </li>
-
                   <li>
-                    <a
-                      href="#"
-                      className="small text-muted hover-underline"
-                    >
-                      <FaChevronRight className="me-2 text-primary" size={10} />
-                      Documentação
-                    </a>
-                  </li>
+                      <a
+                        href="/ERS%20-%20ESPECIFICAÇÃO%20DE%20REQUISITO%20DE%20SOFTWARE.pdf"  
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="small text-muted hover-underline"
+                      >
+                        <FaChevronRight className="me-2 text-primary" size={10} />
+                        Documentação
+                      </a>
+                    </li>
                 </ul>
               </Col>
             </Row>

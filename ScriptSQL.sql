@@ -167,20 +167,22 @@ CREATE TABLE `livros` (
 -- -----------------------------
 -- Tabela: EMPRÉSTIMOS
 -- -----------------------------
-CREATE TABLE `emprestimos` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `usuario_id` int(11) NOT NULL,
-  `usuario_tipo` enum('aluno','professor','usuario_especial') NOT NULL,
-  `data_emprestimo` datetime NOT NULL DEFAULT current_timestamp(),
-  `data_devolucao_prevista` date NOT NULL,
-  `data_devolucao_real` datetime DEFAULT NULL,
-  `status` enum('ativo','finalizado','atrasado','cancelado') NOT NULL DEFAULT 'ativo',
-  `observacoes` text DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_usuario` (`usuario_id`,`usuario_tipo`),
-  KEY `idx_status` (`status`),
-  KEY `idx_data_devolucao` (`data_devolucao_prevista`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+	CREATE TABLE `emprestimos` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `usuario_id` int(11) NOT NULL,
+   `usuario_tipo` enum('aluno','professor','usuario_especial') NOT NULL,
+   `data_emprestimo` datetime NOT NULL DEFAULT current_timestamp(),
+   `data_devolucao_prevista` date NOT NULL,
+   `data_devolucao_real` datetime DEFAULT NULL,
+   `status` enum('ativo','finalizado','atrasado','cancelado') NOT NULL DEFAULT 'ativo',
+   `observacoes` text DEFAULT NULL,
+   `data_cancelamento` datetime DEFAULT NULL,
+   `motivo_cancelamento` text DEFAULT NULL,
+   PRIMARY KEY (`id`),
+   KEY `idx_usuario` (`usuario_id`,`usuario_tipo`),
+   KEY `idx_status` (`status`),
+   KEY `idx_data_devolucao` (`data_devolucao_prevista`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 
 -- -----------------------------
 -- Tabela: EMPRÉSTIMO_LIVROS
@@ -201,20 +203,22 @@ CREATE TABLE `emprestimo_livros` (
 -- Tabela: RESERVAS
 -- -----------------------------
 CREATE TABLE `reservas` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `usuario_id` int(11) NOT NULL,
-  `usuario_tipo` enum('aluno','professor','usuario_especial') NOT NULL,
-  `livro_id` int(11) NOT NULL,
-  `data_reserva` datetime NOT NULL DEFAULT current_timestamp(),
-  `data_validade` date NOT NULL,
-  `status` enum('ativa','cancelada','concluida','expirada') NOT NULL DEFAULT 'ativa',
-  `observacoes` text DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_usuario_reserva` (`usuario_id`,`usuario_tipo`),
-  KEY `idx_livro_reserva` (`livro_id`),
-  KEY `idx_status_reserva` (`status`),
-  CONSTRAINT `fk_livro_reserva` FOREIGN KEY (`livro_id`) REFERENCES `livros` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `usuario_id` int(11) NOT NULL,
+   `usuario_tipo` enum('aluno','professor','usuario_especial') NOT NULL,
+   `livro_id` int(11) NOT NULL,
+   `data_reserva` datetime NOT NULL DEFAULT current_timestamp(),
+   `data_validade` date NOT NULL,
+   `status` enum('ativa','cancelada','concluida','expirada') NOT NULL DEFAULT 'ativa',
+   `data_cancelamento` datetime DEFAULT NULL,
+   `motivo_cancelamento` text DEFAULT NULL,
+   `observacoes` text DEFAULT NULL,
+   PRIMARY KEY (`id`),
+   KEY `idx_usuario_reserva` (`usuario_id`,`usuario_tipo`),
+   KEY `idx_livro_reserva` (`livro_id`),
+   KEY `idx_status_reserva` (`status`),
+   CONSTRAINT `fk_livro_reserva` FOREIGN KEY (`livro_id`) REFERENCES `livros` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+ ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 
 -- -----------------------------
 -- Tabela: RESERVA_LIVROS
@@ -287,7 +291,7 @@ CREATE TABLE `historico_cancelamentos` (
   CONSTRAINT `fk_cancelamento_emprestimo` FOREIGN KEY (`emprestimo_id`) REFERENCES `emprestimos` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE IF NOT EXISTS usuarios_sistema (
+CREATE TABLE usuarios_sistema (
     id INT PRIMARY KEY AUTO_INCREMENT,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
@@ -347,146 +351,51 @@ SHOW TRIGGERS;
 -- Ver estrutura das tabelas
 DESC emprestimos;
 DESC reservas;
+-- Primeiro: Autores
+INSERT INTO `autores` (`id`, `nome`, `nacionalidade`, `data_nascimento`) VALUES
+(1, 'George Orwell', 'Reino Unido', '1903-06-25'),
+(2, 'J.K. Rowling', 'Reino Unido', '1965-07-31'),
+(3, 'J.R.R. Tolkien', 'Reino Unido', '1892-01-03'),
+(4, 'Machado de Assis', 'Brasil', '1839-06-21'),
+(5, 'Stephen King', 'Estados Unidos', '1947-09-21');
 
+-- Segundo: Editoras
+INSERT INTO `editoras` (`id`, `nome`, `cnpj`, `endereco`, `telefone`, `email`) VALUES
+(1, 'Companhia das Letras', '12.345.678/0001-90', 'Rua das Letras, 123 - São Paulo/SP', '(11) 3333-4444', 'contato@companhiadasletras.com'),
+(2, 'Rocco', '23.456.789/0001-01', 'Av. das Editoras, 456 - Rio de Janeiro/RJ', '(21) 2222-3333', 'editora@rocco.com.br'),
+(3, 'HarperCollins', '34.567.890/0001-12', 'Broadway, 789 - New York/USA', '+1-555-123-4567', 'contact@harpercollins.com'),
+(4, 'Martins Fontes', '45.678.901/0001-23', 'Rua Martins, 321 - São Paulo/SP', '(11) 4444-5555', 'contato@martinsfontes.com.br'),
+(5, 'Sextante', '56.789.012/0001-34', 'Rua Sextante, 654 - Rio de Janeiro/RJ', '(21) 3333-4444', 'info@sextante.com.br');
 
+-- Terceiro: Livros (agora com referências válidas)
+INSERT INTO `livros` (`id`, `titulo`, `autor_id`, `editora_id`, `isbn`, `genero`, `ano_publicacao`, `imagem`, `estoque`) VALUES
+(1, '1984', 1, 1, '978-85-359-0277-9', 'Ficção', 1949, '1984.jpg', 10),
+(2, 'Harry Potter e a Pedra Filosofal', 2, 2, '978-85-325-1112-9', 'Fantasia', 1997, 'harry_potter.jpg', 8),
+(3, 'O Senhor dos Anéis: A Sociedade do Anel', 3, 3, '978-85-359-0918-1', 'Fantasia', 1954, 'senhor_aneis.jpg', 6),
+(4, 'Dom Casmurro', 4, 4, '978-85-336-0122-2', 'Romance', 1899, 'dom_casmurro.jpg', 12),
+(5, 'It: A Coisa', 5, 5, '978-85-7542-624-1', 'Terror', 1986, 'it_a_coisa.jpg', 7);
 
-INSERT INTO alunos (nome, matricula, cpf, data_nascimento, email, telefone, turma)
-VALUES
-('Laura Fernandes', 'A2025001', '123.456.789-11', '2008-03-14', 'laura.fernandes@escola.com', '(18) 99111-2233', '1º Ano Médio'),
-('Pedro Henrique', 'A2025002', '987.654.321-22', '2007-10-02', 'pedro.henrique@escola.com', '(18) 99912-3344', '2º Ano Médio'),
-('Mariana Costa', 'A2025003', '111.222.333-44', '2009-07-28', 'mariana.costa@escola.com', '(18) 99784-2211', '9º Ano Fundamental'),
-('Lucas Almeida', 'A2025004', '555.666.777-88', '2010-12-05', 'lucas.almeida@escola.com', '(18) 99122-5588', '7º Ano Fundamental'),
-('Gabriel Santos', 'A2025005', '999.888.777-55', '2008-02-01', 'gabriel.santos@escola.com', '(18) 99888-4411', '1º Ano Médio');
+-- Quarto: Alunos
+INSERT INTO `alunos` (`id`, `nome`, `matricula`, `cpf`, `data_nascimento`, `email`, `telefone`, `turma`) VALUES
+(1, 'João Silva', '20240001', '111.222.333-44', '2008-05-15', 'joao.silva@escola.edu', '(11) 99999-8888', '9º Ano Fundamental'),
+(2, 'Maria Santos', '20240002', '222.333.444-55', '2009-08-22', 'maria.santos@escola.edu', '(11) 98888-7777', '8º Ano Fundamental'),
+(3, 'Pedro Oliveira', '20240003', '333.444.555-66', '2007-03-10', 'pedro.oliveira@escola.edu', '(11) 97777-6666', '1º Ano Médio'),
+(4, 'Ana Costa', '20240004', '444.555.666-77', '2006-11-30', 'ana.costa@escola.edu', '(11) 96666-5555', '2º Ano Médio'),
+(5, 'Carlos Souza', '20240005', '555.666.777-88', '2005-02-14', 'carlos.souza@escola.edu', '(11) 95555-4444', '3º Ano Médio');
 
-INSERT INTO alunos (nome, matricula, cpf, data_nascimento, email, telefone, turma)
-VALUES
-('Laura Fernandes', 'A2025001', '123.456.789-11', '2008-03-14', 'laura.fernandes@escola.com', '(18) 99111-2233', '1º Ano Médio'),
-('Pedro Henrique', 'A2025002', '987.654.321-22', '2007-10-02', 'pedro.henrique@escola.com', '(18) 99912-3344', '2º Ano Médio'),
-('Mariana Costa', 'A2025003', '111.222.333-44', '2009-07-28', 'mariana.costa@escola.com', '(18) 99784-2211', '9º Ano Fundamental'),
-('Lucas Almeida', 'A2025004', '555.666.777-88', '2010-12-05', 'lucas.almeida@escola.com', '(18) 99122-5588', '7º Ano Fundamental'),
-('Gabriel Santos', 'A2025005', '999.888.777-55', '2008-02-01', 'gabriel.santos@escola.com', '(18) 99888-4411', '1º Ano Médio');
+-- Quinto: Professores
+INSERT INTO `professores` (`id`, `nome`, `cpf`, `data_nascimento`, `matricula`, `email`, `telefone`, `departamento`) VALUES
+(1, 'Prof. Roberto Almeida', '666.777.888-99', '1980-04-12', 'PROF001', 'roberto.almeida@escola.edu', '(11) 94444-3333', 'Língua Portuguesa'),
+(2, 'Prof. Sandra Lima', '777.888.999-00', '1975-09-25', 'PROF002', 'sandra.lima@escola.edu', '(11) 93333-2222', 'Literatura'),
+(3, 'Prof. Marcos Ribeiro', '888.999.000-11', '1982-12-05', 'PROF003', 'marcos.ribeiro@escola.edu', '(11) 92222-1111', 'História'),
+(4, 'Prof. Juliana Ferreira', '999.000.111-22', '1978-07-18', 'PROF004', 'juliana.ferreira@escola.edu', '(11) 91111-0000', 'Artes'),
+(5, 'Prof. Fernando Costa', '000.111.222-33', '1985-01-30', 'PROF005', 'fernando.costa@escola.edu', '(11) 90000-9999', 'Filosofia');
 
-INSERT INTO professores (nome, cpf, data_nascimento, matricula, email, telefone, departamento)
-VALUES
-('Renata Moreira', '321.654.987-00', '1985-06-10', 'P2025001', 'renata.moreira@escola.com', '(18) 99234-1122', 'Matemática'),
-('Carlos Alberto', '654.987.321-99', '1978-11-23', 'P2025002', 'carlos.alberto@escola.com', '(18) 99321-7788', 'História'),
-('Fernanda Lima', '222.333.444-55', '1990-04-18', 'P2025003', 'fernanda.lima@escola.com', '(18) 99777-8899', 'Português'),
-('Ricardo Martins', '888.777.666-55', '1982-09-30', 'P2025004', 'ricardo.martins@escola.com', '(18) 99456-6611', 'Geografia'),
-('Aline Souza', '444.555.666-22', '1995-01-15', 'P2025005', 'aline.souza@escola.com', '(18) 99144-2211', 'Ciências');
-
-INSERT INTO autores (nome, nacionalidade, data_nascimento) VALUES
-('Gabriel García Márquez', 'Colômbia', '1927-03-06'),
-('Haruki Murakami', 'Japão', '1949-01-12'),
-('Jane Austen', 'Reino Unido', '1775-12-16'),
-('George Orwell', 'Reino Unido', '1903-06-25'),
-('Clarice Lispector', 'Brasil', '1920-12-10'),
-('J. R. R. Tolkien', 'Reino Unido', '1892-01-03'),
-('Agatha Christie', 'Reino Unido', '1890-09-15'),
-('Stephen King', 'Estados Unidos', '1947-09-21'),
-('J. K. Rowling', 'Reino Unido', '1965-07-31'),
-('C. S. Lewis', 'Reino Unido', '1898-11-29'),
-('Ernest Hemingway', 'Estados Unidos', '1899-07-21'),
-('Machado de Assis', 'Brasil', '1839-06-21'),
-('Franz Kafka', 'Alemanha', '1883-07-03'),
-('Fyodor Dostoevsky', 'Rússia', '1821-11-11'),
-('Neil Gaiman', 'Reino Unido', '1960-11-10'),
-('Stephen Hawking', 'Reino Unido', '1942-01-08'),
-('Isaac Asimov', 'Estados Unidos', '1920-01-02'),
-('Suzanne Collins', 'Estados Unidos', '1962-08-10'),
-('Rick Riordan', 'Estados Unidos', '1964-06-05'),
-('Yuval Noah Harari', 'Israel', '1976-02-24');
-
-INSERT INTO livros (titulo, autor_id, editora_id, isbn, genero, ano_publicacao, estoque, imagem) VALUES
-('Cem Anos de Solidão', 1, 1, '9788535920427', 'Romance', 1967, 12, NULL),
-('Norwegian Wood', 2, 4, '9780375704024', 'Drama', 1987, 8, NULL),
-('Orgulho e Preconceito', 3, 1, '9780141439518', 'Romance', 1813, 10, NULL),
-('1984', 4, 7, '9780451524935', 'Ficção', 1949, 14, NULL),
-('A Hora da Estrela', 5, 1, '9788535925699', 'Drama', 1977, 6, NULL),
-('O Senhor dos Anéis', 6, 7, '9780544003415', 'Fantasia', 1954, 9, NULL),
-('Assassinato no Expresso Oriente', 7, 5, '9780062693662', 'Suspense', 1934, 7, NULL),
-('O Iluminado', 8, 6, '9780307743657', 'Terror', 1977, 5, NULL),
-('Harry Potter e a Pedra Filosofal', 9, 2, '9780439708180', 'Fantasia', 1997, 20, NULL),
-('As Crônicas de Nárnia', 10, 7, '9780066238501', 'Fantasia', 1956, 11, NULL),
-('O Velho e o Mar', 11, 1, '9780684801223', 'Drama', 1952, 6, NULL),
-('Dom Casmurro', 12, 1, '9788535920366', 'Romance', 1899, 13, NULL),
-('A Metamorfose', 13, 7, '9780553213690', 'Ficção', 1915, 10, NULL),
-('Crime e Castigo', 14, 5, '9780486415871', 'Drama', 1866, 7, NULL),
-('Coraline', 15, 6, '9780380807345', 'Fantasia', 2002, 9, NULL),
-('Uma Breve História do Tempo', 16, 9, '9780553380163', 'Educação', 1988, 4, NULL),
-('Fundação', 17, 8, '9780553293357', 'Ficção', 1951, 10, NULL),
-('Jogos Vorazes', 18, 2, '9780439023528', 'Suspense', 2008, 15, NULL),
-('Percy Jackson e o Ladrão de Raios', 19, 2, '9780786838653', 'Fantasia', 2005, 18, NULL),
-('Sapiens', 20, 10, '9780099590088', 'Educação', 2011, 12, NULL);
-
-
-INSERT INTO editoras (nome, cnpj, endereco, telefone, email) VALUES
-('Companhia das Letras', '12.345.678/0001-90', 'São Paulo, SP', '(11) 3333-1111', 'contato@companhiadasletras.com'),
-('Editora Rocco', '98.765.432/0001-55', 'Rio de Janeiro, RJ', '(21) 2222-4444', 'contato@rocco.com'),
-('HarperCollins Brasil', '45.987.123/0001-22', 'São Paulo, SP', '(11) 5555-9090', 'contato@harpercollins.com'),
-('Intrínseca', '56.111.222/0001-87', 'Rio de Janeiro, RJ', '(21) 4002-8922', 'suporte@intrinseca.com'),
-('Editora Record', '11.222.333/0001-44', 'Rio de Janeiro, RJ', '(21) 2121-3333', 'contato@record.com'),
-('DarkSide Books', '66.777.888/0001-11', 'São Paulo, SP', '(11) 8877-6644', 'hell@darkside.com'),
-('Penguin Books', '77.888.999/0001-55', 'Londres, UK', '(44) 20 3344-2211', 'contact@penguinbooks.com'),
-('Aleph', '22.333.444/0001-77', 'São Paulo, SP', '(11) 4321-7654', 'contato@aleph.com'),
-('Editora Sextante', '88.999.000/0001-66', 'Rio de Janeiro, RJ', '(21) 9988-1122', 'contato@sextante.com'),
-('Planeta', '99.000.111/0001-22', 'São Paulo, SP', '(11) 9911-5544', 'contato@planeta.com');
-
-
-INSERT INTO emprestimos 
-(usuario_id, usuario_tipo, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status, observacoes)
-VALUES
--- Empréstimos gerados por reservas concluídas
-(3, 'aluno', '2025-11-10 10:00:00', '2025-12-10', NULL, 'ativo', 'Gerado automaticamente a partir da reserva 63'),
-(3, 'aluno', '2025-10-30 15:00:00', '2025-11-30', '2025-11-25 10:30:00', 'finalizado', 'Devolução antes do prazo'),
-
--- Empréstimo ativo normal
-(1, 'aluno', '2025-11-22 14:00:00', '2025-12-22', NULL, 'ativo', 'Aluno retirou normalmente'),
-
--- Empréstimo atrasado
-(4, 'aluno', '2025-10-20 09:00:00', '2025-11-20', NULL, 'atrasado', 'Livro não devolvido no prazo'),
-
--- Empréstimo finalizado
-(5, 'aluno', '2025-11-01 10:00:00', '2025-11-30', '2025-11-29 16:00:00', 'finalizado', 'Entregue no limite'),
-
--- Empréstimo cancelado
-(2, 'aluno', '2025-11-05 08:30:00', '2025-12-05', NULL, 'cancelado', 'Operação cancelada pelo bibliotecário'),
-
--- Empréstimo ativo recente
-(4, 'aluno', '2025-11-29 11:45:00', '2025-12-29', NULL, 'ativo', 'Retirado recentemente'),
-
--- Empréstimo atrasado grave
-(1, 'aluno', '2025-09-15 12:00:00', '2025-10-15', NULL, 'atrasado', 'Aluno inadimplente'),
-
--- Finalizado sem reserva prévia
-(5, 'aluno', '2025-10-10 09:20:00', '2025-11-10', '2025-11-05 17:10:00', 'finalizado', 'Processo normal'),
-
--- Cancelado por erro de lançamento
-(3, 'aluno', '2025-11-01 10:00:00', '2025-12-01', NULL, 'cancelado', 'Lançado por engano');
-
-
-INSERT INTO reservas 
-(usuario_id, usuario_tipo, livro_id, data_reserva, data_validade, status, observacoes)
-VALUES
--- Ativas
-(1, 'aluno', 61, '2025-11-20 14:00:00', '2025-11-27', 'ativa', 'Reserva normal'),
-(5, 'aluno', 65, '2025-12-01 09:30:00', '2025-12-08', 'ativa', 'Aluno costuma pegar vários livros'),
-(2, 'aluno', 67, '2025-11-25 16:20:00', '2025-12-02', 'ativa', 'Aguardando retirada'),
-
--- Canceladas
-(2, 'aluno', 62, '2025-11-15 11:10:00', '2025-11-22', 'cancelada', 'Cancelada pelo usuário'),
-(1, 'aluno', 66, '2025-11-18 10:25:00', '2025-11-25', 'cancelada', 'Cancelada automaticamente'),
-
--- Concluídas (viraram empréstimo)
-(3, 'aluno', 63, '2025-11-10 08:00:00', '2025-11-17', 'concluida', 'Transformada em empréstimo'),
-(3, 'aluno', 68, '2025-10-30 14:00:00', '2025-11-06', 'concluida', 'Retirada concluída'),
-
--- Expiradas
-(4, 'aluno', 64, '2025-11-05 09:45:00', '2025-11-12', 'expirada', 'Aluno não retirou no prazo'),
-(8, 'aluno', 75, '2025-10-28 13:00:00', '2025-11-04', 'expirada', 'Reserva vencida'),
-
--- Outra ativa
-(4, 'aluno', 69, '2025-11-28 15:50:00', '2025-12-05', 'ativa', 'Aluno solicitou urgência');
-
+-- Sexto: Usuários Especiais
+INSERT INTO `usuarios_especiais` (`id`, `nome_completo`, `email`, `telefone`, `cpf`, `data_nascimento`, `tipo_usuario`) VALUES
+(1, 'Diretor José Carlos', 'diretor@escola.edu', '(11) 88888-7777', '123.456.789-00', '1970-06-20', 'Diretor'),
+(2, 'Bibliotecária Marta', 'biblioteca@escola.edu', '(11) 87777-6666', '234.567.890-11', '1985-03-15', 'Bibliotecário'),
+(3, 'Coordenadora Teresa', 'coordenacao@escola.edu', '(11) 86666-5555', '345.678.901-22', '1978-11-08', 'Coordenador');
 
 -- ====================================================
 -- FIM DO SCRIPT
