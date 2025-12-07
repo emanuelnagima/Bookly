@@ -1,0 +1,136 @@
+INSERT INTO alunos (nome, matricula, cpf, data_nascimento, email, telefone, turma)
+VALUES
+('Laura Fernandes', 'A2025001', '123.456.789-11', '2008-03-14', 'laura.fernandes@escola.com', '(18) 99111-2233', '1º Ano Médio'),
+('Pedro Henrique', 'A2025002', '987.654.321-22', '2007-10-02', 'pedro.henrique@escola.com', '(18) 99912-3344', '2º Ano Médio'),
+('Mariana Costa', 'A2025003', '111.222.333-44', '2009-07-28', 'mariana.costa@escola.com', '(18) 99784-2211', '9º Ano Fundamental'),
+('Lucas Almeida', 'A2025004', '555.666.777-88', '2010-12-05', 'lucas.almeida@escola.com', '(18) 99122-5588', '7º Ano Fundamental'),
+('Gabriel Santos', 'A2025005', '999.888.777-55', '2008-02-01', 'gabriel.santos@escola.com', '(18) 99888-4411', '1º Ano Médio');
+
+INSERT INTO alunos (nome, matricula, cpf, data_nascimento, email, telefone, turma)
+VALUES
+('Laura Fernandes', 'A2025001', '123.456.789-11', '2008-03-14', 'laura.fernandes@escola.com', '(18) 99111-2233', '1º Ano Médio'),
+('Pedro Henrique', 'A2025002', '987.654.321-22', '2007-10-02', 'pedro.henrique@escola.com', '(18) 99912-3344', '2º Ano Médio'),
+('Mariana Costa', 'A2025003', '111.222.333-44', '2009-07-28', 'mariana.costa@escola.com', '(18) 99784-2211', '9º Ano Fundamental'),
+('Lucas Almeida', 'A2025004', '555.666.777-88', '2010-12-05', 'lucas.almeida@escola.com', '(18) 99122-5588', '7º Ano Fundamental'),
+('Gabriel Santos', 'A2025005', '999.888.777-55', '2008-02-01', 'gabriel.santos@escola.com', '(18) 99888-4411', '1º Ano Médio');
+
+INSERT INTO professores (nome, cpf, data_nascimento, matricula, email, telefone, departamento)
+VALUES
+('Renata Moreira', '321.654.987-00', '1985-06-10', 'P2025001', 'renata.moreira@escola.com', '(18) 99234-1122', 'Matemática'),
+('Carlos Alberto', '654.987.321-99', '1978-11-23', 'P2025002', 'carlos.alberto@escola.com', '(18) 99321-7788', 'História'),
+('Fernanda Lima', '222.333.444-55', '1990-04-18', 'P2025003', 'fernanda.lima@escola.com', '(18) 99777-8899', 'Português'),
+('Ricardo Martins', '888.777.666-55', '1982-09-30', 'P2025004', 'ricardo.martins@escola.com', '(18) 99456-6611', 'Geografia'),
+('Aline Souza', '444.555.666-22', '1995-01-15', 'P2025005', 'aline.souza@escola.com', '(18) 99144-2211', 'Ciências');
+
+INSERT INTO autores (nome, nacionalidade, data_nascimento) VALUES
+('Gabriel García Márquez', 'Colômbia', '1927-03-06'),
+('Haruki Murakami', 'Japão', '1949-01-12'),
+('Jane Austen', 'Reino Unido', '1775-12-16'),
+('George Orwell', 'Reino Unido', '1903-06-25'),
+('Clarice Lispector', 'Brasil', '1920-12-10'),
+('J. R. R. Tolkien', 'Reino Unido', '1892-01-03'),
+('Agatha Christie', 'Reino Unido', '1890-09-15'),
+('Stephen King', 'Estados Unidos', '1947-09-21'),
+('J. K. Rowling', 'Reino Unido', '1965-07-31'),
+('C. S. Lewis', 'Reino Unido', '1898-11-29'),
+('Ernest Hemingway', 'Estados Unidos', '1899-07-21'),
+('Machado de Assis', 'Brasil', '1839-06-21'),
+('Franz Kafka', 'Alemanha', '1883-07-03'),
+('Fyodor Dostoevsky', 'Rússia', '1821-11-11'),
+('Neil Gaiman', 'Reino Unido', '1960-11-10'),
+('Stephen Hawking', 'Reino Unido', '1942-01-08'),
+('Isaac Asimov', 'Estados Unidos', '1920-01-02'),
+('Suzanne Collins', 'Estados Unidos', '1962-08-10'),
+('Rick Riordan', 'Estados Unidos', '1964-06-05'),
+('Yuval Noah Harari', 'Israel', '1976-02-24');
+
+INSERT INTO livros (titulo, autor_id, editora_id, isbn, genero, ano_publicacao, estoque, imagem) VALUES
+('Cem Anos de Solidão', 1, 1, '9788535920427', 'Romance', 1967, 12, NULL),
+('Norwegian Wood', 2, 4, '9780375704024', 'Drama', 1987, 8, NULL),
+('Orgulho e Preconceito', 3, 1, '9780141439518', 'Romance', 1813, 10, NULL),
+('1984', 4, 7, '9780451524935', 'Ficção', 1949, 14, NULL),
+('A Hora da Estrela', 5, 1, '9788535925699', 'Drama', 1977, 6, NULL),
+('O Senhor dos Anéis', 6, 7, '9780544003415', 'Fantasia', 1954, 9, NULL),
+('Assassinato no Expresso Oriente', 7, 5, '9780062693662', 'Suspense', 1934, 7, NULL),
+('O Iluminado', 8, 6, '9780307743657', 'Terror', 1977, 5, NULL),
+('Harry Potter e a Pedra Filosofal', 9, 2, '9780439708180', 'Fantasia', 1997, 20, NULL),
+('As Crônicas de Nárnia', 10, 7, '9780066238501', 'Fantasia', 1956, 11, NULL),
+('O Velho e o Mar', 11, 1, '9780684801223', 'Drama', 1952, 6, NULL),
+('Dom Casmurro', 12, 1, '9788535920366', 'Romance', 1899, 13, NULL),
+('A Metamorfose', 13, 7, '9780553213690', 'Ficção', 1915, 10, NULL),
+('Crime e Castigo', 14, 5, '9780486415871', 'Drama', 1866, 7, NULL),
+('Coraline', 15, 6, '9780380807345', 'Fantasia', 2002, 9, NULL),
+('Uma Breve História do Tempo', 16, 9, '9780553380163', 'Educação', 1988, 4, NULL),
+('Fundação', 17, 8, '9780553293357', 'Ficção', 1951, 10, NULL),
+('Jogos Vorazes', 18, 2, '9780439023528', 'Suspense', 2008, 15, NULL),
+('Percy Jackson e o Ladrão de Raios', 19, 2, '9780786838653', 'Fantasia', 2005, 18, NULL),
+('Sapiens', 20, 10, '9780099590088', 'Educação', 2011, 12, NULL);
+
+
+INSERT INTO editoras (nome, cnpj, endereco, telefone, email) VALUES
+('Companhia das Letras', '12.345.678/0001-90', 'São Paulo, SP', '(11) 3333-1111', 'contato@companhiadasletras.com'),
+('Editora Rocco', '98.765.432/0001-55', 'Rio de Janeiro, RJ', '(21) 2222-4444', 'contato@rocco.com'),
+('HarperCollins Brasil', '45.987.123/0001-22', 'São Paulo, SP', '(11) 5555-9090', 'contato@harpercollins.com'),
+('Intrínseca', '56.111.222/0001-87', 'Rio de Janeiro, RJ', '(21) 4002-8922', 'suporte@intrinseca.com'),
+('Editora Record', '11.222.333/0001-44', 'Rio de Janeiro, RJ', '(21) 2121-3333', 'contato@record.com'),
+('DarkSide Books', '66.777.888/0001-11', 'São Paulo, SP', '(11) 8877-6644', 'hell@darkside.com'),
+('Penguin Books', '77.888.999/0001-55', 'Londres, UK', '(44) 20 3344-2211', 'contact@penguinbooks.com'),
+('Aleph', '22.333.444/0001-77', 'São Paulo, SP', '(11) 4321-7654', 'contato@aleph.com'),
+('Editora Sextante', '88.999.000/0001-66', 'Rio de Janeiro, RJ', '(21) 9988-1122', 'contato@sextante.com'),
+('Planeta', '99.000.111/0001-22', 'São Paulo, SP', '(11) 9911-5544', 'contato@planeta.com');
+
+
+INSERT INTO emprestimos 
+(usuario_id, usuario_tipo, data_emprestimo, data_devolucao_prevista, data_devolucao_real, status, observacoes)
+VALUES
+-- Empréstimos gerados por reservas concluídas
+(3, 'aluno', '2025-11-10 10:00:00', '2025-12-10', NULL, 'ativo', 'Gerado automaticamente a partir da reserva 63'),
+(3, 'aluno', '2025-10-30 15:00:00', '2025-11-30', '2025-11-25 10:30:00', 'finalizado', 'Devolução antes do prazo'),
+
+-- Empréstimo ativo normal
+(1, 'aluno', '2025-11-22 14:00:00', '2025-12-22', NULL, 'ativo', 'Aluno retirou normalmente'),
+
+-- Empréstimo atrasado
+(4, 'aluno', '2025-10-20 09:00:00', '2025-11-20', NULL, 'atrasado', 'Livro não devolvido no prazo'),
+
+-- Empréstimo finalizado
+(5, 'aluno', '2025-11-01 10:00:00', '2025-11-30', '2025-11-29 16:00:00', 'finalizado', 'Entregue no limite'),
+
+-- Empréstimo cancelado
+(2, 'aluno', '2025-11-05 08:30:00', '2025-12-05', NULL, 'cancelado', 'Operação cancelada pelo bibliotecário'),
+
+-- Empréstimo ativo recente
+(4, 'aluno', '2025-11-29 11:45:00', '2025-12-29', NULL, 'ativo', 'Retirado recentemente'),
+
+-- Empréstimo atrasado grave
+(1, 'aluno', '2025-09-15 12:00:00', '2025-10-15', NULL, 'atrasado', 'Aluno inadimplente'),
+
+-- Finalizado sem reserva prévia
+(5, 'aluno', '2025-10-10 09:20:00', '2025-11-10', '2025-11-05 17:10:00', 'finalizado', 'Processo normal'),
+
+-- Cancelado por erro de lançamento
+(3, 'aluno', '2025-11-01 10:00:00', '2025-12-01', NULL, 'cancelado', 'Lançado por engano');
+
+
+INSERT INTO reservas 
+(usuario_id, usuario_tipo, livro_id, data_reserva, data_validade, status, observacoes)
+VALUES
+-- Ativas
+(1, 'aluno', 61, '2025-11-20 14:00:00', '2025-11-27', 'ativa', 'Reserva normal'),
+(5, 'aluno', 65, '2025-12-01 09:30:00', '2025-12-08', 'ativa', 'Aluno costuma pegar vários livros'),
+(2, 'aluno', 67, '2025-11-25 16:20:00', '2025-12-02', 'ativa', 'Aguardando retirada'),
+
+-- Canceladas
+(2, 'aluno', 62, '2025-11-15 11:10:00', '2025-11-22', 'cancelada', 'Cancelada pelo usuário'),
+(1, 'aluno', 66, '2025-11-18 10:25:00', '2025-11-25', 'cancelada', 'Cancelada automaticamente'),
+
+-- Concluídas (viraram empréstimo)
+(3, 'aluno', 63, '2025-11-10 08:00:00', '2025-11-17', 'concluida', 'Transformada em empréstimo'),
+(3, 'aluno', 68, '2025-10-30 14:00:00', '2025-11-06', 'concluida', 'Retirada concluída'),
+
+-- Expiradas
+(4, 'aluno', 64, '2025-11-05 09:45:00', '2025-11-12', 'expirada', 'Aluno não retirou no prazo'),
+(8, 'aluno', 75, '2025-10-28 13:00:00', '2025-11-04', 'expirada', 'Reserva vencida'),
+
+-- Outra ativa
+(4, 'aluno', 69, '2025-11-28 15:50:00', '2025-12-05', 'ativa', 'Aluno solicitou urgência');
