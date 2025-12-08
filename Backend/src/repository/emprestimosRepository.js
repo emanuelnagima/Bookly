@@ -318,38 +318,61 @@ async diagnosticarEstoque(livroId) {
         throw error;
     }
 }
-    async renovar(id, novaDataDevolucao) {
-        let connection;
-        try {
-            connection = await db.getConnection();
-            await connection.beginTransaction();
+async renovar(id, novaDataDevolucao) {
+    let connection;
+    try {
+        connection = await db.getConnection();
+        await connection.beginTransaction();
 
-            // Verificar se empréstimo existe e está ativo
-            const [emprestimoRows] = await connection.execute(
-                'SELECT * FROM emprestimos WHERE id = ? AND status = "ativo"',
+        // **CORREÇÃO: Permitir renovar se estiver ativo OU atrasado**
+        const [emprestimoRows] = await connection.execute(
+            'SELECT * FROM emprestimos WHERE id = ? AND status IN ("ativo", "atrasado")',
+            [id]
+        );
+
+        if (emprestimoRows.length === 0) {
+            throw new Error('Empréstimo não encontrado, já finalizado ou não pode ser renovado');
+        }
+
+        const emprestimo = emprestimoRows[0];
+        
+        // **VALIDAR SE A NOVA DATA É FUTURA E MAIOR QUE A ATUAL**
+        const dataAtual = new Date();
+        const novaData = new Date(novaDataDevolucao);
+        const dataAtualPrevista = new Date(emprestimo.data_devolucao_prevista);
+        
+        if (novaData <= dataAtual) {
+            throw new Error('A nova data de devolução deve ser futura');
+        }
+        
+        if (novaData <= dataAtualPrevista) {
+            throw new Error('A nova data de devolução deve ser posterior à data atual de devolução');
+        }
+
+        // Atualizar data de devolução
+        await connection.execute(
+            'UPDATE emprestimos SET data_devolucao_prevista = ? WHERE id = ?',
+            [novaDataDevolucao, id]
+        );
+
+        // **ATUALIZAR STATUS: se estava atrasado e agora a data é futura, voltar para ativo**
+        if (emprestimo.status === 'atrasado' && novaData > new Date()) {
+            await connection.execute(
+                'UPDATE emprestimos SET status = "ativo" WHERE id = ?',
                 [id]
             );
-
-            if (emprestimoRows.length === 0) {
-                throw new Error('Empréstimo não encontrado ou já finalizado');
-            }
-
-            // Atualizar data de devolução
-            await connection.execute(
-                'UPDATE emprestimos SET data_devolucao_prevista = ? WHERE id = ?',
-                [novaDataDevolucao, id]
-            );
-
-            await connection.commit();
-            return this.findById(id);
-
-        } catch (error) {
-            if (connection) await connection.rollback();
-            throw new Error(`Erro ao renovar empréstimo: ${error.message}`);
-        } finally {
-            if (connection) connection.release();
         }
+
+        await connection.commit();
+        return await this.findById(id);
+
+    } catch (error) {
+        if (connection) await connection.rollback();
+        throw new Error(`Erro ao renovar empréstimo: ${error.message}`);
+    } finally {
+        if (connection) connection.release();
     }
+}
 
 async finalizar(id) {
     let connection;

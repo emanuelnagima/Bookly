@@ -80,21 +80,43 @@ async verificarDisponibilidade(req, res) {
     res.status(500).json({ success: false, message: error.message });
   }
 }
-    async renovar(req, res) {
-        try {
-            const { id } = req.params;
-            const { data_devolucao_prevista } = req.body;
+async renovar(req, res) {
+    try {
+        const { id } = req.params;
+        const { data_devolucao_prevista } = req.body;
 
-            if (!data_devolucao_prevista) {
-                return res.status(400).json({ success: false, message: 'Nova data de devolução é obrigatória' });
-            }
-
-            const emprestimoRenovado = await emprestimosRepository.renovar(id, data_devolucao_prevista);
-            res.json({ success: true, data: emprestimoRenovado, message: 'Empréstimo renovado com sucesso!' });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
+        if (!data_devolucao_prevista) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Nova data de devolução é obrigatória' 
+            });
         }
+
+        // Validar se a data é futura
+        const hoje = new Date();
+        const dataDevolucao = new Date(data_devolucao_prevista);
+        
+        if (dataDevolucao <= hoje) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Nova data de devolução deve ser futura' 
+            });
+        }
+
+        const emprestimoRenovado = await emprestimosRepository.renovar(id, data_devolucao_prevista);
+        
+        res.json({ 
+            success: true, 
+            data: emprestimoRenovado, 
+            message: 'Empréstimo renovado com sucesso!' 
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
+}
 
     async finalizar(req, res) {
         try {
