@@ -104,7 +104,7 @@ class AutoresController {
 
     async delete(req, res) {
         try {
-            // 🧩 Verifica livros vinculados antes de tentar excluir
+            //  Verifica livros vinculados antes de tentar excluir
             const livrosVinculados = await autoresRepository.verificarLivrosVinculados(req.params.id);
             
             if (livrosVinculados > 0) {

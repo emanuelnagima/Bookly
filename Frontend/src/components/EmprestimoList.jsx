@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Table, Form, InputGroup, Button, Badge, Row, Col, Modal } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaSyncAlt, FaCheckCircle, FaBook, FaList,FaTimesCircle , FaInfoCircle, FaExclamationTriangle, FaClipboardList } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaSyncAlt, FaCheckCircle, FaBook, FaList, FaTimesCircle, FaInfoCircle, FaExclamationTriangle, FaClipboardList } from 'react-icons/fa';
 import { FaHandshake } from "react-icons/fa";
 
 const ITENS_POR_PAGINA = 7;
@@ -73,49 +73,49 @@ const EmprestimoList = ({ emprestimos, onCancelar, onRenovar, onFinalizar, loadi
     });
   };
 
-const normalizarTexto = texto =>
-  (texto || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remove acentos
-    .trim(); // Filtrar empréstimos
-    
-const emprestimosFiltrados = emprestimos.filter(emprestimo => {
-  if (!termoBusca && filtroStatus === 'todos') return true;
+  const normalizarTexto = texto =>
+    (texto || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+      .trim(); // Filtrar empréstimos
 
-  const termo = normalizarTexto(termoBusca);
-  
-  // Busca no usuário e ID
-  const buscaUsuario = normalizarTexto(emprestimo.usuario || '').includes(termo);
-  const buscaId = (emprestimo.id || '').toString().includes(termo);
-  
-  // Busca nos títulos dos livros
-  const buscaLivros = (emprestimo.livros || []).some(livro => 
-    normalizarTexto(livro.livro_titulo || '').includes(termo)
-  );
-  
-  const matchesBusca = !termoBusca || buscaUsuario || buscaId || buscaLivros;
+  const emprestimosFiltrados = emprestimos.filter(emprestimo => {
+    if (!termoBusca && filtroStatus === 'todos') return true;
 
-  const hoje = new Date();
-  const devolucao = new Date(emprestimo.data_devolucao_prevista);
+    const termo = normalizarTexto(termoBusca);
 
-  // Cálculo dinâmico do status
-  let statusCalculado = emprestimo.status;
-  if (emprestimo.status === 'ativo' && devolucao < hoje) {
-    statusCalculado = 'atrasado';
-  }
+    // Busca no usuário e ID
+    const buscaUsuario = normalizarTexto(emprestimo.usuario || '').includes(termo);
+    const buscaId = (emprestimo.id || '').toString().includes(termo);
 
-  const matchesStatus =
-    filtroStatus === 'todos' || statusCalculado === filtroStatus;
+    // Busca nos títulos dos livros
+    const buscaLivros = (emprestimo.livros || []).some(livro =>
+      normalizarTexto(livro.livro_titulo || '').includes(termo)
+    );
 
-  return matchesBusca && matchesStatus;
-});
+    const matchesBusca = !termoBusca || buscaUsuario || buscaId || buscaLivros;
+
+    const hoje = new Date();
+    const devolucao = new Date(emprestimo.data_devolucao_prevista);
+
+    // Cálculo dinâmico do status
+    let statusCalculado = emprestimo.status;
+    if (emprestimo.status === 'ativo' && devolucao < hoje) {
+      statusCalculado = 'atrasado';
+    }
+
+    const matchesStatus =
+      filtroStatus === 'todos' || statusCalculado === filtroStatus;
+
+    return matchesBusca && matchesStatus;
+  });
   // Aplicar ordenação
   const emprestimosOrdenados = ordenarEmprestimos(emprestimosFiltrados);
 
   // Calcular paginação
   const totalPaginas = Math.ceil(emprestimosOrdenados.length / ITENS_POR_PAGINA);
-  
+
   // Garantir que a página atual seja válida
   const paginaValida = Math.max(1, Math.min(paginaAtual, totalPaginas));
   if (paginaValida !== paginaAtual) {
@@ -135,90 +135,90 @@ const emprestimosFiltrados = emprestimos.filter(emprestimo => {
   };
 
   // Função para verificar se está no prazo
-const verificarPrazo = (dataDevolucaoPrevista, dataDevolucaoReal, status) => {
-  // Status cancelado tem prioridade
-  if (status === 'cancelado') {
-    return { 
-      situacao: 'cancelado', 
-      classe: 'text-danger', 
-      texto: 'Cancelado',
-      dataDisplay: 'Cancelado',
-      badge: 'danger'
-    };
-  }
+  const verificarPrazo = (dataDevolucaoPrevista, dataDevolucaoReal, status) => {
+    // Status cancelado tem prioridade
+    if (status === 'cancelado') {
+      return {
+        situacao: 'cancelado',
+        classe: 'text-danger',
+        texto: 'Cancelado',
+        dataDisplay: 'Cancelado',
+        badge: 'danger'
+      };
+    }
 
-  if (status === 'finalizado') {
-    return { 
-      situacao: 'finalizado', 
-      classe: 'text-dark', 
-      texto: 'Devolvido',
-      dataDisplay: dataDevolucaoReal ? formatarData(dataDevolucaoReal) : 'Devolvido',
-      badge: 'dark'
-    };
-  }
+    if (status === 'finalizado') {
+      return {
+        situacao: 'finalizado',
+        classe: 'text-dark',
+        texto: 'Devolvido',
+        dataDisplay: dataDevolucaoReal ? formatarData(dataDevolucaoReal) : 'Devolvido',
+        badge: 'dark'
+      };
+    }
 
-  const hoje = new Date();
-  const devolucao = new Date(dataDevolucaoPrevista);
+    const hoje = new Date();
+    const devolucao = new Date(dataDevolucaoPrevista);
 
-  if (devolucao < hoje) {
-    return { 
-      situacao: 'atrasado', 
-      classe: 'text-warning', 
-      texto: 'Atrasado',
+    if (devolucao < hoje) {
+      return {
+        situacao: 'atrasado',
+        classe: 'text-warning',
+        texto: 'Atrasado',
+        dataDisplay: formatarData(dataDevolucaoPrevista),
+        badge: 'warning'
+      };
+    }
+
+    // Verificar se está próximo do vencimento (3 dias ou menos)
+    const diasRestantes = Math.ceil((devolucao - hoje) / (1000 * 60 * 60 * 24));
+    if (diasRestantes <= 3) {
+      return {
+        situacao: 'proximo_vencimento',
+        classe: 'text-warning',
+        texto: `Vence em ${diasRestantes} dia(s)`,
+        dataDisplay: formatarData(dataDevolucaoPrevista),
+        badge: 'warning'
+      };
+    }
+
+    return {
+      situacao: 'no_prazo',
+      classe: '',
+      texto: 'No prazo',
       dataDisplay: formatarData(dataDevolucaoPrevista),
-      badge: 'warning'
+      badge: 'success'
     };
-  }
+  };
+  const getStatusBadge = (status, dataDevolucao) => {
+    const hoje = new Date();
+    const devolucao = new Date(dataDevolucao);
 
-  // Verificar se está próximo do vencimento (3 dias ou menos)
-  const diasRestantes = Math.ceil((devolucao - hoje) / (1000 * 60 * 60 * 24));
-  if (diasRestantes <= 3) {
-    return { 
-      situacao: 'proximo_vencimento', 
-      classe: 'text-warning', 
-      texto: `Vence em ${diasRestantes} dia(s)`,
-      dataDisplay: formatarData(dataDevolucaoPrevista),
-      badge: 'warning'
+    // Função para capitalizar (primeira letra maiúscula)
+    const capitalizar = (texto) => {
+      return texto.charAt(0).toUpperCase() + texto.slice(1);
     };
-  }
 
-  return { 
-    situacao: 'no_prazo', 
-    classe: '', 
-    texto: 'No prazo',
-    dataDisplay: formatarData(dataDevolucaoPrevista),
-    badge: 'success'
-  };
-};
-const getStatusBadge = (status, dataDevolucao) => {
-  const hoje = new Date();
-  const devolucao = new Date(dataDevolucao);
-  
-  // Função para capitalizar (primeira letra maiúscula)
-  const capitalizar = (texto) => {
-    return texto.charAt(0).toUpperCase() + texto.slice(1);
-  };
+    switch (status) {
+      case 'finalizado':
+        return <Badge bg="dark">{capitalizar('finalizado')}</Badge>;
 
-  switch (status) {
-    case 'finalizado':
-      return <Badge bg="dark">{capitalizar('finalizado')}</Badge>;
-    
-    case 'cancelado':
-      return <Badge bg="danger">{capitalizar('cancelado')}</Badge>;
-    
-    case 'atrasado':
-      return <Badge bg="warning" className="text-dark">{capitalizar('atrasado')}</Badge>;
-    
-    case 'ativo':
-      if (devolucao < hoje) {
+      case 'cancelado':
+        return <Badge bg="danger">{capitalizar('cancelado')}</Badge>;
+
+      case 'atrasado':
         return <Badge bg="warning" className="text-dark">{capitalizar('atrasado')}</Badge>;
-      }
-      return <Badge bg="success">{capitalizar('emprestado')}</Badge>;
-    
-    default:
-      return <Badge bg="secondary">{capitalizar(status || 'desconhecido')}</Badge>;
-  }
-};
+
+      case 'ativo':
+        if (devolucao < hoje) {
+          return <Badge bg="warning" className="text-dark">{capitalizar('atrasado')}</Badge>;
+        }
+        return <Badge bg="success">{capitalizar('emprestado')}</Badge>;
+
+      default:
+        return <Badge bg="secondary">{capitalizar(status || 'desconhecido')}</Badge>;
+    }
+  };
   const isAtrasado = (dataDevolucao, status) => {
     if (status === 'finalizado') return false;
     const hoje = new Date();
@@ -271,7 +271,7 @@ const getStatusBadge = (status, dataDevolucao) => {
             <option value="ativo">Ativos</option>
             <option value="atrasado">Atrasados</option>
             <option value="finalizado">Finalizados</option>
-             <option value="cancelado">Cancelados</option> 
+            <option value="cancelado">Cancelados</option>
 
           </Form.Select>
 
@@ -330,15 +330,15 @@ const getStatusBadge = (status, dataDevolucao) => {
                   <th width="200px" className="text-center">Ações</th>
                 </tr>
               </thead>
-             <tbody>
+              <tbody>
                 {emprestimosPaginaAtual.map(emprestimo => {
-                  // CORREÇÃO: Cancelados não são atrasados
-                  const atrasado = emprestimo.status !== 'cancelado' && 
-                                  emprestimo.status !== 'finalizado' && 
-                                  isAtrasado(emprestimo.data_devolucao_prevista, emprestimo.status);
-                  
+                  // Cancelados não são atrasados
+                  const atrasado = emprestimo.status !== 'cancelado' &&
+                    emprestimo.status !== 'finalizado' &&
+                    isAtrasado(emprestimo.data_devolucao_prevista, emprestimo.status);
+
                   const situacao = verificarPrazo(
-                    emprestimo.data_devolucao_prevista, 
+                    emprestimo.data_devolucao_prevista,
                     emprestimo.data_devolucao_real,
                     emprestimo.status
                   );
@@ -356,16 +356,16 @@ const getStatusBadge = (status, dataDevolucao) => {
                       <td>
                         {emprestimo.usuario_tipo
                           ? (() => {
-                              let tipoFormatado = emprestimo.usuario_tipo;
-                              
-                              if (tipoFormatado === 'usuario_especial') {
-                                tipoFormatado = 'Usuário Especial';
-                              } else {
-                                tipoFormatado = tipoFormatado.charAt(0).toUpperCase() + tipoFormatado.slice(1);
-                              }
-                              
-                              return tipoFormatado;
-                            })()
+                            let tipoFormatado = emprestimo.usuario_tipo;
+
+                            if (tipoFormatado === 'usuario_especial') {
+                              tipoFormatado = 'Usuário Especial';
+                            } else {
+                              tipoFormatado = tipoFormatado.charAt(0).toUpperCase() + tipoFormatado.slice(1);
+                            }
+
+                            return tipoFormatado;
+                          })()
                           : ''
                         }
                       </td>
@@ -385,16 +385,16 @@ const getStatusBadge = (status, dataDevolucao) => {
                       </td>
 
                       <td className="text-nowrap">{formatarData(emprestimo.data_emprestimo)}</td>
-                      
-                      {/* Coluna Data Devolução - CORREÇÃO PARA CANCELADOS */}
+
+                      {/* Coluna Data Devolução - PARA CANCELADOS */}
                       <td className={`text-nowrap ${
                         // Apenas mostrar warning para atrasados NÃO cancelados
                         atrasado && emprestimo.status !== 'cancelado' ? 'text-warning fw-bold' : ''
-                      }`}>
+                        }`}>
                         {atrasado && emprestimo.status !== 'cancelado' && <FaExclamationTriangle className="me-1" />}
-                        
+
                         {/* EXIBIR DATA CORRETA */}
-                        {emprestimo.status === 'finalizado' && emprestimo.data_devolucao_real 
+                        {emprestimo.status === 'finalizado' && emprestimo.data_devolucao_real
                           ? formatarData(emprestimo.data_devolucao_real)
                           : formatarData(emprestimo.data_devolucao_prevista)
                         }
@@ -417,7 +417,7 @@ const getStatusBadge = (status, dataDevolucao) => {
                         )}
                       </td>
 
-                      {/* Coluna Ações - CORREÇÃO PARA INCLUIR ATRASADOS */}
+                      {/* Coluna Ações */}
                       <td>
                         <div className="d-flex gap-2 justify-content-center">
                           {(emprestimo.status === 'ativo' || emprestimo.status === 'atrasado') && (
@@ -509,52 +509,52 @@ const getStatusBadge = (status, dataDevolucao) => {
                 </div>
 
                 {/* SEÇÃO: Informações do Empréstimo */}
-                    <div className="mb-4 p-3 border rounded bg-white">
-                      <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
-                        Informações do Empréstimo
-                      </h5>
-                      <Row>
-                        <Col md={6}>
-                          <p className="mb-2">
-                            <strong>Data do Empréstimo:</strong> {formatarData(emprestimoSelecionado?.data_emprestimo)}
-                          </p>
-                          <p className="mb-2">
-                            <strong>Data de Devolução Prevista:</strong> {formatarData(emprestimoSelecionado?.data_devolucao_prevista)}
-                          </p>
-                        </Col>
-                        <Col md={6}>
-                          <p className="mb-2">
-                            <strong>Status:</strong> {getStatusBadge(emprestimoSelecionado?.status, emprestimoSelecionado?.data_devolucao_prevista)}
-                          </p>
-                          
-                          {/* Data de Devolução Real (se disponível) */}
-                          {emprestimoSelecionado?.data_devolucao_real && (
-                            <p className="mb-2">
-                              <strong>Data de Devolução Real:</strong> 
-                              <span className="text-success fw-bold ms-2">
-                                {formatarData(emprestimoSelecionado.data_devolucao_real)}
-                              </span>
-                            </p>
-                          )}
-                          
-                          <p className="mb-2 d-flex align-items-center">
-                            <strong>Situação:</strong>
-                            {(() => {
-                              const situacao = verificarPrazo(
-                                emprestimoSelecionado?.data_devolucao_prevista,
-                                emprestimoSelecionado?.data_devolucao_real,
-                                emprestimoSelecionado?.status
-                              );
-                              return (
-                                <Badge bg={situacao.badge} className="ms-2">
-                                  {situacao.texto}
-                                </Badge>
-                              );
-                            })()}
-                          </p>
-                        </Col>
-                      </Row>
-                    </div>
+                <div className="mb-4 p-3 border rounded bg-white">
+                  <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
+                    Informações do Empréstimo
+                  </h5>
+                  <Row>
+                    <Col md={6}>
+                      <p className="mb-2">
+                        <strong>Data do Empréstimo:</strong> {formatarData(emprestimoSelecionado?.data_emprestimo)}
+                      </p>
+                      <p className="mb-2">
+                        <strong>Data de Devolução Prevista:</strong> {formatarData(emprestimoSelecionado?.data_devolucao_prevista)}
+                      </p>
+                    </Col>
+                    <Col md={6}>
+                      <p className="mb-2">
+                        <strong>Status:</strong> {getStatusBadge(emprestimoSelecionado?.status, emprestimoSelecionado?.data_devolucao_prevista)}
+                      </p>
+
+                      {/* Data de Devolução Real (se disponível) */}
+                      {emprestimoSelecionado?.data_devolucao_real && (
+                        <p className="mb-2">
+                          <strong>Data de Devolução Real:</strong>
+                          <span className="text-success fw-bold ms-2">
+                            {formatarData(emprestimoSelecionado.data_devolucao_real)}
+                          </span>
+                        </p>
+                      )}
+
+                      <p className="mb-2 d-flex align-items-center">
+                        <strong>Situação:</strong>
+                        {(() => {
+                          const situacao = verificarPrazo(
+                            emprestimoSelecionado?.data_devolucao_prevista,
+                            emprestimoSelecionado?.data_devolucao_real,
+                            emprestimoSelecionado?.status
+                          );
+                          return (
+                            <Badge bg={situacao.badge} className="ms-2">
+                              {situacao.texto}
+                            </Badge>
+                          );
+                        })()}
+                      </p>
+                    </Col>
+                  </Row>
+                </div>
 
                 {/* SEÇÃO: Livros do Empréstimo */}
                 <div className="p-3 border rounded bg-white">
@@ -562,20 +562,20 @@ const getStatusBadge = (status, dataDevolucao) => {
                     <h5 className="fw-bold text-primary mb-0">Livros do Empréstimo</h5>
                     <small className="text-muted"><strong>Total de livros:</strong> {livrosSelecionados.length}</small>
                   </div>
-                    {/* SEÇÃO: Observações (se houver) */}
-{emprestimoSelecionado?.observacoes && emprestimoSelecionado.observacoes.trim() !== '' && (
-  <div className="mb-4 p-3 border rounded bg-white">
-    <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
-      <FaExclamationTriangle className="me-2" />
-      Observações
-    </h5>
-    <div className="bg-light p-3 rounded">
-      <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>
-        {emprestimoSelecionado.observacoes}
-      </p>
-    </div>
-  </div>
-)}
+                  {/* SEÇÃO: Observações (se houver) */}
+                  {emprestimoSelecionado?.observacoes && emprestimoSelecionado.observacoes.trim() !== '' && (
+                    <div className="mb-4 p-3 border rounded bg-white">
+                      <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
+                        <FaExclamationTriangle className="me-2" />
+                        Observações
+                      </h5>
+                      <div className="bg-light p-3 rounded">
+                        <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>
+                          {emprestimoSelecionado.observacoes}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                   {livrosSelecionados.length === 0 ? (
                     <p className="text-muted text-center py-3">Nenhum livro encontrado neste empréstimo</p>
                   ) : (
@@ -660,7 +660,7 @@ const getStatusBadge = (status, dataDevolucao) => {
                 <div className="text-muted small">
                   Mostrando {inicio + 1} a {Math.min(fim, emprestimosOrdenados.length)} de {emprestimosOrdenados.length} empréstimos
                 </div>
-                
+
                 <div className="d-flex align-items-center gap-2">
                   <Button
                     className="btn-paginacao"
@@ -670,11 +670,11 @@ const getStatusBadge = (status, dataDevolucao) => {
                     <FaChevronLeft className="me-1" />
                     Anterior
                   </Button>
-                  
+
                   <span className="mx-3 text-muted">
                     Página <strong>{paginaAtual}</strong> de <strong>{totalPaginas}</strong>
                   </span>
-                  
+
                   <Button
                     className="btn-paginacao"
                     onClick={handleProximaPagina}

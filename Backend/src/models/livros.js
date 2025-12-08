@@ -4,23 +4,45 @@ class Livro {
         this.titulo = data.titulo || '';
         this.autor_id = data.autor_id || '';
         this.editora_id = data.editora_id || '';
-        this.autor_nome = data.autor_nome || ''; // para exibição
-        this.editora_nome = data.editora_nome || ''; // para exibição
+        this.autor_nome = data.autor_nome || ''; 
+        this.editora_nome = data.editora_nome || ''; 
         this.isbn = data.isbn || '';
         this.genero = data.genero || '';
         this.ano_publicacao = data.ano_publicacao || null;
         this.imagem = data.imagem || null;
         this.status = data.status || 'Disponivel';
 
-        this.generosValidos = [
-            'Romance',
-            'Ficção',
-            'Drama',
-            'Suspense',
-            'Fantasia',
-            'Biografia',
-            'Terror',
-            'Educação',
+         this.generosValidos = [
+            // Literatura & Ficção
+            'Romance', 'Ficção', 'Ficção Científica', 'Fantasia', 
+            'Distopia', 'Realismo Mágico', 'Épico',
+            
+            // Gêneros Populares
+            'Suspense', 'Terror', 'Policial', 'Aventura', 
+            'Drama', 'Humor',
+            
+            // Não-Ficção
+            'Biografia', 'Autoajuda', 'História', 'Biologia',
+            'Geografia', 'Filosofia', 'Psicologia', 'Sociologia',
+            
+            // Acadêmico & Educacional
+            'Educação', 'Matemática', 'Física', 'Química',
+            'Ciências', 'Medicina', 'Direito', 'Economia',
+            
+            // Artes & Cultura
+            'Arte', 'Música', 'Teatro', 'Poesia',
+            'Contos', 'Crônicas', 'Mitologia',
+            
+            // Formatos Especiais
+            'Gráfico', 'HQ/Quadrinhos', 'Mangá',
+            
+            // Por Faixa Etária
+            'Infantil', 'Juvenil',
+            
+            // Temáticas Diversas
+            'Negócios', 'Tecnologia', 'Informática', 'Política',
+            'Religião', 'Esportes', 'Saúde', 'Culinária', 'Viagem',
+            
             'Outro'
         ];
         

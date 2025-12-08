@@ -13,8 +13,8 @@ import {
   FaBriefcase,
 } from "react-icons/fa";
 
-import { useNavigate } from "react-router-dom"; 
-import { useAuth } from "../hooks/useAuth"; 
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 
 
@@ -29,7 +29,7 @@ const Footer = () => {
   const [showHelpModal, setShowHelpModal] = useState(false);
   const handleCloseHelpModal = () => setShowHelpModal(false);
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const { logout } = useAuth();
 
   // FUNÇÃO PARA LOGOUT (igual à da sidebar)
@@ -48,10 +48,10 @@ const navigate = useNavigate();
           className="g-4 mt-5"
           style={{
             padding: "40px",
-            backgroundColor: "#ffffffff",       
-            border: "1px solid rgb(230, 230, 230)",  
-            borderRadius: "20px",         
-             borderRight: "4px solid #f7e6e6"
+            backgroundColor: "#ffffffff",
+            border: "1px solid rgb(230, 230, 230)",
+            borderRadius: "20px",
+            borderRight: "4px solid #f7e6e6"
           }}
         >
           {/* Coluna 1 - Sobre */}
@@ -147,7 +147,7 @@ const navigate = useNavigate();
                   <li>
                     <a
                       href="/entrada"
-                    className="small text-muted hover-underline"
+                      className="small text-muted hover-underline"
                     >
                       Entradas
                     </a>
@@ -155,7 +155,7 @@ const navigate = useNavigate();
                   <li>
                     <a
                       href="/saida"
-                    className="small text-muted hover-underline"
+                      className="small text-muted hover-underline"
                     >
                       Saídas
                     </a>
@@ -171,7 +171,7 @@ const navigate = useNavigate();
                   <li>
                     <a
                       href="/emprestimos"
-                    className="small text-muted hover-underline"
+                      className="small text-muted hover-underline"
                     >
                       Empréstimos
                     </a>
@@ -214,23 +214,23 @@ const navigate = useNavigate();
                         e.preventDefault();
                         setShowHelpModal(true);
                       }}
-                    className="small text-muted hover-underline"
+                      className="small text-muted hover-underline"
                     >
                       Ajuda
                     </a>
                   </li>
-               <li>
-  <a
-    href="#"
-    onClick={(e) => {
-      e.preventDefault();
-      handleLogout();
-    }}
-    className="small text-muted hover-underline"
-  >
-    Sair do sistema
-  </a>
-</li>
+                  <li>
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleLogout();
+                      }}
+                      className="small text-muted hover-underline"
+                    >
+                      Sair do sistema
+                    </a>
+                  </li>
                   <li>
                     <a
                       href={GOOGLE_FORM_FEEDBACK}
@@ -271,16 +271,16 @@ const navigate = useNavigate();
                     </a>
                   </li>
                   <li>
-                      <a
-                        href="/ERS%20-%20ESPECIFICAÇÃO%20DE%20REQUISITO%20DE%20SOFTWARE.pdf"  
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="small text-muted hover-underline"
-                      >
-                        <FaChevronRight className="me-2 text-primary" size={10} />
-                        Documentação
-                      </a>
-                    </li>
+                    <a
+                      href="/ERS%20-%20ESPECIFICAÇÃO%20DE%20REQUISITO%20DE%20SOFTWARE.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="small text-muted hover-underline"
+                    >
+                      <FaChevronRight className="me-2 text-primary" size={10} />
+                      Documentação
+                    </a>
+                  </li>
                 </ul>
               </Col>
             </Row>
@@ -302,27 +302,27 @@ const navigate = useNavigate();
             </div>
 
             <div className="small text-muted text-decoration-none">
-                booklysuporte@gmail.com
+              booklysuporte@gmail.com
             </div>
 
-          <div className="feedback-section mt-3">
-  <a
-    href={GOOGLE_FORM_FEEDBACK}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="btn btn-primary d-inline-flex align-items-center gap-1"
-    style={{
-      fontSize: "14px",       // menor fonte
-      padding: "3px 25px",     // menos padding
-    }}
-  >
-    <FaCommentDots size={12} />
-    Ajude-nos a melhorar
-  </a>
-  <p className="small text-muted mt-1 mb-0">
-    Sua opinião é valiosa para nós!
-  </p>
-</div>
+            <div className="feedback-section mt-3">
+              <a
+                href={GOOGLE_FORM_FEEDBACK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary d-inline-flex align-items-center gap-1"
+                style={{
+                  fontSize: "14px",       // menor fonte
+                  padding: "3px 25px",     // menos padding
+                }}
+              >
+                <FaCommentDots size={12} />
+                Ajude-nos a melhorar
+              </a>
+              <p className="small text-muted mt-1 mb-0">
+                Sua opinião é valiosa para nós!
+              </p>
+            </div>
 
           </Col>
         </Row>
@@ -341,7 +341,7 @@ const navigate = useNavigate();
         {/* Créditos */}
         <div className="creditos-rodape py-3 text-center">
           <p className="mb-0 small text-muted">
-             Bookly &copy; {new Date().getFullYear()} <br />
+            Bookly &copy; {new Date().getFullYear()} <br />
             Versão 1.0.0
           </p>
         </div>

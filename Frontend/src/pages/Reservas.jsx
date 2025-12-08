@@ -380,7 +380,7 @@ const handleSaveReserva = async (dadosReserva) => {
               <strong className="text-dark">{error.title}</strong>
             </div>
             
-            {/* MENSAGEM PRINCIPAL - MANTIDA DA ORIGINAL */}
+            {/* MENSAGEM PRINCIPAL */}
             <div className="mt-1 small">
               {error.mainMessage || error.message}
               
@@ -422,7 +422,6 @@ const handleSaveReserva = async (dadosReserva) => {
       );
     }
     
-    // Se for string (erros antigos - MANTÉM EXATAMENTE COMO ESTAVA)
     return (
       <div className="alert alert-danger py-2 mb-3 d-flex align-items-center">
         <FaExclamationTriangle className="me-2 flex-shrink-0" />

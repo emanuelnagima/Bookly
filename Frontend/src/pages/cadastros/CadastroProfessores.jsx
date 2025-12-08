@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+/* import { useState, useEffect } from 'react'
 import { Container, Row, Col, Button, Modal } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import CadProfessor from '../../components/CadProfessor'
@@ -126,4 +126,4 @@ const CadastroProfessores = () => {
   )
 }
 
-export default CadastroProfessores
+export default CadastroProfessores */

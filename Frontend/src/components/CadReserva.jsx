@@ -21,7 +21,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
     professores: [],
     usuarios_especiais: []
   });
-  
+
   const [livrosDisponiveis, setLivrosDisponiveis] = useState([]);
   const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
   const [validated, setValidated] = useState(false);
@@ -35,16 +35,16 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
     const carregarOpcoes = async () => {
       try {
         setOptionsLoading(true);
-        
+
         const usuariosData = await emprestimosService.getOpcoesUsuarios();
         setOpcoesUsuarios(usuariosData.data || usuariosData);
-        
+
         const livrosData = await livroService.getAllComEstoque();
         setLivrosDisponiveis(livrosData);
-        
+
         // Verificar disponibilidade de todos os livros
         await verificarDisponibilidadeTodosLivros(livrosData);
-        
+
       } catch (err) {
         console.error('Erro ao carregar opções:', err);
         setError('Erro ao carregar dados');
@@ -61,7 +61,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
     try {
       setVerificandoDisponibilidade(true);
       const novaDisponibilidade = {};
-      
+
       for (const livro of livros) {
         try {
           // Verificar disponibilidade básica usando o mesmo método do empréstimo
@@ -91,7 +91,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
           };
         }
       }
-      
+
       setDisponibilidadeGeral(novaDisponibilidade);
     } catch (error) {
       console.error('Erro ao verificar disponibilidade geral:', error);
@@ -119,7 +119,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
         data_validade: reserva.data_validade || '',
         observacoes: reserva.observacoes || ''
       });
-      
+
       if (reserva.livros && reserva.livros.length > 0) {
         setLivrosSelecionados(reserva.livros);
       } else if (reserva.livro_id) {
@@ -131,7 +131,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
           autor_nome: reserva.autor_nome
         }]);
       }
-      
+
       if (reserva.usuario_id && reserva.usuario_tipo) {
         buscarUsuario(reserva.usuario_id, reserva.usuario_tipo);
       }
@@ -157,7 +157,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
   const buscarUsuario = async (usuarioId, usuarioTipo) => {
     try {
       let usuario = null;
-      
+
       switch (usuarioTipo) {
         case 'aluno':
           usuario = opcoesUsuarios.alunos?.find(a => a.id === parseInt(usuarioId));
@@ -169,7 +169,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
           usuario = opcoesUsuarios.usuarios_especiais?.find(u => u.id === parseInt(usuarioId));
           break;
       }
-      
+
       setUsuarioSelecionado(usuario);
     } catch (error) {
       console.error('Erro ao buscar usuário:', error);
@@ -186,7 +186,7 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
     if (name === 'usuario_id' && formData.usuario_tipo) {
       buscarUsuario(value, formData.usuario_tipo);
     }
-    
+
     if (name === 'usuario_tipo' && formData.usuario_id) {
       buscarUsuario(formData.usuario_id, value);
     }
@@ -202,15 +202,15 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
 
   const getLivrosOrganizados = () => {
     const livrosParaAdicionar = getLivrosDisponiveisParaAdicionar();
-    
+
     return livrosParaAdicionar.sort((a, b) => {
       const aDisponivel = podeReservarLivro(a.id);
       const bDisponivel = podeReservarLivro(b.id);
-      
+
       // Disponíveis primeiro (true vem antes de false)
       if (aDisponivel && !bDisponivel) return -1;
       if (!aDisponivel && bDisponivel) return 1;
-      
+
       // Se ambos têm mesma disponibilidade, ordena por título
       return a.titulo.localeCompare(b.titulo);
     });
@@ -242,30 +242,30 @@ const CadReserva = ({ onSave, onCancel, reserva, loading }) => {
   const getStatusDisponibilidade = (livroId) => {
     const podeReservar = podeReservarLivro(livroId);
     const disponivel = calcularDisponibilidade(livroId);
-    
+
     if (disponivel === '...' || disponivel === undefined) {
-      return { 
-        texto: 'Carregando...', 
-        classe: 'text-muted', 
+      return {
+        texto: 'Carregando...',
+        classe: 'text-muted',
         badge: 'secondary',
         icon: <Spinner animation="border" size="sm" className="me-1" />
       };
     }
-    
+
     if (podeReservar) {
-      return { 
-        texto: `Disponível (${disponivel})`, 
+      return {
+        texto: `Disponível (${disponivel})`,
         icon: <BsCheckCircle className="me-1" />
       };
     } else {
-      return { 
-        texto: `Indisponível (${disponivel})`, 
+      return {
+        texto: `Indisponível (${disponivel})`,
         icon: <BsExclamationTriangle className="me-1" />
       };
     }
   };
 
-const adicionarLivro = async () => {
+  const adicionarLivro = async () => {
     if (!livroAtual.livro_id) {
       setError({
         type: 'livro_nao_selecionado',
@@ -302,14 +302,14 @@ const adicionarLivro = async () => {
     // VERIFICAÇÃO DE DISPONIBILIDADE COM MENSAGENS PADRONIZADAS
     try {
       const verificacao = await disponibilidadeService.verificarPodeReservar(
-        formData.usuario_id, 
+        formData.usuario_id,
         formData.usuario_tipo,
         livroAtual.livro_id
       );
-      
+
       if (!verificacao.podeReservar) {
         let errorObject = {};
-        
+
         // MENSAGENS PADRONIZADAS IGUAIS AO EMPRÉSTIMO
         if (verificacao.motivo?.includes('limite')) {
           errorObject = {
@@ -344,7 +344,7 @@ const adicionarLivro = async () => {
             style: 'warning'
           };
         }
-        
+
         setError(errorObject);
         return;
       }
@@ -377,9 +377,9 @@ const adicionarLivro = async () => {
     setLivrosSelecionados(prev => prev.filter(l => l.livro_id !== livroId));
   };
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.usuario_id || !formData.usuario_tipo || !formData.data_validade) {
       setValidated(true);
       return;
@@ -397,7 +397,7 @@ const handleSubmit = async (e) => {
 
     try {
       setError('');
-      
+
       const dadosReserva = {
         usuario_id: formData.usuario_id,
         usuario_tipo: formData.usuario_tipo,
@@ -405,17 +405,16 @@ const handleSubmit = async (e) => {
         observacoes: formData.observacoes,
         livros: livrosSelecionados
       };
-      
+
       console.log('Enviando reserva...');
       await onSave(dadosReserva);
       await recarregarLivrosDisponiveis();
-      
+
     } catch (err) {
       console.error('=== ERRO NO handleSubmit (CadReserva) ===');
       console.error('Tipo do erro:', typeof err);
       console.error('Erro completo:', err);
-      
-      // **CORREÇÃO: Verifique se é um objeto Error com message**
+
       if (err instanceof Error) {
         console.log('É instância de Error, message:', err.message);
         // Se a mensagem for JSON, tente parsear
@@ -478,7 +477,7 @@ const handleSubmit = async (e) => {
         return [];
     }
   };
-  
+
   const formatarTipoUsuario = (tipo) => {
     if (!tipo) return '';
     const textoFormatado = tipo.replace('_', ' ');
@@ -504,76 +503,75 @@ const handleSubmit = async (e) => {
       </Card.Header>
       <Card.Body>
 
-       {error && (
-  (() => {
-    // Se for objeto estruturado
-    if (typeof error === 'object' && error.title) {
-      return (
-        <div className={`alert alert-${error.style || 'warning'} py-2 mb-3 d-flex align-items-center`}>
-          <div className="flex-grow-1">
-            <div className="d-flex align-items-center">
-              <div className={`bg-${error.style || 'warning'} text-white rounded-circle d-flex align-items-center justify-content-center me-2`} 
-                  style={{ width: '20px', height: '20px', fontSize: '12px' }}>
-                {error.style === 'danger' ? '✗' : '!'}
-              </div>
-              <strong className="text-dark">{error.title}</strong>
-            </div>
-            <div className="mt-1 small">
-              {error.message}
-              
-              {/* SITUAÇÃO DETALHADA - NOVO */}
-              {error.situacao && (
-                <div className="mt-2 p-2">
-                  <small className="text-muted d-block mb-1"><strong>Situação:</strong></small>
-                  <div>{error.situacao}</div>
+        {error && (
+          (() => {
+            // Se for objeto estruturado
+            if (typeof error === 'object' && error.title) {
+              return (
+                <div className={`alert alert-${error.style || 'warning'} py-2 mb-3 d-flex align-items-center`}>
+                  <div className="flex-grow-1">
+                    <div className="d-flex align-items-center">
+                      <div className={`bg-${error.style || 'warning'} text-white rounded-circle d-flex align-items-center justify-content-center me-2`}
+                        style={{ width: '20px', height: '20px', fontSize: '12px' }}>
+                        {error.style === 'danger' ? '✗' : '!'}
+                      </div>
+                      <strong className="text-dark">{error.title}</strong>
+                    </div>
+                    <div className="mt-1 small">
+                      {error.message}
+
+                      {/* SITUAÇÃO DETALHADA - NOVO */}
+                      {error.situacao && (
+                        <div className="mt-2 p-2">
+                          <small className="text-muted d-block mb-1"><strong>Situação:</strong></small>
+                          <div>{error.situacao}</div>
+                        </div>
+                      )}
+
+                      {/* LIVRO (se tiver) */}
+                      {error.livro && (
+                        <div className="mt-1">
+                          <strong>Livro:</strong> "{error.livro}"
+                        </div>
+                      )}
+
+                      {/* SUGESTÃO (se tiver) */}
+                      {error.sugestao && (
+                        <div className="mt-1 text">
+                          <em>{error.sugestao}</em>
+                        </div>
+                      )}
+
+                      {/* DETALHE (se tiver) - removendo o antigo detalhe técnico */}
+                      {error.detalhe && !error.situacao && (
+                        <div className="mt-1">
+                          {error.detalhe}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <FaTimes
+                    className="text-muted ms-2"
+                    onClick={() => setError('')}
+                    style={{ cursor: 'pointer' }}
+                  />
                 </div>
-              )}
-              
-              {/* LIVRO (se tiver) */}
-              {error.livro && (
-                <div className="mt-1">
-                  <strong>Livro:</strong> "{error.livro}"
+              );
+            }
+
+            return (
+              <Alert variant="danger" dismissible onClose={() => setError('')}>
+                <div className="d-flex align-items-start">
+                  <div>
+                    <div style={{ whiteSpace: 'pre-line' }}>
+                      {error}
+                    </div>
+                  </div>
                 </div>
-              )}
-              
-              {/* SUGESTÃO (se tiver) */}
-              {error.sugestao && (
-                <div className="mt-1 text">
-                  <em>{error.sugestao}</em>
-                </div>
-              )}
-              
-              {/* DETALHE (se tiver) - removendo o antigo detalhe técnico */}
-              {error.detalhe && !error.situacao && (
-                <div className="mt-1">
-                  {error.detalhe}
-                </div>
-              )}
-            </div>
-          </div>
-          <FaTimes 
-            className="text-muted ms-2" 
-            onClick={() => setError('')}
-            style={{ cursor: 'pointer' }}
-          />
-        </div>
-      );
-    }
-    
-    // Se for string (mantém compatibilidade)
-    return (
-      <Alert variant="danger" dismissible onClose={() => setError('')}>
-        <div className="d-flex align-items-start">
-          <div>
-            <div style={{ whiteSpace: 'pre-line' }}>
-              {error}
-            </div>
-          </div>
-        </div>
-      </Alert>
-    );
-  })()
-)}
+              </Alert>
+            );
+          })()
+        )}
         {verificandoDisponibilidade && (
           <Alert variant="info" className="py-2">
             <Spinner animation="border" size="sm" className="me-2" />
@@ -700,117 +698,117 @@ const handleSubmit = async (e) => {
 
               {/* Adicionar Novo Livro */}
               <Card className="border-dashed">
-                  <Row className="align-items-end">
-                    <Col md={10}>
-                      <Form.Label>Adicionar Livro:</Form.Label>
-                      <Form.Select
-                        name="livro_id"
-                        value={livroAtual.livro_id}
-                        onChange={handleLivroChange}
-                        disabled={loading || optionsLoading || verificandoDisponibilidade}
-                      >
-                        <option value="">
-                          {verificandoDisponibilidade ? 'Carregando disponibilidade...' : 'Selecione um livro para adicionar'}
-                        </option>
-                        
-                        {/* GRUPO DE LIVROS DISPONÍVEIS */}
-                        <optgroup label=" Livros Disponíveis">
-                          {getLivrosOrganizados()
-                            .filter(livro => podeReservarLivro(livro.id))
-                            .map(livro => {
-                              const status = getStatusDisponibilidade(livro.id);
-                              return (
-                                <option 
-                                  key={livro.id} 
-                                  value={livro.id}
-                                >
-                                  {formatarNome(livro.titulo)} - {formatarNome(livro.autor_nome)} 
-                                  {' - '}
-                                  <span className={status.classe}>
-                                    {status.icon}
-                                    {status.texto}
-                                  </span>
-                                </option>
-                              );
-                            })}
-                        </optgroup>
+                <Row className="align-items-end">
+                  <Col md={10}>
+                    <Form.Label>Adicionar Livro:</Form.Label>
+                    <Form.Select
+                      name="livro_id"
+                      value={livroAtual.livro_id}
+                      onChange={handleLivroChange}
+                      disabled={loading || optionsLoading || verificandoDisponibilidade}
+                    >
+                      <option value="">
+                        {verificandoDisponibilidade ? 'Carregando disponibilidade...' : 'Selecione um livro para adicionar'}
+                      </option>
 
-                        {/* GRUPO DE LIVROS INDISPONÍVEIS */}
-                        <optgroup label=" Livros Indisponíveis" className="text-muted">
-                          {getLivrosOrganizados()
-                            .filter(livro => !podeReservarLivro(livro.id))
-                            .map(livro => {
-                              const status = getStatusDisponibilidade(livro.id);
-                              return (
-                                <option 
-                                  key={livro.id} 
-                                  value={livro.id}
-                                  disabled
-                                  className={status.classe}
-                                >
-                                  {formatarNome(livro.titulo)} - {formatarNome(livro.autor_nome)} 
-                                  {' - '}
-                                  <span className={status.classe}>
-                                    {status.icon}
-                                    {status.texto}
-                                  </span>
-                                </option>
-                              );
-                            })}
-                        </optgroup>
-                      </Form.Select>
-                      
-                      {/* FEEDBACK VISUAL  */}
-                      {livroAtual.livro_id && (
-                        <div className="mt-2">
-                          {disponibilidadeGeral[livroAtual.livro_id] && (
-                            <Alert 
-                              variant={podeReservarLivro(livroAtual.livro_id) ? "success" : "danger"} 
-                              className="py-2 mb-0"
-                            >
-                              <div className="d-flex align-items-center">
-                                {podeReservarLivro(livroAtual.livro_id) ? (
-                                  <>
-                                    <BsCheckCircle className="me-2" />
-                                    <strong>Disponível para reserva</strong>
-                                  </>
-                                ) : (
-                                  <>
-                                    <BsExclamationTriangle className="me-2" />
-                                    <strong>Indisponível para reserva</strong>
-                                  </>
-                                )}
-                                <span className="ms-2">
-                                  (Disponível: {calcularDisponibilidade(livroAtual.livro_id)} unidade(s))
+                      {/* GRUPO DE LIVROS DISPONÍVEIS */}
+                      <optgroup label=" Livros Disponíveis">
+                        {getLivrosOrganizados()
+                          .filter(livro => podeReservarLivro(livro.id))
+                          .map(livro => {
+                            const status = getStatusDisponibilidade(livro.id);
+                            return (
+                              <option
+                                key={livro.id}
+                                value={livro.id}
+                              >
+                                {formatarNome(livro.titulo)} - {formatarNome(livro.autor_nome)}
+                                {' - '}
+                                <span className={status.classe}>
+                                  {status.icon}
+                                  {status.texto}
                                 </span>
-                              </div>
-                            </Alert>
-                          )}
-                        </div>
-                      )}
-                    </Col>
-                    
-                    <Col md={2}>
-                      <Button
-                        variant="primary"
-                        onClick={adicionarLivro}
-                        disabled={
-                          loading || 
-                          !livroAtual.livro_id || 
-                          !podeReservarLivro(livroAtual.livro_id) ||
-                          verificandoDisponibilidade
-                        }
-                        className="w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 custom-add-btn mt-4"
-                      >
-                        {verificandoDisponibilidade ? (
-                          <Spinner animation="border" size="sm" />
-                        ) : (
-                          <BsPlusCircle style={{ fontSize: '1.2rem' }} />
+                              </option>
+                            );
+                          })}
+                      </optgroup>
+
+                      {/* GRUPO DE LIVROS INDISPONÍVEIS */}
+                      <optgroup label=" Livros Indisponíveis" className="text-muted">
+                        {getLivrosOrganizados()
+                          .filter(livro => !podeReservarLivro(livro.id))
+                          .map(livro => {
+                            const status = getStatusDisponibilidade(livro.id);
+                            return (
+                              <option
+                                key={livro.id}
+                                value={livro.id}
+                                disabled
+                                className={status.classe}
+                              >
+                                {formatarNome(livro.titulo)} - {formatarNome(livro.autor_nome)}
+                                {' - '}
+                                <span className={status.classe}>
+                                  {status.icon}
+                                  {status.texto}
+                                </span>
+                              </option>
+                            );
+                          })}
+                      </optgroup>
+                    </Form.Select>
+
+                    {/* FEEDBACK VISUAL  */}
+                    {livroAtual.livro_id && (
+                      <div className="mt-2">
+                        {disponibilidadeGeral[livroAtual.livro_id] && (
+                          <Alert
+                            variant={podeReservarLivro(livroAtual.livro_id) ? "success" : "danger"}
+                            className="py-2 mb-0"
+                          >
+                            <div className="d-flex align-items-center">
+                              {podeReservarLivro(livroAtual.livro_id) ? (
+                                <>
+                                  <BsCheckCircle className="me-2" />
+                                  <strong>Disponível para reserva</strong>
+                                </>
+                              ) : (
+                                <>
+                                  <BsExclamationTriangle className="me-2" />
+                                  <strong>Indisponível para reserva</strong>
+                                </>
+                              )}
+                              <span className="ms-2">
+                                (Disponível: {calcularDisponibilidade(livroAtual.livro_id)} unidade(s))
+                              </span>
+                            </div>
+                          </Alert>
                         )}
-                        {verificandoDisponibilidade ? 'Verificando...' : 'Adicionar'}
-                      </Button>
-                    </Col>
-                  </Row>
+                      </div>
+                    )}
+                  </Col>
+
+                  <Col md={2}>
+                    <Button
+                      variant="primary"
+                      onClick={adicionarLivro}
+                      disabled={
+                        loading ||
+                        !livroAtual.livro_id ||
+                        !podeReservarLivro(livroAtual.livro_id) ||
+                        verificandoDisponibilidade
+                      }
+                      className="w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 custom-add-btn mt-4"
+                    >
+                      {verificandoDisponibilidade ? (
+                        <Spinner animation="border" size="sm" />
+                      ) : (
+                        <BsPlusCircle style={{ fontSize: '1.2rem' }} />
+                      )}
+                      {verificandoDisponibilidade ? 'Verificando...' : 'Adicionar'}
+                    </Button>
+                  </Col>
+                </Row>
               </Card>
 
               {livrosSelecionados.length === 0 && (

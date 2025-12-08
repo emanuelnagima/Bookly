@@ -141,24 +141,24 @@ CREATE TABLE `usuarios_especiais` (
 -- -----------------------------
 -- Tabela: LIVROS
 -- -----------------------------
-CREATE TABLE `livros` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `titulo` varchar(255) NOT NULL,
-  `autor_id` int(11) NOT NULL,
-  `editora_id` int(11) NOT NULL,
-  `isbn` varchar(20) NOT NULL,
-  `genero` enum('Romance','Ficção','Drama','Suspense','Fantasia','Biografia','Terror','Educação','Outro') NOT NULL,
-  `ano_publicacao` int(11) NOT NULL,
-  `imagem` varchar(255) DEFAULT NULL,
-  `data_cadastro` datetime NOT NULL DEFAULT current_timestamp(),
-  `estoque` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `isbn` (`isbn`),
-  KEY `fk_autor` (`autor_id`),
-  KEY `fk_editora` (`editora_id`),
-  CONSTRAINT `fk_autor` FOREIGN KEY (`autor_id`) REFERENCES `autores` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_editora` FOREIGN KEY (`editora_id`) REFERENCES `editoras` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+livros	CREATE TABLE `livros` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `titulo` varchar(255) NOT NULL,
+   `autor_id` int(11) NOT NULL,
+   `editora_id` int(11) NOT NULL,
+   `isbn` varchar(20) NOT NULL,
+   `genero` enum('Romance','Ficção','Drama','Suspense','Fantasia','Biografia','Terror','Educação','Ciências','História','Geografia','Matemática','Física','Química','Biologia','Autoajuda','Negócios','Poesia','Teatro','Arte','Música','Esportes','Saúde','Culinária','Viagem','Policial','Aventura','Infantil','Juvenil','Humor','Religião','Filosofia','Psicologia','Sociologia','Tecnologia','Informática','Medicina','Direito','Economia','Política','Mitologia','Contos','Crônicas','Gráfico','HQ/Quadrinhos','Mangá','Ficção Científica','Distopia','Histórico','Realismo Mágico','Épico','Outro') NOT NULL,
+   `ano_publicacao` int(11) NOT NULL,
+   `imagem` varchar(255) DEFAULT NULL,
+   `data_cadastro` datetime NOT NULL DEFAULT current_timestamp(),
+   `estoque` int(11) NOT NULL DEFAULT 0,
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `isbn` (`isbn`),
+   KEY `fk_autor` (`autor_id`),
+   KEY `fk_editora` (`editora_id`),
+   CONSTRAINT `fk_autor` FOREIGN KEY (`autor_id`) REFERENCES `autores` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+   CONSTRAINT `fk_editora` FOREIGN KEY (`editora_id`) REFERENCES `editoras` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+ ) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 
 -- ====================================================
 -- TABELAS RELACIONADAS A EMPRÉSTIMOS E RESERVAS

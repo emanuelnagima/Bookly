@@ -153,7 +153,7 @@ const getHistorico = async (livroId = null) => {
   try {
     const url = livroId ? `${API_BASE_URL}/historico?livroId=${livroId}` : `${API_BASE_URL}/historico`;
     const response = await fetch(url, {
-      credentials: 'include' // ADICIONAR
+      credentials: 'include' 
     });
     const result = await handleResponse(response);
     return result.data;
@@ -172,7 +172,7 @@ const processarInventario = async (inventarioData) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include', // ADICIONAR
+      credentials: 'include', 
       body: JSON.stringify(inventarioData),
     });
     const result = await handleResponse(response);

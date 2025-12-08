@@ -16,7 +16,7 @@ class EditorasController {
             const { id } = req.params;
             const editora = await editorasRepository.findById(id);
             if (!editora) return res.status(404).json({ success: false, message: 'Editora não encontrada' });
-            res.json({ success: true, data: editora }); // CORREÇÃO: mudar para success: true
+            res.json({ success: true, data: editora }); 
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }

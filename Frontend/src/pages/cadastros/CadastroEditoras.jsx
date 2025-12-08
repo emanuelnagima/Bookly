@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+/* import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Container, Form, Button, Card, Spinner } from 'react-bootstrap'
 
@@ -140,4 +140,4 @@ const CadastroEditoras = () => {
   )
 }
 
-export default CadastroEditoras
+export default CadastroEditoras */

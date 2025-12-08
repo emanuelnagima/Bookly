@@ -16,7 +16,7 @@ const LivroList = ({ livros, loading, onDelete, onEdit }) => {
   const [termoBusca, setTermoBusca] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [livrosComEstoque, setLivrosComEstoque] = useState([]);
-  const [visualizacao, setVisualizacao] = useState('cards'); 
+  const [visualizacao, setVisualizacao] = useState('cards');
   const [ordenacao, setOrdenacao] = useState('titulo_asc');
   const [filtroGenero, setFiltroGenero] = useState('todos');
   const [showDetalhesModal, setShowDetalhesModal] = useState(false);

@@ -226,7 +226,7 @@ const Estatisticas = () => {
                   <Badge bg="primary" className="fs-6">{stats.emprestimos_ativos || 0}</Badge>
                 </div>
                 
-                {/* NOVO: Empréstimos cancelados */}
+                {/* Empréstimos cancelados */}
                 <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{backgroundColor: '#e7f1ff'}}>
                   <span className="text-muted">Cancelados</span>
                   <Badge bg="danger" className="fs-6">{stats.emprestimos_cancelados || 0}</Badge>

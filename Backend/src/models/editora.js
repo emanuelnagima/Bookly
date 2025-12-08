@@ -33,7 +33,6 @@ class Editora {
             else if (/^(\d)\1{13}$/.test(cnpjLimpo)) {
                 erros.push('CNPJ não pode ter todos os dígitos iguais');
             }
-            // NÃO VALIDA DÍGITOS VERIFICADORES (conforme solicitado)
         }
         
         // VALIDAÇÃO DE EMAIL - SOMENTE SE INFORMADO (opcional)
@@ -81,7 +80,7 @@ class Editora {
         return {
             id: this.id,
             nome: this.nome,
-            cnpj: this.cnpj || '',          // Garante string vazia se null
+            cnpj: this.cnpj || '',         
             endereco: this.endereco || null, 
             telefone: this.telefone || null,
             email: this.email || null,

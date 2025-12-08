@@ -249,7 +249,7 @@ async converterEmEmprestimo(req, res) {
             return res.status(404).json({ success: false, message: 'Reserva não encontrada' });
         }
 
-        // CORREÇÃO: Permitir tanto 'ativa' quanto 'expirada'
+        // Permitir tanto 'ativa' quanto 'expirada'
         if (reserva.status !== 'ativa' && reserva.status !== 'expirada') {
             return res.status(400).json({ 
                 success: false, 

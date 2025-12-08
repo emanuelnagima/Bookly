@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+/* import { useState, useEffect } from 'react';
 import { Card, Form, Button, Spinner } from 'react-bootstrap';
 import { BsCheckCircle } from "react-icons/bs";
 
@@ -166,3 +166,4 @@ const CadastroAutores = ({ autor, onSave, onCancel, loading }) => {
 };
 
 export default CadastroAutores;
+ */

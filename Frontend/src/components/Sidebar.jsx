@@ -28,7 +28,7 @@ import {
 } from "react-icons/fa";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useAuth } from "../hooks/useAuth"; 
+import { useAuth } from "../hooks/useAuth";
 import "../css/Sidebar.css";
 
 
@@ -77,20 +77,19 @@ const Sidebar = () => {
     }
   };
 
-const capitalize = (text) => {
-  if (!text) return "";
-  
-  // Convertendo a role para minúsculas para comparação
-  const roleLower = text.toLowerCase();
-  
-  // Mapeamento das roles para exibição
-  if (roleLower === 'operator' || roleLower === 'bibliotecario') {
-    return 'Bibliotecário';
-  }
-  
-  // Para outras roles, mantém o comportamento original
-  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
-};
+  const capitalize = (text) => {
+    if (!text) return "";
+
+    // Convertendo a role para minúsculas para comparação
+    const roleLower = text.toLowerCase();
+
+    // Mapeamento das roles para exibição
+    if (roleLower === 'operator' || roleLower === 'bibliotecario') {
+      return 'Bibliotecário';
+    }
+
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+  };
 
   return (
     <>
@@ -143,7 +142,7 @@ const capitalize = (text) => {
               <span className="section-title">Gestão</span>
             </div>
 
-            {/* Cadastros - Accordion */}
+            {/* Cadastros */}
             <div className="accordion-item">
               <div
                 className={`accordion-header ${showCadastros ? 'open' : ''}`}
@@ -223,7 +222,7 @@ const capitalize = (text) => {
               <span className="section-title">Movimentações</span>
             </div>
 
-            {/* Movimentações - Accordion */}
+            {/* Movimentações */}
             <div className="accordion-item">
               <div
                 className={`accordion-header ${showMovimentacoes ? 'open' : ''}`}
@@ -280,12 +279,12 @@ const capitalize = (text) => {
               <div className="section-divider"></div>
               <span className="section-title">Relatórios e Estatísticas</span>
             </div>
-              <NavLink to="/estatisticas" className="nav-link-modern" onClick={closeSidebar}>
-                  <div className="nav-icon">
-                    <FaChartPie /> 
-                  </div>
-                  <span className="nav-text">Dashboard</span>
-                </NavLink>
+            <NavLink to="/estatisticas" className="nav-link-modern" onClick={closeSidebar}>
+              <div className="nav-icon">
+                <FaChartPie />
+              </div>
+              <span className="nav-text">Dashboard</span>
+            </NavLink>
 
             <NavLink to="/relatorios" className="nav-link-modern" onClick={closeSidebar}>
               <div className="nav-icon">
@@ -319,7 +318,7 @@ const capitalize = (text) => {
             </button>
           </Nav>
         </div>
-              
+
         <div className="user-profile-modern">
           <div className="user-info">
             <div className="avatar-container">

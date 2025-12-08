@@ -86,17 +86,17 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
     if (!termoBusca && filtroStatus === 'todos') return true;
 
     const termo = normalizarTexto(termoBusca);
-    
+
     // Busca no usuário, ID e título do livro principal
     const buscaUsuario = normalizarTexto(reserva.usuario || '').includes(termo);
     const buscaId = (reserva.id || '').toString().includes(termo);
     const buscaLivroPrincipal = normalizarTexto(reserva.livro_titulo || '').includes(termo);
-    
+
     // Busca nos títulos dos livros da lista de livros (se houver múltiplos)
-    const buscaLivros = (reserva.livros || []).some(livro => 
+    const buscaLivros = (reserva.livros || []).some(livro =>
       normalizarTexto(livro.livro_titulo || '').includes(termo)
     );
-    
+
     // Combina todas as buscas
     const matchesBusca = !termoBusca || buscaUsuario || buscaId || buscaLivroPrincipal || buscaLivros;
 
@@ -120,7 +120,7 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
 
   // Calcular paginação
   const totalPaginas = Math.ceil(reservasOrdenadas.length / ITENS_POR_PAGINA);
-  
+
   // Garantir que a página atual seja válida
   const paginaValida = Math.max(1, Math.min(paginaAtual, totalPaginas));
   if (paginaValida !== paginaAtual) {
@@ -168,7 +168,7 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
   const getStatusBadge = (status, dataValidade) => {
     const hoje = new Date();
     const validade = new Date(dataValidade);
-    
+
     // Função para capitalizar (primeira letra maiúscula)
     const capitalizar = (texto) => {
       return texto.charAt(0).toUpperCase() + texto.slice(1);
@@ -180,16 +180,16 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
           return <Badge bg="warning" className="text-dark">{capitalizar('expirada')}</Badge>;
         }
         return <Badge bg="success">{capitalizar('reservado')}</Badge>;
-      
+
       case 'cancelada':
         return <Badge bg="secondary">{capitalizar('cancelada')}</Badge>;
-      
+
       case 'concluida':
         return <Badge bg="dark">{capitalizar('concluída')}</Badge>;
-      
+
       case 'expirada':
         return <Badge bg="warning" className="text-dark">{capitalizar('expirada')}</Badge>;
-      
+
       default:
         return <Badge bg="secondary">{capitalizar(status || 'desconhecido')}</Badge>;
     }
@@ -199,7 +199,7 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
   const isExpirado = (dataValidade, status) => {
     // Canceladas e concluídas NÃO são consideradas expiradas
     if (status === 'cancelada' || status === 'concluida') return false;
-    
+
     const hoje = new Date();
     const validade = new Date(dataValidade);
     return validade < hoje;
@@ -322,12 +322,12 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
               <tbody>
                 {reservasPaginaAtual.map(reserva => {
                   // PADRONIZADO: Canceladas e concluídas não são expiradas
-                  const expirado = reserva.status !== 'cancelada' && 
-                                   reserva.status !== 'concluida' && 
-                                   isExpirado(reserva.data_validade, reserva.status);
-                  
+                  const expirado = reserva.status !== 'cancelada' &&
+                    reserva.status !== 'concluida' &&
+                    isExpirado(reserva.data_validade, reserva.status);
+
                   const situacao = verificarSituacao(reserva.data_validade, reserva.status);
-                  
+
                   return (
                     <tr key={reserva.id} className={expirado && reserva.status !== 'cancelada' && reserva.status !== 'concluida' ? 'linha-atrasada' : ''}>
                       <td className="fw-bold">#{reserva.id}</td>
@@ -357,16 +357,15 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
                           Ver Detalhes
                         </Button>
                       </td>
-                      
+
                       {/* Data Reserva (sem alerta) */}
                       <td className="text-nowrap">
                         {formatarData(reserva.data_reserva)}
                       </td>
-                      
+
                       {/* Data Validade - PADRONIZADO COM EMPRESTIMOLIST */}
-                      <td className={`text-nowrap ${
-                        expirado && reserva.status !== 'cancelada' && reserva.status !== 'concluida' ? 'text-warning fw-bold' : ''
-                      }`}>
+                      <td className={`text-nowrap ${expirado && reserva.status !== 'cancelada' && reserva.status !== 'concluida' ? 'text-warning fw-bold' : ''
+                        }`}>
                         {expirado && reserva.status !== 'cancelada' && reserva.status !== 'concluida' && <FaExclamationTriangle className="me-1" />}
                         {formatarData(reserva.data_validade)}
                       </td>
@@ -412,7 +411,7 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
                               </button>
                             </>
                           )}
-                          
+
                           {reserva.status !== 'ativa' && reserva.status !== 'expirada' && (
                             <span className="text-muted small d-flex align-items-center">
                               Sem ações
@@ -621,7 +620,7 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
                 <div className="text-muted small">
                   Mostrando {inicio + 1} a {Math.min(fim, reservasOrdenadas.length)} de {reservasOrdenadas.length} reservas
                 </div>
-                
+
                 <div className="d-flex align-items-center gap-2">
                   <Button
                     className="btn-paginacao"
@@ -631,11 +630,11 @@ const ReservaList = ({ reservas, onCancelar, onConcluir, onConverterEmprestimo, 
                     <FaChevronLeft className="me-1" />
                     Anterior
                   </Button>
-                  
+
                   <span className="mx-3 text-muted">
                     Página <strong>{paginaAtual}</strong> de <strong>{totalPaginas}</strong>
                   </span>
-                  
+
                   <Button
                     className="btn-paginacao"
                     onClick={handleProximaPagina}

@@ -126,7 +126,7 @@ const remove = async (id) => {
     const responseData = await response.json().catch(() => null);
     
     if (!response.ok) {
-      // CORREÇÃO: busca a mensagem no campo "message" 
+      // busca a mensagem no campo "message" 
       if (responseData && responseData.message) {
         throw new Error(responseData.message);
       }

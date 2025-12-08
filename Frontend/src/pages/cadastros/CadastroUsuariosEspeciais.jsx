@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+/* import { useState, useEffect } from 'react'
 import { Container, Row, Col, Button, Modal } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import CadUsuarioEspecial from '../../components/CadUsuarioEspecial'
@@ -122,4 +122,4 @@ const CadastroUsuariosEspeciais = () => {
   )
 }
 
-export default CadastroUsuariosEspeciais
+export default CadastroUsuariosEspeciais */

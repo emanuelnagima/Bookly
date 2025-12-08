@@ -118,9 +118,9 @@ const UsuariosEspeciais = () => {
 
     } catch (error) {
       console.error('Erro ao salvar usuário:', error);
-      
+
       let errorObject = {};
-      
+
       // Tratamento específico para erro 401
       if (error.message.includes('401') || error.message.includes('Unauthorized')) {
         errorObject = {
@@ -147,7 +147,7 @@ const UsuariosEspeciais = () => {
           style: 'danger'
         };
       }
-      
+
       setError(errorObject);
     } finally {
       setLoading(false);
@@ -211,83 +211,82 @@ const UsuariosEspeciais = () => {
 
   return (
     <Container className="py-4">
-     {/* TOAST ESTILIZADO */}
-        <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
-          <Toast
-            show={showSuccessToast}
-            onClose={() => setShowSuccessToast(false)}
-            delay={6000}
-            autohide
-            className="shadow-sm"
-            style={{
-              minWidth: '320px',
-              borderRadius: '8px',
-              border: '1px solid #e9ecef',
-              borderLeft: `4px solid ${
-                operationType === 'delete' 
-                  ? '#dc3545' 
-                  : operationType === 'update' 
-                  ? '#17a2b8' 
+      {/* TOAST ESTILIZADO */}
+      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
+        <Toast
+          show={showSuccessToast}
+          onClose={() => setShowSuccessToast(false)}
+          delay={6000}
+          autohide
+          className="shadow-sm"
+          style={{
+            minWidth: '320px',
+            borderRadius: '8px',
+            border: '1px solid #e9ecef',
+            borderLeft: `4px solid ${operationType === 'delete'
+                ? '#dc3545'
+                : operationType === 'update'
+                  ? '#17a2b8'
                   : '#28a745'
               }`,
-              animation: showSuccessToast ? 'slideInRight 0.3s ease-out' : 'none'
-            }}
-          >
-            <Toast.Body className="p-3">
-              <div className="d-flex justify-content-between align-items-start">
-                <div className="d-flex align-items-start">
-                  {/* Ícone pequeno e discreto */}
-                  <div 
-                    className="me-3 mt-1"
-                    style={{
-                      color: operationType === 'delete' 
-                        ? '#dc3545'
-                        : operationType === 'update'
+            animation: showSuccessToast ? 'slideInRight 0.3s ease-out' : 'none'
+          }}
+        >
+          <Toast.Body className="p-3">
+            <div className="d-flex justify-content-between align-items-start">
+              <div className="d-flex align-items-start">
+                {/* Ícone pequeno e discreto */}
+                <div
+                  className="me-3 mt-1"
+                  style={{
+                    color: operationType === 'delete'
+                      ? '#dc3545'
+                      : operationType === 'update'
                         ? '#17a2b8'
                         : '#28a745',
-                      fontSize: '1rem'
-                    }}
-                  >
-                    {operationType === 'delete' ? (
-                      <i className="fas fa-trash"></i>
-                    ) : operationType === 'update' ? (
-                      <i className="fas fa-check"></i>
-                    ) : (
-                      <i className="fas fa-check"></i>
-                    )}
-                  </div>
-                  
-                  {/* Conteúdo de texto */}
-                  <div>
-                    <h6 className="mb-1 fw-semibold text-dark">
-                      {operationType === 'create' ? 'Sucesso!' : 
-                      operationType === 'update' ? 'Atualizado!' : 
-                      'Excluído!'}
-                    </h6>
-                    <p className="mb-0 text-secondary" style={{ fontSize: '0.9rem' }}>
-                      {toastMessage}
-                    </p>
-                    <small className="text-muted mt-1 d-block">
-                      {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </small>
-                  </div>
-                </div>
-                
-                {/* Botão de fechar bem discreto */}
-                <button
-                  onClick={() => setShowSuccessToast(false)}
-                  className="btn-close btn-close-sm opacity-50"
-                  style={{
-                    fontSize: '0.6rem',
-                    padding: '5px',
-                    marginTop: '-2px',
-                    marginRight: '-5px'
+                    fontSize: '1rem'
                   }}
-                />
+                >
+                  {operationType === 'delete' ? (
+                    <i className="fas fa-trash"></i>
+                  ) : operationType === 'update' ? (
+                    <i className="fas fa-check"></i>
+                  ) : (
+                    <i className="fas fa-check"></i>
+                  )}
+                </div>
+
+                {/* Conteúdo de texto */}
+                <div>
+                  <h6 className="mb-1 fw-semibold text-dark">
+                    {operationType === 'create' ? 'Sucesso!' :
+                      operationType === 'update' ? 'Atualizado!' :
+                        'Excluído!'}
+                  </h6>
+                  <p className="mb-0 text-secondary" style={{ fontSize: '0.9rem' }}>
+                    {toastMessage}
+                  </p>
+                  <small className="text-muted mt-1 d-block">
+                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </small>
+                </div>
               </div>
-            </Toast.Body>
-          </Toast>
-        </div>
+
+              {/* Botão de fechar bem discreto */}
+              <button
+                onClick={() => setShowSuccessToast(false)}
+                className="btn-close btn-close-sm opacity-50"
+                style={{
+                  fontSize: '0.6rem',
+                  padding: '5px',
+                  marginTop: '-2px',
+                  marginRight: '-5px'
+                }}
+              />
+            </div>
+          </Toast.Body>
+        </Toast>
+      </div>
       {/* Loading */}
       {loading && !isDeleting && (
         <div className="text-center my-4">
@@ -306,8 +305,8 @@ const UsuariosEspeciais = () => {
               <div className={`alert alert-${error.style === 'danger' ? 'danger' : 'warning'} py-2 mb-3 d-flex align-items-center`}>
                 <div className="flex-grow-1">
                   <div className="d-flex align-items-center">
-                    <div className={`${error.style === 'danger' ? 'bg-danger' : 'bg-warning'} text-white rounded-circle d-flex align-items-center justify-content-center me-2`} 
-                        style={{ width: '20px', height: '20px', fontSize: '12px' }}>
+                    <div className={`${error.style === 'danger' ? 'bg-danger' : 'bg-warning'} text-white rounded-circle d-flex align-items-center justify-content-center me-2`}
+                      style={{ width: '20px', height: '20px', fontSize: '12px' }}>
                       !
                     </div>
                     <strong className="text-dark">{error.title}</strong>
@@ -336,23 +335,22 @@ const UsuariosEspeciais = () => {
                     )}
                   </div>
                 </div>
-                <FaTimes 
-                  className="text-muted ms-2" 
+                <FaTimes
+                  className="text-muted ms-2"
                   onClick={() => setError(null)}
                   style={{ cursor: 'pointer' }}
                 />
               </div>
             );
           }
-          
-          // Se for string (erros antigos - mantém compatibilidade)
+
           return (
             <div className="alert alert-danger py-2 mb-3 d-flex align-items-center">
               <div className="flex-grow-1">
                 <strong>Erro:</strong> {error}
               </div>
-              <FaTimes 
-                className="text-muted ms-2" 
+              <FaTimes
+                className="text-muted ms-2"
                 onClick={() => setError(null)}
                 style={{ cursor: 'pointer' }}
               />
@@ -360,12 +358,12 @@ const UsuariosEspeciais = () => {
           );
         })()
       )}
-      
+
       {/* Cabeçalho */}
       <div
         className="rounded-3 p-4 mb-4"
         style={{
-          border: '1px solid #e6e6e6' 
+          border: '1px solid #e6e6e6'
         }}>
         <Row className="align-items-center">
           <Col md={8}>
@@ -399,7 +397,7 @@ const UsuariosEspeciais = () => {
           </Col>
         </Row>
       </div>
-            
+
       <p className="text-muted mb-1" style={{ fontSize: '0.9rem', marginLeft: '2px' }}>
         Esta seção permite o <strong>cadastro e gerenciamento de usuários</strong>. Você pode adicionar novos usuários, atualizar informações existentes ou remover registros, mantendo o sistema sempre atualizado e organizado.
       </p>

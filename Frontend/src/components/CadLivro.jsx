@@ -35,18 +35,18 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
       try {
         setOptionsLoading(true);
         const response = await axios.get('http://localhost:3000/api/livros/options');
-        
+
         // Formatar os nomes das editoras e autores
         const editorasFormatadas = (response.data.data.editoras || []).map(editora => ({
           ...editora,
           nome: formatarTexto(editora.nome)
         }));
-        
+
         const autoresFormatados = (response.data.data.autores || []).map(autor => ({
           ...autor,
           nome: formatarTexto(autor.nome)
         }));
-        
+
         setEditoras(editorasFormatadas);
         setAutores(autoresFormatados);
       } catch (err) {
@@ -94,7 +94,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Formatar o título automaticamente quando digitar
     if (name === 'titulo') {
       setFormData(prev => ({
@@ -285,14 +285,89 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
                   disabled={loading}
                 >
                   <option value=''>Selecione um gênero...</option>
-                  <option value='Romance'>Romance</option>
-                  <option value='Ficção'>Ficção</option>
-                  <option value='Drama'>Drama</option>
-                  <option value='Suspense'>Suspense</option>
-                  <option value='Fantasia'>Fantasia</option>
-                  <option value='Biografia'>Biografia</option>
-                  <option value='Terror'>Terror</option>
-                  <option value='Educação'>Educação</option>
+                  
+                  {/* Literatura & Ficção */}
+                  <optgroup label="Literatura & Ficção">
+                    <option value='Romance'>Romance</option>
+                    <option value='Ficção'>Ficção</option>
+                    <option value='Ficção Científica'>Ficção Científica</option>
+                    <option value='Fantasia'>Fantasia</option>
+                    <option value='Distopia'>Distopia</option>
+                    <option value='Realismo Mágico'>Realismo Mágico</option>
+                    <option value='Épico'>Épico</option>
+                  </optgroup>
+                  
+                  {/* Gêneros Populares */}
+                  <optgroup label="Gêneros Populares">
+                    <option value='Suspense'>Suspense</option>
+                    <option value='Terror'>Terror</option>
+                    <option value='Policial'>Policial</option>
+                    <option value='Aventura'>Aventura</option>
+                    <option value='Drama'>Drama</option>
+                    <option value='Humor'>Humor</option>
+                  </optgroup>
+                  
+                  {/* Não-Ficção */}
+                  <optgroup label="Não-Ficção">
+                    <option value='Biografia'>Biografia</option>
+                    <option value='Autoajuda'>Autoajuda</option>
+                    <option value='História'>História</option>
+                    <option value='Biologia'>Biologia</option>
+                    <option value='Geografia'>Geografia</option>
+                    <option value='Filosofia'>Filosofia</option>
+                    <option value='Psicologia'>Psicologia</option>
+                    <option value='Sociologia'>Sociologia</option>
+                  </optgroup>
+                  
+                  {/* Acadêmico & Educacional */}
+                  <optgroup label="Acadêmico & Educacional">
+                    <option value='Educação'>Educação</option>
+                    <option value='Matemática'>Matemática</option>
+                    <option value='Física'>Física</option>
+                    <option value='Química'>Química</option>
+                    <option value='Ciências'>Ciências</option>
+                    <option value='Medicina'>Medicina</option>
+                    <option value='Direito'>Direito</option>
+                    <option value='Economia'>Economia</option>
+                  </optgroup>
+                  
+                  {/* Artes & Cultura */}
+                  <optgroup label="Artes & Cultura">
+                    <option value='Arte'>Arte</option>
+                    <option value='Música'>Música</option>
+                    <option value='Teatro'>Teatro</option>
+                    <option value='Poesia'>Poesia</option>
+                    <option value='Contos'>Contos</option>
+                    <option value='Crônicas'>Crônicas</option>
+                    <option value='Mitologia'>Mitologia</option>
+                  </optgroup>
+                  
+                  {/* Formatos Especiais */}
+                  <optgroup label="Formatos Especiais">
+                    <option value='Gráfico'>Gráfico</option>
+                    <option value='HQ/Quadrinhos'>HQ/Quadrinhos</option>
+                    <option value='Mangá'>Mangá</option>
+                  </optgroup>
+                  
+                  {/* Por Faixa Etária */}
+                  <optgroup label="Por Faixa Etária">
+                    <option value='Infantil'>Infantil</option>
+                    <option value='Juvenil'>Juvenil</option>
+                  </optgroup>
+                  
+                  {/* Temáticas Diversas */}
+                  <optgroup label="Temáticas Diversas">
+                    <option value='Negócios'>Negócios</option>
+                    <option value='Tecnologia'>Tecnologia</option>
+                    <option value='Informática'>Informática</option>
+                    <option value='Política'>Política</option>
+                    <option value='Religião'>Religião</option>
+                    <option value='Esportes'>Esportes</option>
+                    <option value='Saúde'>Saúde</option>
+                    <option value='Culinária'>Culinária</option>
+                    <option value='Viagem'>Viagem</option>
+                  </optgroup>
+                  
                   <option value='Outro'>Outro</option>
                 </Form.Select>
                 <Form.Control.Feedback type='invalid'>
@@ -332,7 +407,7 @@ const CadLivro = ({ onSave, onCancel, livro, loading }) => {
                   disabled={loading}
                 />
                 <Form.Text className="text-muted">
-                  Formatos suportados: JPG, PNG. 
+                  Formatos suportados: JPG, PNG.
                 </Form.Text>
               </Form.Group>
             </Col>

@@ -387,7 +387,6 @@ const Professores = () => {
             );
           }
 
-          // Se for string (erros antigos - mantém compatibilidade)
           return (
             <div className="alert alert-danger py-2 mb-3 d-flex align-items-center">
               <div className="flex-grow-1">

@@ -7,22 +7,22 @@ import { BsCheckCircle } from "react-icons/bs";
 // ADICIONE ESTA FUNÇÃO NO TOPO ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 const formatDateForInput = (dateString) => {
   if (!dateString) return '';
-  
+
   if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
     return dateString;
   }
-  
+
   try {
     const date = new Date(dateString);
-    
+
     if (isNaN(date.getTime())) {
       return '';
     }
-    
+
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
-    
+
     return `${year}-${month}-${day}`;
   } catch (error) {
     console.error('Erro ao formatar data:', error);
@@ -69,7 +69,7 @@ const CadUsuarioEspecial = ({ onSave, onCancel, usuario, loading }) => {
         email: usuario.email || '',
         telefone: maskTelefone(usuario.telefone || ''),
         cpf: maskCPF(usuario.cpf || ''),
-        data_nascimento: formatDateForInput(usuario.data_nascimento), 
+        data_nascimento: formatDateForInput(usuario.data_nascimento),
         tipo_usuario: usuario.tipo_usuario || ''
       })
     } else {
@@ -148,116 +148,116 @@ const CadUsuarioEspecial = ({ onSave, onCancel, usuario, loading }) => {
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>
-             <Col md={6}>
-            <Form.Group className='mb-3' controlId='cpf'>
-              <Form.Label>CPF</Form.Label>
-              <Form.Control
-                type='text'
-                name='cpf'
-                value={usuarioData.cpf}
-                onChange={handleChange}
-                placeholder='000.000.000-00'
-                required
-                disabled={loading}
-                maxLength={14}
-              />
-              <Form.Text className='text-muted'>
-                      Formato: 11 dígitos
-                  </Form.Text>
-              <Form.Control.Feedback type='invalid'>
-                Informe o CPF (000.000.000-00)
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
+            <Col md={6}>
+              <Form.Group className='mb-3' controlId='cpf'>
+                <Form.Label>CPF</Form.Label>
+                <Form.Control
+                  type='text'
+                  name='cpf'
+                  value={usuarioData.cpf}
+                  onChange={handleChange}
+                  placeholder='000.000.000-00'
+                  required
+                  disabled={loading}
+                  maxLength={14}
+                />
+                <Form.Text className='text-muted'>
+                  Formato: 11 dígitos
+                </Form.Text>
+                <Form.Control.Feedback type='invalid'>
+                  Informe o CPF (000.000.000-00)
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+          </Row>
 
-        <Row>
-          <Col md={6}>
-            <Form.Group className='mb-3' controlId='data_nascimento'>
-              <Form.Label>Data de Nascimento</Form.Label>
-              <Form.Control
-                type='date'
-                name='data_nascimento'
-                value={usuarioData.data_nascimento} 
-                onChange={handleChange}
-                required
-                disabled={loading}
-                max={hoje}
-                min={dataMinimaFormatada}
-              />
-              <Form.Control.Feedback type='invalid'>
-                Informe a data de nascimento
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group className='mb-3' controlId='email'>
-              <Form.Label>E-mail</Form.Label>
-              <Form.Control
-                type='email'
-                name='email'
-                value={usuarioData.email}
-                placeholder='usuário@exemplo.com'
-                onChange={handleChange}
-                required
-                disabled={loading}
-                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-              />
-              <Form.Control.Feedback type='invalid'>
-                Informe um e-mail válido
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col md={6}>
-            <Form.Group className='mb-3' controlId='telefone'>
-              <Form.Label>Telefone</Form.Label>
-              <Form.Control
-                type='text'
-                name='telefone'
-                value={usuarioData.telefone}
-                onChange={handleChange}
-                placeholder='(00) 00000-0000'
-                required
-                disabled={loading}
-              />
-              <Form.Text className='text-muted'>
-                      Formato: 11 dígitos
-                  </Form.Text>
-              <Form.Control.Feedback type='invalid'>
-                Informe o telefone
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group className='mb-3' controlId='tipo_usuario'>
-              <Form.Label>Tipo de Usuário</Form.Label>
-              <Form.Select
-                name='tipo_usuario'
-                value={usuarioData.tipo_usuario}
-                onChange={handleChange}
-                required
-                disabled={loading}
-              >
-                <option value=''>Selecione...</option>
-                <option value='Diretor'>Diretor</option>
-                <option value='Coordenador'>Coordenador</option>
-                <option value='Secretário'>Secretário</option>
-                <option value='Bibliotecário'>Bibliotecário</option>
-                <option value='Orientador'>Orientador</option>
-                <option value='Funcionário'>Funcionário</option>
-                <option value='Assistente Administrativo'>Assistente Administrativo</option>
-                <option value='Ex-aluno'>Ex-aluno</option>
-                <option value='Pais ou Responsável'>Pais ou Responsável</option>
-                <option value='Outro'>Outro</option>
-              </Form.Select>
-              <Form.Control.Feedback type='invalid'>
-                Selecione o tipo de usuário
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
+          <Row>
+            <Col md={6}>
+              <Form.Group className='mb-3' controlId='data_nascimento'>
+                <Form.Label>Data de Nascimento</Form.Label>
+                <Form.Control
+                  type='date'
+                  name='data_nascimento'
+                  value={usuarioData.data_nascimento}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  max={hoje}
+                  min={dataMinimaFormatada}
+                />
+                <Form.Control.Feedback type='invalid'>
+                  Informe a data de nascimento
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className='mb-3' controlId='email'>
+                <Form.Label>E-mail</Form.Label>
+                <Form.Control
+                  type='email'
+                  name='email'
+                  value={usuarioData.email}
+                  placeholder='usuário@exemplo.com'
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                />
+                <Form.Control.Feedback type='invalid'>
+                  Informe um e-mail válido
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={6}>
+              <Form.Group className='mb-3' controlId='telefone'>
+                <Form.Label>Telefone</Form.Label>
+                <Form.Control
+                  type='text'
+                  name='telefone'
+                  value={usuarioData.telefone}
+                  onChange={handleChange}
+                  placeholder='(00) 00000-0000'
+                  required
+                  disabled={loading}
+                />
+                <Form.Text className='text-muted'>
+                  Formato: 11 dígitos
+                </Form.Text>
+                <Form.Control.Feedback type='invalid'>
+                  Informe o telefone
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className='mb-3' controlId='tipo_usuario'>
+                <Form.Label>Tipo de Usuário</Form.Label>
+                <Form.Select
+                  name='tipo_usuario'
+                  value={usuarioData.tipo_usuario}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                >
+                  <option value=''>Selecione...</option>
+                  <option value='Diretor'>Diretor</option>
+                  <option value='Coordenador'>Coordenador</option>
+                  <option value='Secretário'>Secretário</option>
+                  <option value='Bibliotecário'>Bibliotecário</option>
+                  <option value='Orientador'>Orientador</option>
+                  <option value='Funcionário'>Funcionário</option>
+                  <option value='Assistente Administrativo'>Assistente Administrativo</option>
+                  <option value='Ex-aluno'>Ex-aluno</option>
+                  <option value='Pais ou Responsável'>Pais ou Responsável</option>
+                  <option value='Outro'>Outro</option>
+                </Form.Select>
+                <Form.Control.Feedback type='invalid'>
+                  Selecione o tipo de usuário
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+          </Row>
 
           <div className='d-flex justify-content-end gap-2'>
             <Button

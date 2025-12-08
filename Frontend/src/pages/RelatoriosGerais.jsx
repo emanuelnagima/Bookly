@@ -938,7 +938,7 @@ const limparFiltros = () => {
            item.status === 'finalizado' ? 'Finalizado' :
            item.status === 'cancelado' ? 'Cancelado' : item.status}
         </Badge>
-        {/* ADICIONAR ESTA PARTE PARA MOSTRAR MOTIVO DO CANCELAMENTO */}
+        {/*  MOSTRAR MOTIVO DO CANCELAMENTO */}
         {item.status === 'cancelado' && item.motivo_cancelamento && item.motivo_cancelamento !== '-' && (
           <div className="mt-1 small text-muted">
             <strong>Motivo:</strong> {item.motivo_cancelamento}

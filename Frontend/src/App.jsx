@@ -32,12 +32,7 @@ import Emprestimos from './pages/Emprestimos';
 import Reservas from './pages/Reservas';
 
 // Cadastros
-import CadastroLivros from './pages/cadastros/CadastroLivros.jsx';
-import CadastroProfessores from './pages/cadastros/CadastroProfessores';
-import CadastroAlunos from './pages/cadastros/CadastroAlunos';
-import CadastroEditoras from './pages/cadastros/CadastroEditoras';
-import CadastroAutores from './pages/cadastros/CadastroAutores';
-import CadastroUsuariosEspeciais from './pages/cadastros/CadastroUsuariosEspeciais';
+
 
 
 
@@ -122,67 +117,7 @@ function App() {
                           <RelatoriosGerais />
                         </ProtectedRoute>
                       } />
-                      {/* Cadastros - Apenas admin */}
-                      <Route path="/cadastros/livros" element={
-                        <ProtectedRoute roles={['admin']}>
-                          <CadastroLivros />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/cadastros/livros/:id" element={
-                        <ProtectedRoute roles={['admin']}>
-                          <CadastroLivros />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/cadastros/professores" element={
-                        <ProtectedRoute roles={['admin']}>
-                          <CadastroProfessores />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/cadastros/professores/:id" element={
-                        <ProtectedRoute roles={['admin']}>
-                          <CadastroProfessores />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/cadastros/alunos" element={
-                        <ProtectedRoute roles={['admin']}>
-                          <CadastroAlunos />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/cadastros/alunos/:id" element={
-                        <ProtectedRoute roles={['admin']}>
-                          <CadastroAlunos />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/cadastros/editoras" element={
-                        <ProtectedRoute roles={['admin']}>
-                          <CadastroEditoras />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/cadastros/editoras/:id" element={
-                        <ProtectedRoute roles={['admin']}>
-                          <CadastroEditoras />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/cadastros/autores" element={
-                        <ProtectedRoute roles={['admin']}>
-                          <CadastroAutores />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/cadastros/autores/:id" element={
-                        <ProtectedRoute roles={['admin']}>
-                          <CadastroAutores />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/cadastros/usuarios-especiais" element={
-                        <ProtectedRoute roles={['admin']}>
-                          <CadastroUsuariosEspeciais />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/cadastros/usuarios-especiais/:id" element={
-                        <ProtectedRoute roles={['admin', 'bibliotecario']}>
-                          <CadastroUsuariosEspeciais />
-                        </ProtectedRoute>
-                      } />
+              
                       <Route path="/estatisticas" element={
                         <ProtectedRoute roles={['admin', 'bibliotecario']}>
                           <Estatisticas />

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Container, Row, Col, Button, Modal, Spinner, Toast } from 'react-bootstrap'
 import AutorList from '../components/AutorList'
-import CadastroAutores from './cadastros/CadastroAutores'
 import autorService from '../services/autorService';
 import { FaTimes } from 'react-icons/fa';
 
@@ -313,7 +312,6 @@ const Autores = () => {
             );
           }
 
-          // Se for string (erros antigos - mantém compatibilidade)
           return (
             <div className="alert alert-danger py-2 mb-3 d-flex align-items-center">
               <div className="flex-grow-1">

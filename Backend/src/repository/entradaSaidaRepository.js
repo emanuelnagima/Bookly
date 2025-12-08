@@ -259,7 +259,7 @@ async verificarEstoqueDisponivel(livroId) {
              FROM emprestimo_livros el
              JOIN emprestimos e ON el.emprestimo_id = e.id
              WHERE el.livro_id = ? 
-             AND e.status IN ('ativo', 'atrasado')`,  // CORREÇÃO AQUI
+             AND e.status IN ('ativo', 'atrasado')`,  
             [livroId]
         );
 
@@ -270,7 +270,7 @@ async verificarEstoqueDisponivel(livroId) {
              JOIN reservas r ON r.id = rl.reserva_id
              WHERE rl.livro_id = ? 
              AND r.status = 'ativa'
-             AND r.data_validade >= CURDATE()`,  // CORREÇÃO AQUI
+             AND r.data_validade >= CURDATE()`,  
             [livroId]
         );
 

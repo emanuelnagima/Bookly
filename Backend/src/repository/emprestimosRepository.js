@@ -181,11 +181,10 @@ async create(emprestimoData) {
 
             const totalEmprestado = Number(emprestimosAtivos[0].total_emprestado) || 0;
             
-            // 3. **CALCULAR RESERVAS ATIVAS - AJUSTADO PARA CONVERSÃO**
+            // 3. **CALCULAR RESERVAS ATIVAS **
             let totalReservado = 0;
             
             if (isConversao) {
-                // **SE É CONVERSÃO: excluir a reserva que está sendo convertida**
                 const [reservasAtivas] = await connection.execute(
                     `SELECT COALESCE(SUM(rl.quantidade), 0) as total_reservado
                      FROM reserva_livros rl
@@ -193,7 +192,7 @@ async create(emprestimoData) {
                      WHERE rl.livro_id = ? 
                      AND r.status = 'ativa'
                      AND r.data_validade >= CURDATE()
-                     AND r.id != ?`,  // <-- EXCLUIR A RESERVA ATUAL
+                     AND r.id != ?`,  
                     [livroId, emprestimoData.reserva_id]
                 );
                 totalReservado = Number(reservasAtivas[0].total_reservado) || 0;
@@ -211,7 +210,7 @@ async create(emprestimoData) {
                 totalReservado = Number(reservasAtivas[0].total_reservado) || 0;
             }
             
-            // 4. Calcular estoque disponível REAL (ajustado)
+            // 4. Calcular estoque disponível REAL 
             const estoqueDisponivel = livroInfo.estoque - totalEmprestado - totalReservado;
 
             console.log(`Disponibilidade para ${isConversao ? 'CONVERSÃO' : 'EMPRÉSTIMO'} - Livro: ${livroInfo.titulo}
@@ -324,7 +323,7 @@ async renovar(id, novaDataDevolucao) {
         connection = await db.getConnection();
         await connection.beginTransaction();
 
-        // **CORREÇÃO: Permitir renovar se estiver ativo OU atrasado**
+        // **Permitir renovar se estiver ativo OU atrasado**
         const [emprestimoRows] = await connection.execute(
             'SELECT * FROM emprestimos WHERE id = ? AND status IN ("ativo", "atrasado")',
             [id]
@@ -556,16 +555,6 @@ async delete(id) {
         if (!emprestimo) {
             throw new Error('Empréstimo não encontrado');
         }
-
-        // **REMOVER RESTAURAÇÃO DE ESTOQUE - SÓ DEVE SER FEITO NA ENTRADA/SAÍDA**
-        // if (emprestimo.status === 'ativo') {
-        //     for (const livro of emprestimo.livros) {
-        //         await connection.execute(
-        //             'UPDATE livros SET estoque = estoque + ? WHERE id = ?',
-        //             [livro.quantidade || 1, livro.livro_id]
-        //         );
-        //     }
-        // }
 
         // Excluir registros da tabela emprestimo_livros primeiro (chave estrangeira)
         await connection.execute(

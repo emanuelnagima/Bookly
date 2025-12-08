@@ -199,13 +199,13 @@ async getRelatorioEmprestimos(filtros = {}) {
         params.push(filtros.origem);
       }
 
-      // NOVO: Filtro por título do livro
+      // Filtro por título do livro
       if (filtros.titulo_livro) {
         query += ' AND l.titulo LIKE ?';
         params.push(`%${filtros.titulo_livro}%`);
       }
 
-      // NOVO: Filtro por autor
+      //  Filtro por autor
       if (filtros.autor_livro) {
         query += ' AND a.nome LIKE ?';
         params.push(`%${filtros.autor_livro}%`);
@@ -260,13 +260,13 @@ async getRelatorioEmprestimos(filtros = {}) {
         params.push(filtros.origem);
       }
 
-      // NOVO: Filtro por título do livro
+      // Filtro por título do livro
       if (filtros.titulo_livro) {
         query += ' AND l.titulo LIKE ?';
         params.push(`%${filtros.titulo_livro}%`);
       }
 
-      // NOVO: Filtro por autor
+      // Filtro por autor
       if (filtros.autor_livro) {
         query += ' AND a.nome LIKE ?';
         params.push(`%${filtros.autor_livro}%`);
@@ -351,22 +351,19 @@ async getRelatorioEmprestimos(filtros = {}) {
         params.push(filtros.genero);
       }
 
-      // NOVO: Filtro por título do livro
+      //  Filtro por título do livro
       if (filtros.titulo_livro) {
         query += ' AND l.titulo LIKE ?';
         params.push(`%${filtros.titulo_livro}%`);
       }
 
-      // NOVO: Filtro por autor
+      //  Filtro por autor
       if (filtros.autor_livro) {
         query += ' AND a.nome LIKE ?';
         params.push(`%${filtros.autor_livro}%`);
       }
 
       query += ' ORDER BY l.titulo LIMIT 1000';
-
-      console.log('Query Cadastros executada:', query);
-      console.log('Parâmetros:', params);
 
       const [rows] = await db.execute(query, params);
       
@@ -453,9 +450,6 @@ async getRelatorioReservas(filtros = {}) {
 
         query += ' ORDER BY r.data_reserva DESC LIMIT 1000';
 
-        console.log('Query Reservas com cálculo de expirada:', query);
-        console.log('Parâmetros:', params);
-
         const [rows] = await db.execute(query, params);
         
         // Atualizar o status nos dados retornados para usar o status_calculado
@@ -463,9 +457,7 @@ async getRelatorioReservas(filtros = {}) {
             ...row,
             status: row.status_calculado || row.status
         }));
-        
-        console.log(`Retornando ${rowsAtualizados.length} reservas (filtro status: ${filtros.status || 'todos'})`);
-        
+                
         return rowsAtualizados;
     } catch (error) {
         console.error('Erro detalhado no relatório de reservas:', error);
@@ -814,7 +806,7 @@ async getEstatisticasGerais() {
     const exemplaresTotal = stats.total_estoque || 0;
     const reservasAtivasValidas = stats.reservas_ativas_validas || 0;
     
-    // NOVO: Calcular percentual de livros sem estoque
+    // Calcular percentual de livros sem estoque
     const percentualSemEstoque = stats.total_livros > 0 
       ? Math.round((stats.livros_sem_estoque / stats.total_livros) * 100) 
       : 0;

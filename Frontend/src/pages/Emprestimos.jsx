@@ -211,11 +211,6 @@
       }
     }
 
-    // Esta função é mantida para compatibilidade (será redirecionada para cancelamento)
-    const handleConfirmDelete = (id) => {
-      // Redirecionar para cancelamento em vez de exclusão
-      handleCancelarEmprestimo(id);
-    }
 
     const handleCloseForm = () => {
       setShowForm(false)

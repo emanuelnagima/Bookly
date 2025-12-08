@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Table, Form, InputGroup, Button, Row, Col, Modal } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaBuilding, FaInfoCircle, FaEnvelope, FaPhone, FaIdCard, FaMapMarkerAlt, FaRegCalendarPlus } from 'react-icons/fa'; 
+import { FaEdit, FaTrash, FaSearch, FaChevronLeft, FaChevronRight, FaBuilding, FaInfoCircle, FaEnvelope, FaPhone, FaIdCard, FaMapMarkerAlt, FaRegCalendarPlus } from 'react-icons/fa';
 
 const ITENS_POR_PAGINA = 7;
 
@@ -48,7 +48,7 @@ const formatarTelefone = (telefone) => {
 
 const formatarEndereco = (endereco) => {
   if (!endereco) return '';
-  
+
   // Remove múltiplos espaços e formata
   return endereco
     .trim()
@@ -58,7 +58,7 @@ const formatarEndereco = (endereco) => {
       if (index > 0 && /\d/.test(parte)) {
         return parte;
       }
-      
+
       // Formata cada palavra do endereço (exceto números)
       return formatarTexto(parte);
     })
@@ -99,7 +99,7 @@ const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
       }
     });
   };
-  
+
 
   // Filtrar editoras
   const editorasFiltradas = editoras.filter(editora => {
@@ -247,7 +247,7 @@ const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
                     {/* Coluna Telefone */}
                     <td className="text-nowrap">
                       {formatarTelefone(editora.telefone)}
-                      </td>
+                    </td>
                     {/* Coluna Ações */}
                     <td>
                       <div className="d-flex gap-2 justify-content-center">
@@ -315,10 +315,10 @@ const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
                       </p>
                       <p className="mb-2">
                         <FaRegCalendarPlus className="me-1" />
-                       <strong>  Data de Cadastro:</strong> 
+                        <strong>  Data de Cadastro:</strong>
                         <span className="ms-2">
-                          {editoraSelecionada?.data_cadastro ? 
-                            formatarData(editoraSelecionada.data_cadastro) : 
+                          {editoraSelecionada?.data_cadastro ?
+                            formatarData(editoraSelecionada.data_cadastro) :
                             'Não disponível'
                           }
                         </span>
@@ -327,8 +327,8 @@ const EditoraList = ({ editoras, onDelete, onEdit, loading }) => {
                   </Row>
                 </div>
 
-                
-              
+
+
               </Modal.Body>
 
               <Modal.Footer>

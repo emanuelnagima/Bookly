@@ -67,25 +67,25 @@ const CadEditora = ({ onSave, onCancel, editora, loading }) => {
     }))
   }
 
-const handleSubmit = (e) => {
-  e.preventDefault()
-  const form = e.currentTarget
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    const form = e.currentTarget
 
-  if (form.checkValidity() === false) {
-    e.stopPropagation()
-    setValidated(true)
-    return
+    if (form.checkValidity() === false) {
+      e.stopPropagation()
+      setValidated(true)
+      return
+    }
+
+    // Verificar se telefone existe
+    const cleanedData = {
+      ...editoraData,
+      cnpj: editoraData.cnpj.replace(/\D/g, ''),
+      telefone: editoraData.telefone ? editoraData.telefone.replace(/\D/g, '') : ''
+    }
+
+    onSave(cleanedData)
   }
-
-  // Verificar se telefone existe
-  const cleanedData = {
-    ...editoraData,
-    cnpj: editoraData.cnpj.replace(/\D/g, ''),
-    telefone: editoraData.telefone ? editoraData.telefone.replace(/\D/g, '') : ''
-  }
-
-  onSave(cleanedData)
-}
 
   return (
     <Card>
@@ -113,7 +113,7 @@ const handleSubmit = (e) => {
               </Form.Group>
             </Col>
           </Row>
-         <Row>
+          <Row>
             <Col md={6}>
               <Form.Group className='mb-3' controlId='cnpj'>
                 <Form.Label>CNPJ</Form.Label>
@@ -152,7 +152,7 @@ const handleSubmit = (e) => {
           <Row>
             <Col md={12}>
               <Form.Group className='mb-3' controlId='endereco'>
-                <Form.Label>Endereço</Form.Label> 
+                <Form.Label>Endereço</Form.Label>
                 <Form.Control
                   type='text'
                   name='endereco'
@@ -180,7 +180,7 @@ const handleSubmit = (e) => {
               </Form.Group>
             </Col>
           </Row>
-          
+
           <div className='d-flex justify-content-end gap-2'>
             <Button
               variant='cancelar'
