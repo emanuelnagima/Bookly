@@ -150,7 +150,10 @@ async create(emprestimoData) {
 
         const emprestimo = new Emprestimo(emprestimoData);
         
-        // **VERIFICAÇÃO POR DISPONIBILIDADE REAL (INCLUINDO RESERVAS!)**
+        // **IDENTIFICAR SE É CONVERSÃO DE RESERVA**
+        const isConversao = emprestimoData.reserva_id; // Se houver reserva_id, é conversão
+        
+        // **VERIFICAÇÃO POR DISPONIBILIDADE REAL (AJUSTADA PARA CONVERSÃO)**
         for (const livro of emprestimo.livros) {
             const livroId = livro.livro_id;
             const quantidadeSolicitada = livro.quantidade || 1;
@@ -178,26 +181,43 @@ async create(emprestimoData) {
 
             const totalEmprestado = Number(emprestimosAtivos[0].total_emprestado) || 0;
             
-            // 3. **CALCULAR RESERVAS ATIVAS DE OUTROS USUÁRIOS**
-            const [reservasAtivas] = await connection.execute(
-                `SELECT COALESCE(SUM(rl.quantidade), 0) as total_reservado
-                 FROM reserva_livros rl
-                 JOIN reservas r ON rl.reserva_id = r.id
-                 WHERE rl.livro_id = ? 
-                 AND r.status = 'ativa'
-                 AND r.data_validade >= CURDATE()`,
-                [livroId]
-            );
+            // 3. **CALCULAR RESERVAS ATIVAS - AJUSTADO PARA CONVERSÃO**
+            let totalReservado = 0;
             
-            const totalReservado = Number(reservasAtivas[0].total_reservado) || 0;
+            if (isConversao) {
+                // **SE É CONVERSÃO: excluir a reserva que está sendo convertida**
+                const [reservasAtivas] = await connection.execute(
+                    `SELECT COALESCE(SUM(rl.quantidade), 0) as total_reservado
+                     FROM reserva_livros rl
+                     JOIN reservas r ON rl.reserva_id = r.id
+                     WHERE rl.livro_id = ? 
+                     AND r.status = 'ativa'
+                     AND r.data_validade >= CURDATE()
+                     AND r.id != ?`,  // <-- EXCLUIR A RESERVA ATUAL
+                    [livroId, emprestimoData.reserva_id]
+                );
+                totalReservado = Number(reservasAtivas[0].total_reservado) || 0;
+            } else {
+                // **SE É NOVO EMPRÉSTIMO: considerar todas as reservas**
+                const [reservasAtivas] = await connection.execute(
+                    `SELECT COALESCE(SUM(rl.quantidade), 0) as total_reservado
+                     FROM reserva_livros rl
+                     JOIN reservas r ON rl.reserva_id = r.id
+                     WHERE rl.livro_id = ? 
+                     AND r.status = 'ativa'
+                     AND r.data_validade >= CURDATE()`,
+                    [livroId]
+                );
+                totalReservado = Number(reservasAtivas[0].total_reservado) || 0;
+            }
             
-            // 4. Calcular estoque disponível REAL
+            // 4. Calcular estoque disponível REAL (ajustado)
             const estoqueDisponivel = livroInfo.estoque - totalEmprestado - totalReservado;
 
-            console.log(`Disponibilidade para empréstimo - Livro: ${livroInfo.titulo}
+            console.log(`Disponibilidade para ${isConversao ? 'CONVERSÃO' : 'EMPRÉSTIMO'} - Livro: ${livroInfo.titulo}
               Estoque físico: ${livroInfo.estoque}
               Emprestados ativos: ${totalEmprestado}
-              Reservados ativos: ${totalReservado}
+              Reservados ativos (${isConversao ? 'excluindo conversão' : 'todas'}): ${totalReservado}
               Disponível real: ${estoqueDisponivel}
               Solicitado: ${quantidadeSolicitada}`);
 
@@ -206,7 +226,7 @@ async create(emprestimoData) {
                     Disponível: ${estoqueDisponivel} 
                     (Estoque: ${livroInfo.estoque}, 
                      Emprestados: ${totalEmprestado}, 
-                     Reservados: ${totalReservado})
+                     Reservados ativos: ${totalReservado})
                     Solicitado: ${quantidadeSolicitada}`);
             }
 

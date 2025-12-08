@@ -291,15 +291,17 @@ async converterEmEmprestimo(req, res) {
         }
 
         // 5. Criar empréstimo
-        const emprestimoData = {
+       const emprestimoData = {
             usuario_id: reserva.usuario_id,
             usuario_tipo: reserva.usuario_tipo,
-            data_devolucao_prevista: data_devolucao_prevista, //  USAR DATA DO FRONTEND
+            data_devolucao_prevista: data_devolucao_prevista,
             observacoes: `Convertido da reserva #${reserva.id}` + (reserva.observacoes ? ` - ${reserva.observacoes}` : ''),
             livros: reserva.livros.map(livro => ({
                 livro_id: livro.livro_id,
                 quantidade: livro.quantidade || 1
-            }))
+            })),
+            // **ADICIONAR O ID DA RESERVA PARA IDENTIFICAR COMO CONVERSÃO**
+            reserva_id: reserva.id
         };
 
         console.log('Criando empréstimo...');
