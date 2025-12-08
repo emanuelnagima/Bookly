@@ -899,21 +899,19 @@ const limparFiltros = () => {
       };
 
       switch (tipoRelatorio) {
-    case 'emprestimos':
+  case 'emprestimos':
   return {
     id: item.id,
     usuario: item.usuario || 'Não informado',
     tipo: (() => {
       if (!item.usuario_tipo) return 'Não informado';
-
+      
       let tipoFormatado = item.usuario_tipo;
-
       if (tipoFormatado === 'usuario_especial') {
         tipoFormatado = 'Usuário Especial';
       } else {
         tipoFormatado = tipoFormatado.charAt(0).toUpperCase() + tipoFormatado.slice(1);
       }
-
       return tipoFormatado;
     })(),
     livro: item.livro || 'Não informado',
@@ -926,19 +924,27 @@ const limparFiltros = () => {
     data_cancelamento: item.data_cancelamento ? new Date(item.data_cancelamento).toLocaleDateString('pt-BR') : '-',
     motivo_cancelamento: item.motivo_cancelamento || '-',
     status: (
-      <Badge bg={
-        item.status === 'ativo' ? 'success' :
-        item.status === 'atrasado' ? 'warning' :
-        item.status === 'finalizado' ? 'dark' :
-        item.status === 'cancelado' ? 'danger' : 'secondary'
-      } className={
-        item.status === 'atrasado' ? 'text-dark' : ''
-      }>
-        {item.status === 'ativo' ? 'Emprestado' :
-         item.status === 'atrasado' ? 'Atrasado' :
-         item.status === 'finalizado' ? 'Finalizado' :
-         item.status === 'cancelado' ? 'Cancelado' : item.status}
-      </Badge>
+      <div>
+        <Badge bg={
+          item.status === 'ativo' ? 'success' :
+          item.status === 'atrasado' ? 'warning' :
+          item.status === 'finalizado' ? 'dark' :
+          item.status === 'cancelado' ? 'danger' : 'secondary'
+        } className={
+          item.status === 'atrasado' ? 'text-dark' : 'text-white'
+        }>
+          {item.status === 'ativo' ? 'Emprestado' :
+           item.status === 'atrasado' ? 'Atrasado' :
+           item.status === 'finalizado' ? 'Finalizado' :
+           item.status === 'cancelado' ? 'Cancelado' : item.status}
+        </Badge>
+        {/* ADICIONAR ESTA PARTE PARA MOSTRAR MOTIVO DO CANCELAMENTO */}
+        {item.status === 'cancelado' && item.motivo_cancelamento && item.motivo_cancelamento !== '-' && (
+          <div className="mt-1 small text-muted">
+            <strong>Motivo:</strong> {item.motivo_cancelamento}
+          </div>
+        )}
+      </div>
     )
   };
         case 'entrada':
