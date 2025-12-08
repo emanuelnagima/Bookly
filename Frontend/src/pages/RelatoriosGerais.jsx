@@ -77,17 +77,26 @@ const formatarTexto = (texto) => {
       .toLowerCase()
       .split(' ')
       .map(palavra => {
-        // Manter siglas em maiúsculo (ex: CPF, ISBN, etc)
-        if (palavra.length <= 4 && /^[A-Z]+$/.test(palavra.toUpperCase())) {
+        // Se a palavra tiver 4 ou mais caracteres, aplicar capitalização normal
+        if (palavra.length >= 4) {
+          return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
+        }
+        
+        // Para palavras curtas (1-3 caracteres), verificar se é uma sigla (todas letras maiúsculas)
+        // Se for uma sigla, manter como está
+        if (/^[A-Z]{2,}$/.test(palavra.toUpperCase())) {
           return palavra.toUpperCase();
         }
-        return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+        
+        // Para palavras curtas normais, aplicar capitalização normal
+        return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
       })
       .join(' ');
   }
 
-  // Para textos sem espaços, verificar se é um nome próprio ou sigla
-  if (textoString.length <= 4 && /^[A-Z]+$/.test(textoString)) {
+  // Para textos sem espaços
+  // Verificar se é uma sigla (todas letras maiúsculas e mais de 1 caractere)
+  if (textoString.length > 1 && /^[A-Z]+$/.test(textoString)) {
     // É uma sigla, manter em maiúsculo
     return textoString.toUpperCase();
   }
@@ -95,7 +104,6 @@ const formatarTexto = (texto) => {
   // Para textos simples, capitalizar apenas a primeira letra
   return textoString.charAt(0).toUpperCase() + textoString.slice(1).toLowerCase();
 };
-
 const RelatoriosGerais = () => {
   const [tipoRelatorio, setTipoRelatorio] = useState('emprestimos');
   const [dataInicio, setDataInicio] = useState('');
