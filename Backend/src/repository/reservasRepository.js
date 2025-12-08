@@ -192,7 +192,6 @@ async cancelar(id, motivo = '') {
 async create(reservaData) {
     let connection;
     try {
-        console.log('=== REPOSITORY: Criando reserva ===');
         connection = await db.getConnection();
         await connection.beginTransaction();
 
@@ -205,16 +204,16 @@ async create(reservaData) {
             };
         }
 
-        console.log(`Verificando ${reserva.livros.length} livro(s)...`);
-        
-        // VERIFICAÇÃO COMPLETA DE DISPONIBILIDADE
-        for (const livro of reserva.livros) {
-            console.log(`Verificando livro ID: ${livro.livro_id}`);
-            
-            const livroId = livro.livro_id;
-            const quantidadeSolicitada = livro.quantidade || 1;
+        console.log(`Criando reserva para ${reserva.livros.length} livro(s)...`);
 
-            // 1. Verificar se livro existe
+        // **VALIDAÇÃO 1: Verificar disponibilidade para TODOS os livros**
+        for (const livroItem of reserva.livros) {
+            const livroId = livroItem.livro_id;
+            const quantidadeSolicitada = livroItem.quantidade || 1;
+
+            console.log(`Validando livro ID ${livroId}, quantidade: ${quantidadeSolicitada}`);
+
+            // Verificar se livro existe
             const [livroRows] = await connection.execute(
                 'SELECT id, titulo, estoque FROM livros WHERE id = ?',
                 [livroId]
@@ -229,98 +228,118 @@ async create(reservaData) {
 
             const livroInfo = livroRows[0];
 
-            // 2. VERIFICAÇÃO CRÍTICA: Calcular disponibilidade REAL
-            // a) Empréstimos ativos
+            // **CALCULAR DISPONIBILIDADE REAL**
+            // Estoque físico
+            const estoqueFisico = livroInfo.estoque || 0;
+
+            // Empréstimos ativos
             const [emprestimosAtivos] = await connection.execute(
-                `SELECT SUM(el.quantidade) as total_emprestado
+                `SELECT COALESCE(SUM(el.quantidade), 0) as total_emprestado
                  FROM emprestimo_livros el
                  JOIN emprestimos e ON el.emprestimo_id = e.id
-                 WHERE el.livro_id = ? AND e.status = 'ativo'`,
+                 WHERE el.livro_id = ? 
+                 AND e.status IN ('ativo', 'atrasado')`,
                 [livroId]
             );
-
-            const totalEmprestado = emprestimosAtivos[0].total_emprestado || 0;
             
-            // b) Reservas ativas
+            const totalEmprestado = Number(emprestimosAtivos[0].total_emprestado) || 0;
+
+            // Reservas ativas (excluindo possíveis do próprio usuário para conversão)
             const [reservasAtivas] = await connection.execute(
-                `SELECT SUM(rl.quantidade) as total_reservado
+                `SELECT COALESCE(SUM(rl.quantidade), 0) as total_reservado
                  FROM reserva_livros rl
                  JOIN reservas r ON rl.reserva_id = r.id
-                 WHERE rl.livro_id = ? AND r.status = 'ativa'`,
-                [livroId]
+                 WHERE rl.livro_id = ? 
+                 AND r.status = 'ativa'
+                 AND r.data_validade >= CURDATE()
+                 AND NOT (r.usuario_id = ? AND r.usuario_tipo = ?)`, // Excluir do próprio usuário
+                [livroId, reserva.usuario_id, reserva.usuario_tipo]
+            );
+            
+            const totalReservado = Number(reservasAtivas[0].total_reservado) || 0;
+
+            // Calcular disponibilidade REAL
+            const disponivelReal = estoqueFisico - totalEmprestado - totalReservado;
+
+            console.log(`Disponibilidade livro ${livroId}: 
+              Estoque: ${estoqueFisico}
+              Emprestados: ${totalEmprestado}
+              Reservados: ${totalReservado}
+              Disponível: ${disponivelReal}
+              Solicitado: ${quantidadeSolicitada}`);
+
+            // Verificar se há estoque disponível REAL
+            if (disponivelReal < quantidadeSolicitada) {
+                let situacaoDetalhada = '';
+                
+                if (totalEmprestado > 0 && totalReservado > 0) {
+                    situacaoDetalhada = `Todos os ${estoqueFisico} exemplares estão em uso: ${totalEmprestado} emprestado(s) e ${totalReservado} reservado(s)`;
+                } else if (totalEmprestado > 0) {
+                    situacaoDetalhada = `${totalEmprestado} exemplar(es) emprestado(s). Disponível: ${disponivelReal}`;
+                } else if (totalReservado > 0) {
+                    situacaoDetalhada = `${totalReservado} exemplar(es) reservado(s). Disponível: ${disponivelReal}`; 
+                } else {
+                    situacaoDetalhada = `Estoque insuficiente. Disponível: ${disponivelReal}`;
+                }
+                
+                throw {
+                    type: 'estoque_insuficiente',
+                    title: 'Livro Indisponível',
+                    message: `Não é possível reservar "${livroInfo.titulo}"`,
+                    situacao: situacaoDetalhada,
+                    disponivel: disponivelReal,
+                    estoqueFisico: estoqueFisico,
+                    emprestadosAtivos: totalEmprestado,
+                    reservadosAtivos: totalReservado,
+                    livro: livroInfo.titulo,
+                    solicitado: quantidadeSolicitada
+                };
+            }
+
+            // **VALIDAÇÃO 2: Verificar reserva duplicada para ESTE livro específico**
+            console.log(`Verificando reservas existentes para usuário ${reserva.usuario_id}, livro ${livroId}`);
+            
+            const [reservasExistentes] = await connection.execute(
+                `SELECT r.id, r.status, r.data_validade
+                 FROM reservas r
+                 JOIN reserva_livros rl ON r.id = rl.reserva_id
+                 WHERE r.usuario_id = ? 
+                 AND r.usuario_tipo = ? 
+                 AND rl.livro_id = ? 
+                 AND r.status = 'ativa'
+                 AND r.data_validade >= CURDATE()`,
+                [reserva.usuario_id, reserva.usuario_tipo, livroId] // CORRETO: usar livroId do loop atual
             );
 
-            const totalReservado = reservasAtivas[0].total_reservado || 0;
-            
-            // c) Calcular disponibilidade REAL
-            const totalUsado = totalEmprestado + totalReservado;
-            const disponivelReal = livroInfo.estoque - totalUsado;
-
-            console.log(`Livro ${livroId} - Estoque: ${livroInfo.estoque}, Emprestados: ${totalEmprestado}, Reservados: ${totalReservado}, Disponível: ${disponivelReal}`);
-
-            // 3. Verificar se há estoque disponível REAL
-        if (disponivelReal < quantidadeSolicitada) {
-    // Calcular situação específica
-    let situacaoDetalhada = '';
-    
-    if (totalEmprestado > 0 && totalReservado > 0) {
-        situacaoDetalhada = `Todos os ${livroInfo.estoque} exemplares estão em uso: ${totalEmprestado} emprestado(s) e ${totalReservado} reservado(s)`;
-    } else if (totalEmprestado > 0) {
-        situacaoDetalhada = `Todos os exemplares estão emprestados (${totalEmprestado} em uso)`;
-    } else if (totalReservado > 0) {
-        situacaoDetalhada = `Todos os exemplares estão reservados (${totalReservado} reserva(s) ativa(s))`; 
-    } else {
-        situacaoDetalhada = `Estoque insuficiente (${livroInfo.estoque} unidade(s) disponível(is) no total)`;
-    }
-    
-    // CRIAR OBJETO ESTRUTURADO COM MENSAGEM AMIGÁVEL
-    const errorObj = {
-        type: 'estoque_insuficiente',
-        title: 'Livro Indisponível',
-        message: `Não é possível reservar "${livroInfo.titulo}"`,
-        situacao: situacaoDetalhada,
-        sugestao: 'Tente outro livro ou aguarde a devolução.',
-        disponivel: disponivelReal,
-        estoqueFisico: livroInfo.estoque,
-        emprestadosAtivos: totalEmprestado,
-        reservadosAtivos: totalReservado,
-        livro: livroInfo.titulo,
-        solicitado: quantidadeSolicitada,
-        style: 'warning'
-    };
-    
-    throw errorObj;
-}
-
-            // 4. Verificar se já existe reserva ativa para este livro e usuário
-            console.log(`Verificando reservas existentes para usuário ${reserva.usuario_id} (${reserva.usuario_tipo}), livro ${livroId}`);
-const [reservasExistentes] = await connection.execute(
-    `SELECT r.id, r.status, r.data_validade
-     FROM reservas r
-     JOIN reserva_livros rl ON r.id = rl.reserva_id
-     WHERE r.usuario_id = ? AND r.usuario_tipo = ? AND rl.livro_id = ? AND r.status = 'ativa'`,
-    [reserva.usuario_id, reserva.usuario_tipo, livroId]
-);
-    console.log(`Reservas existentes encontradas: ${reservasExistentes.length}`);
-
             if (reservasExistentes.length > 0) {
+                const reservaExistente = reservasExistentes[0];
+                const dataValidadeFormatada = new Date(reservaExistente.data_validade)
+                    .toLocaleDateString('pt-BR');
+                
                 throw {
                     type: 'reserva_duplicada',
                     title: 'Reserva Duplicada',
                     message: `Você já possui uma reserva ativa para "${livroInfo.titulo}"`,
-                    detalhe: 'Cada usuário pode ter apenas uma reserva ativa por livro',
+                    detalhe: `Validade: ${dataValidadeFormatada}. Cada usuário pode ter apenas uma reserva ativa por livro.`,
                     livro: livroInfo.titulo,
-                    style: 'warning'
+                    validade: dataValidadeFormatada
                 };
             }
         }
 
-        // 5. Inserir reserva principal
-        console.log('Inserindo reserva principal...');
-        
-        // Pega o primeiro livro como referência (mantendo compatibilidade)
+        // **INSERIR RESERVA PRINCIPAL**
+        // Usar o primeiro livro como referência principal (para compatibilidade com estrutura existente)
         const primeiroLivroId = reserva.livros[0].livro_id;
         
+        // Calcular data de validade (padrão: 7 dias)
+        let dataValidade = reserva.data_validade;
+        if (!dataValidade) {
+            const hoje = new Date();
+            hoje.setDate(hoje.getDate() + 7);
+            dataValidade = hoje.toISOString().split('T')[0];
+        }
+
+        console.log('Inserindo reserva principal...');
         const [result] = await connection.execute(
             `INSERT INTO reservas 
              (usuario_id, usuario_tipo, livro_id, data_validade, observacoes, status) 
@@ -328,8 +347,8 @@ const [reservasExistentes] = await connection.execute(
             [
                 reserva.usuario_id,
                 reserva.usuario_tipo,
-                primeiroLivroId,
-                reserva.data_validade,
+                primeiroLivroId, // livro_id principal
+                dataValidade,
                 reserva.observacoes || ''
             ]
         );
@@ -337,32 +356,23 @@ const [reservasExistentes] = await connection.execute(
         const reservaId = result.insertId;
         console.log(`Reserva criada com ID: ${reservaId}`);
 
-        // 6. Inserir livros da reserva
-        console.log('Inserindo livros da reserva...');
-        for (const livro of reserva.livros) {
+        // **INSERIR LIVROS NA TABELA reserva_livros**
+        console.log('Inserindo livros na tabela reserva_livros...');
+        for (const livroItem of reserva.livros) {
             await connection.execute(
                 `INSERT INTO reserva_livros 
                  (reserva_id, livro_id, quantidade) 
                  VALUES (?, ?, ?)`,
-                [reservaId, livro.livro_id, livro.quantidade || 1]
+                [reservaId, livroItem.livro_id, livroItem.quantidade || 1]
             );
-            
-            console.log(`Livro ${livro.livro_id} adicionado à reserva`);
+            console.log(`Livro ${livroItem.livro_id} adicionado à reserva`);
         }
 
         await connection.commit();
+        console.log('Reserva criada com sucesso!');
         
-        // 7. Retornar reserva completa
-        console.log('Reserva criada com sucesso! Buscando dados completos...');
-        const reservaCompleta = await this.findById(reservaId);
-        
-        console.log('=== RESERVA FINALIZADA ===');
-        console.log(`ID: ${reservaCompleta.id}`);
-        console.log(`Usuário: ${reservaCompleta.usuario_id} (${reservaCompleta.usuario_tipo})`);
-        console.log(`Livros: ${reservaCompleta.livros.length}`);
-        console.log(`Status: ${reservaCompleta.status}`);
-        
-        return reservaCompleta;
+        // Retornar reserva completa
+        return await this.findById(reservaId);
 
     } catch (error) {
         console.error('=== ERRO AO CRIAR RESERVA ===');
@@ -376,55 +386,21 @@ const [reservasExistentes] = await connection.execute(
         
         // Se já for objeto estruturado, repassa para o controller
         if (error.type && error.title) {
-            console.log('Erro estruturado - repassando para controller...');
             throw error;
         }
         
-        // Se for erro string antigo, converte para objeto estruturado
-        const mensagem = error.message || 'Erro desconhecido ao criar reserva';
-        
-        // Tentar extrair informações da mensagem
-        if (mensagem.includes('ESTOQUE') || mensagem.includes('estoque') || mensagem.includes('Disponível')) {
-            const livroMatch = mensagem.match(/Livro: "([^"]+)"/);
-            const livroNome = livroMatch ? livroMatch[1] : 'o livro selecionado';
-            
-            throw {
-                type: 'estoque_insuficiente',
-                title: 'Estoque Insuficiente',
-                message: `Não há exemplares disponíveis para reservar "${livroNome}"`,
-                detalhe: 'Todos os exemplares estão emprestados ou reservados',
-                style: 'warning'
-            };
-        } 
-        else if (mensagem.includes('reserva ativa') || mensagem.includes('já possui')) {
-            const livroMatch = mensagem.match(/Livro: "([^"]+)"/);
-            const livroNome = livroMatch ? livroMatch[1] : 'este livro';
-            
-            throw {
-                type: 'reserva_duplicada',
-                title: 'Reserva Ativa',
-                message: `Usuário já possui uma reserva para "${livroNome}"`,
-                detalhe: 'Cada usuário pode ter apenas uma reserva por livro',
-                style: 'warning'
-            };
-        }
-        else {
-            // Erro genérico
-            throw {
-                type: 'erro_geral',
-                title: 'Erro na Reserva',
-                message: mensagem,
-                style: 'danger'
-            };
-        }
+        // Converter erro genérico para estruturado
+        throw {
+            type: 'erro_geral',
+            title: 'Erro na Reserva',
+            message: error.message || 'Erro desconhecido ao criar reserva'
+        };
     } finally {
         if (connection) {
-            console.log('Liberando conexão...');
             connection.release();
         }
     }
 }
-
     // ** Atualizar outros métodos para usar reserva_livros**
  async getReservasAtivas() {
     try {

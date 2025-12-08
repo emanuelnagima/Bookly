@@ -63,40 +63,44 @@ class DisponibilidadeService {
         }
     }
 
-    async verificarPodeReservar(usuarioId, usuarioTipo, livroId) {
-        try {
-            // 1. Verificar se usuário já tem reserva ativa para este livro
-            const reservasAtivasUsuario = await this.verificarReservasAtivasPorUsuario(usuarioId, usuarioTipo, livroId);
-            
-            if (reservasAtivasUsuario.length > 0) {
-                return {
-                    podeReservar: false,
-                    motivo: 'Usuário já possui reserva ativa para este livro'
-                };
-            }
-
-            // 2. Verificar disponibilidade geral do livro
-            const disponibilidade = await emprestimosService.verificarDisponibilidade(livroId, 1);
-            
-            if (!disponibilidade.data.podeEmprestar) {
-                return {
-                    podeReservar: false,
-                    motivo: 'Livro indisponível no momento'
-                };
-            }
-
+async verificarPodeReservar(usuarioId, usuarioTipo, livroId) {
+    try {
+        
+        // 1. Verificar se usuário já tem reserva ativa para este livro
+        const reservasAtivasUsuario = await this.verificarReservasAtivasPorUsuario(usuarioId, usuarioTipo, livroId);
+        
+        if (reservasAtivasUsuario.length > 0) {
             return {
-                podeReservar: true
-            };
-
-        } catch (error) {
-            console.error('Erro ao verificar se pode reservar:', error);
-            return { 
-                podeReservar: false, 
-                motivo: 'Erro ao verificar disponibilidade' 
+                podeReservar: false,
+                motivo: 'Usuário já possui reserva ativa para este livro'
             };
         }
+
+        const estoqueInfo = await this.calcularDisponibilidadeDireta(livroId);
+        
+        
+        if (estoqueInfo.disponivelReal < 1) {
+            return {
+                podeReservar: false,
+                motivo: `Estoque insuficiente. Disponível: ${estoqueInfo.disponivelReal}`,
+                disponivelExato: estoqueInfo.disponivelReal
+            };
+        }
+
+        return {
+            podeReservar: true,
+            disponivelExato: estoqueInfo.disponivelReal
+        };
+
+    } catch (error) {
+        console.error('Erro ao verificar se pode reservar:', error);
+        return { 
+            podeReservar: false, 
+            motivo: 'Erro ao verificar disponibilidade' 
+        };
     }
+}
+
 
 async verificarReservasAtivasPorUsuario(usuarioId, usuarioTipo, livroId) {
     try {
@@ -180,7 +184,71 @@ async verificarReservasAtivasPorUsuario(usuarioId, usuarioTipo, livroId) {
             throw error;
         }
     }
-
+async calcularDisponibilidadeDireta(livroId) {
+    try {
+        // Usar a mesma lógica do ReservasRepository.create()
+        const response = await fetch(`http://localhost:3000/api/entrada-saida/estoque-disponivel/${livroId}`, {
+            credentials: 'include'
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            return {
+                estoqueFisico: result.data.estoqueFisico || 0,
+                totalEmprestado: result.data.totalEmprestado || 0,
+                totalReservado: result.data.totalReservado || 0,
+                disponivelReal: result.data.estoqueDisponivel || 0
+            };
+        }
+        
+        // Fallback: cálculo manual
+        console.warn('API de estoque não disponível, usando cálculo manual');
+        const [livroRows] = await db.execute(
+            'SELECT estoque FROM livros WHERE id = ?',
+            [livroId]
+        );
+        
+        const estoqueFisico = livroRows[0]?.estoque || 0;
+        
+        // Calcular empréstimos ativos (mesma lógica do ReservasRepository)
+        const [emprestimosAtivos] = await db.execute(
+            `SELECT COALESCE(SUM(el.quantidade), 0) as total_emprestado
+             FROM emprestimo_livros el
+             JOIN emprestimos e ON el.emprestimo_id = e.id
+             WHERE el.livro_id = ? 
+             AND e.status IN ('ativo', 'atrasado')`,
+            [livroId]
+        );
+        
+        const totalEmprestado = emprestimosAtivos[0]?.total_emprestado || 0;
+        
+        // Calcular reservas ativas (mesma lógica do ReservasRepository)
+        const [reservasAtivas] = await db.execute(
+            `SELECT COALESCE(SUM(rl.quantidade), 0) as total_reservado
+             FROM reserva_livros rl
+             JOIN reservas r ON rl.reserva_id = r.id
+             WHERE rl.livro_id = ? 
+             AND r.status = 'ativa'
+             AND r.data_validade >= CURDATE()`,
+            [livroId]
+        );
+        
+        const totalReservado = reservasAtivas[0]?.total_reservado || 0;
+        
+        const disponivelReal = estoqueFisico - totalEmprestado - totalReservado;
+        
+        return {
+            estoqueFisico,
+            totalEmprestado,
+            totalReservado,
+            disponivelReal
+        };
+        
+    } catch (error) {
+        console.error('Erro ao calcular disponibilidade direta:', error);
+        throw error;
+    }
+}
     // Verificação completa para novo empréstimo
     async verificarPodeEmprestar(livroId, quantidade = 1, usuario = null) {
         try {

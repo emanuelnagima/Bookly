@@ -253,29 +253,33 @@ async verificarEstoqueDisponivel(livroId) {
 
         const estoqueFisico = estoqueRows[0].estoque || 0;
 
-        // 2. Empréstimos ativos
+        // 2. Empréstimos ATIVOS (não finalizados/cancelados)
         const [emprestimosAtivos] = await db.execute(
             `SELECT COALESCE(SUM(el.quantidade), 0) as total_emprestado
              FROM emprestimo_livros el
              JOIN emprestimos e ON el.emprestimo_id = e.id
-             WHERE el.livro_id = ? AND e.status = 'ativo'`,
+             WHERE el.livro_id = ? 
+             AND e.status IN ('ativo', 'atrasado')`,  // CORREÇÃO AQUI
             [livroId]
         );
 
-        // 3. RESERVAS ATIVAS - NOVA VERIFICAÇÃO
+        // 3. Reservas ATIVAS e não expiradas
         const [reservasAtivas] = await db.execute(
-            `SELECT COALESCE(COUNT(*), 0) as total_reservado
-             FROM reservas r
-             JOIN reserva_livros rl ON r.id = rl.reserva_id
-             WHERE rl.livro_id = ? AND r.status = 'ativa'`,
+            `SELECT COALESCE(SUM(rl.quantidade), 0) as total_reservado
+             FROM reserva_livros rl
+             JOIN reservas r ON r.id = rl.reserva_id
+             WHERE rl.livro_id = ? 
+             AND r.status = 'ativa'
+             AND r.data_validade >= CURDATE()`,  // CORREÇÃO AQUI
             [livroId]
         );
 
         const totalEmprestado = Number(emprestimosAtivos[0].total_emprestado) || 0;
         const totalReservado = Number(reservasAtivas[0].total_reservado) || 0;
         
-        // Estoque disponível = físico - emprestados - reservados
+        // Estoque disponível = físico - emprestados ATIVOS - reservadas ATIVAS
         const estoqueDisponivel = Math.max(0, estoqueFisico - totalEmprestado - totalReservado);
+
 
         return {
             estoqueDisponivel,

@@ -150,7 +150,7 @@ async create(emprestimoData) {
 
         const emprestimo = new Emprestimo(emprestimoData);
         
-        // **VERIFICAÇÃO POR DISPONIBILIDADE REAL**
+        // **VERIFICAÇÃO POR DISPONIBILIDADE REAL (INCLUINDO RESERVAS!)**
         for (const livro of emprestimo.livros) {
             const livroId = livro.livro_id;
             const quantidadeSolicitada = livro.quantidade || 1;
@@ -167,26 +167,50 @@ async create(emprestimoData) {
 
             const livroInfo = livroRows[0];
 
-            // 2. Calcular estoque disponível (considerando empréstimos ativos)
+            // 2. Calcular empréstimos ativos
             const [emprestimosAtivos] = await connection.execute(
-                `SELECT SUM(el.quantidade) as total_emprestado
+                `SELECT COALESCE(SUM(el.quantidade), 0) as total_emprestado
                  FROM emprestimo_livros el
                  JOIN emprestimos e ON el.emprestimo_id = e.id
-                 WHERE el.livro_id = ? AND e.status = 'ativo'`,
+                 WHERE el.livro_id = ? AND e.status IN ('ativo', 'atrasado')`,
                 [livroId]
             );
 
-            const totalEmprestado = emprestimosAtivos[0].total_emprestado || 0;
+            const totalEmprestado = Number(emprestimosAtivos[0].total_emprestado) || 0;
             
-            // Calcular estoque disponível
-            const estoqueDisponivel = livroInfo.estoque - totalEmprestado;
+            // 3. **CALCULAR RESERVAS ATIVAS DE OUTROS USUÁRIOS**
+            const [reservasAtivas] = await connection.execute(
+                `SELECT COALESCE(SUM(rl.quantidade), 0) as total_reservado
+                 FROM reserva_livros rl
+                 JOIN reservas r ON rl.reserva_id = r.id
+                 WHERE rl.livro_id = ? 
+                 AND r.status = 'ativa'
+                 AND r.data_validade >= CURDATE()`,
+                [livroId]
+            );
+            
+            const totalReservado = Number(reservasAtivas[0].total_reservado) || 0;
+            
+            // 4. Calcular estoque disponível REAL
+            const estoqueDisponivel = livroInfo.estoque - totalEmprestado - totalReservado;
 
-            // Usar estoqueDisponivel em vez de livroInfo.estoque
+            console.log(`Disponibilidade para empréstimo - Livro: ${livroInfo.titulo}
+              Estoque físico: ${livroInfo.estoque}
+              Emprestados ativos: ${totalEmprestado}
+              Reservados ativos: ${totalReservado}
+              Disponível real: ${estoqueDisponivel}
+              Solicitado: ${quantidadeSolicitada}`);
+
             if (quantidadeSolicitada > estoqueDisponivel) {
-                throw new Error(`Estoque disponível insuficiente para "${livroInfo.titulo}". Disponível: ${estoqueDisponivel}, Solicitado: ${quantidadeSolicitada}`);
+                throw new Error(`Estoque disponível insuficiente para "${livroInfo.titulo}". 
+                    Disponível: ${estoqueDisponivel} 
+                    (Estoque: ${livroInfo.estoque}, 
+                     Emprestados: ${totalEmprestado}, 
+                     Reservados: ${totalReservado})
+                    Solicitado: ${quantidadeSolicitada}`);
             }
 
-            // 4. VALIDAÇÃO: Quantidade mínima
+            // 5. VALIDAÇÃO: Quantidade mínima
             if (quantidadeSolicitada < 1) {
                 throw new Error(`Quantidade inválida para "${livroInfo.titulo}". Mínimo: 1`);
             }
@@ -200,23 +224,25 @@ async create(emprestimoData) {
 
         const emprestimoId = result.insertId;
 
-        // **REMOVER A ATUALIZAÇÃO DE ESTOQUE FÍSICO - SÓ DEVE ATUALIZAR NA ENTRADA/SAÍDA**
+        // Vincular livros ao empréstimo
         for (const livro of emprestimo.livros) {
             const livroId = livro.livro_id;
             const quantidade = livro.quantidade || 1;
             
-            // Vincular ao empréstimo (APENAS ISSO)
             await connection.execute(
                 'INSERT INTO emprestimo_livros (emprestimo_id, livro_id, quantidade) VALUES (?, ?, ?)',
                 [emprestimoId, livroId, quantidade]
             );
+            
+            console.log(`Livro ${livroId} (qtd: ${quantidade}) vinculado ao empréstimo ${emprestimoId}`);
         }
 
         await connection.commit();
-        return this.findById(emprestimoId);
+        return await this.findById(emprestimoId);
 
     } catch (error) {
         if (connection) await connection.rollback();
+        console.error('Erro ao criar empréstimo:', error);
         throw new Error(`Erro ao criar empréstimo: ${error.message}`);
     } finally {
         if (connection) connection.release();
@@ -311,7 +337,7 @@ async finalizar(id) {
         connection = await db.getConnection();
         await connection.beginTransaction();
 
-        // Buscar empréstimo e seus livros
+        // Buscar empréstimo
         const [emprestimoRows] = await connection.execute(
             'SELECT * FROM emprestimos WHERE id = ?',
             [id]
@@ -321,31 +347,34 @@ async finalizar(id) {
             throw new Error('Empréstimo não encontrado');
         }
 
-        // Buscar livros do empréstimo
+        // Buscar livros do empréstimo (apenas para registro/log)
         const [livrosRows] = await connection.execute(
             'SELECT livro_id, quantidade FROM emprestimo_livros WHERE emprestimo_id = ?',
             [id]
         );
 
-        // Devolver livros ao estoque
-        for (const livro of livrosRows) {
-            await connection.execute(
-                'UPDATE livros SET estoque = estoque + ? WHERE id = ?',
-                [livro.quantidade || 1, livro.livro_id]
-            );
-        }
-
-        // Atualizar status do empréstimo
+        console.log(`Finalizando empréstimo ${id}: ${livrosRows.length} livro(s) sendo devolvido(s)`);
+        
+        // **APENAS ATUALIZAR STATUS DO EMPRÉSTIMO**
+        // NÃO ATUALIZAR O ESTOQUE FÍSICO - isso só deve acontecer na entrada/saída
         await connection.execute(
             'UPDATE emprestimos SET status = "finalizado", data_devolucao_real = NOW() WHERE id = ?',
             [id]
         );
 
+        // **OPCIONAL: Registrar em log ou console os livros devolvidos**
+        for (const livro of livrosRows) {
+            console.log(`Livro ${livro.livro_id} (qtd: ${livro.quantidade}) devolvido no empréstimo ${id}`);
+        }
+
         await connection.commit();
-        return this.findById(id);
+        
+        console.log(`Empréstimo ${id} finalizado com sucesso`);
+        return await this.findById(id);
 
     } catch (error) {
         if (connection) await connection.rollback();
+        console.error(`Erro ao finalizar empréstimo ${id}:`, error);
         throw new Error(`Erro ao finalizar empréstimo: ${error.message}`);
     } finally {
         if (connection) connection.release();
