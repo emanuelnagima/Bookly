@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Card, Form, Col, Row, Button, Spinner } from 'react-bootstrap'
-
+import { BsCheckCircle } from 'react-icons/bs';
 // Lista de nacionalidades (com "Outra" sempre no final)
 const nacionalidades = [
   "Brasil",
