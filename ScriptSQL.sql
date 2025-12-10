@@ -141,7 +141,7 @@ CREATE TABLE `usuarios_especiais` (
 -- -----------------------------
 -- Tabela: LIVROS
 -- -----------------------------
-livros	CREATE TABLE `livros` (
+	CREATE TABLE `livros` (
    `id` int(11) NOT NULL AUTO_INCREMENT,
    `titulo` varchar(255) NOT NULL,
    `autor_id` int(11) NOT NULL,

@@ -3,7 +3,7 @@ import { Container, Row, Col, Button, Modal, Spinner, Toast } from 'react-bootst
 import AutorList from '../components/AutorList'
 import autorService from '../services/autorService';
 import { FaTimes } from 'react-icons/fa';
-
+import CadAutor from '../components/CadAutor';
 const Autores = () => {
   const [showForm, setShowForm] = useState(false)
   const [autores, setAutores] = useState([])
@@ -377,19 +377,20 @@ const Autores = () => {
         </div>
       </div>
       {showForm && (
-        <Row className="mb-4">
-          <Col>
-            <CadastroAutores
-              autor={autorToEdit}
-              onSave={handleSaveAutor}
-              onCancel={() => {
-                setShowForm(false)
-                setAutorToEdit(null)
-              }}
-            />
-          </Col>
-        </Row>
-      )}
+  <Row className="mb-4">
+    <Col>
+      <CadAutor
+        autor={autorToEdit}
+        onSave={handleSaveAutor}
+        onCancel={() => {
+          setShowForm(false)
+          setAutorToEdit(null)
+        }}
+        loading={loading} // Adicione esta prop se o CadAutor aceitar
+      />
+    </Col>
+  </Row>
+)}
 
       <Row>
         <Col>
