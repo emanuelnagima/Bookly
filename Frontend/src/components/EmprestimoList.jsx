@@ -135,61 +135,74 @@ const EmprestimoList = ({ emprestimos, onCancelar, onRenovar, onFinalizar, loadi
   };
 
   // Função para verificar se está no prazo
-  const verificarPrazo = (dataDevolucaoPrevista, dataDevolucaoReal, status) => {
-    // Status cancelado tem prioridade
-    if (status === 'cancelado') {
-      return {
-        situacao: 'cancelado',
-        classe: 'text-danger',
-        texto: 'Cancelado',
-        dataDisplay: 'Cancelado',
-        badge: 'danger'
-      };
-    }
-
-    if (status === 'finalizado') {
-      return {
-        situacao: 'finalizado',
-        classe: 'text-dark',
-        texto: 'Devolvido',
-        dataDisplay: dataDevolucaoReal ? formatarData(dataDevolucaoReal) : 'Devolvido',
-        badge: 'dark'
-      };
-    }
-
-    const hoje = new Date();
-    const devolucao = new Date(dataDevolucaoPrevista);
-
-    if (devolucao < hoje) {
-      return {
-        situacao: 'atrasado',
-        classe: 'text-warning',
-        texto: 'Atrasado',
-        dataDisplay: formatarData(dataDevolucaoPrevista),
-        badge: 'warning'
-      };
-    }
-
-    // Verificar se está próximo do vencimento (3 dias ou menos)
-    const diasRestantes = Math.ceil((devolucao - hoje) / (1000 * 60 * 60 * 24));
-    if (diasRestantes <= 3) {
-      return {
-        situacao: 'proximo_vencimento',
-        classe: 'text-warning',
-        texto: `Vence em ${diasRestantes} dia(s)`,
-        dataDisplay: formatarData(dataDevolucaoPrevista),
-        badge: 'warning'
-      };
-    }
-
-    return {
-      situacao: 'no_prazo',
-      classe: '',
-      texto: 'No prazo',
-      dataDisplay: formatarData(dataDevolucaoPrevista),
-      badge: 'success'
+// Função para verificar prazo - VERSÃO CORRIGIDA
+const verificarPrazo = (dataDevolucaoPrevista, dataDevolucaoReal, status) => {
+  // Status cancelado tem prioridade
+  if (status === 'cancelado') {
+    return { 
+      situacao: 'cancelado', 
+      classe: 'text-danger', 
+      texto: 'Cancelado',
+      badge: 'danger'
     };
+  }
+
+  // Status finalizado
+  if (status === 'finalizado') {
+    return { 
+      situacao: 'finalizado', 
+      classe: 'text-dark', 
+      texto: 'Devolvido',
+      badge: 'dark'
+    };
+  }
+
+  const hoje = new Date();
+  const devolucao = new Date(dataDevolucaoPrevista);
+
+  // Remover horário para comparar apenas datas
+  hoje.setHours(0, 0, 0, 0);
+  devolucao.setHours(0, 0, 0, 0);
+
+  // ATRASADO: se a data de devolução já passou E o empréstimo ainda está ativo
+  if (devolucao < hoje && status === 'ativo') {
+    return { 
+      situacao: 'atrasado', 
+      classe: 'text-warning', 
+      texto: 'Atrasado',
+      badge: 'warning'
+    };
+  }
+
+  // Verificar se está próximo do vencimento (3 dias ou menos)
+  const diasRestantes = Math.ceil((devolucao - hoje) / (1000 * 60 * 60 * 24));
+  if (diasRestantes <= 3 && diasRestantes >= 0) {
+    return { 
+      situacao: 'proximo_vencimento', 
+      classe: 'text-warning', 
+      texto: `Vence em ${diasRestantes} dia(s)`,
+      badge: 'warning'
+    };
+  }
+
+  // Se a data já passou mas o status ainda é 'ativo', também é atrasado
+  if (devolucao < hoje) {
+    return { 
+      situacao: 'atrasado', 
+      classe: 'text-warning', 
+      texto: 'Atrasado',
+      badge: 'warning'
+    };
+  }
+
+  return { 
+    situacao: 'no_prazo', 
+    classe: 'text-success', 
+    texto: 'No prazo',
+    badge: 'success'
   };
+};
+
   const getStatusBadge = (status, dataDevolucao) => {
     const hoje = new Date();
     const devolucao = new Date(dataDevolucao);

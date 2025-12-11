@@ -1,4 +1,9 @@
-/* import { useState, useEffect } from 'react';
+/* NÃO UTILIZANDO MAIS, TROCADO PELO COMPONENTE 
+
+
+
+
+import { useState, useEffect } from 'react';
 import { Card, Form, Button, Spinner } from 'react-bootstrap';
 import { BsCheckCircle } from "react-icons/bs";
 

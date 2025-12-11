@@ -1,17 +1,34 @@
 import { useState, useEffect } from 'react'
 import { Card, Form, Col, Row, Button, Spinner } from 'react-bootstrap'
 import { BsCheckCircle } from 'react-icons/bs';
-// Lista de nacionalidades (com "Outra" sempre no final)
+
 const nacionalidades = [
-  "Brasil",
-  "Estados Unidos",
-  "China",
-  "Japão",
-  "Alemanha",
-  "Reino Unido",
-  "França",
-  "Índia",
-  "Outra" 
+  "Afeganistão", "África do Sul", "Albânia", "Alemanha", "Andorra", "Angola", "Antígua e Barbuda",
+  "Arábia Saudita", "Argélia", "Argentina", "Armênia", "Austrália", "Áustria", "Azerbaijão",
+  "Bahamas", "Bangladesh", "Barbados", "Barém", "Bélgica", "Belize", "Benim", "Bielorrússia",
+  "Bolívia", "Bósnia e Herzegovina", "Botsuana", "Brasil", "Brunei", "Bulgária", "Burquina Fasso",
+  "Burundi", "Butão", "Cabo Verde", "Camarões", "Camboja", "Canadá", "Catar", "Cazaquistão",
+  "Chade", "Chile", "China", "Chipre", "Colômbia", "Comores", "Congo", "Coreia do Norte",
+  "Coreia do Sul", "Costa do Marfim", "Costa Rica", "Croácia", "Cuba", "Dinamarca", "Djibuti",
+  "Dominica", "Egito", "El Salvador", "Emirados Árabes Unidos", "Equador", "Eritreia", "Eslováquia",
+  "Eslovênia", "Espanha", "Estados Unidos", "Estônia", "Essuatíni", "Etiópia", "Fiji", "Filipinas",
+  "Finlândia", "França", "Gabão", "Gâmbia", "Gana", "Geórgia", "Granada", "Grécia", "Guatemala",
+  "Guiana", "Guiné", "Guiné Equatorial", "Guiné-Bissau", "Haiti", "Holanda", "Honduras", "Hungria",
+  "Iêmen", "Índia", "Indonésia", "Irã", "Iraque", "Irlanda", "Islândia", "Israel", "Itália",
+  "Jamaica", "Japão", "Jordânia", "Kuwait", "Laos", "Lesoto", "Letônia", "Líbano", "Libéria",
+  "Líbia", "Liechtenstein", "Lituânia", "Luxemburgo", "Macedônia do Norte", "Madagascar", "Malásia",
+  "Maláui", "Maldivas", "Mali", "Malta", "Marrocos", "Maurícia", "Mauritânia", "México", "Mianmar",
+  "Micronésia", "Moçambique", "Moldávia", "Mônaco", "Mongólia", "Montenegro", "Namíbia", "Nauru",
+  "Nepal", "Nicarágua", "Níger", "Nigéria", "Noruega", "Nova Zelândia", "Omã", "Outra",
+  "Países Baixos", "Palau", "Panamá", "Papua-Nova Guiné", "Paquistão", "Paraguai", "Peru", "Polônia",
+  "Portugal", "Quênia", "Quirguistão", "Reino Unido", "República Centro-Africana", "República Checa",
+  "República Democrática do Congo", "República Dominicana", "Romênia", "Ruanda", "Rússia",
+  "Salomão", "Samoa", "Santa Lúcia", "São Cristóvão e Nevis", "São Marinho", "São Tomé e Príncipe",
+  "São Vicente e Granadinas", "Seicheles", "Senegal", "Serra Leoa", "Sérvia", "Singapura", "Síria",
+  "Somália", "Sri Lanka", "Sudão", "Sudão do Sul", "Suécia", "Suíça", "Suriname", "Tailândia",
+  "Taiwan", "Tajiquistão", "Tanzânia", "Timor-Leste", "Togo", "Tonga", "Trinidad e Tobago", "Tunísia",
+  "Turcomenistão", "Turquia", "Tuvalu", "Ucrânia", "Uganda", "Uruguai", "Uzbequistão", "Vanuatu",
+  "Vaticano", "Venezuela", "Vietnã", "Zâmbia", "Zimbábue"
 ];
 
 const CadAutor = ({ onSave, onCancel, autor, loading }) => {
@@ -24,21 +41,54 @@ const CadAutor = ({ onSave, onCancel, autor, loading }) => {
 
   const [validated, setValidated] = useState(false)
 
+  // Função para formatar data para input type="date"
+  const formatarDataParaInput = (dataString) => {
+    if (!dataString) return '';
+    
+    // Se já estiver no formato YYYY-MM-DD, retorna como está
+    if (typeof dataString === 'string' && dataString.includes('T')) {
+      // Se tiver 'T' (timestamp ISO), extrai apenas a parte da data
+      return dataString.split('T')[0];
+    }
+    
+    // Tenta converter de diferentes formatos
+    try {
+      const data = new Date(dataString);
+      
+      // Verifica se a data é válida
+      if (isNaN(data.getTime())) {
+        console.warn('Data inválida:', dataString);
+        return '';
+      }
+      
+      // Formata para YYYY-MM-DD
+      const ano = data.getFullYear();
+      const mes = String(data.getMonth() + 1).padStart(2, '0');
+      const dia = String(data.getDate()).padStart(2, '0');
+      
+      return `${ano}-${mes}-${dia}`;
+    } catch (error) {
+      console.error('Erro ao formatar data:', error);
+      return '';
+    }
+  };
+
   useEffect(() => {
     if (autor) {
+      const dataFormatada = formatarDataParaInput(autor.data_nascimento);      
       setAutorData({
         id: autor.id,
         nome: autor.nome || '',
         nacionalidade: autor.nacionalidade || '',
-        data_nascimento: autor.data_nascimento || ''
-      })
+        data_nascimento: dataFormatada
+      });
     } else {
       setAutorData({
         id: null,
         nome: '',
         nacionalidade: '',
         data_nascimento: ''
-      })
+      });
     }
   }, [autor])
 
@@ -169,4 +219,4 @@ const CadAutor = ({ onSave, onCancel, autor, loading }) => {
   )
 }
 
-export default CadAutor;  
+export default CadAutor;

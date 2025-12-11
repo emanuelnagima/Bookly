@@ -356,7 +356,6 @@ const buscarRelatorio = async () => {
       let response;
 
       if (tipoRelatorio === 'estoque') {
-        console.log('Gerando relatório de estoque com filtros:', filtros);
         response = await relatoriosService.getRelatorioEstoque(filtros);
       } else {
         console.log(`Gerando relatório de ${tipoRelatorio} com ${filtrosCount} filtros:`, filtros);
@@ -454,7 +453,7 @@ const limparFiltros = () => {
             <option value="ativo">Ativos</option>
             <option value="atrasado">Atrasados</option>
             <option value="finalizado">Finalizados</option>
-            <option value="cancelado">Cancelados</option> {/* ADICIONE ESTA LINHA */}
+            <option value="cancelado">Cancelados</option> 
           </Form.Select>
         </Form.Group>
       </Col>

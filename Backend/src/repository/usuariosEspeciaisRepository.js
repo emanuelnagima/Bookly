@@ -25,7 +25,6 @@ class UsuariosEspeciaisRepository {
     async update(id, data) {
         const usuario = new UsuarioEspecial(data);
         await db.execute(
-            // ADICIONE data_nascimento AQUI
             'UPDATE usuarios_especiais SET nome_completo=?, email=?, telefone=?, cpf=?, data_nascimento=?, tipo_usuario=? WHERE id=?',
             [usuario.nome_completo, usuario.email, usuario.telefone, usuario.cpf, usuario.data_nascimento, usuario.tipo_usuario, id]
         );

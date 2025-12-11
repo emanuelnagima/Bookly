@@ -1,4 +1,9 @@
-/* import { useState, useEffect } from 'react'
+/* NÃO UTILIZANDO MAIS, TROCADO PELO COMPONENTE 
+
+
+
+
+import { useState, useEffect } from 'react'
 import { Container, Row, Col, Button, Modal } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import CadAluno from '../../components/CadAluno'

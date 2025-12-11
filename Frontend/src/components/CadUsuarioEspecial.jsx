@@ -1,10 +1,9 @@
-// NO ARQUIVO CadUsuarioEspecial.jsx (APENAS ESTE COMPONENTE!)
 
 import { useState, useEffect } from 'react'
 import { Card, Form, Col, Row, Button, Spinner } from 'react-bootstrap'
 import { BsCheckCircle } from "react-icons/bs";
 
-// ADICIONE ESTA FUNÇÃO NO TOPO ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+//  ESTA FUNÇÃO NO TOPO ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 const formatDateForInput = (dateString) => {
   if (!dateString) return '';
 

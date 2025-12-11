@@ -1,4 +1,10 @@
-/* import { useState, useEffect } from 'react'
+/*NÃO UTILIZANDO MAIS, TROCADO PELO COMPONENTE 
+
+
+
+
+
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Container, Form, Button, Card, Spinner } from 'react-bootstrap'
 

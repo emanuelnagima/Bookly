@@ -308,7 +308,7 @@ async create(reservaData) {
                  AND rl.livro_id = ? 
                  AND r.status = 'ativa'
                  AND r.data_validade >= CURDATE()`,
-                [reserva.usuario_id, reserva.usuario_tipo, livroId] // CORRETO: usar livroId do loop atual
+                [reserva.usuario_id, reserva.usuario_tipo, livroId] 
             );
 
             if (reservasExistentes.length > 0) {
